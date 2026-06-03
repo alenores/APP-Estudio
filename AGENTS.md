@@ -50,9 +50,15 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de que
 ```
 app/page.tsx                    → home + enlace a temas
 app/login/page.tsx              → auth (password / magic link)
-app/temas/page.tsx              → listado temas
-app/temas/[id]/page.tsx         → detalle tema
-app/seguimientos/nuevo/page.tsx → alta seguimiento (tema)
+app/temas/page.tsx                    → listado temas
+app/temas/nuevo/page.tsx              → alta tema
+app/temas/[id]/page.tsx               → detalle tema
+app/temas/[id]/cursos/nuevo/page.tsx  → alta curso
+app/cursos/[id]/page.tsx              → detalle curso
+app/cursos/[id]/clases/nuevo/page.tsx → alta clase
+app/clases/[id]/page.tsx              → detalle clase
+app/seguimientos/nuevo/page.tsx       → alta seguimiento
+lib/validations.ts                    → Zod formularios
 lib/estudio-queries.ts          → queries Supabase negocio
 lib/seguimiento-derivados.ts    → campos derivados UI
 lib/supabase/client.ts          → cliente browser (sesión)

@@ -69,3 +69,5 @@ export type SeguimientoDerivados = {
 export type TemaConDerivados = Tema & { derivados: SeguimientoDerivados };
 
 export type CursoConDerivados = Curso & { derivados: SeguimientoDerivados };
+
+export type ClaseConDerivados = Clase & { derivados: SeguimientoDerivados };

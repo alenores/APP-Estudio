@@ -1,12 +1,20 @@
 import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
 import { createClient } from "@/lib/supabase/client";
 import type {
+  Clase,
+  ClaseConDerivados,
   Curso,
   CursoConDerivados,
   Seguimiento,
   Tema,
   TemaConDerivados,
 } from "@/app/types/estudio";
+import type {
+  ClaseFormValues,
+  CursoFormValues,
+  SeguimientoFormValues,
+  TemaFormValues,
+} from "@/lib/validations";
 
 const ORDEN = { ascending: true };
 
@@ -161,25 +169,290 @@ export type InsertSeguimientoTemaInput = {
   nivel_entendimiento?: string | null;
 };
 
+function emptyToNull(value: string | undefined) {
+  return value === undefined || value === "" ? null : value;
+}
+
+export async function getNextOrdenTema(userId: string): Promise<number> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("temas")
+    .select("orden")
+    .eq("user_id", userId)
+    .order("orden", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data?.orden ?? -1) + 1;
+}
+
+export async function getNextOrdenCurso(temaId: string): Promise<number> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("cursos")
+    .select("orden")
+    .eq("tema_id", temaId)
+    .order("orden", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data?.orden ?? -1) + 1;
+}
+
+export async function getNextOrdenClase(cursoId: string): Promise<number> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("clases")
+    .select("orden")
+    .eq("curso_id", cursoId)
+    .order("orden", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  return (data?.orden ?? -1) + 1;
+}
+
+export async function insertTema(
+  userId: string,
+  values: TemaFormValues,
+): Promise<{ data: Tema | null; error: string | null }> {
+  const supabase = createClient();
+  const orden =
+    values.orden ?? (await getNextOrdenTema(userId));
+  const { data, error } = await supabase
+    .from("temas")
+    .insert({
+      user_id: userId,
+      nombre: values.nombre,
+      descripcion: emptyToNull(values.descripcion),
+      orden,
+      jerarquia: values.jerarquia ?? 0,
+      fecha_estimada_inicio: emptyToNull(values.fecha_estimada_inicio),
+      fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
+    })
+    .select()
+    .single();
+
+  return { data: data as Tema | null, error: error?.message ?? null };
+}
+
+export async function insertCurso(
+  userId: string,
+  temaId: string,
+  values: CursoFormValues,
+): Promise<{ data: Curso | null; error: string | null }> {
+  const supabase = createClient();
+  const orden =
+    values.orden ?? (await getNextOrdenCurso(temaId));
+  const { data, error } = await supabase
+    .from("cursos")
+    .insert({
+      user_id: userId,
+      tema_id: temaId,
+      nombre: values.nombre,
+      descripcion: emptyToNull(values.descripcion),
+      orden,
+      jerarquia: values.jerarquia ?? 0,
+      fecha_estimada_inicio: emptyToNull(values.fecha_estimada_inicio),
+      fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
+      plataforma: emptyToNull(values.plataforma),
+      link: emptyToNull(values.link),
+    })
+    .select()
+    .single();
+
+  return { data: data as Curso | null, error: error?.message ?? null };
+}
+
+export async function insertClase(
+  userId: string,
+  cursoId: string,
+  values: ClaseFormValues,
+): Promise<{ data: Clase | null; error: string | null }> {
+  const supabase = createClient();
+  const orden =
+    values.orden ?? (await getNextOrdenClase(cursoId));
+  const { data, error } = await supabase
+    .from("clases")
+    .insert({
+      user_id: userId,
+      curso_id: cursoId,
+      nombre: values.nombre,
+      descripcion: emptyToNull(values.descripcion),
+      orden,
+      jerarquia: values.jerarquia ?? 0,
+      dificultad: emptyToNull(values.dificultad),
+    })
+    .select()
+    .single();
+
+  return { data: data as Clase | null, error: error?.message ?? null };
+}
+
+export async function getCursoById(id: string): Promise<{
+  data: Curso | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("cursos")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  return { data: data as Curso | null, error: error?.message ?? null };
+}
+
+export async function listClasesByCurso(cursoId: string): Promise<{
+  data: Clase[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("clases")
+    .select("*")
+    .eq("curso_id", cursoId)
+    .order("orden", ORDEN)
+    .order("jerarquia", ORDEN)
+    .order("nombre", ORDEN);
+
+  return { data: data as Clase[] | null, error: error?.message ?? null };
+}
+
+export async function listSeguimientosByCurso(cursoId: string): Promise<{
+  data: Seguimiento[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("seguimientos")
+    .select("*")
+    .eq("curso_id", cursoId)
+    .order("fecha_registro", { ascending: false });
+
+  return { data: data as Seguimiento[] | null, error: error?.message ?? null };
+}
+
+export async function listSeguimientosByClase(claseId: string): Promise<{
+  data: Seguimiento[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("seguimientos")
+    .select("*")
+    .eq("clase_id", claseId)
+    .order("fecha_registro", { ascending: false });
+
+  return { data: data as Seguimiento[] | null, error: error?.message ?? null };
+}
+
+export async function getClaseById(id: string): Promise<{
+  data: Clase | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("clases")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  return { data: data as Clase | null, error: error?.message ?? null };
+}
+
+export async function attachDerivadosToClases(
+  clases: Clase[],
+): Promise<{ data: ClaseConDerivados[]; error: string | null }> {
+  const supabase = createClient();
+  const ids = clases.map((c) => c.id);
+  if (ids.length === 0) return { data: [], error: null };
+
+  const { data: segs, error } = await supabase
+    .from("seguimientos")
+    .select("*")
+    .in("clase_id", ids);
+
+  if (error) return { data: [], error: error.message };
+
+  const porClase = new Map<string, Seguimiento[]>();
+  for (const s of (segs ?? []) as Seguimiento[]) {
+    if (!s.clase_id) continue;
+    const list = porClase.get(s.clase_id) ?? [];
+    list.push(s);
+    porClase.set(s.clase_id, list);
+  }
+
+  return {
+    data: clases.map((c) => ({
+      ...c,
+      derivados: derivarDesdeSeguimientos(porClase.get(c.id) ?? []),
+    })),
+    error: null,
+  };
+}
+
+export function cursoConDerivados(
+  curso: Curso,
+  seguimientos: Seguimiento[],
+): CursoConDerivados {
+  return { ...curso, derivados: derivarDesdeSeguimientos(seguimientos) };
+}
+
+export function claseConDerivados(
+  clase: Clase,
+  seguimientos: Seguimiento[],
+): ClaseConDerivados {
+  return { ...clase, derivados: derivarDesdeSeguimientos(seguimientos) };
+}
+
+export type InsertSeguimientoInput = SeguimientoFormValues & {
+  tema_id?: string;
+  curso_id?: string;
+  clase_id?: string;
+};
+
+export async function insertSeguimiento(
+  userId: string,
+  input: InsertSeguimientoInput,
+): Promise<{ error: string | null }> {
+  const hasTema = Boolean(input.tema_id);
+  const hasCurso = Boolean(input.curso_id);
+  const hasClase = Boolean(input.clase_id);
+  if (Number(hasTema) + Number(hasCurso) + Number(hasClase) !== 1) {
+    return { error: "Indicá exactamente tema_id, curso_id o clase_id." };
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.from("seguimientos").insert({
+    user_id: userId,
+    tema_id: input.tema_id ?? null,
+    curso_id: input.curso_id ?? null,
+    clase_id: input.clase_id ?? null,
+    etiqueta_estado: emptyToNull(input.etiqueta_estado),
+    porcentaje_avance: input.porcentaje_avance ?? null,
+    comentario: emptyToNull(input.comentario),
+    fecha_comienzo: emptyToNull(input.fecha_comienzo),
+    fecha_alerta: emptyToNull(input.fecha_alerta),
+    tiempo_consumido: input.tiempo_consumido ?? null,
+    tiempo_faltante_estimado: input.tiempo_faltante_estimado ?? null,
+    nivel_entendimiento: emptyToNull(input.nivel_entendimiento),
+  });
+
+  return { error: error?.message ?? null };
+}
+
+/** @deprecated Usar insertSeguimiento */
 export async function insertSeguimientoTema(
   userId: string,
   input: InsertSeguimientoTemaInput,
 ): Promise<{ error: string | null }> {
-  const supabase = createClient();
-  const { error } = await supabase.from("seguimientos").insert({
-    user_id: userId,
+  return insertSeguimiento(userId, {
     tema_id: input.tema_id,
-    curso_id: null,
-    clase_id: null,
-    etiqueta_estado: input.etiqueta_estado ?? null,
-    porcentaje_avance: input.porcentaje_avance ?? null,
-    comentario: input.comentario ?? null,
-    fecha_comienzo: input.fecha_comienzo ?? null,
-    fecha_alerta: input.fecha_alerta ?? null,
-    tiempo_consumido: input.tiempo_consumido ?? null,
-    tiempo_faltante_estimado: input.tiempo_faltante_estimado ?? null,
-    nivel_entendimiento: input.nivel_entendimiento ?? null,
+    etiqueta_estado: input.etiqueta_estado ?? undefined,
+    porcentaje_avance: input.porcentaje_avance ?? undefined,
+    comentario: input.comentario ?? undefined,
+    fecha_comienzo: input.fecha_comienzo ?? undefined,
+    fecha_alerta: input.fecha_alerta ?? undefined,
+    tiempo_consumido: input.tiempo_consumido ?? undefined,
+    tiempo_faltante_estimado: input.tiempo_faltante_estimado ?? undefined,
+    nivel_entendimiento: input.nivel_entendimiento ?? undefined,
   });
-
-  return { error: error?.message ?? null };
 }

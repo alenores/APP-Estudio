@@ -5,6 +5,7 @@ import { AppShell } from "@/components/study/app-shell";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
+import { AddEntityLink } from "@/components/study/form-field";
 import { FabLink } from "@/components/study/fab-link";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
@@ -75,9 +76,13 @@ export default function TemaDetallePage() {
             label: `Cursos (${cursos.length})`,
             content: (
               <div className="space-y-3">
+                <AddEntityLink
+                  href={`/temas/${tema.id}/cursos/nuevo`}
+                  label="Agregar curso"
+                />
                 {cursos.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-slate-700 px-4 py-6 text-center text-sm text-slate-500">
-                    Sin cursos en este tema.
+                  <p className="text-center text-sm text-slate-500">
+                    Sin cursos todavía.
                   </p>
                 ) : (
                   cursos.map((c) => (
@@ -91,9 +96,6 @@ export default function TemaDetallePage() {
                     />
                   ))
                 )}
-                <p className="text-center text-xs text-slate-600">
-                  Alta de cursos: próxima pantalla dedicada.
-                </p>
               </div>
             ),
           }}

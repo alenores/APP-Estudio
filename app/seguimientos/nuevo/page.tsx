@@ -1,7 +1,11 @@
 "use client";
 
-import { getSessionUserId, insertSeguimientoTema } from "@/lib/estudio-queries";
 import { AppShell } from "@/components/study/app-shell";
+import { FormError, FormSubmitButton } from "@/components/study/form-field";
+import { SeguimientoFormFields } from "@/components/study/seguimiento-form-fields";
+import { getSessionUserId, insertSeguimiento } from "@/lib/estudio-queries";
+import { zodFieldErrors } from "@/lib/form-errors";
+import { seguimientoFormSchema } from "@/lib/validations";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 
@@ -13,10 +17,16 @@ function NuevoSeguimientoForm() {
   const claseId = searchParams.get("clase_id") ?? "";
 
   const [etiqueta, setEtiqueta] = useState("");
-  const [comentario, setComentario] = useState("");
   const [porcentaje, setPorcentaje] = useState("");
+  const [comentario, setComentario] = useState("");
+  const [fechaComienzo, setFechaComienzo] = useState("");
+  const [fechaAlerta, setFechaAlerta] = useState("");
+  const [tiempoConsumido, setTiempoConsumido] = useState("");
+  const [tiempoFaltante, setTiempoFaltante] = useState("");
+  const [nivelEntendimiento, setNivelEntendimiento] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const backHref = temaId
     ? `/temas/${temaId}`
@@ -33,8 +43,26 @@ function NuevoSeguimientoForm() {
       return;
     }
 
-    setLoading(true);
     setError(null);
+    setFieldErrors({});
+
+    const parsed = seguimientoFormSchema.safeParse({
+      etiqueta_estado: etiqueta,
+      porcentaje_avance: porcentaje,
+      comentario,
+      fecha_comienzo: fechaComienzo,
+      fecha_alerta: fechaAlerta,
+      tiempo_consumido: tiempoConsumido,
+      tiempo_faltante_estimado: tiempoFaltante,
+      nivel_entendimiento: nivelEntendimiento,
+    });
+
+    if (!parsed.success) {
+      setFieldErrors(zodFieldErrors(parsed.error));
+      return;
+    }
+
+    setLoading(true);
     const userId = await getSessionUserId();
     if (!userId) {
       setError("Sesión expirada. Volvé a iniciar sesión.");
@@ -42,21 +70,17 @@ function NuevoSeguimientoForm() {
       return;
     }
 
-    if (temaId) {
-      const result = await insertSeguimientoTema(userId, {
-        tema_id: temaId,
-        etiqueta_estado: etiqueta || null,
-        comentario: comentario || null,
-        porcentaje_avance: porcentaje ? Number(porcentaje) : null,
-      });
-      if (result.error) {
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
-    } else {
-      setError("Seguimiento para curso/clase: próxima iteración.");
-      setLoading(false);
+    const result = await insertSeguimiento(userId, {
+      ...parsed.data,
+      tema_id: temaId || undefined,
+      curso_id: cursoId || undefined,
+      clase_id: claseId || undefined,
+    });
+
+    setLoading(false);
+
+    if (result.error) {
+      setError(result.error);
       return;
     }
 
@@ -67,54 +91,27 @@ function NuevoSeguimientoForm() {
   return (
     <AppShell title="Nuevo seguimiento" backHref={backHref}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <label className="block space-y-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Etiqueta de estado
-          </span>
-          <input
-            value={etiqueta}
-            onChange={(e) => setEtiqueta(e.target.value)}
-            placeholder="ej. comenzado, en curso"
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
-          />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Porcentaje de avance
-          </span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            step={0.01}
-            value={porcentaje}
-            onChange={(e) => setPorcentaje(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
-          />
-        </label>
-        <label className="block space-y-1.5">
-          <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-            Comentario
-          </span>
-          <textarea
-            rows={4}
-            value={comentario}
-            onChange={(e) => setComentario(e.target.value)}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-indigo-500/50"
-          />
-        </label>
-        {error ? (
-          <p className="text-sm text-rose-300" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
-        >
-          {loading ? "Guardando…" : "Guardar seguimiento"}
-        </button>
+        <SeguimientoFormFields
+          etiqueta={etiqueta}
+          setEtiqueta={setEtiqueta}
+          porcentaje={porcentaje}
+          setPorcentaje={setPorcentaje}
+          comentario={comentario}
+          setComentario={setComentario}
+          fechaComienzo={fechaComienzo}
+          setFechaComienzo={setFechaComienzo}
+          fechaAlerta={fechaAlerta}
+          setFechaAlerta={setFechaAlerta}
+          tiempoConsumido={tiempoConsumido}
+          setTiempoConsumido={setTiempoConsumido}
+          tiempoFaltante={tiempoFaltante}
+          setTiempoFaltante={setTiempoFaltante}
+          nivelEntendimiento={nivelEntendimiento}
+          setNivelEntendimiento={setNivelEntendimiento}
+          fieldErrors={fieldErrors}
+        />
+        <FormError message={error} />
+        <FormSubmitButton loading={loading} label="Guardar seguimiento" />
       </form>
     </AppShell>
   );

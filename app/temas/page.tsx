@@ -3,6 +3,7 @@
 import { useTemasList } from "@/app/hooks/useTemasList";
 import { AppShell } from "@/components/study/app-shell";
 import { EntityCard } from "@/components/study/entity-card";
+import { FabLink } from "@/components/study/fab-link";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,7 @@ export default function TemasPage() {
       ) : null}
       {!loading && !error && temas.length === 0 ? (
         <p className="rounded-xl border border-dashed border-slate-700 px-4 py-8 text-center text-sm text-slate-500">
-          No hay temas. Creá filas en Supabase o agregá el primero desde Table Editor.
+          No hay temas. Usá el botón + para crear el primero.
         </p>
       ) : null}
       <ul className="space-y-3">
@@ -58,11 +59,12 @@ export default function TemasPage() {
           </li>
         ))}
       </ul>
-      <p className="text-center text-xs text-slate-600">
+      <p className="pb-20 text-center text-xs text-slate-600">
         <Link href="/" className="text-indigo-400 hover:underline">
           Inicio
         </Link>
       </p>
+      <FabLink href="/temas/nuevo" label="Tema" />
     </AppShell>
   );
 }
