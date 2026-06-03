@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
+import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { ServiceWorkerRegister } from "./sw-register";
 import "./globals.css";
 
@@ -62,7 +63,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">
         <PreventViewportZoom />
         <ServiceWorkerRegister />
-        {children}
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <DeployShaFooter />
       </body>
     </html>
   );
