@@ -28,6 +28,14 @@ _(pendiente — completar cuando se creen tablas en Supabase)_
 
 Si el cache o tipos locales usan nombres distintos, documentarlos aquí explícitamente (no inferir en código).
 
+### Errores y respuestas vacías
+
+Toda query o mutación a Supabase **puede fallar** (red, RLS, fila inexistente, validación). En `lib/` y `app/hooks/`:
+
+- No asumir que siempre hay datos; manejar `error` de Supabase y estados vacíos de forma explícita.
+- Exponer al UI estados claros (cargando, error, sin datos) en lugar de fallar en silencio.
+- Si no se conoce el nombre exacto de tabla o columna, **preguntar o actualizar este ADR** antes de escribir la query (no inventar variantes).
+
 ## Consecuencias
 
 - Toda query/mutación debe alinearse con este documento antes de merge.

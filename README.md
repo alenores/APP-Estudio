@@ -4,6 +4,7 @@ PWA personal para gestionar el estudio en [Platzi](https://platzi.com). Stack: *
 
 ## Idea central
 
+- **Personal y educativo:** un solo usuario, sin fin comercial; si la app falla, el estudio sigue (ver [ADR 000](docs/adr/000-como-trabajamos.md)).
 - **Online-first:** los datos viven en Supabase (sin paquete offline de tablas).
 - **Instalable** en el celular con ícono **APP Estudio** (ver ADR 004).
 - **Fase actual (semilla):** documentación, PWA, ping a Supabase, home placeholder. Tablas y formularios → fase 2 (ADR 002).

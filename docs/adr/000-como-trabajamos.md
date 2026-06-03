@@ -6,7 +6,9 @@ Aceptado — 2026-06-03
 
 ## Contexto
 
-Proyecto personal para gestionar el estudio en Platzi. Un solo desarrollador/usuario, desarrollo asistido por IA (Cursor), y documentación que evite decisiones implícitas o código “adivinatorio”.
+Proyecto personal para gestionar el estudio en Platzi. **Un solo usuario** (el dueño): sin fin comercial, uso educativo y funcional para el día a día. No es un ERP ni producción multiusuario; si la app falla o queda desactualizada, el estudio en Platzi sigue igual — el riesgo material es bajo. El entregable que importa es **entender** lo que se construye, no solo que compile.
+
+Desarrollo asistido por IA (Cursor) y documentación que evite decisiones implícitas o código “adivinatorio”.
 
 ## Decisiones
 
@@ -15,6 +17,7 @@ Proyecto personal para gestionar el estudio en Platzi. Un solo desarrollador/usu
 3. **Comentarios:** solo en lógica no obvia; si el usuario pide **modo aprendizaje**, comentarios didácticos en código nuevo.
 4. **Auth:** sin Supabase Auth en v1 (un solo usuario). La `publishable`/`anon` key en cliente es aceptable para uso personal; al publicar en internet, revisar RLS y Server Actions (ver ADR 002).
 5. **Referencia:** patrones PWA tomados de *Vías de Escalada Córdoba*; **no** copiar el módulo offline de negocio de ese proyecto.
+6. **Reutilizar antes de crear:** antes de un archivo nuevo en `lib/`, `app/hooks/` o `components/`, revisar si ya existe hook, helper o componente reutilizable; extender en lugar de duplicar.
 
 ## Consecuencias
 
