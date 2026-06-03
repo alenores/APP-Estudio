@@ -39,6 +39,9 @@ npm run icons
 npm run dev
 ```
 
+- Tras el SQL inicial: entrá en `/login` con el usuario de Supabase (contraseña o magic link).
+- Rutas de estudio: `/temas`, detalle `/temas/[id]`, alta seguimiento desde el botón **+**.
+
 - Usa **webpack** (`--webpack`) por `next-pwa` en Next 16.
 - PWA desactivada en dev.
 

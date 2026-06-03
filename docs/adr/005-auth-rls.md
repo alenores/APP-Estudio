@@ -23,6 +23,7 @@ La app se despliega en internet (Vercel) pero la usa **un solo usuario**. Se inc
 2. Opcional: desactivar *Enable sign ups* para el proveedor elegido.
 3. *SQL Editor* → ejecutar `docs/sql/001-schema-estudio.sql`.
 4. Verificar en *Table Editor* que RLS está activo en las cuatro tablas.
+5. *Authentication → URL Configuration*: añadir redirect `http://localhost:3000/auth/callback` y la URL de producción (`https://tu-dominio.vercel.app/auth/callback`).
 
 ## Consecuencias
 

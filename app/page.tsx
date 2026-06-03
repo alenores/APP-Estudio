@@ -6,6 +6,8 @@ import { usePwaOnDeviceInBrowser } from "@/app/hooks/usePwaOnDeviceInBrowser";
 import { AndroidOpenFromHomeHelp } from "@/components/android-open-from-home-help";
 import { IosPwaInstallHelp } from "@/components/ios-pwa-install-help";
 import { pingSupabase } from "@/lib/supabase-health";
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 import {
   getPwaInstalledServerSnapshot,
   getPwaInstalledSnapshot,
@@ -25,6 +27,7 @@ export default function HomePage() {
   });
   const [standalone, setStandalone] = useState(false);
   const [isIphone, setIsIphone] = useState(false);
+  const [sessionEmail, setSessionEmail] = useState<string | null>(null);
 
   const isInstalledMode = useSyncExternalStore(
     subscribePwaInstalled,
@@ -37,6 +40,10 @@ export default function HomePage() {
   useEffect(() => {
     setStandalone(isStandaloneMode());
     setIsIphone(isIphoneForPwaInstall());
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data: { user } }) => {
+      setSessionEmail(user?.email ?? null);
+    });
   }, []);
 
   useEffect(() => {
@@ -69,9 +76,27 @@ export default function HomePage() {
           ) : null}
         </div>
         <p className="text-sm leading-relaxed text-slate-400">
-          Gestión personal de tu estudio en Platzi. Semilla del proyecto — en la
-          siguiente fase definimos tablas y pantallas (ADR 002).
+          Gestión personal de tu estudio en Platzi. Temas, cursos, clases y
+          seguimiento (ADR 002).
         </p>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <Link
+            href="/temas"
+            className="inline-flex rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          >
+            Mis temas
+          </Link>
+          {sessionEmail ? (
+            <span className="self-center text-xs text-slate-500">{sessionEmail}</span>
+          ) : (
+            <Link
+              href="/login"
+              className="inline-flex rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:border-slate-600"
+            >
+              Iniciar sesión
+            </Link>
+          )}
+        </div>
       </header>
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg">
@@ -142,8 +167,7 @@ export default function HomePage() {
 
       <section className="rounded-xl border border-dashed border-slate-700 bg-slate-900/40 px-4 py-3">
         <p className="m-0 text-xs leading-relaxed text-slate-500">
-          Fase 2: cursos, sesiones de estudio y formularios según{" "}
-          <code className="text-slate-400">docs/adr/002-supabase-schema-contract.md</code>.
+          Próximo: detalle de curso/clase, altas dedicadas e importador de clases.
         </p>
       </section>
     </main>

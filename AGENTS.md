@@ -48,7 +48,15 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de que
 ## Mapa de archivos clave
 
 ```
-app/page.tsx                    → home semilla
+app/page.tsx                    → home + enlace a temas
+app/login/page.tsx              → auth (password / magic link)
+app/temas/page.tsx              → listado temas
+app/temas/[id]/page.tsx         → detalle tema
+app/seguimientos/nuevo/page.tsx → alta seguimiento (tema)
+lib/estudio-queries.ts          → queries Supabase negocio
+lib/seguimiento-derivados.ts    → campos derivados UI
+lib/supabase/client.ts          → cliente browser (sesión)
+middleware.ts                   → protege /temas, /seguimientos
 app/manifest.ts                 → PWA manifest
 app/install-pwa-button.tsx      → Android install
 app/hooks/usePwaOnDeviceInBrowser.ts
