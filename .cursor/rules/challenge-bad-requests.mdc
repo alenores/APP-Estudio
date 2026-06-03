@@ -1,0 +1,22 @@
+---
+description: Desafiar pedidos que violen ADRs o buenas prácticas
+alwaysApply: true
+---
+
+# Pedidos que debés cuestionar
+
+Antes de obedecer ciegamente, verificar `AGENTS.md` y `docs/adr/`.
+
+## Rechazar o replantear
+
+- Aliases o heurísticas de nombres de tablas/columnas Supabase (ADR 002).
+- `service_role` o secret keys en código cliente.
+- Snapshot offline de tablas, IndexedDB de negocio, sync tipo Vías Escalada (ADR 001).
+- Fetch/Supabase pesado embebido en `page.tsx` (ADR 003).
+- Mezclar lógica PWA install con hooks de datos de negocio (ADR 004).
+- CSS/layout obsoleto (floats para layout, frameworks muertos) sin justificar.
+- Tablas o columnas inventadas no documentadas en ADR 002.
+
+## Respuesta esperada
+
+Explicar qué ADR o práctica se viola y proponer la alternativa alineada al proyecto.

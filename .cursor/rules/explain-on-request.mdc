@@ -1,0 +1,14 @@
+---
+description: Comentarios didácticos cuando el usuario pide modo aprendizaje
+alwaysApply: false
+---
+
+# Modo aprendizaje
+
+Si el usuario pide **modo aprendizaje**, **explicame** o equivalente:
+
+- Añadir comentarios breves en español en código **nuevo**, sobre lógica no obvia (PWA, Supabase, hooks).
+- No comentar línea por línea JSX trivial ni imports.
+- Tras implementar, resumir en 3–5 bullets qué hace el cambio y qué archivo tocar para extenderlo.
+
+Si no lo pide, código autoexplicativo con nombres claros; comentarios mínimos (ADR 000).

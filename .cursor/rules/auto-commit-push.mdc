@@ -1,0 +1,24 @@
+---
+description: Commit y push automáticos al terminar implementación del agente
+alwaysApply: true
+---
+
+# Flujo al cerrar una tarea (agente)
+
+Cuando el agente **implemente** cambios en este repo (no en preguntas/review solo lectura):
+
+1. Si tocó código de app o config de build → `npm run build`.
+2. **Commit** con mensaje en español, imperativo breve (1–2 oraciones, el «por qué»).
+3. **Push** a la rama actual (`git push -u origin HEAD` si hace falta).
+4. **No preguntar** si hacer commit o push: asumir que sí salvo excepciones abajo.
+5. **No commitear**: `.env*`, secretos, `public/sw.js`, `workbox-*.js`, `fallback-*.js` (generados en build).
+
+## Excepciones — sí pedir confirmación
+
+- `git push --force`, `reset --hard`, rebase destructivo
+- Borrado masivo de archivos o datos
+- Cambios ambiguos donde no quedó claro el alcance
+
+## Mensajes de commit
+
+Imperativo breve en español. Ejemplo: «Añade listado de cursos con validación Zod».
