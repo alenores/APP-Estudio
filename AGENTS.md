@@ -71,3 +71,17 @@ npm start        # probar PWA + install
 ## Convención de commits
 
 Mensajes en español, imperativo breve. Cambios de reglas → actualizar ADR en el mismo cambio.
+
+## Flujo del agente (automatización)
+
+Política de este repo (no pedir confirmación para cerrar tareas de implementación):
+
+| Qué | Cómo |
+|-----|------|
+| Modo de chat | **Agent** para implementar; Ask solo para preguntas/review. |
+| Ediciones en archivos | Cursor: *Settings → Agents → Applying Changes* → **Inline Diffs desactivado** si querés auto-aplicar sin Keep/Undo. |
+| Terminal / herramientas | *Settings → Agents → Run Mode* en **Run Everything**, o **Auto-review** / **Allowlist** con `.cursor/permissions.json` (allowlist de git/npm de rutina). |
+| Git al terminar | Ver `.cursor/rules/auto-commit-push.mdc`: build si tocó app/build → **commit + push** sin preguntar. |
+| Regla de usuario obsoleta | Si en *Cursor Settings → Rules → User Rules* sigue la regla «solo commit cuando lo pida», **borrala**; la política vigente es la de este repo. |
+
+Excepciones (sí pedir confirmación): `git push --force`, `reset --hard`, rebase destructivo, borrado masivo, alcance ambiguo. Pedidos que violen ADR 001–004: avisar y replantear (`.cursor/rules/challenge-bad-requests.mdc`).

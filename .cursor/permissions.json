@@ -1,0 +1,29 @@
+{
+  "terminalAllowlist": [
+    "git status",
+    "git diff",
+    "git log",
+    "git add",
+    "git commit",
+    "git push",
+    "npm install",
+    "npm run build",
+    "npm run lint",
+    "npm run dev",
+    "npm run icons",
+    "npm start",
+    "gh"
+  ],
+  "autoRun": {
+    "allow_instructions": [
+      "En APP Estudio, git commit y git push a origin son rutina al cerrar una implementación (ver AGENTS.md y auto-commit-push).",
+      "npm run build es verificación normal antes de commit si se tocó app o config de build.",
+      "Leer ADRs, lib/ y app/ sin pedir confirmación en este repo."
+    ],
+    "block_instructions": [
+      "Bloquear git push --force a main/master.",
+      "Bloquear git reset --hard y comandos que borren historial o archivos masivamente.",
+      "No commitear .env*, secretos, public/sw.js, workbox-*.js ni fallback-*.js."
+    ]
+  }
+}
