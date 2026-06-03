@@ -60,6 +60,11 @@ export default function RootLayout({
             __html: `(function(){try{if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true){localStorage.setItem("pwa-installed-v1","1");localStorage.setItem("pwa-ever-standalone-v1","1");}}catch(e){}})();`,
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{window.__pwaDiag={bipAt:null,installedAt:null};window.addEventListener("beforeinstallprompt",function(e){window.__pwaDiag.bipAt=Date.now();});window.addEventListener("appinstalled",function(){window.__pwaDiag.installedAt=Date.now();});}catch(e){}})();`,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">
         <PreventViewportZoom />
