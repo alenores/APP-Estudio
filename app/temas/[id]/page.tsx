@@ -5,7 +5,7 @@ import { AppShell } from "@/components/study/app-shell";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
-import { AddEntityLink } from "@/components/study/form-field";
+import { AddEntityLink, AlertText, LoadingText } from "@/components/study/form-field";
 import { FabLink } from "@/components/study/fab-link";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
@@ -31,7 +31,7 @@ export default function TemaDetallePage() {
   if (loading) {
     return (
       <AppShell title="Tema" backHref="/temas">
-        <p className="text-sm text-slate-400">Cargando…</p>
+        <LoadingText />
       </AppShell>
     );
   }
@@ -39,9 +39,7 @@ export default function TemaDetallePage() {
   if (error || !tema) {
     return (
       <AppShell title="Tema" backHref="/temas">
-        <p className="text-sm text-rose-300" role="alert">
-          {error ?? "No encontrado"}
-        </p>
+        <AlertText>{error ?? "No encontrado"}</AlertText>
       </AppShell>
     );
   }
@@ -81,7 +79,7 @@ export default function TemaDetallePage() {
                   label="Agregar curso"
                 />
                 {cursos.length === 0 ? (
-                  <p className="text-center text-sm text-slate-500">
+                  <p className="text-center text-sm text-ink-muted">
                     Sin cursos todavía.
                   </p>
                 ) : (

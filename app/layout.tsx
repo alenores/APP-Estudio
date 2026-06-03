@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { ServiceWorkerRegister } from "./sw-register";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
+  weight: ["600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "APP Estudio",
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
   },
   formatDetection: {
     telephone: false,
@@ -36,7 +37,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#4f46e5",
+  themeColor: "#2c5282",
 };
 
 export default function RootLayout({
@@ -47,21 +48,21 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <head>
         <meta name="application-name" content="APP Estudio" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="APP Estudio" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#4f46e5" />
+        <meta name="theme-color" content="#2c5282" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true){localStorage.setItem("pwa-installed-v1","1");localStorage.setItem("pwa-ever-standalone-v1","1");}}catch(e){}})();`,
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">
+      <body className="flex min-h-full flex-col bg-paper text-ink">
         <PreventViewportZoom />
         <ServiceWorkerRegister />
         <div className="flex min-h-0 flex-1 flex-col">{children}</div>

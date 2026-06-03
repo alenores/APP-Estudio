@@ -1,5 +1,10 @@
 import { Suspense, type ReactNode } from "react";
+import { LoadingText } from "@/components/study/form-field";
 
 export default function LoginLayout({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<main className="p-8 text-slate-400">Cargando…</main>}>{children}</Suspense>;
+  return (
+    <Suspense fallback={<main className="p-8"><LoadingText /></main>}>
+      {children}
+    </Suspense>
+  );
 }

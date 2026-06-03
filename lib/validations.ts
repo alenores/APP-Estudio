@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ESTADOS_SEGUIMIENTO, NIVELES_ENTENDIMIENTO } from "@/lib/estado-ui";
 
 const optionalText = z.string().trim().optional().or(z.literal(""));
 
@@ -56,15 +57,32 @@ export const claseFormSchema = z.object({
   dificultad: optionalText,
 });
 
+const optionalNivel = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .refine(
+    (v) => !v || (NIVELES_ENTENDIMIENTO as readonly string[]).includes(v),
+    "Nivel inválido",
+  );
+
 export const seguimientoFormSchema = z.object({
-  etiqueta_estado: optionalText,
+  etiqueta_estado: z
+    .string()
+    .trim()
+    .min(1, "El estado es obligatorio")
+    .refine(
+      (v) => (ESTADOS_SEGUIMIENTO as readonly string[]).includes(v),
+      "Estado inválido",
+    ),
   porcentaje_avance: optionalPercent,
   comentario: optionalText,
   fecha_comienzo: optionalDate,
   fecha_alerta: optionalDate,
   tiempo_consumido: optionalInt,
   tiempo_faltante_estimado: optionalInt,
-  nivel_entendimiento: optionalText,
+  nivel_entendimiento: optionalNivel,
 });
 
 export type TemaFormValues = z.infer<typeof temaFormSchema>;

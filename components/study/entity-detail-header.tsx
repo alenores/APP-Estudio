@@ -1,4 +1,5 @@
 import type { SeguimientoDerivados } from "@/app/types/estudio";
+import { estadoBadgeClass, estadoLabel } from "@/lib/estado-ui";
 
 type EntityDetailHeaderProps = {
   nombre: string;
@@ -20,18 +21,6 @@ function formatDate(value: string | null) {
   }
 }
 
-function estadoTone(etiqueta: string | null) {
-  if (!etiqueta) return "bg-slate-700 text-slate-300";
-  const lower = etiqueta.toLowerCase();
-  if (lower.includes("termin") || lower.includes("complet"))
-    return "bg-emerald-500/20 text-emerald-300";
-  if (lower.includes("comenz") || lower.includes("curso"))
-    return "bg-indigo-500/20 text-indigo-200";
-  if (lower.includes("paus") || lower.includes("pend"))
-    return "bg-amber-500/20 text-amber-200";
-  return "bg-slate-700 text-slate-300";
-}
-
 export function EntityDetailHeader({
   nombre,
   descripcion,
@@ -40,43 +29,46 @@ export function EntityDetailHeader({
 }: EntityDetailHeaderProps) {
   const { etiqueta_estado, porcentaje_avance, fecha_comienzo } = derivados;
   const inicio = formatDate(fecha_comienzo);
+  const estadoTexto = estadoLabel(etiqueta_estado);
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-900/60 p-5 shadow-lg">
+    <section className="rounded-2xl border border-border bg-paper-elevated p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-xl font-bold tracking-tight text-white">{nombre}</h2>
-        {etiqueta_estado ? (
+        <h2 className="font-serif text-xl font-semibold tracking-tight text-ink">
+          {nombre}
+        </h2>
+        {estadoTexto ? (
           <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${estadoTone(etiqueta_estado)}`}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${estadoBadgeClass(etiqueta_estado)}`}
           >
-            {etiqueta_estado}
+            {estadoTexto}
           </span>
         ) : (
-          <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-500">
+          <span className="rounded-full bg-border px-3 py-1 text-xs text-ink-muted">
             Sin estado
           </span>
         )}
       </div>
 
       {descripcion ? (
-        <p className="mt-3 text-sm leading-relaxed text-slate-400">{descripcion}</p>
+        <p className="mt-3 text-sm leading-relaxed text-ink-muted">{descripcion}</p>
       ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2">
         {porcentaje_avance != null ? (
-          <span className="rounded-lg bg-indigo-500/15 px-2.5 py-1 text-xs font-medium text-indigo-200">
+          <span className="rounded-lg bg-accent-subtle px-2.5 py-1 text-xs font-medium text-accent">
             {porcentaje_avance}% avance
           </span>
         ) : null}
         {inicio ? (
-          <span className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-300">
+          <span className="rounded-lg bg-border/60 px-2.5 py-1 text-xs text-ink-muted">
             Comienzo: {inicio}
           </span>
         ) : null}
         {meta.map((m) => (
           <span
             key={m.label}
-            className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-300"
+            className="rounded-lg bg-border/60 px-2.5 py-1 text-xs text-ink-muted"
           >
             {m.label}: {m.value}
           </span>

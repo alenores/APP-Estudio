@@ -446,7 +446,7 @@ export async function insertSeguimientoTema(
 ): Promise<{ error: string | null }> {
   return insertSeguimiento(userId, {
     tema_id: input.tema_id,
-    etiqueta_estado: input.etiqueta_estado ?? undefined,
+    etiqueta_estado: input.etiqueta_estado ?? "",
     porcentaje_avance: input.porcentaje_avance ?? undefined,
     comentario: input.comentario ?? undefined,
     fecha_comienzo: input.fecha_comienzo ?? undefined,

@@ -13,7 +13,7 @@ export function DualPanelTabs({ panelA, panelB }: DualPanelTabsProps) {
   return (
     <section className="space-y-4">
       <div
-        className="flex rounded-xl bg-slate-900 p-1 ring-1 ring-slate-800"
+        className="flex rounded-xl border border-border bg-paper-elevated p-1"
         role="tablist"
       >
         <button
@@ -23,8 +23,8 @@ export function DualPanelTabs({ panelA, panelB }: DualPanelTabsProps) {
           onClick={() => setActive("a")}
           className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition ${
             active === "a"
-              ? "bg-indigo-600 text-white shadow"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-accent text-white shadow-sm"
+              : "text-ink-muted hover:text-ink"
           }`}
         >
           {panelA.label}
@@ -36,8 +36,8 @@ export function DualPanelTabs({ panelA, panelB }: DualPanelTabsProps) {
           onClick={() => setActive("b")}
           className={`flex-1 rounded-lg py-2.5 text-sm font-semibold transition ${
             active === "b"
-              ? "bg-indigo-600 text-white shadow"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-accent text-white shadow-sm"
+              : "text-ink-muted hover:text-ink"
           }`}
         >
           {panelB.label}

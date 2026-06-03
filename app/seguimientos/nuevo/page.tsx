@@ -1,7 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/study/app-shell";
-import { FormError, FormSubmitButton } from "@/components/study/form-field";
+import { FormError, FormSubmitButton, LoadingText } from "@/components/study/form-field";
 import { SeguimientoFormFields } from "@/components/study/seguimiento-form-fields";
 import { getSessionUserId, insertSeguimiento } from "@/lib/estudio-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
@@ -119,7 +119,7 @@ function NuevoSeguimientoForm() {
 
 export default function NuevoSeguimientoPage() {
   return (
-    <Suspense fallback={<p className="p-8 text-slate-400">Cargando…</p>}>
+    <Suspense fallback={<main className="p-8"><LoadingText /></main>}>
       <NuevoSeguimientoForm />
     </Suspense>
   );

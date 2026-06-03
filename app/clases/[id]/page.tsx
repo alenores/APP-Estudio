@@ -2,10 +2,10 @@
 
 import { useClaseDetalle } from "@/app/hooks/useClaseDetalle";
 import { AppShell } from "@/components/study/app-shell";
+import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabLink } from "@/components/study/fab-link";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 
 export default function ClaseDetallePage() {
@@ -16,7 +16,7 @@ export default function ClaseDetallePage() {
   if (loading) {
     return (
       <AppShell title="Clase" backHref="/temas">
-        <p className="text-sm text-slate-400">Cargando…</p>
+        <LoadingText />
       </AppShell>
     );
   }
@@ -24,9 +24,7 @@ export default function ClaseDetallePage() {
   if (error || !clase) {
     return (
       <AppShell title="Clase" backHref="/temas">
-        <p className="text-sm text-rose-300" role="alert">
-          {error ?? "No encontrada"}
-        </p>
+        <AlertText>{error ?? "No encontrada"}</AlertText>
       </AppShell>
     );
   }
@@ -46,19 +44,14 @@ export default function ClaseDetallePage() {
         />
 
         <section className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
             Seguimiento ({seguimientos.length})
           </h3>
           <SeguimientoList items={seguimientos} />
         </section>
 
-        <p className="text-center text-xs text-slate-600">
-          <Link
-            href={`/cursos/${clase.curso_id}`}
-            className="text-indigo-400 hover:underline"
-          >
-            Volver al curso
-          </Link>
+        <p className="text-center text-xs text-ink-muted">
+          <TextLink href={`/cursos/${clase.curso_id}`}>Volver al curso</TextLink>
         </p>
       </AppShell>
       <FabLink

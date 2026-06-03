@@ -2,13 +2,12 @@
 
 import { useCursoDetalle } from "@/app/hooks/useCursoDetalle";
 import { AppShell } from "@/components/study/app-shell";
-import { AddEntityLink } from "@/components/study/form-field";
+import { AddEntityLink, AlertText, LoadingText, TextLink } from "@/components/study/form-field";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabLink } from "@/components/study/fab-link";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 
 function formatFecha(value: string | null) {
@@ -32,7 +31,7 @@ export default function CursoDetallePage() {
   if (loading) {
     return (
       <AppShell title="Curso" backHref="/temas">
-        <p className="text-sm text-slate-400">Cargando…</p>
+        <LoadingText />
       </AppShell>
     );
   }
@@ -40,9 +39,7 @@ export default function CursoDetallePage() {
   if (error || !curso) {
     return (
       <AppShell title="Curso" backHref="/temas">
-        <p className="text-sm text-rose-300" role="alert">
-          {error ?? "No encontrado"}
-        </p>
+        <AlertText>{error ?? "No encontrado"}</AlertText>
       </AppShell>
     );
   }
@@ -81,7 +78,7 @@ export default function CursoDetallePage() {
             href={curso.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="block text-center text-sm text-indigo-400 hover:underline"
+            className="block text-center text-sm text-accent hover:underline"
           >
             Abrir curso en la plataforma
           </a>
@@ -97,7 +94,7 @@ export default function CursoDetallePage() {
                   label="Agregar clase"
                 />
                 {clases.length === 0 ? (
-                  <p className="text-center text-sm text-slate-500">
+                  <p className="text-center text-sm text-ink-muted">
                     Sin clases todavía.
                   </p>
                 ) : (
@@ -121,13 +118,8 @@ export default function CursoDetallePage() {
           }}
         />
 
-        <p className="text-center text-xs text-slate-600">
-          <Link
-            href={`/temas/${curso.tema_id}`}
-            className="text-indigo-400 hover:underline"
-          >
-            Volver al tema
-          </Link>
+        <p className="text-center text-xs text-ink-muted">
+          <TextLink href={`/temas/${curso.tema_id}`}>Volver al tema</TextLink>
         </p>
       </AppShell>
       <FabLink

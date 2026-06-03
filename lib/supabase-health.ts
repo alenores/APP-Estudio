@@ -35,7 +35,9 @@ export async function pingSupabase(): Promise<{
     return {
       ok: true,
       message: "Conectado",
-      detail: body.version ? `Auth API v${body.version}` : undefined,
+      detail: body.version
+        ? `Auth API ${body.version.startsWith("v") ? body.version : `v${body.version}`}`
+        : undefined,
     };
   } catch (err) {
     const detail = err instanceof Error ? err.message : "Error de red";

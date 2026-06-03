@@ -4,8 +4,13 @@ import { useTemasList } from "@/app/hooks/useTemasList";
 import { AppShell } from "@/components/study/app-shell";
 import { EntityCard } from "@/components/study/entity-card";
 import { FabLink } from "@/components/study/fab-link";
+import {
+  AlertText,
+  EmptyState,
+  LoadingText,
+  TextLink,
+} from "@/components/study/form-field";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function TemasPage() {
@@ -27,24 +32,16 @@ export default function TemasPage() {
         <button
           type="button"
           onClick={() => void signOut()}
-          className="text-xs text-slate-500 hover:text-slate-300"
+          className="text-xs text-ink-muted hover:text-accent"
         >
           Salir
         </button>
       }
     >
-      {loading ? (
-        <p className="text-sm text-slate-400">Cargando temas…</p>
-      ) : null}
-      {error ? (
-        <p className="rounded-xl bg-rose-500/10 px-4 py-3 text-sm text-rose-300" role="alert">
-          {error}
-        </p>
-      ) : null}
+      {loading ? <LoadingText>Cargando temas…</LoadingText> : null}
+      {error ? <AlertText>{error}</AlertText> : null}
       {!loading && !error && temas.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-700 px-4 py-8 text-center text-sm text-slate-500">
-          No hay temas. Usá el botón + para crear el primero.
-        </p>
+        <EmptyState>No hay temas. Usá el botón + para crear el primero.</EmptyState>
       ) : null}
       <ul className="space-y-3">
         {temas.map((t) => (
@@ -54,15 +51,12 @@ export default function TemasPage() {
               nombre={t.nombre}
               subtitulo={t.descripcion}
               derivados={t.derivados}
-              badge={`#${t.orden}`}
             />
           </li>
         ))}
       </ul>
-      <p className="pb-20 text-center text-xs text-slate-600">
-        <Link href="/" className="text-indigo-400 hover:underline">
-          Inicio
-        </Link>
+      <p className="pb-20 text-center text-xs text-ink-muted">
+        <TextLink href="/">Inicio</TextLink>
       </p>
       <FabLink href="/temas/nuevo" label="Tema" />
     </AppShell>
