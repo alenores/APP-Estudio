@@ -19,6 +19,7 @@ PWA personal para gestionar el estudio en [Platzi](https://platzi.com). Stack: *
 | [003](docs/adr/003-frontend-layer-separation.md) | Capas frontend |
 | [004](docs/adr/004-pwa-install-standalone.md) | Instalación PWA |
 | [005](docs/adr/005-auth-rls.md) | Auth y RLS |
+| [Checklist PWA + deploy](docs/pwa-arranque-checklist.md) | **Arranque nuevo proyecto / primer deploy** |
 
 SQL inicial (Supabase): [`docs/sql/001-schema-estudio.sql`](docs/sql/001-schema-estudio.sql).
 
@@ -27,7 +28,14 @@ Agentes e IA: [`AGENTS.md`](AGENTS.md).
 ## Identidad visual
 
 - Tema índigo (`#4f46e5`), fondo slate oscuro.
-- Íconos: `npm run icons` (usa `design/app-icon-source.*` o genera uno por defecto).
+- Íconos: `npm run icons` (usa `design/app-icon-source.*` o genera uno por defecto). El build (`npm run build`) los regenera antes de compilar.
+
+## Deploy (Vercel)
+
+1. Variables `NEXT_PUBLIC_SUPABASE_*` en el proyecto Vercel.
+2. **Deployment Protection → Vercel Authentication: desactivado en Production** (obligatorio para PWA instalable). Detalle: [checklist PWA](docs/pwa-arranque-checklist.md).
+3. Tras deploy: comprobar SHA al pie de la app y, en incógnito sin login Vercel, que `/manifest.webmanifest` y `/sw.js` respondan **200**.
+4. Supabase: RLS activo antes de hacer público el sitio ([ADR 005](docs/adr/005-auth-rls.md)).
 
 ## Desarrollo
 
@@ -67,6 +75,8 @@ Abrí `http://localhost:3000` en el celular (misma red) o en Chrome → Instalar
 
 https://github.com/alenores/APP-Estudio.git
 
-## Seguridad (un solo usuario)
+## Seguridad
 
-Sin login en v1. Si desplegás públicamente, activar RLS en Supabase y escribir vía Server Actions. Rotar keys si se filtraron.
+- Datos protegidos por **Supabase RLS** (`user_id = auth.uid()`); ver [ADR 005](docs/adr/005-auth-rls.md).
+- Sitio **público en Vercel** (sin Vercel Authentication en Production); la anon key es pública por diseño.
+- **No** commitear `.env.local`. **No** usar `service_role` en el cliente.

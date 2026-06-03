@@ -5,7 +5,6 @@ import { InstallPwaButton } from "@/app/install-pwa-button";
 import { usePwaOnDeviceInBrowser } from "@/app/hooks/usePwaOnDeviceInBrowser";
 import { AndroidOpenFromHomeHelp } from "@/components/android-open-from-home-help";
 import { IosPwaInstallHelp } from "@/components/ios-pwa-install-help";
-import { PwaDiagnostics } from "@/components/pwa-diagnostics";
 import { pingSupabase } from "@/lib/supabase-health";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
@@ -165,8 +164,6 @@ export default function HomePage() {
           </div>
         </section>
       ) : null}
-
-      <PwaDiagnostics />
 
       <section className="rounded-xl border border-dashed border-slate-700 bg-slate-900/40 px-4 py-3">
         <p className="m-0 text-xs leading-relaxed text-slate-500">

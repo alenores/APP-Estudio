@@ -10,7 +10,7 @@ El dueño del proyecto es ingeniero con apps hermanas que comparten la misma arq
 ## Reglas
 
 1. **Solo lo pedido:** si el pedido es «arreglar íconos» o «diagnosticar install», no cambiar `InstallPwaButton`, textos de home, manifest extra (`id`, `display_override`, etc.) ni UX sin que lo pidan literalmente.
-2. **Diagnosticar antes de refactor:** informar causa (manifest, SW, `beforeinstallprompt`, atajo vs PWA) y proponer diff acotado; esperar OK para tocar código congelado (ADR 004).
+2. **Diagnosticar antes de refactor:** informar causa (manifest, SW, `beforeinstallprompt`, atajo vs PWA, **401 Vercel Deployment Protection**) y proponer diff acotado; seguir `docs/pwa-arranque-checklist.md`; esperar OK para tocar código congelado (ADR 004).
 3. **Sin “mejoras” proactivas:** no sustituir botones, no ocultar UI, no añadir guías largas en componentes compartidos.
 4. **Violación:** revertir y documentar en ADR si hace falta.
 

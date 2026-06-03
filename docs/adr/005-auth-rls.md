@@ -25,6 +25,16 @@ La app se despliega en internet (Vercel) pero la usa **un solo usuario**. Se inc
 4. Verificar en *Table Editor* que RLS está activo en las cuatro tablas.
 5. *Authentication → URL Configuration*: añadir redirect `http://localhost:3000/auth/callback` y la URL de producción (`https://tu-dominio.vercel.app/auth/callback`).
 
+## Vercel vs Supabase (seguridad)
+
+| Capa | Qué protege | Uso en APP Estudio |
+|------|-------------|-------------------|
+| **Supabase RLS** | Filas de negocio por `auth.uid()` | Obligatorio; único muro de datos |
+| **Middleware Next.js** | Rutas `/temas`, `/cursos`, etc. sin sesión | UX; redirige a login |
+| **Vercel Authentication** | Ver el HTML del deploy sin ser miembro del equipo Vercel | **Desactivado en Production** — impide instalación PWA (401 en manifest/íconos/SW). Ver [ADR 004](004-pwa-install-standalone.md) y [checklist PWA](../pwa-arranque-checklist.md) |
+
+La app puede ser **pública en Vercel** y **privada en datos** gracias a RLS. No confundir «ocultar el sitio con login Vercel» con «proteger la base».
+
 ## Consecuencias
 
 - Toda query/mutación de negocio requiere sesión autenticada; la UI debe manejar “no logueado” (redirigir a login).

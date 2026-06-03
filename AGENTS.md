@@ -16,6 +16,7 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/003-frontend-layer-separation.md` | Hook vs page vs components |
 | `docs/adr/004-pwa-install-standalone.md` | Instalación, standalone, APP Estudio |
 | `docs/adr/005-auth-rls.md` | Auth, `user_id`, RLS |
+| `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **No** copiar ADR 001 offline ni `useOfflineData` de *Vías de Escalada Córdoba*.
 
@@ -33,6 +34,8 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de que
 - `isInstalledMode` = **solo standalone**.
 - Etiqueta inicio: **`APP Estudio`** (`lib/pwa-home-label.ts`).
 - Install UI separada de hooks de datos de negocio.
+- **Production Vercel:** sin Vercel Authentication (Deployment Protection); comprobación anónima 200 en manifest/íconos/sw.js — ver `docs/pwa-arranque-checklist.md`.
+- No reescribir `InstallPwaButton` al diagnosticar install.
 
 ### Capas (ADR 003)
 
