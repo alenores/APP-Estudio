@@ -27,7 +27,7 @@ Agentes e IA: [`AGENTS.md`](AGENTS.md).
 ## Identidad visual
 
 - Tema índigo (`#4f46e5`), fondo slate oscuro.
-- Íconos: `npm run icons` (usa `design/app-icon-source.*` o genera uno por defecto). **`npm run build` los genera antes del build** (Vercel incluido).
+- Íconos: `npm run icons` (usa `design/app-icon-source.*` o genera uno por defecto).
 
 ## Desarrollo
 

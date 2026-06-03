@@ -103,4 +103,4 @@ Política de este repo (no pedir confirmación para cerrar tareas de implementac
 | Git al terminar | Ver `.cursor/rules/auto-commit-push.mdc`: build si tocó app/build → **commit + push** sin preguntar. |
 | Regla de usuario obsoleta | Si en *Cursor Settings → Rules → User Rules* sigue la regla «solo commit cuando lo pida», **borrala**; la política vigente es la de este repo. |
 
-Excepciones (sí pedir confirmación): `git push --force`, `reset --hard`, rebase destructivo, borrado masivo, alcance ambiguo. Pedidos que violen ADR 001–004: avisar y replantear (`.cursor/rules/challenge-bad-requests.mdc`).
+Excepciones (sí pedir confirmación): `git push --force`, `reset --hard`, rebase destructivo, borrado masivo, alcance ambiguo. Pedidos que violen ADR 001–004: avisar y replantear (`.cursor/rules/challenge-bad-requests.mdc`). **Alcance:** solo lo pedido — `.cursor/rules/scope-minimal.mdc`.

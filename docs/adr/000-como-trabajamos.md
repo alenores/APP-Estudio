@@ -18,6 +18,7 @@ Desarrollo asistido por IA (Cursor) y documentación que evite decisiones implí
 4. **Auth:** Supabase Auth desde v1 (un solo usuario en la práctica). Login simple; RLS por `user_id = auth.uid()` en tablas de negocio (ver [ADR 005](005-auth-rls.md) y [ADR 002](002-supabase-schema-contract.md)). Sin `service_role` en cliente.
 5. **Referencia:** patrones PWA tomados de *Vías de Escalada Córdoba*; **no** copiar el módulo offline de negocio de ese proyecto.
 6. **Reutilizar antes de crear:** antes de un archivo nuevo en `lib/`, `app/hooks/` o `components/`, revisar si ya existe hook, helper o componente reutilizable; extender en lugar de duplicar.
+7. **Alcance mínimo (IA):** implementar **solo** lo pedido. Sin refactors, UX “mejorada” ni archivos tocados fuera del pedido. Si un bug apunta a otra capa (ej. íconos PWA vs botón install), **diagnosticar y proponer**; no cambiar `InstallPwaButton`, `lib/pwa-*` ni flujo ADR 004 sin pedido explícito del dueño (misma arquitectura que otras apps del repo).
 
 ## Consecuencias
 

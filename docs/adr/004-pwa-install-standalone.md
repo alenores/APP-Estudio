@@ -19,6 +19,17 @@ La app debe instalarse en iOS/Android con ícono en pantalla de inicio, al nivel
 7. **Persistencia:** `pwa-ever-standalone-v1` al abrir desde ícono; iOS no usa solo “datos cargados” como señal de instalación.
 8. **Links externos** no abren standalone automáticamente.
 
+### Código compartido con otras apps (congelado salvo pedido)
+
+Los siguientes archivos replican la arquitectura de otras PWAs del dueño (*Vías de Escalada Córdoba*, etc.). **No modificarlos** al diagnosticar fallos de instalación salvo instrucción explícita:
+
+- `app/install-pwa-button.tsx`
+- `lib/pwa-platform.ts`, `lib/pwa-on-device.ts`, `lib/pwa-home-label.ts`
+- `components/ios-pwa-install-help.tsx`, `components/android-open-from-home-help.tsx`
+- `app/hooks/usePwaOnDeviceInBrowser.ts`
+
+Diagnóstico de “no instala” / botón deshabilitado: revisar **manifest**, **íconos en `public/`**, **`/sw.js` en producción**, criterios Chrome, deploy Vercel — no reescribir UX del botón.
+
 ## Consecuencias
 
 - Probar instalación con `npm run build` && `npm start` (HTTPS o localhost).
