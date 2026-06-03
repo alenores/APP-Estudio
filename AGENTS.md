@@ -15,8 +15,11 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/002-supabase-schema-contract.md` | Nombres exactos de tablas/columnas (borrador) |
 | `docs/adr/003-frontend-layer-separation.md` | Hook vs page vs components |
 | `docs/adr/004-pwa-install-standalone.md` | Instalación, standalone, APP Estudio |
+| `docs/adr/005-auth-rls.md` | Auth, `user_id`, RLS |
 
 **No** copiar ADR 001 offline ni `useOfflineData` de *Vías de Escalada Córdoba*.
+
+Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de queries de negocio).
 
 ## Reglas rápidas
 
@@ -37,6 +40,8 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 |---|---|
 | Ping / cliente Supabase | `lib/supabase.ts`, `lib/supabase-health.ts` |
 | Validación Zod | `lib/validations.ts` |
+| Derivados de seguimiento | `lib/seguimiento-derivados.ts` (cuando exista) |
+| Auth (fase siguiente) | login + cliente con sesión (`@supabase/ssr`) |
 | Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/*` |
 | Home | `app/page.tsx` |
 

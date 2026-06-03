@@ -23,4 +23,5 @@ Aceptado — 2026-06-03
 ## Consecuencias
 
 - Refactors de UI no deben romper contratos de datos sin revisar ADR 002.
-- Nuevos colaboradores/IA: leer ADR 000–004 y `AGENTS.md` antes de features.
+- Nuevos colaboradores/IA: leer ADR 000–005 y `AGENTS.md` antes de features.
+- Campos de progreso en detalle tema/curso/clase: calcular en `lib/` desde `seguimientos` (ADR 002), no duplicar en tablas padre.
