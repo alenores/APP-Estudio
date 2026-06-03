@@ -148,19 +148,13 @@ export default function HomePage() {
             Instalar en el celular
           </h2>
           <p className="mt-2 text-sm text-slate-400">
-            Agregá la app al inicio para abrirla como <strong className="text-slate-200">APP Estudio</strong>.
-            Requiere HTTPS o localhost; en producción usá <code className="text-xs">npm run build</code> y{" "}
-            <code className="text-xs">npm start</code> para probar la PWA.
+            Instalá como <strong className="text-slate-200">APP Estudio</strong> para abrirla
+            en modo app (sin barra del navegador). Usá el botón cuando Chrome lo habilite o
+            el menú ⋮ → Instalar aplicación.
           </p>
           <div className="mt-4 space-y-3">
             <InstallPwaButton fullWidth />
             {isIphone ? <IosPwaInstallHelp /> : null}
-            {!isIphone && !standalone ? (
-              <p className="text-xs text-slate-500">
-                En Chrome Android aparece el botón cuando el navegador ofrece instalar. Si no
-                aparece, probá desde el menú ⋮ → Instalar aplicación.
-              </p>
-            ) : null}
           </div>
         </section>
       ) : null}
