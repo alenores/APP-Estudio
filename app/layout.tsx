@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: "APP Estudio",
   description: "Gestión personal del estudio en Platzi.",
   applicationName: "APP Estudio",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     title: "APP Estudio",
