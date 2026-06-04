@@ -18,6 +18,11 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function cancelAnims(panel: HTMLElement, backdrop: HTMLElement) {
+  panel.getAnimations().forEach((a) => a.cancel());
+  backdrop.getAnimations().forEach((a) => a.cancel());
+}
+
 function clearAnimStyles(panel: HTMLElement, backdrop: HTMLElement) {
   panel.style.transform = "";
   panel.style.opacity = "";
@@ -25,65 +30,95 @@ function clearAnimStyles(panel: HTMLElement, backdrop: HTMLElement) {
 }
 
 /**
- * Sheet desde abajo; slide con Web Animations API (fiable en Android).
+ * Sheet desde abajo. Tras el primer uso queda en el DOM; la apertura usa WAAPI + doble rAF (Android).
  * Ver ADR 003.
  */
 export function StudySheet({ open, onClose, title, children }: StudySheetProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLButtonElement>(null);
-  const animsRef = useRef<Animation[]>([]);
-  const [presented, setPresented] = useState(false);
+  const openRunRef = useRef(0);
+  const [retained, setRetained] = useState(false);
+  const [closing, setClosing] = useState(false);
 
   useLayoutEffect(() => {
-    if (open) setPresented(true);
+    if (!open) return;
+    setRetained(true);
+    setClosing(false);
+
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (!panel || !backdrop) return;
+
+    cancelAnims(panel, backdrop);
+    panel.style.transform = "translateY(100%)";
+    backdrop.style.opacity = "0";
   }, [open]);
 
   useEffect(() => {
+    if (!open || !retained) return;
+
     const panel = panelRef.current;
     const backdrop = backdropRef.current;
-    if (!panel || !backdrop || !presented) return;
+    if (!panel || !backdrop) return;
 
-    animsRef.current.forEach((a) => a.cancel());
-    animsRef.current = [];
-
-    const reduced = prefersReducedMotion();
-
-    if (open) {
-      if (reduced) {
-        clearAnimStyles(panel, backdrop);
-        return;
-      }
-
-      panel.style.transform = "translateY(100%)";
-      backdrop.style.opacity = "0";
-      void panel.offsetHeight;
-
-      const panelAnim = panel.animate(
-        [
-          { transform: "translateY(100%)" },
-          { transform: "translateY(0)" },
-        ],
-        { duration: PANEL_MS, easing: EASING, fill: "forwards" },
-      );
-      const backdropAnim = backdrop.animate(
-        [{ opacity: 0 }, { opacity: 1 }],
-        { duration: BACKDROP_MS, easing: "ease-out", fill: "forwards" },
-      );
-      animsRef.current = [panelAnim, backdropAnim];
-
-      return () => {
-        panelAnim.cancel();
-        backdropAnim.cancel();
-        clearAnimStyles(panel, backdrop);
-      };
-    }
-
-    if (reduced) {
+    if (prefersReducedMotion()) {
       clearAnimStyles(panel, backdrop);
-      setPresented(false);
       return;
     }
+
+    const runId = ++openRunRef.current;
+    let frame2 = 0;
+
+    const frame1 = requestAnimationFrame(() => {
+      void panel.offsetHeight;
+      frame2 = requestAnimationFrame(() => {
+        if (runId !== openRunRef.current || !open) return;
+
+        cancelAnims(panel, backdrop);
+        panel.style.transform = "";
+
+        const panelAnim = panel.animate(
+          [
+            { transform: "translateY(100%)" },
+            { transform: "translateY(0)" },
+          ],
+          { duration: PANEL_MS, easing: EASING, fill: "forwards" },
+        );
+        const backdropAnim = backdrop.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: BACKDROP_MS, easing: "ease-out", fill: "forwards" },
+        );
+
+        void Promise.all([panelAnim.finished, backdropAnim.finished]).catch(
+          () => undefined,
+        );
+      });
+    });
+
+    return () => {
+      openRunRef.current += 1;
+      cancelAnimationFrame(frame1);
+      if (frame2) cancelAnimationFrame(frame2);
+    };
+  }, [open, retained]);
+
+  useEffect(() => {
+    if (open || !retained) return;
+
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (!panel || !backdrop) return;
+
+    setClosing(true);
+
+    if (prefersReducedMotion()) {
+      clearAnimStyles(panel, backdrop);
+      setClosing(false);
+      return;
+    }
+
+    cancelAnims(panel, backdrop);
 
     const panelAnim = panel.animate(
       [{ transform: "translateY(0)" }, { transform: "translateY(100%)" }],
@@ -93,25 +128,29 @@ export function StudySheet({ open, onClose, title, children }: StudySheetProps) 
       [{ opacity: 1 }, { opacity: 0 }],
       { duration: BACKDROP_MS, easing: "ease-out", fill: "forwards" },
     );
-    animsRef.current = [panelAnim, backdropAnim];
 
     let cancelled = false;
-    void Promise.all([panelAnim.finished, backdropAnim.finished]).then(() => {
-      if (cancelled) return;
-      clearAnimStyles(panel, backdrop);
-      setPresented(false);
-    });
+    void Promise.all([panelAnim.finished, backdropAnim.finished])
+      .then(() => {
+        if (cancelled) return;
+        clearAnimStyles(panel, backdrop);
+        setClosing(false);
+      })
+      .catch(() => setClosing(false));
 
     return () => {
       cancelled = true;
       panelAnim.cancel();
       backdropAnim.cancel();
       clearAnimStyles(panel, backdrop);
+      setClosing(false);
     };
-  }, [open, presented]);
+  }, [open, retained]);
+
+  const active = open || closing;
 
   useEffect(() => {
-    if (!presented) return;
+    if (!active) return;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
     }
@@ -122,9 +161,9 @@ export function StudySheet({ open, onClose, title, children }: StudySheetProps) 
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [presented, onClose]);
+  }, [active, onClose]);
 
-  if (!presented) return null;
+  if (!retained) return null;
 
   return (
     <div
