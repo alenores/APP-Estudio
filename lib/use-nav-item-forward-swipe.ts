@@ -20,6 +20,8 @@ type PointerStart = {
   itemKey: string;
 };
 
+type HorizontalSwipeKind = "forward" | "back" | null;
+
 type UseNavItemForwardSwipeOptions = {
   router: { push: (href: string) => void };
   href: string;
@@ -30,8 +32,14 @@ type UseNavItemForwardSwipeOptions = {
   onSwipeStarted?: () => void;
 };
 
-function stopBubble(event: PointerEvent<HTMLElement>) {
-  event.stopPropagation();
+function classifyHorizontalSwipe(deltaX: number, deltaY: number): HorizontalSwipeKind {
+  const absDeltaX = Math.abs(deltaX);
+  const absDeltaY = Math.abs(deltaY);
+  if (absDeltaX < FWD_SWIPE_AXIS_MIN) return null;
+  if (absDeltaX <= absDeltaY + FWD_SWIPE_AXIS_BIAS_Y) return null;
+  if (deltaX < 0) return "forward";
+  if (deltaX > 0) return "back";
+  return null;
 }
 
 function panelOffsetFromFingerDelta(deltaX: number): number {
@@ -53,7 +61,7 @@ function shouldCommitForwardSwipe(deltaX: number, deltaY: number, panelOffset: n
 }
 
 /**
- * Swipe ← en fila de lista + tap: mueve el panel del AppShell y abre el hijo.
+ * Swipe ← en fila + tap. Swipe → burbujea al AppShell (volver atrás en cualquier zona).
  */
 export function useNavItemForwardSwipe({
   router,
@@ -68,6 +76,17 @@ export function useNavItemForwardSwipe({
   const suppressClickRef = useRef(false);
   const swipeStartedRef = useRef(false);
 
+  const abandonForwardGesture = useCallback(() => {
+    pointerStartRef.current = null;
+    suppressClickRef.current = false;
+    swipeStartedRef.current = false;
+    panel?.setActiveItemKey(null);
+    panel?.setIsSwiping(false);
+    if (!panel?.isLeaving) {
+      panel?.setSwipeOffset(0);
+    }
+  }, [panel]);
+
   const resetSwipe = useCallback(() => {
     panel?.resetSwipe();
     pointerStartRef.current = null;
@@ -78,7 +97,7 @@ export function useNavItemForwardSwipe({
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!enabled || blockNavigation || event.pointerType !== "touch") return;
-      stopBubble(event);
+      /* Sin stopPropagation: el main también registra el gesto para volver atrás. */
 
       pointerStartRef.current = {
         x: event.clientX,
@@ -88,7 +107,6 @@ export function useNavItemForwardSwipe({
       };
       swipeStartedRef.current = false;
       panel?.setActiveItemKey(itemKey);
-      panel?.setIsSwiping(true);
       panel?.setIsLeaving(false);
       suppressClickRef.current = false;
     },
@@ -98,37 +116,44 @@ export function useNavItemForwardSwipe({
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!enabled || event.pointerType !== "touch") return;
-      stopBubble(event);
       const start = pointerStartRef.current;
       if (!start || panel?.isLeaving) return;
 
       const deltaX = event.clientX - start.x;
       const deltaY = event.clientY - start.y;
-      const absDeltaX = Math.abs(deltaX);
-      const absDeltaY = Math.abs(deltaY);
+      const kind = classifyHorizontalSwipe(deltaX, deltaY);
 
-      if (deltaX >= 0 || absDeltaX < FWD_SWIPE_AXIS_MIN || absDeltaX <= absDeltaY + FWD_SWIPE_AXIS_BIAS_Y) {
-        panel?.setSwipeOffset(0);
+      if (kind === "back") {
+        abandonForwardGesture();
         return;
       }
 
+      if (kind !== "forward") {
+        if (swipeStartedRef.current) {
+          panel?.setSwipeOffset(0);
+        }
+        return;
+      }
+
+      event.stopPropagation();
+
       if (!swipeStartedRef.current) {
         swipeStartedRef.current = true;
+        panel?.setIsSwiping(true);
         onSwipeStarted?.();
       }
 
       panel?.setSwipeOffset(panelOffsetFromFingerDelta(deltaX));
     },
-    [enabled, onSwipeStarted, panel],
+    [abandonForwardGesture, enabled, onSwipeStarted, panel],
   );
 
   const onPointerUp = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!enabled || event.pointerType !== "touch") return;
-      stopBubble(event);
       const start = pointerStartRef.current;
       if (!start || panel?.isLeaving) {
-        resetSwipe();
+        abandonForwardGesture();
         return;
       }
 
@@ -136,24 +161,29 @@ export function useNavItemForwardSwipe({
       const deltaY = event.clientY - start.y;
       const panelOffset = panel?.swipeOffset ?? 0;
 
-      if (!shouldCommitForwardSwipe(deltaX, deltaY, panelOffset)) {
-        resetSwipe();
+      if (classifyHorizontalSwipe(deltaX, deltaY) === "back") {
+        abandonForwardGesture();
         return;
       }
 
+      if (!shouldCommitForwardSwipe(deltaX, deltaY, panelOffset)) {
+        abandonForwardGesture();
+        return;
+      }
+
+      event.stopPropagation();
       suppressClickRef.current = true;
       navigateForwardLeave(router, start.href, panel);
       pointerStartRef.current = null;
     },
-    [enabled, panel, resetSwipe, router],
+    [abandonForwardGesture, enabled, panel, router],
   );
 
   const onPointerCancel = useCallback(
     (event: PointerEvent<HTMLElement>) => {
-      stopBubble(event);
-      resetSwipe();
+      abandonForwardGesture();
     },
-    [resetSwipe],
+    [abandonForwardGesture],
   );
 
   const onClick = useCallback(
