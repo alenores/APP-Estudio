@@ -7,6 +7,7 @@ import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabLink } from "@/components/study/fab-link";
+import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
@@ -46,7 +47,6 @@ export default function CursoDetallePage() {
   }
 
   const meta = [
-    curso.plataforma ? { label: "Plataforma", value: curso.plataforma } : null,
     curso.fecha_estimada_inicio
       ? {
           label: "Estimado inicio",
@@ -75,14 +75,9 @@ export default function CursoDetallePage() {
         />
 
         {curso.link ? (
-          <a
-            href={curso.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block text-center text-sm text-accent hover:underline"
-          >
-            Abrir curso en la plataforma
-          </a>
+          <div className="flex justify-center">
+            <PlatformLinkIcon link={curso.link} size="lg" />
+          </div>
         ) : null}
 
         <DualPanelTabs

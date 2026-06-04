@@ -26,7 +26,6 @@ export default function NuevoCursoPage() {
   const [jerarquia, setJerarquia] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
-  const [plataforma, setPlataforma] = useState("Platzi");
   const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +48,7 @@ export default function NuevoCursoPage() {
       jerarquia,
       fecha_estimada_inicio: fechaInicio,
       fecha_estimada_fin: fechaFin,
-      plataforma,
+      plataforma: "",
       link,
     });
 
@@ -97,20 +96,17 @@ export default function NuevoCursoPage() {
             onChange={(e) => setDescripcion(e.target.value)}
           />
         </FormField>
-        <FormField label="Plataforma" error={fieldErrors.plataforma}>
-          <FormInput
-            value={plataforma}
-            onChange={(e) => setPlataforma(e.target.value)}
-          />
-        </FormField>
-        <FormField label="Link" error={fieldErrors.link}>
+        <FormField label="Link del curso" error={fieldErrors.link}>
           <FormInput
             type="url"
             value={link}
             onChange={(e) => setLink(e.target.value)}
-            placeholder="https://..."
+            placeholder="https://platzi.com/cursos/..."
           />
         </FormField>
+        <p className="text-xs text-ink-muted">
+          El ícono de la plataforma (Platzi, YouTube, etc.) se obtiene automáticamente del link.
+        </p>
         <FormField label="Orden" error={fieldErrors.orden}>
           <FormInput
             type="number"

@@ -89,7 +89,8 @@ export default function TemaDetallePage() {
                       key={c.id}
                       href={`/cursos/${c.id}`}
                       nombre={c.nombre}
-                      subtitulo={c.plataforma ?? c.descripcion}
+                      subtitulo={c.descripcion}
+                      externalLink={c.link}
                       derivados={c.derivados}
                       badge={`#${c.orden}`}
                     />

@@ -1,11 +1,15 @@
 import Link from "next/link";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
+import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { estadoDotClass, estadoLabel } from "@/lib/estado-ui";
 
 type EntityCardProps = {
   href: string;
   nombre: string;
+  /** Descripción u otro subtítulo (ya no se usa plataforma aquí). */
   subtitulo?: string | null;
+  /** Link externo del curso → ícono de plataforma tocable. */
+  externalLink?: string | null;
   derivados: SeguimientoDerivados;
   badge?: string | null;
 };
@@ -14,18 +18,17 @@ export function EntityCard({
   href,
   nombre,
   subtitulo,
+  externalLink,
   derivados,
   badge,
 }: EntityCardProps) {
   const { etiqueta_estado, porcentaje_avance } = derivados;
   const estadoTexto = estadoLabel(etiqueta_estado);
+  const hasExternal = Boolean(externalLink?.trim());
 
   return (
-    <Link
-      href={href}
-      className="block rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md"
-    >
-      <div className="flex items-start gap-3">
+    <div className="flex items-start gap-2 rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md">
+      <Link href={href} className="flex min-w-0 flex-1 items-start gap-3">
         <span
           className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${estadoDotClass(etiqueta_estado)}`}
           aria-hidden
@@ -53,10 +56,15 @@ export function EntityCard({
             ) : null}
           </div>
         </div>
-        <span className="text-border-strong" aria-hidden>
-          ›
-        </span>
-      </div>
-    </Link>
+        {!hasExternal ? (
+          <span className="text-border-strong" aria-hidden>
+            ›
+          </span>
+        ) : null}
+      </Link>
+      {hasExternal ? (
+        <PlatformLinkIcon link={externalLink!} size="sm" className="mt-0.5" />
+      ) : null}
+    </div>
   );
 }
