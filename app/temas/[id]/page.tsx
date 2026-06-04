@@ -4,25 +4,12 @@ import { useTemaDetalle } from "@/app/hooks/useTemaDetalle";
 import { AppShell } from "@/components/study/app-shell";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
-import { EntityDetailHeader } from "@/components/study/entity-detail-header";
+import { TemaInfoSection } from "@/components/study/tema-info-section";
 import { AlertText, LoadingText } from "@/components/study/form-field";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
-
-function formatFecha(value: string | null) {
-  if (!value) return null;
-  try {
-    return new Date(value).toLocaleDateString("es-AR", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return value;
-  }
-}
 
 export default function TemaDetallePage() {
   const params = useParams();
@@ -45,30 +32,10 @@ export default function TemaDetallePage() {
     );
   }
 
-  const meta = [
-    tema.fecha_estimada_inicio
-      ? {
-          label: "Estimado inicio",
-          value: formatFecha(tema.fecha_estimada_inicio) ?? "",
-        }
-      : null,
-    tema.fecha_estimada_fin
-      ? {
-          label: "Estimado fin",
-          value: formatFecha(tema.fecha_estimada_fin) ?? "",
-        }
-      : null,
-  ].filter((m): m is { label: string; value: string } => m != null);
-
   return (
     <>
       <AppShell title={tema.nombre} backHref="/temas">
-        <EntityDetailHeader
-          nombre={tema.nombre}
-          descripcion={tema.descripcion}
-          derivados={tema.derivados}
-          meta={meta}
-        />
+        <TemaInfoSection tema={tema} />
 
         <DualPanelTabs
           panelA={{
