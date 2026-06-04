@@ -33,9 +33,10 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
 
 3. **Capas modales (`StudySheet`)**
    - Panel: aparición **instantánea** (`if (!open) return null`).
-   - Velo: solo **fade de opacidad** (`.sheet-backdrop-enter` en `globals.css`) — sin mover el panel.
+   - Velo: solo **fade de opacidad** (`.sheet-backdrop-enter` en `globals.css`) — sin mover el panel al **abrir**.
    - Opcional: `navigator.vibrate(12)` al abrir (falla en silencio si no hay API).
-   - Cerrar: tap fuera, Cerrar, Escape — sin animación de salida obligatoria.
+   - Cerrar: tap fuera, Cerrar, Escape, **swipe hacia abajo** (manija + cabecera, o contenido con scroll arriba; umbral ~80 px). El panel sigue el dedo solo durante el gesto; al soltar se cierra sin animación de salida obligatoria.
+   - **No** animar `translateY` al montar/desmontar el sheet (sigue prohibido); el drag es interacción del usuario, no keyframes de entrada.
 
 4. **FAB expandible**
    - Sin escalonado entre ítems; menú simple abrir/cerrar + rotación del `+`.
