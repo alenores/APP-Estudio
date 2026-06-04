@@ -103,6 +103,7 @@ export default function ClaseDetallePage() {
         open={sheet === "seguimiento"}
         onClose={closeSheet}
         title="Nuevo seguimiento"
+        subtitle={clase.nombre}
       >
         <SeguimientoForm
           parent={{ claseId: clase.id }}
@@ -114,6 +115,7 @@ export default function ClaseDetallePage() {
         open={sheet === "concepto"}
         onClose={closeSheet}
         title="Nuevo concepto"
+        subtitle={clase.nombre}
       >
         <ConceptoForm parent={{ claseId: clase.id }} onSuccess={onChildCreated} />
       </StudySheet>

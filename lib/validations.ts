@@ -79,11 +79,13 @@ const optionalNivelEntendimiento = z
 const seguimientoEtiquetaEstado = z
   .string()
   .trim()
-  .min(1, "El estado es obligatorio")
+  .optional()
+  .or(z.literal(""))
   .refine(
-    (v) => (ESTADOS_SEGUIMIENTO as readonly string[]).includes(v),
+    (v) => !v || (ESTADOS_SEGUIMIENTO as readonly string[]).includes(v),
     "Estado inválido",
-  );
+  )
+  .transform((v) => (v === "" ? undefined : v));
 
 const seguimientoCamposBase = {
   etiqueta_estado: seguimientoEtiquetaEstado,
@@ -98,12 +100,49 @@ const seguimientoCamposAvanceCurso = {
   tiempo_faltante_estimado: optionalInt,
 };
 
+const CAMPOS_SEGUIMIENTO_TEMA = [
+  "etiqueta_estado",
+  "fecha_comienzo",
+  "fecha_alerta",
+  "tiempo_consumido",
+  "nivel_entendimiento",
+] as const;
+
+const CAMPOS_SEGUIMIENTO_CURSO = [
+  ...CAMPOS_SEGUIMIENTO_TEMA,
+  "porcentaje_avance",
+  "tiempo_faltante_estimado",
+] as const;
+
+function seguimientoCampoTieneValor(
+  data: Record<string, unknown>,
+  key: string,
+): boolean {
+  const v = data[key];
+  return v !== undefined && v !== null && v !== "";
+}
+
 /** Schema según dimensión: tema sin % ni tiempo faltante; curso/clase con avance. */
 export function seguimientoFormSchemaForScope(scope: SeguimientoFormScope) {
-  if (seguimientoMuestraAvanceCurso(scope)) {
-    return z.object({ ...seguimientoCamposBase, ...seguimientoCamposAvanceCurso });
-  }
-  return z.object(seguimientoCamposBase);
+  const campos = seguimientoMuestraAvanceCurso(scope)
+    ? CAMPOS_SEGUIMIENTO_CURSO
+    : CAMPOS_SEGUIMIENTO_TEMA;
+  const shape = seguimientoMuestraAvanceCurso(scope)
+    ? { ...seguimientoCamposBase, ...seguimientoCamposAvanceCurso }
+    : seguimientoCamposBase;
+
+  return z.object(shape).superRefine((data, ctx) => {
+    const tieneAlguno = campos.some((k) =>
+      seguimientoCampoTieneValor(data, k),
+    );
+    if (!tieneAlguno) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Completá al menos un campo antes de guardar.",
+        path: [],
+      });
+    }
+  });
 }
 
 /** @deprecated Usar seguimientoFormSchemaForScope */
@@ -122,7 +161,7 @@ export type SeguimientoFormValues = z.infer<
 
 /** Payload completo hacia Supabase (campos no usados en UI van undefined → null). */
 export type SeguimientoInsertValues = {
-  etiqueta_estado: string;
+  etiqueta_estado?: string;
   fecha_comienzo?: string;
   fecha_alerta?: string;
   tiempo_consumido?: number;

@@ -94,6 +94,7 @@ export function SeguimientoForm({ parent, onSuccess }: SeguimientoFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <FormError message={fieldErrors.__form__ ?? null} />
       <SeguimientoFormFields
         scope={scope}
         etiqueta={etiqueta}

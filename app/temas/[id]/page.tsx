@@ -74,14 +74,14 @@ export default function TemaDetallePage() {
     );
   }
 
-  const seguimientoTitle =
-    sheet?.mode === "seguimiento" && sheet.contextLabel
-      ? `Nuevo seguimiento · ${sheet.contextLabel}`
-      : "Nuevo seguimiento";
-  const conceptoTitle =
-    sheet?.mode === "concepto" && sheet.contextLabel
-      ? `Nuevo concepto · ${sheet.contextLabel}`
-      : "Nuevo concepto";
+  const seguimientoSubtitle =
+    sheet?.mode === "seguimiento"
+      ? (sheet.contextLabel ?? tema.nombre)
+      : undefined;
+  const conceptoSubtitle =
+    sheet?.mode === "concepto"
+      ? (sheet.contextLabel ?? tema.nombre)
+      : undefined;
 
   return (
     <>
@@ -122,6 +122,7 @@ export default function TemaDetallePage() {
         open={sheet?.mode === "curso"}
         onClose={closeSheet}
         title="Nuevo curso"
+        subtitle={tema.nombre}
       >
         <CursoForm temaId={tema.id} onSuccess={onChildCreated} />
       </StudySheet>
@@ -129,7 +130,8 @@ export default function TemaDetallePage() {
       <StudySheet
         open={sheet?.mode === "seguimiento"}
         onClose={closeSheet}
-        title={seguimientoTitle}
+        title="Nuevo seguimiento"
+        subtitle={seguimientoSubtitle}
       >
         {sheet?.mode === "seguimiento" ? (
           <SeguimientoForm
@@ -142,7 +144,8 @@ export default function TemaDetallePage() {
       <StudySheet
         open={sheet?.mode === "concepto"}
         onClose={closeSheet}
-        title={conceptoTitle}
+        title="Nuevo concepto"
+        subtitle={conceptoSubtitle}
       >
         {sheet?.mode === "concepto" ? (
           <ConceptoForm parent={sheet.parent} onSuccess={onChildCreated} />

@@ -103,14 +103,14 @@ export default function CursoDetallePage() {
       : null,
   ].filter((m): m is { label: string; value: string } => m != null);
 
-  const seguimientoTitle =
-    sheet?.mode === "seguimiento" && sheet.contextLabel
-      ? `Nuevo seguimiento · ${sheet.contextLabel}`
-      : "Nuevo seguimiento";
-  const conceptoTitle =
-    sheet?.mode === "concepto" && sheet.contextLabel
-      ? `Nuevo concepto · ${sheet.contextLabel}`
-      : "Nuevo concepto";
+  const seguimientoSubtitle =
+    sheet?.mode === "seguimiento"
+      ? (sheet.contextLabel ?? curso.nombre)
+      : undefined;
+  const conceptoSubtitle =
+    sheet?.mode === "concepto"
+      ? (sheet.contextLabel ?? curso.nombre)
+      : undefined;
 
   return (
     <>
@@ -200,6 +200,7 @@ export default function CursoDetallePage() {
         open={sheet?.mode === "clase"}
         onClose={closeSheet}
         title="Nueva clase"
+        subtitle={curso.nombre}
       >
         <ClaseForm cursoId={curso.id} onSuccess={onChildCreated} />
       </StudySheet>
@@ -207,7 +208,8 @@ export default function CursoDetallePage() {
       <StudySheet
         open={sheet?.mode === "seguimiento"}
         onClose={closeSheet}
-        title={seguimientoTitle}
+        title="Nuevo seguimiento"
+        subtitle={seguimientoSubtitle}
       >
         {sheet?.mode === "seguimiento" ? (
           <SeguimientoForm
@@ -220,7 +222,8 @@ export default function CursoDetallePage() {
       <StudySheet
         open={sheet?.mode === "concepto"}
         onClose={closeSheet}
-        title={conceptoTitle}
+        title="Nuevo concepto"
+        subtitle={conceptoSubtitle}
       >
         {sheet?.mode === "concepto" ? (
           <ConceptoForm parent={sheet.parent} onSuccess={onChildCreated} />

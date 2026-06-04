@@ -46,13 +46,12 @@ export function SeguimientoFormFields({
 
   return (
     <>
-      <FormField label="Etiqueta de estado *" error={fieldErrors.etiqueta_estado}>
+      <FormField label="Etiqueta de estado" error={fieldErrors.etiqueta_estado}>
         <FormSelect
-          required
           value={etiqueta}
           onChange={(e) => setEtiqueta(e.target.value)}
         >
-          <option value="">Elegí un estado</option>
+          <option value="">Sin especificar</option>
           {ESTADO_OPCIONES.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}

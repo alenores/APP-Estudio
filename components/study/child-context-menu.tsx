@@ -2,7 +2,8 @@
 
 import { FAB_OPEN_DELAY_MS } from "@/lib/fab-open-delay";
 import { fabActionButtonClass } from "@/components/study/fab-action-styles";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export type ChildQuickAction = "seguimiento" | "concepto";
 
@@ -18,6 +19,10 @@ const ACTIONS: { id: ChildQuickAction; label: string }[] = [
   { id: "concepto", label: "Concepto" },
 ];
 
+const BAR_HEIGHT = 52;
+/** Separación entre la barra y el borde superior de la card. */
+const GAP_ABOVE_CARD = 6;
+
 function menuWidth(anchorRect: DOMRect): number {
   if (typeof window === "undefined") return 320;
   const viewportPad = 16;
@@ -27,8 +32,22 @@ function menuWidth(anchorRect: DOMRect): number {
   return Math.min(maxW, Math.max(minW, cardW, 280));
 }
 
+function menuTop(anchorRect: DOMRect, barHeight: number): number {
+  const above = anchorRect.top - barHeight - GAP_ABOVE_CARD;
+  if (above >= 8) return above;
+  return anchorRect.bottom + GAP_ABOVE_CARD;
+}
+
+function menuLeft(anchorRect: DOMRect, barWidth: number): number {
+  if (typeof window === "undefined") return anchorRect.left;
+  return Math.min(
+    Math.max(8, anchorRect.left + anchorRect.width / 2 - barWidth / 2),
+    window.innerWidth - barWidth - 8,
+  );
+}
+
 /**
- * Barra contextual encima de la card: dos acciones fijas, ancho adaptativo.
+ * Barra contextual justo encima de la card (portal a body: el panel nav tiene transform).
  */
 export function ChildContextMenu({
   anchorRect,
@@ -38,13 +57,14 @@ export function ChildContextMenu({
 }: ChildContextMenuProps) {
   const menuId = useId();
   const pickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mounted, setMounted] = useState(false);
   const barWidth = menuWidth(anchorRect);
-  const barHeight = 52;
-  const top = Math.max(12, anchorRect.top - barHeight - 10);
-  const left = Math.min(
-    Math.max(8, anchorRect.left + anchorRect.width / 2 - barWidth / 2),
-    typeof window !== "undefined" ? window.innerWidth - barWidth - 8 : anchorRect.left,
-  );
+  const top = menuTop(anchorRect, BAR_HEIGHT);
+  const left = menuLeft(anchorRect, barWidth);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -68,19 +88,21 @@ export function ChildContextMenu({
     }, FAB_OPEN_DELAY_MS);
   }
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <>
       <button
         type="button"
         aria-label="Cerrar menú"
-        className="fixed inset-0 z-40 bg-ink/25"
+        className="fixed inset-0 z-[60] bg-ink/25"
         onClick={onClose}
       />
       <div
         id={menuId}
         role="menu"
         aria-label={`Acciones para ${entityName}`}
-        className="fixed z-50 grid grid-cols-2 gap-2.5 rounded-2xl border border-border bg-paper-elevated p-2.5 shadow-lg"
+        className="fixed z-[70] grid grid-cols-2 gap-2.5 rounded-2xl border border-border bg-paper-elevated p-2.5 shadow-lg"
         style={{ top, left, width: barWidth }}
       >
         {ACTIONS.map((action) => (
@@ -96,6 +118,7 @@ export function ChildContextMenu({
           </button>
         ))}
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
