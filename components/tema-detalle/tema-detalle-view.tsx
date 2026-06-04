@@ -211,7 +211,7 @@ export function TemaDetalleView({
         ) : null}
       </section>
 
-      <div className="td-zone td-zone-contenido td-rise td-d5 mt-7">
+      <div className="td-zone td-zone-contenido td-rise td-d5">
         <div className="relative flex overflow-hidden rounded-[14px] border border-[var(--td-line)] bg-[var(--td-line-soft)] p-1">
           <span
             className="td-ctab-ind pointer-events-none absolute bottom-1 left-1 top-1 z-[1] w-[calc((100%-8px)/3)] rounded-[10px] bg-[var(--td-card)] shadow-[0_2px_8px_-2px_rgba(27,34,43,.2)]"

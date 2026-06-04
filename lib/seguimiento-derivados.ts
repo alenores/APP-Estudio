@@ -33,10 +33,6 @@ function tieneEtiquetaEstado(s: Seguimiento): boolean {
   return s.etiqueta_estado != null && s.etiqueta_estado.trim() !== "";
 }
 
-function tienePorcentajeAvance(s: Seguimiento): boolean {
-  return s.porcentaje_avance != null;
-}
-
 function tieneTiempoConsumido(s: Seguimiento): boolean {
   return s.tiempo_consumido != null;
 }
@@ -47,6 +43,17 @@ function tieneTiempoFaltante(s: Seguimiento): boolean {
 
 function tieneNivelEntendimiento(s: Seguimiento): boolean {
   return s.nivel_entendimiento != null && s.nivel_entendimiento.trim() !== "";
+}
+
+/** Suma de `porcentaje_avance` en todos los seguimientos (acumulativo). */
+export function sumaPorcentajeAvanceSeguimientos(
+  seguimientos: Seguimiento[],
+): number | null {
+  const valores = seguimientos
+    .map((s) => s.porcentaje_avance)
+    .filter((v): v is number => v != null);
+  if (valores.length === 0) return null;
+  return valores.reduce((acc, v) => acc + v, 0);
 }
 
 /**
@@ -67,9 +74,7 @@ export function derivarDesdeSeguimientos(
     etiqueta_estado:
       ultimoSeguimientoConCampo(seguimientos, tieneEtiquetaEstado)
         ?.etiqueta_estado ?? null,
-    porcentaje_avance:
-      ultimoSeguimientoConCampo(seguimientos, tienePorcentajeAvance)
-        ?.porcentaje_avance ?? null,
+    porcentaje_avance: sumaPorcentajeAvanceSeguimientos(seguimientos),
     tiempo_consumido:
       ultimoSeguimientoConCampo(seguimientos, tieneTiempoConsumido)
         ?.tiempo_consumido ?? null,

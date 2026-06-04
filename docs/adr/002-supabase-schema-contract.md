@@ -122,7 +122,7 @@ No se hace `UPDATE` al padre al guardar un seguimiento. La pantalla de detalle c
 | Mostrar en UI como | Regla (misma para tema, curso o clase según FK) |
 |--------------------|--------------------------------------------------|
 | Estado (etiqueta) | `etiqueta_estado` del seguimiento **más reciente** (`fecha_registro` DESC) que tenga valor en ese campo |
-| Porcentaje de avance | `porcentaje_avance` del seguimiento más reciente que tenga valor |
+| Porcentaje de avance | **Suma** de `porcentaje_avance` en todos los seguimientos de la dimensión |
 | Tiempo consumido | `tiempo_consumido` del seguimiento más reciente que tenga valor |
 | Tiempo faltante estimado | `tiempo_faltante_estimado` del seguimiento más reciente que tenga valor |
 | Nivel de entendimiento | `nivel_entendimiento` del seguimiento más reciente que tenga valor |

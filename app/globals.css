@@ -140,6 +140,7 @@ html.pwa-standalone-zoom-lock body {
   --td-today-pct: 0%;
   --td-gz-offset: 251.3;
   color: var(--td-ink);
+  background-color: var(--td-paper);
 }
 
 .tema-detalle-page .td-card {
@@ -483,13 +484,14 @@ html.pwa-standalone-zoom-lock body {
 .tema-detalle-page .td-zone {
   border-radius: 22px;
   border: 1px solid var(--td-line);
-  background: color-mix(in srgb, var(--td-card) 92%, var(--td-line-soft));
+  background: var(--td-card);
   padding: 10px;
   box-shadow: var(--td-shadow);
+  overflow: hidden;
 }
 
 .tema-detalle-page .td-zone-contenido {
-  margin-top: 0;
+  margin-top: 2.25rem;
 }
 
 .tema-detalle-page .td-item {
