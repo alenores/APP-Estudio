@@ -33,7 +33,7 @@ export function StudySheet({ open, onClose, title, children }: StudySheetProps) 
 
   return (
     <div
-      className={`fixed inset-0 z-40 flex flex-col justify-end px-3 pb-[max(1rem,env(safe-area-inset-bottom))] transition-opacity duration-200 ease-out motion-reduce:transition-none ${
+      className={`fixed inset-0 z-40 flex flex-col justify-end px-3 pb-[max(1rem,env(safe-area-inset-bottom))] transition-opacity duration-350 ease-out motion-reduce:transition-none ${
         open
           ? "pointer-events-auto opacity-100"
           : "pointer-events-none opacity-0"
@@ -53,7 +53,7 @@ export function StudySheet({ open, onClose, title, children }: StudySheetProps) 
         aria-modal="true"
         aria-labelledby={titleId}
         aria-hidden={!open}
-        className={`relative z-50 mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-[0_8px_40px_rgba(30,41,59,0.22),0_-4px_20px_rgba(30,41,59,0.08)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+        className={`relative z-50 mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-[0_8px_40px_rgba(30,41,59,0.22),0_-4px_20px_rgba(30,41,59,0.08)] transition-transform duration-550 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
           open
             ? "translate-y-0 motion-reduce:translate-y-0"
             : "translate-y-full motion-reduce:translate-y-0"
