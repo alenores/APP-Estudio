@@ -19,8 +19,9 @@ Desarrollo asistido por IA (Cursor) y documentación que evite decisiones implí
 5. **Referencia:** patrones PWA tomados de *Vías de Escalada Córdoba*; **no** copiar el módulo offline de negocio de ese proyecto. Nuevo deploy → [`docs/pwa-arranque-checklist.md`](../pwa-arranque-checklist.md).
 6. **Reutilizar antes de crear:** antes de un archivo nuevo en `lib/`, `app/hooks/` o `components/`, revisar si ya existe hook, helper o componente reutilizable; extender en lugar de duplicar.
 7. **Alcance mínimo (IA):** implementar **solo** lo pedido. Sin refactors, UX “mejorada” ni archivos tocados fuera del pedido. Si un bug apunta a otra capa (ej. íconos PWA vs botón install), **diagnosticar y proponer**; no cambiar `InstallPwaButton`, `lib/pwa-*` ni flujo ADR 004 sin pedido explícito del dueño (misma arquitectura que otras apps del repo).
+8. **Animaciones / feedback en celular:** seguir [ADR 006](006-feedback-ui-movil.md) (delay en el botón + `active:scale`, sheet sin slide; no repetir WAAPI/escalonado salvo pedido explícito).
 
 ## Consecuencias
 
-- Toda feature nueva debe poder justificarse contra ADR 001–005.
+- Toda feature nueva debe poder justificarse contra ADR 001–006.
 - Cambios de reglas de negocio → actualizar el ADR correspondiente en el mismo cambio.

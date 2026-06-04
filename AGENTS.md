@@ -16,6 +16,7 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/003-frontend-layer-separation.md` | Hook vs page vs components |
 | `docs/adr/004-pwa-install-standalone.md` | Instalación, standalone, APP Estudio |
 | `docs/adr/005-auth-rls.md` | Auth, `user_id`, RLS |
+| `docs/adr/006-feedback-ui-movil.md` | **Animaciones / feedback en Android** (delay FAB, sheet sin slide) |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **No** copiar ADR 001 offline ni `useOfflineData` de *Vías de Escalada Córdoba*.
@@ -37,10 +38,15 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de que
 - **Production Vercel:** sin Vercel Authentication (Deployment Protection); comprobación anónima 200 en manifest/íconos/sw.js — ver `docs/pwa-arranque-checklist.md`.
 - No reescribir `InstallPwaButton` al diagnosticar install.
 
+### Feedback UI móvil (ADR 006)
+
+Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`. Por defecto: **`active:scale-95` + `FAB_OPEN_DELAY_MS`** en el botón; sheet con panel instantáneo y fade del velo; **no** slide del panel ni WAAPI al abrir en Android.
+
 ### Capas (ADR 003)
 
 | Qué | Dónde |
 |---|---|
+| Delay toque → sheet | `lib/fab-open-delay.ts` |
 | Ping / cliente Supabase | `lib/supabase.ts`, `lib/supabase-health.ts` |
 | Validación Zod | `lib/validations.ts` |
 | Derivados de seguimiento | `lib/seguimiento-derivados.ts` (cuando exista) |

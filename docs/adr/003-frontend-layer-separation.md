@@ -24,9 +24,10 @@ Aceptado — 2026-06-03
 5. **Nuevo tema** desde listado: sigue en `/temas/nuevo` (raíz del árbol). Rutas `/…/nuevo` antiguas redirigen al padre.
 6. **`StudySheet` sin slide del panel** (Chrome Android no anima bien `transform` al abrir). Permitido: fade del velo (`.sheet-backdrop-enter`), vibración corta al abrir, panel flotante instantáneo. **No** WAAPI, `retained`, ni `translateY` animado en el sheet — mismo criterio que el FAB sin escalonado.
 7. **FAB → sheet:** `FAB_OPEN_DELAY_MS` (120 ms en `lib/fab-open-delay.ts`) entre el `active` del botón y `onSelect`/abrir sheet; feedback táctil sin animar el panel.
+8. **Animaciones en móvil:** ver checklist completo en [ADR 006](006-feedback-ui-movil.md) (qué evitar en Android y qué patrón usar).
 
 ## Consecuencias
 
 - Refactors de UI no deben romper contratos de datos sin revisar ADR 002.
-- Nuevos colaboradores/IA: leer ADR 000–005 y `AGENTS.md` antes de features.
+- Nuevos colaboradores/IA: leer ADR 000–006 y `AGENTS.md` antes de features.
 - Campos de progreso en detalle tema/curso/clase: calcular en `lib/` desde `seguimientos` (ADR 002), no duplicar en tablas padre.
