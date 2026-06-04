@@ -2,7 +2,7 @@
 
 import { ESTADO_OPCIONES, NIVEL_MAX, NIVEL_MIN } from "@/lib/estado-ui";
 import type { SeguimientoFormScope } from "@/lib/seguimiento-form-scope";
-import { seguimientoMuestraAvanceCurso } from "@/lib/seguimiento-form-scope";
+import { seguimientoMuestraAvanceCurso, seguimientoMuestraTiempoRestante } from "@/lib/seguimiento-form-scope";
 import { FormField, FormInput, FormSelect } from "@/components/study/form-field";
 
 type SeguimientoFieldsProps = {
@@ -43,6 +43,7 @@ export function SeguimientoFormFields({
   fieldErrors = {},
 }: SeguimientoFieldsProps) {
   const muestraAvance = seguimientoMuestraAvanceCurso(scope);
+  const muestraTiempoRestante = seguimientoMuestraTiempoRestante(scope);
 
   return (
     <>
@@ -118,9 +119,9 @@ export function SeguimientoFormFields({
         />
       </FormField>
 
-      {muestraAvance ? (
+      {muestraTiempoRestante ? (
         <FormField
-          label="Tiempo faltante estimado (min)"
+          label="Tiempo estimado restante (min)"
           error={fieldErrors.tiempo_faltante_estimado}
         >
           <FormInput

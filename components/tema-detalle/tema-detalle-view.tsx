@@ -113,37 +113,36 @@ export function TemaDetalleView({
           "radial-gradient(circle at 10% 4%, rgba(39,72,103,.045), transparent 38%), radial-gradient(circle at 92% 96%, rgba(60,138,90,.045), transparent 40%)",
       }}
     >
-      <div className="td-zone td-zone-resumen td-zone-inner">
-        <section className="td-card td-rise td-d1 px-6 pb-5 pt-6">
-          <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[var(--td-faint)]">
-            Tema
+      <section className="td-card td-rise td-d1 px-6 pb-5 pt-6">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[var(--td-faint)]">
+          Tema
+        </p>
+        <h1 className="mt-1.5 text-[34px] font-extrabold leading-[1.05] tracking-tight text-[var(--td-ink)] max-[430px]:text-[30px]">
+          {tema.nombre}
+        </h1>
+        {tema.descripcion ? (
+          <p className="mt-3.5 max-w-[36ch] text-[15px] text-[var(--td-ink-soft)]">
+            {tema.descripcion}
           </p>
-          <h1 className="mt-1.5 text-[34px] font-extrabold leading-[1.05] tracking-tight text-[var(--td-ink)] max-[430px]:text-[30px]">
-            {tema.nombre}
-          </h1>
-          {tema.descripcion ? (
-            <p className="mt-3.5 max-w-[36ch] text-[15px] text-[var(--td-ink-soft)]">
-              {tema.descripcion}
-            </p>
-          ) : null}
-        </section>
+        ) : null}
+      </section>
 
-        <div className="td-rise td-d2 grid grid-cols-2 items-stretch gap-2">
-          <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
-          <div className="flex min-h-0 flex-col gap-2">
-            <TemaTiempoPieCard
-              invertidoMin={metrics.tiempoInvertidoMin}
-              restanteMin={metrics.tiempoRestanteMin}
-              className="min-h-0 flex-1"
-            />
-            <TemaEstadoCard
-              estado={metrics.estadoTema}
-              className="min-h-0 flex-1"
-            />
-          </div>
+      <div className="td-rise td-d2 mt-3 grid grid-cols-2 items-stretch gap-2">
+        <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
+        <div className="flex min-h-0 flex-col gap-2">
+          <TemaTiempoPieCard
+            invertidoMin={metrics.tiempoInvertidoMin}
+            restanteMin={metrics.tiempoRestanteMin}
+            className="min-h-0 flex-1"
+          />
+          <TemaEstadoCard
+            estado={metrics.estadoTema}
+            className="min-h-0 flex-1"
+          />
         </div>
+      </div>
 
-        <section className="td-card td-rise td-d3 px-6 pb-6 pt-5">
+      <section className="td-card td-rise td-d3 mt-3 px-6 pb-6 pt-5">
         <div className="mb-6 flex items-center justify-between gap-2">
           <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--td-faint)]">
             Calendario y avance
@@ -210,10 +209,9 @@ export function TemaDetalleView({
         {metrics.nota ? (
           <NotaCalendario nota={metrics.nota} delta={metrics.delta} />
         ) : null}
-        </section>
-      </div>
+      </section>
 
-      <div className="td-zone td-zone-contenido td-rise td-d5">
+      <div className="td-zone td-zone-contenido td-rise td-d5 mt-7">
         <div className="relative flex overflow-hidden rounded-[14px] border border-[var(--td-line)] bg-[var(--td-line-soft)] p-1">
           <span
             className="td-ctab-ind pointer-events-none absolute bottom-1 left-1 top-1 z-[1] w-[calc((100%-8px)/3)] rounded-[10px] bg-[var(--td-card)] shadow-[0_2px_8px_-2px_rgba(27,34,43,.2)]"

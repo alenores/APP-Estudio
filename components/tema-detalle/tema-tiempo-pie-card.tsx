@@ -59,19 +59,19 @@ export function TemaTiempoPieCard({
 
   return (
     <TemaMiniCard
-      title="Tiempo estudio"
+      title="TIEMPO"
       delayClass={delayClass}
       className={className}
     >
       <div className="flex min-w-0 items-center gap-1.5">
         <div className="min-w-0 flex-1 space-y-0.5">
           <TiempoLinea
-            label="Inv."
+            label="Consum:"
             value={formatDuracionMinutos(invertidoMin)}
             dotClass="bg-[var(--td-navy)]"
           />
           <TiempoLinea
-            label="Rest."
+            label="Restante:"
             value={formatDuracionMinutos(restanteMin)}
             dotClass="bg-[var(--td-e-gris)] ring-1 ring-[var(--td-faint)]/35"
           />

@@ -51,6 +51,7 @@ export function SeguimientoForm({ parent, onSuccess }: SeguimientoFormProps) {
             tiempo_faltante_estimado: tiempoFaltante,
           }
         : {}),
+      ...(scope === "tema" ? { tiempo_faltante_estimado: tiempoFaltante } : {}),
     };
 
     const parsed = seguimientoFormSchemaForScope(scope).safeParse(raw);
@@ -75,7 +76,6 @@ export function SeguimientoForm({ parent, onSuccess }: SeguimientoFormProps) {
             tema_id: parent.temaId,
             comentario: undefined,
             porcentaje_avance: undefined,
-            tiempo_faltante_estimado: undefined,
           }
         : "cursoId" in parent
           ? { ...parsed.data, curso_id: parent.cursoId, comentario: undefined }

@@ -14,7 +14,14 @@ export function seguimientoFormScopeFromParent(
   return "clase";
 }
 
-/** Curso y clase comparten los mismos campos de avance. */
+/** Curso y clase comparten los mismos campos de avance (% + tiempo restante). */
 export function seguimientoMuestraAvanceCurso(scope: SeguimientoFormScope): boolean {
   return scope === "curso" || scope === "clase";
+}
+
+/** Tiempo estimado restante: tema, curso y clase. */
+export function seguimientoMuestraTiempoRestante(
+  scope: SeguimientoFormScope,
+): boolean {
+  return scope === "tema" || seguimientoMuestraAvanceCurso(scope);
 }

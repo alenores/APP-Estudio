@@ -489,13 +489,7 @@ html.pwa-standalone-zoom-lock body {
 }
 
 .tema-detalle-page .td-zone-contenido {
-  margin-top: 14px;
-}
-
-.tema-detalle-page .td-zone-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  margin-top: 0;
 }
 
 .tema-detalle-page .td-item {

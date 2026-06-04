@@ -100,12 +100,18 @@ const seguimientoCamposAvanceCurso = {
   tiempo_faltante_estimado: optionalInt,
 };
 
+const seguimientoCamposTema = {
+  ...seguimientoCamposBase,
+  tiempo_faltante_estimado: optionalInt,
+};
+
 const CAMPOS_SEGUIMIENTO_TEMA = [
   "etiqueta_estado",
   "fecha_comienzo",
   "fecha_alerta",
   "tiempo_consumido",
   "nivel_entendimiento",
+  "tiempo_faltante_estimado",
 ] as const;
 
 const CAMPOS_SEGUIMIENTO_CURSO = [
@@ -122,14 +128,14 @@ function seguimientoCampoTieneValor(
   return v !== undefined && v !== null && v !== "";
 }
 
-/** Schema según dimensión: tema sin % ni tiempo faltante; curso/clase con avance. */
+/** Schema según dimensión: tema con tiempo restante; curso/clase con avance + restante. */
 export function seguimientoFormSchemaForScope(scope: SeguimientoFormScope) {
   const campos = seguimientoMuestraAvanceCurso(scope)
     ? CAMPOS_SEGUIMIENTO_CURSO
     : CAMPOS_SEGUIMIENTO_TEMA;
   const shape = seguimientoMuestraAvanceCurso(scope)
     ? { ...seguimientoCamposBase, ...seguimientoCamposAvanceCurso }
-    : seguimientoCamposBase;
+    : seguimientoCamposTema;
 
   return z.object(shape).superRefine((data, ctx) => {
     const tieneAlguno = campos.some((k) =>

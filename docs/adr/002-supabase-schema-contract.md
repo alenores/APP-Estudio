@@ -96,7 +96,7 @@ Al insertar: rellenar `user_id = auth.uid()` y **solo** la FK de la dimensión a
 
 | Dimensión | Campos en formulario |
 |-----------|----------------------|
-| Tema | `etiqueta_estado`, `tiempo_consumido`, `fecha_alerta`, `fecha_comienzo`, `nivel_entendimiento` |
+| Tema | `etiqueta_estado`, `tiempo_consumido`, `tiempo_faltante_estimado`, `fecha_alerta`, `fecha_comienzo`, `nivel_entendimiento` |
 | Curso / clase | los de tema + `porcentaje_avance`, `tiempo_faltante_estimado` |
 
 Implementación: `lib/seguimiento-form-scope.ts`, `seguimientoFormSchemaForScope` en `lib/validations.ts`.
