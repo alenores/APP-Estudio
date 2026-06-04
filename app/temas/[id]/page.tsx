@@ -92,7 +92,6 @@ export default function TemaDetallePage() {
                       subtitulo={c.descripcion}
                       externalLink={c.link}
                       derivados={c.derivados}
-                      badge={`#${c.orden}`}
                     />
                   ))
                 )}
