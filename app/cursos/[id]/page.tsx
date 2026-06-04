@@ -11,7 +11,7 @@ import { ConceptoList } from "@/components/study/concepto-list";
 import { ClaseForm } from "@/components/study/forms/clase-form";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
-import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
+import { CourseLinkPreview } from "@/components/study/course-link-preview";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
 import { useParams } from "next/navigation";
@@ -93,11 +93,7 @@ export default function CursoDetallePage() {
           meta={meta}
         />
 
-        {curso.link ? (
-          <div className="flex justify-center">
-            <PlatformLinkIcon link={curso.link} size="lg" />
-          </div>
-        ) : null}
+        {curso.link ? <CourseLinkPreview link={curso.link} /> : null}
 
         <TriplePanelTabs
           panelA={{
