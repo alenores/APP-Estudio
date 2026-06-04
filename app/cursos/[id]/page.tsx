@@ -4,13 +4,16 @@ import { useCursoDetalle } from "@/app/hooks/useCursoDetalle";
 import { AppShell } from "@/components/study/app-shell";
 import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
 import { TriplePanelTabs } from "@/components/study/triple-panel-tabs";
-import { EntityCard } from "@/components/study/entity-card";
+import { EntityCardWithQuickActions } from "@/components/study/entity-card-with-quick-actions";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
+import type { ChildQuickAction } from "@/components/study/child-context-menu";
 import { ConceptoList } from "@/components/study/concepto-list";
 import { ClaseForm } from "@/components/study/forms/clase-form";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
+import type { ConceptoParent } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
+import type { SeguimientoParent } from "@/components/study/forms/seguimiento-form";
 import { ExternalLinkPreview } from "@/components/study/external-link-preview";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
@@ -18,7 +21,11 @@ import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
-type CursoSheet = null | "clase" | "seguimiento" | "concepto";
+type SheetState =
+  | null
+  | { mode: "clase" }
+  | { mode: "seguimiento"; parent: SeguimientoParent; contextLabel?: string }
+  | { mode: "concepto"; parent: ConceptoParent; contextLabel?: string };
 
 function formatFecha(value: string | null) {
   if (!value) return null;
@@ -38,7 +45,7 @@ export default function CursoDetallePage() {
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
   const { curso, clases, seguimientos, conceptos, loading, error, reload } =
     useCursoDetalle(id);
-  const [sheet, setSheet] = useState<CursoSheet>(null);
+  const [sheet, setSheet] = useState<SheetState>(null);
 
   function closeSheet() {
     setSheet(null);
@@ -47,6 +54,22 @@ export default function CursoDetallePage() {
   async function onChildCreated() {
     closeSheet();
     await reload({ silent: true });
+  }
+
+  function openClaseQuickAction(claseId: number, nombre: string, action: ChildQuickAction) {
+    if (action === "seguimiento") {
+      setSheet({
+        mode: "seguimiento",
+        parent: { claseId },
+        contextLabel: nombre,
+      });
+    } else {
+      setSheet({
+        mode: "concepto",
+        parent: { claseId },
+        contextLabel: nombre,
+      });
+    }
   }
 
   if (loading) {
@@ -80,6 +103,15 @@ export default function CursoDetallePage() {
       : null,
   ].filter((m): m is { label: string; value: string } => m != null);
 
+  const seguimientoTitle =
+    sheet?.mode === "seguimiento" && sheet.contextLabel
+      ? `Nuevo seguimiento · ${sheet.contextLabel}`
+      : "Nuevo seguimiento";
+  const conceptoTitle =
+    sheet?.mode === "concepto" && sheet.contextLabel
+      ? `Nuevo concepto · ${sheet.contextLabel}`
+      : "Nuevo concepto";
+
   return (
     <>
       <AppShell
@@ -106,7 +138,7 @@ export default function CursoDetallePage() {
                   </p>
                 ) : (
                   clases.map((cl) => (
-                    <EntityCard
+                    <EntityCardWithQuickActions
                       key={cl.id}
                       href={`/clases/${cl.id}`}
                       nombre={cl.nombre}
@@ -114,6 +146,9 @@ export default function CursoDetallePage() {
                       externalLink={cl.link}
                       derivados={cl.derivados}
                       badge={`#${cl.orden}`}
+                      onQuickAction={(action: ChildQuickAction) =>
+                        openClaseQuickAction(cl.id, cl.nombre, action)
+                      }
                     />
                   ))
                 )}
@@ -145,7 +180,15 @@ export default function CursoDetallePage() {
 
       <FabExpandMenu
         mainLabel="Acciones del curso"
-        onSelect={(actionId) => setSheet(actionId as CursoSheet)}
+        onSelect={(actionId) => {
+          if (actionId === "clase") setSheet({ mode: "clase" });
+          if (actionId === "seguimiento") {
+            setSheet({ mode: "seguimiento", parent: { cursoId: curso.id } });
+          }
+          if (actionId === "concepto") {
+            setSheet({ mode: "concepto", parent: { cursoId: curso.id } });
+          }
+        }}
         actions={[
           { id: "seguimiento", label: "Seguimiento", variant: "solid" },
           { id: "concepto", label: "Concepto", variant: "solid" },
@@ -154,7 +197,7 @@ export default function CursoDetallePage() {
       />
 
       <StudySheet
-        open={sheet === "clase"}
+        open={sheet?.mode === "clase"}
         onClose={closeSheet}
         title="Nueva clase"
       >
@@ -162,22 +205,26 @@ export default function CursoDetallePage() {
       </StudySheet>
 
       <StudySheet
-        open={sheet === "seguimiento"}
+        open={sheet?.mode === "seguimiento"}
         onClose={closeSheet}
-        title="Nuevo seguimiento"
+        title={seguimientoTitle}
       >
-        <SeguimientoForm
-          parent={{ cursoId: curso.id }}
-          onSuccess={onChildCreated}
-        />
+        {sheet?.mode === "seguimiento" ? (
+          <SeguimientoForm
+            parent={sheet.parent}
+            onSuccess={onChildCreated}
+          />
+        ) : null}
       </StudySheet>
 
       <StudySheet
-        open={sheet === "concepto"}
+        open={sheet?.mode === "concepto"}
         onClose={closeSheet}
-        title="Nuevo concepto"
+        title={conceptoTitle}
       >
-        <ConceptoForm parent={{ cursoId: curso.id }} onSuccess={onChildCreated} />
+        {sheet?.mode === "concepto" ? (
+          <ConceptoForm parent={sheet.parent} onSuccess={onChildCreated} />
+        ) : null}
       </StudySheet>
     </>
   );

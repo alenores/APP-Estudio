@@ -1,5 +1,6 @@
 "use client";
 
+import { fabActionButtonClass } from "@/components/study/fab-action-styles";
 import { FAB_OPEN_DELAY_MS } from "@/lib/fab-open-delay";
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -15,13 +16,6 @@ type FabExpandMenuProps = {
   onSelect: (id: string) => void;
   /** Etiqueta del botón principal (solo ícono + visible). */
   mainLabel?: string;
-};
-
-const actionButtonClass = {
-  dashed:
-    "flex items-center gap-2 rounded-full border border-dashed border-accent/50 bg-paper-elevated px-4 py-2.5 text-sm font-semibold text-accent shadow-md transition-[transform,colors] duration-150 hover:border-accent hover:bg-accent-subtle active:scale-95",
-  solid:
-    "flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-[transform,colors] duration-150 hover:bg-accent-hover active:scale-95",
 };
 
 /**
@@ -87,8 +81,8 @@ export function FabExpandMenu({
                 onClick={() => pick(action.id)}
                 className={
                   action.variant === "dashed"
-                    ? actionButtonClass.dashed
-                    : actionButtonClass.solid
+                    ? fabActionButtonClass.dashed
+                    : fabActionButtonClass.solid
                 }
               >
                 <span className="text-lg leading-none">+</span>

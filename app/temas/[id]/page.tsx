@@ -3,28 +3,35 @@
 import { useTemaDetalle } from "@/app/hooks/useTemaDetalle";
 import { AppShell } from "@/components/study/app-shell";
 import { TriplePanelTabs } from "@/components/study/triple-panel-tabs";
-import { EntityCard } from "@/components/study/entity-card";
+import { EntityCardWithQuickActions } from "@/components/study/entity-card-with-quick-actions";
 import { TemaInfoSection } from "@/components/study/tema-info-section";
 import { AlertText, LoadingText } from "@/components/study/form-field";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
+import type { ChildQuickAction } from "@/components/study/child-context-menu";
 import { ConceptoList } from "@/components/study/concepto-list";
 import { CursoForm } from "@/components/study/forms/curso-form";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
+import type { ConceptoParent } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
+import type { SeguimientoParent } from "@/components/study/forms/seguimiento-form";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
-type TemaSheet = null | "curso" | "seguimiento" | "concepto";
+type SheetState =
+  | null
+  | { mode: "curso" }
+  | { mode: "seguimiento"; parent: SeguimientoParent; contextLabel?: string }
+  | { mode: "concepto"; parent: ConceptoParent; contextLabel?: string };
 
 export default function TemaDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
   const { tema, cursos, seguimientos, conceptos, loading, error, reload } =
     useTemaDetalle(id);
-  const [sheet, setSheet] = useState<TemaSheet>(null);
+  const [sheet, setSheet] = useState<SheetState>(null);
 
   function closeSheet() {
     setSheet(null);
@@ -33,6 +40,22 @@ export default function TemaDetallePage() {
   async function onChildCreated() {
     closeSheet();
     await reload({ silent: true });
+  }
+
+  function openCursoQuickAction(cursoId: number, nombre: string, action: ChildQuickAction) {
+    if (action === "seguimiento") {
+      setSheet({
+        mode: "seguimiento",
+        parent: { cursoId },
+        contextLabel: nombre,
+      });
+    } else {
+      setSheet({
+        mode: "concepto",
+        parent: { cursoId },
+        contextLabel: nombre,
+      });
+    }
   }
 
   if (loading) {
@@ -51,6 +74,15 @@ export default function TemaDetallePage() {
     );
   }
 
+  const seguimientoTitle =
+    sheet?.mode === "seguimiento" && sheet.contextLabel
+      ? `Nuevo seguimiento · ${sheet.contextLabel}`
+      : "Nuevo seguimiento";
+  const conceptoTitle =
+    sheet?.mode === "concepto" && sheet.contextLabel
+      ? `Nuevo concepto · ${sheet.contextLabel}`
+      : "Nuevo concepto";
+
   return (
     <>
       <AppShell title={tema.nombre} backHref="/temas">
@@ -67,13 +99,16 @@ export default function TemaDetallePage() {
                   </p>
                 ) : (
                   cursos.map((c) => (
-                    <EntityCard
+                    <EntityCardWithQuickActions
                       key={c.id}
                       href={`/cursos/${c.id}`}
                       nombre={c.nombre}
                       subtitulo={c.descripcion}
                       externalLink={c.link}
                       derivados={c.derivados}
+                      onQuickAction={(action: ChildQuickAction) =>
+                        openCursoQuickAction(c.id, c.nombre, action)
+                      }
                     />
                   ))
                 )}
@@ -101,7 +136,15 @@ export default function TemaDetallePage() {
 
       <FabExpandMenu
         mainLabel="Acciones del tema"
-        onSelect={(actionId) => setSheet(actionId as TemaSheet)}
+        onSelect={(actionId) => {
+          if (actionId === "curso") setSheet({ mode: "curso" });
+          if (actionId === "seguimiento") {
+            setSheet({ mode: "seguimiento", parent: { temaId: tema.id } });
+          }
+          if (actionId === "concepto") {
+            setSheet({ mode: "concepto", parent: { temaId: tema.id } });
+          }
+        }}
         actions={[
           { id: "seguimiento", label: "Seguimiento", variant: "solid" },
           { id: "concepto", label: "Concepto", variant: "solid" },
@@ -110,7 +153,7 @@ export default function TemaDetallePage() {
       />
 
       <StudySheet
-        open={sheet === "curso"}
+        open={sheet?.mode === "curso"}
         onClose={closeSheet}
         title="Nuevo curso"
       >
@@ -118,22 +161,26 @@ export default function TemaDetallePage() {
       </StudySheet>
 
       <StudySheet
-        open={sheet === "seguimiento"}
+        open={sheet?.mode === "seguimiento"}
         onClose={closeSheet}
-        title="Nuevo seguimiento"
+        title={seguimientoTitle}
       >
-        <SeguimientoForm
-          parent={{ temaId: tema.id }}
-          onSuccess={onChildCreated}
-        />
+        {sheet?.mode === "seguimiento" ? (
+          <SeguimientoForm
+            parent={sheet.parent}
+            onSuccess={onChildCreated}
+          />
+        ) : null}
       </StudySheet>
 
       <StudySheet
-        open={sheet === "concepto"}
+        open={sheet?.mode === "concepto"}
         onClose={closeSheet}
-        title="Nuevo concepto"
+        title={conceptoTitle}
       >
-        <ConceptoForm parent={{ temaId: tema.id }} onSuccess={onChildCreated} />
+        {sheet?.mode === "concepto" ? (
+          <ConceptoForm parent={sheet.parent} onSuccess={onChildCreated} />
+        ) : null}
       </StudySheet>
     </>
   );

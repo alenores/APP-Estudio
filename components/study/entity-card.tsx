@@ -3,7 +3,7 @@ import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { estadoDotClass, estadoLabel } from "@/lib/estado-ui";
 
-type EntityCardProps = {
+export type EntityCardProps = {
   href: string;
   nombre: string;
   /** Descripción u otro subtítulo (ya no se usa plataforma aquí). */
@@ -12,6 +12,9 @@ type EntityCardProps = {
   externalLink?: string | null;
   derivados: SeguimientoDerivados;
   badge?: string | null;
+  /** Tras long-press con menú contextual, evita abrir el detalle en el mismo tap. */
+  blockNavigation?: boolean;
+  onNavigateBlocked?: () => void;
 };
 
 export function EntityCard({
@@ -21,6 +24,8 @@ export function EntityCard({
   externalLink,
   derivados,
   badge,
+  blockNavigation = false,
+  onNavigateBlocked,
 }: EntityCardProps) {
   const { etiqueta_estado, porcentaje_avance } = derivados;
   const estadoTexto = estadoLabel(etiqueta_estado);
@@ -28,7 +33,16 @@ export function EntityCard({
 
   return (
     <div className="flex items-start gap-2 rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md">
-      <Link href={href} className="flex min-w-0 flex-1 items-start gap-3">
+      <Link
+        href={href}
+        className="flex min-w-0 flex-1 items-start gap-3"
+        onClick={(e) => {
+          if (blockNavigation) {
+            e.preventDefault();
+            onNavigateBlocked?.();
+          }
+        }}
+      >
         <span
           className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${estadoDotClass(etiqueta_estado)}`}
           aria-hidden

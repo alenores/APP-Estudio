@@ -45,7 +45,12 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
 5. **Probar en dispositivo**
    - Confirmar con SHA del footer en el celular; la emulación PC **no alcanza** para animaciones.
 
-6. **Volver atrás con swipe** (`AppShell` con `backHref`)
+6. **Long press en card hijo** (cursos bajo tema, clases bajo curso)
+   - Mantener apretada la card ~480 ms (`LONG_PRESS_MS` en `lib/fab-open-delay.ts`): vibración + barra contextual **encima de la card** con Seguimiento / Concepto del **hijo** (no del padre).
+   - Tap corto sigue abriendo el detalle; el ícono de link externo no dispara el menú.
+   - Mismos sheets y forms que el FAB; título del sheet puede incluir el nombre del hijo.
+
+7. **Volver atrás con swipe** (`AppShell` con `backHref`)
    - Swipe horizontal hacia la derecha desde el borde izquierdo (~40 px) o recorrido amplio (≥100 px); ejecuta el mismo destino que el botón ← (`router.push(backHref)`).
    - Sin animación de transición de página; no compite con swipe abajo del `StudySheet` (eje vertical distinto).
 
@@ -56,6 +61,7 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
 | Delay FAB → sheet | `lib/fab-open-delay.ts`, `fab-expand-menu.tsx`, `fab-action-button.tsx` |
 | Sheet simple | `components/study/study-sheet.tsx` |
 | Swipe atrás en detalle | `lib/use-swipe-back.ts`, `components/study/app-shell.tsx` |
+| Menú contextual card hijo | `entity-card-with-quick-actions.tsx`, `child-context-menu.tsx` |
 | Preview link curso/clase | `components/study/external-link-preview.tsx`, `app/api/link-preview` |
 | Fade velo | `app/globals.css` → `.sheet-backdrop-enter` |
 | Alta de hijos sin rutas `/nuevo` | ADR 003 reglas 4–7 |
