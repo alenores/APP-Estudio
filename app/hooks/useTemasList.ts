@@ -1,25 +1,25 @@
 "use client";
 
-import { listTemasConDerivados } from "@/lib/estudio-queries";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
+import { listTemasConDerivadosFromCache } from "@/lib/estudio-offline-read";
 import type { TemaConDerivados } from "@/app/types/estudio";
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 
 export function useTemasList() {
-  const [temas, setTemas] = useState<TemaConDerivados[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { cacheData, loadingPack, error, setError, refreshSnapshot } = useEstudioData();
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    const result = await listTemasConDerivados();
-    setTemas(result.data ?? []);
-    setError(result.error);
-    setLoading(false);
-  }, []);
+  const temas: TemaConDerivados[] = useMemo(() => {
+    if (!cacheData) return [];
+    return listTemasConDerivadosFromCache(cacheData);
+  }, [cacheData]);
 
-  useEffect(() => {
-    void reload();
-  }, [reload]);
+  const reload = refreshSnapshot;
 
-  return { temas, loading, error, reload };
+  return {
+    temas,
+    loading: loadingPack,
+    error,
+    setError,
+    reload,
+  };
 }

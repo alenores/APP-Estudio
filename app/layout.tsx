@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
+import { EstudioDataRoot } from "@/components/study/estudio-data-root";
 import { ServiceWorkerRegister } from "./sw-register";
 import "./globals.css";
 
@@ -59,7 +60,9 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-paper text-ink">
         <PreventViewportZoom />
         <ServiceWorkerRegister />
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <EstudioDataRoot>{children}</EstudioDataRoot>
+        </div>
         <DeployShaFooter />
       </body>
     </html>

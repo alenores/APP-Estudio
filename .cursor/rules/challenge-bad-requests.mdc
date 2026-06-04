@@ -11,7 +11,8 @@ Antes de obedecer ciegamente, verificar `AGENTS.md` y `docs/adr/`.
 
 - Aliases o heurísticas de nombres de tablas/columnas Supabase (ADR 002).
 - `service_role` o secret keys en código cliente.
-- Snapshot offline de tablas, IndexedDB de negocio, sync tipo Vías Escalada (ADR 001).
+- Reintroducir fetch Supabase en cada montaje de página de negocio (viola ADR 001).
+- IndexedDB de negocio o sync sin ADR si el dueño no pidió cambiar arquitectura de datos.
 - Fetch/Supabase pesado embebido en `page.tsx` (ADR 003).
 - Mezclar lógica PWA install con hooks de datos de negocio (ADR 004).
 - CSS/layout obsoleto (floats para layout, frameworks muertos) sin justificar.

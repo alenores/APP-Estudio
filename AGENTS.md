@@ -11,7 +11,8 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | Documento | Contenido |
 |---|---|
 | `docs/adr/000-como-trabajamos.md` | Flujo con IA, un solo usuario, comentarios |
-| `docs/adr/001-online-first-sin-paquete-offline.md` | Sin paquete offline de tablas |
+| `docs/adr/001-paquete-local-consulta.md` | **Paquete local** + botón Actualizar (lectura desde snapshot) |
+| `docs/adr/007-detection-novedades-ultimo-id.md` | Detección novedades `MAX(id)` |
 | `docs/adr/002-supabase-schema-contract.md` | Nombres exactos de tablas/columnas (borrador) |
 | `docs/adr/003-frontend-layer-separation.md` | Hook vs page vs components |
 | `docs/adr/004-pwa-install-standalone.md` | Instalación, standalone, APP Estudio |
@@ -19,16 +20,19 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/006-feedback-ui-movil.md` | **Animaciones / feedback en Android** (delay FAB, sheet sin slide) |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
-**No** copiar ADR 001 offline ni `useOfflineData` de *Vías de Escalada Córdoba*.
+**Patrón de datos:** inspirado en *Vías de Escalada Córdoba* (`offline-cache`, `useOfflineData`), adaptado a tablas Estudio — **no** copiar imágenes ni warm de sectores.
 
 Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de queries de negocio).
 
 ## Reglas rápidas
 
-### Datos (ADR 001 + 002)
+### Datos (ADR 001 + 002 + 007)
 
-- Online-first; Supabase en red; **NetworkOnly** para API Supabase en SW.
-- Schema: nombres **exactos** cuando exista ADR 002; sin heurísticas de columnas.
+- **Lectura en UI:** snapshot `localStorage` vía `useEstudioData` + `lib/estudio-offline-read.ts`.
+- **Red:** `downloadEstudioSnapshot`, `checkEstudioUpdatesAvailable`, altas en `lib/estudio-queries.ts`.
+- **Excepción en red:** previews de links (`ExternalLinkPreview`, `/api/link-preview`).
+- Schema: nombres **exactos** ADR 002; sin heurísticas de columnas.
+- SW: **NetworkOnly** para `*.supabase.co` (el paquete no es caché del SW).
 
 ### PWA (ADR 004)
 
@@ -47,40 +51,35 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Qué | Dónde |
 |---|---|
 | Delay toque → sheet | `lib/fab-open-delay.ts` |
-| Ping / cliente Supabase | `lib/supabase.ts`, `lib/supabase-health.ts` |
+| Snapshot + sync | `lib/estudio-offline-cache.ts`, `lib/estudio-offline-read.ts` |
+| Contexto datos | `app/hooks/useEstudioData.tsx`, `components/study/estudio-data-root.tsx` |
+| Listado / detalle | `useTemasList`, `useTemaDetalle`, `useCursoDetalle`, `useClaseDetalle` |
+| Altas Supabase | `lib/estudio-queries.ts` (insert) + `refreshSnapshot` tras éxito |
 | Validación Zod | `lib/validations.ts` |
-| Derivados de seguimiento | `lib/seguimiento-derivados.ts` (cuando exista) |
-| Auth (fase siguiente) | login + cliente con sesión (`@supabase/ssr`) |
-| Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/*` |
+| Derivados de seguimiento | `lib/seguimiento-derivados.ts` |
+| Auth | login + `lib/supabase/client.ts` |
+| Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx` |
 | Home | `app/page.tsx` |
 
 ## Mapa de archivos clave
 
 ```
-app/page.tsx                    → home + enlace a temas
-app/login/page.tsx              → auth (password / magic link)
-app/temas/page.tsx                    → listado temas
-app/temas/nuevo/page.tsx              → alta tema
-app/temas/[id]/page.tsx               → detalle tema (+ sheet curso/seguimiento)
-app/cursos/[id]/page.tsx              → detalle curso (+ sheet clase/seguimiento)
-app/clases/[id]/page.tsx              → detalle clase (+ sheet seguimiento)
-components/study/study-sheet.tsx      → capa modal alta de hijos
-components/study/forms/*              → CursoForm, ClaseForm, SeguimientoForm
-app/temas/[id]/cursos/nuevo/page.tsx  → redirect → tema (legacy URL)
-app/cursos/[id]/clases/nuevo/page.tsx → redirect → curso (legacy URL)
-app/seguimientos/nuevo/page.tsx       → redirect → /temas (legacy URL)
-lib/validations.ts                    → Zod formularios
-lib/estudio-queries.ts          → queries Supabase negocio
-lib/seguimiento-derivados.ts    → campos derivados UI
-lib/supabase/client.ts          → cliente browser (sesión)
-middleware.ts                   → protege /temas, /seguimientos
-app/manifest.ts                 → PWA manifest
-app/install-pwa-button.tsx      → Android install
-app/hooks/usePwaOnDeviceInBrowser.ts
-lib/supabase.ts                 → cliente
-lib/supabase-health.ts          → ping auth health
-lib/validations.ts              → Zod (fase 2)
-next.config.ts                  → next-pwa online-first
+app/page.tsx                         → home + enlace a temas
+app/layout.tsx                       → EstudioDataRoot (provider global)
+app/login/page.tsx                   → auth
+app/temas/page.tsx                   → listado + EstudioSyncBanner
+app/temas/nuevo/page.tsx             → alta tema
+app/temas/[id]/page.tsx              → detalle tema
+app/cursos/[id]/page.tsx             → detalle curso
+app/clases/[id]/page.tsx             → detalle clase
+lib/estudio-offline-cache.ts         → snapshot + MAX(id) + download
+lib/estudio-offline-read.ts          → lectura local derivados
+app/hooks/useEstudioData.tsx         → contexto paquete local
+components/study/estudio-sync-banner.tsx → Actualizar
+components/study/study-sheet.tsx     → alta hijos
+lib/estudio-queries.ts               → sync remoto + inserts
+middleware.ts                        → protege /temas, /seguimientos
+next.config.ts                       → PWA; NetworkOnly Supabase
 ```
 
 ## Comandos
@@ -109,9 +108,8 @@ Política de este repo (no pedir confirmación para cerrar tareas de implementac
 | Qué | Cómo |
 |-----|------|
 | Modo de chat | **Agent** para implementar; Ask solo para preguntas/review. |
-| Ediciones en archivos | Cursor: *Settings → Agents → Applying Changes* → **Inline Diffs desactivado** si querés auto-aplicar sin Keep/Undo. |
-| Terminal / herramientas | *Settings → Agents → Run Mode* en **Run Everything**, o **Auto-review** / **Allowlist** con `.cursor/permissions.json` (allowlist de git/npm de rutina). |
-| Git al terminar | Ver `.cursor/rules/auto-commit-push.mdc`: build si tocó app/build → **commit + push** sin preguntar. |
-| Regla de usuario obsoleta | Si en *Cursor Settings → Rules → User Rules* sigue la regla «solo commit cuando lo pida», **borrala**; la política vigente es la de este repo. |
+| Git al terminar | build si tocó app → **commit + push** sin preguntar. |
+| Pedidos vs ADR | Si violan ADR vigente, avisar; paquete local **sí** está en ADR 001 actual. |
+| Alcance | `.cursor/rules/scope-minimal.mdc` |
 
-Excepciones (sí pedir confirmación): `git push --force`, `reset --hard`, rebase destructivo, borrado masivo, alcance ambiguo. Pedidos que violen ADR 001–004: avisar y replantear (`.cursor/rules/challenge-bad-requests.mdc`). **Alcance:** solo lo pedido — `.cursor/rules/scope-minimal.mdc`.
+Excepciones (sí pedir confirmación): `git push --force`, `reset --hard`, rebase destructivo, borrado masivo, alcance ambiguo.

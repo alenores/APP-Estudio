@@ -1,59 +1,50 @@
 "use client";
 
-import {
-  claseConDerivados,
-  getClaseById,
-  listConceptosByClase,
-  listSeguimientosByClase,
-} from "@/lib/estudio-queries";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
+import { getClaseDetalleFromCache } from "@/lib/estudio-offline-read";
 import type { ClaseConDerivados, Concepto, Seguimiento } from "@/app/types/estudio";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 export function useClaseDetalle(claseId: number | null) {
-  const [clase, setClase] = useState<ClaseConDerivados | null>(null);
-  const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
-  const [conceptos, setConceptos] = useState<Concepto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { cacheData, loadingPack, error, refreshSnapshot } = useEstudioData();
 
-  const reload = useCallback(async (opts?: { silent?: boolean }) => {
-    if (claseId == null) {
-      setError("Identificador de clase inválido");
-      setLoading(false);
-      return;
+  const reload = useCallback(
+    async (_opts?: { silent?: boolean }) => {
+      await refreshSnapshot();
+    },
+    [refreshSnapshot],
+  );
+
+  const detalle = useMemo(() => {
+    if (claseId == null || !cacheData) {
+      return {
+        clase: null as ClaseConDerivados | null,
+        seguimientos: [] as Seguimiento[],
+        conceptos: [] as Concepto[],
+        notFound: false,
+      };
     }
+    const row = getClaseDetalleFromCache(cacheData, claseId);
+    return { ...row, notFound: !row.clase };
+  }, [cacheData, claseId]);
 
-    if (!opts?.silent) setLoading(true);
-    setError(null);
+  const loading = loadingPack && !cacheData;
 
-    const [claseRes, segsRes, conceptosRes] = await Promise.all([
-      getClaseById(claseId),
-      listSeguimientosByClase(claseId),
-      listConceptosByClase(claseId),
-    ]);
+  const localError =
+    claseId == null
+      ? "Identificador de clase inválido"
+      : !loading && !cacheData
+        ? "Descargá los datos con el botón Actualizar."
+        : cacheData && detalle.notFound
+          ? "Clase no encontrada"
+          : null;
 
-    if (claseRes.error || segsRes.error || conceptosRes.error) {
-      setError(claseRes.error ?? segsRes.error ?? conceptosRes.error);
-      if (!opts?.silent) setLoading(false);
-      return;
-    }
-
-    if (!claseRes.data) {
-      setError("Clase no encontrada");
-      if (!opts?.silent) setLoading(false);
-      return;
-    }
-
-    const segs = segsRes.data ?? [];
-    setSeguimientos(segs);
-    setConceptos(conceptosRes.data ?? []);
-    setClase(claseConDerivados(claseRes.data, segs));
-    if (!opts?.silent) setLoading(false);
-  }, [claseId]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
-
-  return { clase, seguimientos, conceptos, loading, error, reload };
+  return {
+    clase: detalle.clase,
+    seguimientos: detalle.seguimientos,
+    conceptos: detalle.conceptos,
+    loading,
+    error: error ?? localError,
+    reload,
+  };
 }

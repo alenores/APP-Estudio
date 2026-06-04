@@ -5,7 +5,7 @@ PWA personal para gestionar el estudio en [Platzi](https://platzi.com). Stack: *
 ## Idea central
 
 - **Personal y educativo:** un solo usuario, sin fin comercial; si la app falla, el estudio sigue (ver [ADR 000](docs/adr/000-como-trabajamos.md)).
-- **Online-first:** los datos viven en Supabase (sin paquete offline de tablas).
+- **Paquete local de consulta:** navegación desde snapshot en el dispositivo; botón **Actualizar** baja desde Supabase (ver ADR 001).
 - **Instalable** en el celular con ícono **APP Estudio** (ver ADR 004).
 - **Fase actual:** PWA + schema documentado (ADR 002/005). Ejecutar SQL en Supabase, auth y pantallas tema/curso/clase → en curso.
 
@@ -14,7 +14,8 @@ PWA personal para gestionar el estudio en [Platzi](https://platzi.com). Stack: *
 | ADR | Tema |
 |-----|------|
 | [000](docs/adr/000-como-trabajamos.md) | Cómo trabajamos con IA |
-| [001](docs/adr/001-online-first-sin-paquete-offline.md) | Online-first |
+| [001](docs/adr/001-paquete-local-consulta.md) | Paquete local + Actualizar |
+| [007](docs/adr/007-detection-novedades-ultimo-id.md) | Detección novedades MAX(id) |
 | [002](docs/adr/002-supabase-schema-contract.md) | Schema Supabase (borrador) |
 | [003](docs/adr/003-frontend-layer-separation.md) | Capas frontend |
 | [004](docs/adr/004-pwa-install-standalone.md) | Instalación PWA |

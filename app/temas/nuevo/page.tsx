@@ -1,5 +1,6 @@
 "use client";
 
+import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { AppShell } from "@/components/study/app-shell";
 import {
   FormError,
@@ -16,6 +17,7 @@ import { useState } from "react";
 
 export default function NuevoTemaPage() {
   const router = useRouter();
+  const { refreshSnapshot } = useEstudioData();
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [orden, setOrden] = useState("");
@@ -62,8 +64,8 @@ export default function NuevoTemaPage() {
     }
 
     if (result.data) {
+      await refreshSnapshot();
       router.replace(`/temas/${result.data.id}`);
-      router.refresh();
     }
   }
 

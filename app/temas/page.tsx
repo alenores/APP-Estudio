@@ -2,6 +2,7 @@
 
 import { useTemasList } from "@/app/hooks/useTemasList";
 import { AppShell } from "@/components/study/app-shell";
+import { EstudioSyncBanner } from "@/components/study/estudio-sync-banner";
 import { EntityCard } from "@/components/study/entity-card";
 import { FabLink } from "@/components/study/fab-link";
 import {
@@ -10,6 +11,7 @@ import {
   LoadingText,
   TextLink,
 } from "@/components/study/form-field";
+import { clearEstudioOfflineCache } from "@/lib/estudio-offline-cache";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -19,6 +21,7 @@ export default function TemasPage() {
 
   async function signOut() {
     const supabase = createClient();
+    clearEstudioOfflineCache();
     await supabase.auth.signOut();
     router.replace("/login");
     router.refresh();
@@ -38,6 +41,7 @@ export default function TemasPage() {
         </button>
       }
     >
+      <EstudioSyncBanner />
       {loading ? <LoadingText>Cargando temas…</LoadingText> : null}
       {error ? <AlertText>{error}</AlertText> : null}
       {!loading && !error && temas.length === 0 ? (

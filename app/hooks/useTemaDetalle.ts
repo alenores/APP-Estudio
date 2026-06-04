@@ -1,81 +1,57 @@
 "use client";
 
-import {
-  attachDerivadosToCursos,
-  getTemaById,
-  listConceptosByTema,
-  listCursosByTema,
-  listSeguimientosByTema,
-  temaConDerivados,
-} from "@/lib/estudio-queries";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
+import { getTemaDetalleFromCache } from "@/lib/estudio-offline-read";
 import type {
   Concepto,
   CursoConDerivados,
   Seguimiento,
   TemaConDerivados,
 } from "@/app/types/estudio";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 export function useTemaDetalle(temaId: number | null) {
-  const [tema, setTema] = useState<TemaConDerivados | null>(null);
-  const [cursos, setCursos] = useState<CursoConDerivados[]>([]);
-  const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
-  const [conceptos, setConceptos] = useState<Concepto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { cacheData, loadingPack, error, refreshSnapshot } = useEstudioData();
 
-  const reload = useCallback(async (opts?: { silent?: boolean }) => {
-    if (temaId == null) {
-      setError("Identificador de tema inválido");
-      setLoading(false);
-      return;
+  const reload = useCallback(
+    async (_opts?: { silent?: boolean }) => {
+      await refreshSnapshot();
+    },
+    [refreshSnapshot],
+  );
+
+  const detalle = useMemo(() => {
+    if (temaId == null || !cacheData) {
+      return {
+        tema: null as TemaConDerivados | null,
+        cursos: [] as CursoConDerivados[],
+        seguimientos: [] as Seguimiento[],
+        conceptos: [] as Concepto[],
+        notFound: false,
+      };
     }
+    const row = getTemaDetalleFromCache(cacheData, temaId);
+    return { ...row, notFound: !row.tema };
+  }, [cacheData, temaId]);
 
-    if (!opts?.silent) setLoading(true);
-    setError(null);
+  const loading = loadingPack && !cacheData;
 
-    const [temaRes, cursosRes, segsRes, conceptosRes] = await Promise.all([
-      getTemaById(temaId),
-      listCursosByTema(temaId),
-      listSeguimientosByTema(temaId),
-      listConceptosByTema(temaId),
-    ]);
+  const localError =
+    temaId == null
+      ? "Identificador de tema inválido"
+      : !loading && !cacheData
+        ? "Descargá los datos con el botón Actualizar."
+        : cacheData && detalle.notFound
+          ? "Tema no encontrado"
+          : null;
 
-    if (temaRes.error || cursosRes.error || segsRes.error || conceptosRes.error) {
-      setError(
-        temaRes.error ??
-          cursosRes.error ??
-          segsRes.error ??
-          conceptosRes.error,
-      );
-      if (!opts?.silent) setLoading(false);
-      return;
-    }
-
-    if (!temaRes.data) {
-      setError("Tema no encontrado");
-      if (!opts?.silent) setLoading(false);
-      return;
-    }
-
-    const segs = segsRes.data ?? [];
-    setSeguimientos(segs);
-    setConceptos(conceptosRes.data ?? []);
-    setTema(temaConDerivados(temaRes.data, segs));
-
-    const withDeriv = await attachDerivadosToCursos(cursosRes.data ?? []);
-    if (withDeriv.error) {
-      setError(withDeriv.error);
-    } else {
-      setCursos(withDeriv.data);
-    }
-
-    if (!opts?.silent) setLoading(false);
-  }, [temaId]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
-
-  return { tema, cursos, seguimientos, conceptos, loading, error, reload };
+  return {
+    tema: detalle.tema,
+    cursos: detalle.cursos,
+    seguimientos: detalle.seguimientos,
+    conceptos: detalle.conceptos,
+    loading,
+    error: error ?? localError,
+    reload,
+  };
 }

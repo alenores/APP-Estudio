@@ -1,81 +1,57 @@
 "use client";
 
-import {
-  attachDerivadosToClases,
-  cursoConDerivados,
-  getCursoById,
-  listClasesByCurso,
-  listConceptosByCurso,
-  listSeguimientosByCurso,
-} from "@/lib/estudio-queries";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
+import { getCursoDetalleFromCache } from "@/lib/estudio-offline-read";
 import type {
   ClaseConDerivados,
   Concepto,
   CursoConDerivados,
   Seguimiento,
 } from "@/app/types/estudio";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 export function useCursoDetalle(cursoId: number | null) {
-  const [curso, setCurso] = useState<CursoConDerivados | null>(null);
-  const [clases, setClases] = useState<ClaseConDerivados[]>([]);
-  const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
-  const [conceptos, setConceptos] = useState<Concepto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { cacheData, loadingPack, error, refreshSnapshot } = useEstudioData();
 
-  const reload = useCallback(async (opts?: { silent?: boolean }) => {
-    if (cursoId == null) {
-      setError("Identificador de curso inválido");
-      setLoading(false);
-      return;
+  const reload = useCallback(
+    async (_opts?: { silent?: boolean }) => {
+      await refreshSnapshot();
+    },
+    [refreshSnapshot],
+  );
+
+  const detalle = useMemo(() => {
+    if (cursoId == null || !cacheData) {
+      return {
+        curso: null as CursoConDerivados | null,
+        clases: [] as ClaseConDerivados[],
+        seguimientos: [] as Seguimiento[],
+        conceptos: [] as Concepto[],
+        notFound: false,
+      };
     }
+    const row = getCursoDetalleFromCache(cacheData, cursoId);
+    return { ...row, notFound: !row.curso };
+  }, [cacheData, cursoId]);
 
-    if (!opts?.silent) setLoading(true);
-    setError(null);
+  const loading = loadingPack && !cacheData;
 
-    const [cursoRes, clasesRes, segsRes, conceptosRes] = await Promise.all([
-      getCursoById(cursoId),
-      listClasesByCurso(cursoId),
-      listSeguimientosByCurso(cursoId),
-      listConceptosByCurso(cursoId),
-    ]);
+  const localError =
+    cursoId == null
+      ? "Identificador de curso inválido"
+      : !loading && !cacheData
+        ? "Descargá los datos con el botón Actualizar."
+        : cacheData && detalle.notFound
+          ? "Curso no encontrado"
+          : null;
 
-    if (cursoRes.error || clasesRes.error || segsRes.error || conceptosRes.error) {
-      setError(
-        cursoRes.error ??
-          clasesRes.error ??
-          segsRes.error ??
-          conceptosRes.error,
-      );
-      if (!opts?.silent) setLoading(false);
-      return;
-    }
-
-    if (!cursoRes.data) {
-      setError("Curso no encontrado");
-      if (!opts?.silent) setLoading(false);
-      return;
-    }
-
-    const segs = segsRes.data ?? [];
-    setSeguimientos(segs);
-    setConceptos(conceptosRes.data ?? []);
-    setCurso(cursoConDerivados(cursoRes.data, segs));
-
-    const withDeriv = await attachDerivadosToClases(clasesRes.data ?? []);
-    if (withDeriv.error) {
-      setError(withDeriv.error);
-    } else {
-      setClases(withDeriv.data);
-    }
-
-    if (!opts?.silent) setLoading(false);
-  }, [cursoId]);
-
-  useEffect(() => {
-    void reload();
-  }, [reload]);
-
-  return { curso, clases, seguimientos, conceptos, loading, error, reload };
+  return {
+    curso: detalle.curso,
+    clases: detalle.clases,
+    seguimientos: detalle.seguimientos,
+    conceptos: detalle.conceptos,
+    loading,
+    error: error ?? localError,
+    reload,
+  };
 }
