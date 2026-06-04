@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 /**
  * Miniatura de un link de curso (YouTube directo; otros vía og:image).
- * Solo detalle de curso en cliente; listado de temas sigue con favicon.
+ * Detalle de curso/clase en cliente; listados siguen con favicon (PlatformLinkIcon sm).
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

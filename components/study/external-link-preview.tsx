@@ -4,15 +4,15 @@ import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import type { LinkPreviewResult } from "@/lib/link-preview";
 import { useEffect, useState } from "react";
 
-type CourseLinkPreviewProps = {
+type ExternalLinkPreviewProps = {
   link: string;
 };
 
 /**
- * Detalle de curso: miniatura del link si hay preview; si no, favicon como antes.
- * Listado de cursos bajo tema no usa este componente (sigue PlatformLinkIcon sm).
+ * Detalle de curso/clase: miniatura del link si hay preview; si no, favicon.
+ * Listados (cards bajo tema/curso) siguen con PlatformLinkIcon sm.
  */
-export function CourseLinkPreview({ link }: CourseLinkPreviewProps) {
+export function ExternalLinkPreview({ link }: ExternalLinkPreviewProps) {
   const [preview, setPreview] = useState<LinkPreviewResult | null>(null);
   const [loading, setLoading] = useState(true);
 

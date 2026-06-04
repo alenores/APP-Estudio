@@ -5,6 +5,7 @@ import { AppShell } from "@/components/study/app-shell";
 import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
+import { ExternalLinkPreview } from "@/components/study/external-link-preview";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
 import { ConceptoList } from "@/components/study/concepto-list";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
@@ -62,6 +63,8 @@ export default function ClaseDetallePage() {
           derivados={clase.derivados}
           meta={meta}
         />
+
+        {clase.link ? <ExternalLinkPreview link={clase.link} /> : null}
 
         <DualPanelTabs
           panelA={{

@@ -1,5 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { useCallback } from "react";
+import { useSwipeBack } from "@/lib/use-swipe-back";
 
 type AppShellProps = {
   title: string;
@@ -9,8 +14,17 @@ type AppShellProps = {
 };
 
 export function AppShell({ title, backHref, children, actions }: AppShellProps) {
+  const router = useRouter();
+  const goBack = useCallback(() => {
+    if (backHref) router.push(backHref);
+  }, [backHref, router]);
+  const swipeRef = useSwipeBack(backHref ? goBack : undefined);
+
   return (
-    <div className="mx-auto flex w-full max-w-lg flex-1 flex-col">
+    <div
+      ref={swipeRef}
+      className="mx-auto flex w-full max-w-lg flex-1 flex-col"
+    >
       <header className="sticky top-0 z-10 border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">
           {backHref ? (

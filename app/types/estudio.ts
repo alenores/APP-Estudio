@@ -36,6 +36,7 @@ export type Clase = {
   orden: number;
   jerarquia: number;
   dificultad: string | null;
+  link: string | null;
   created_at: string;
 };
 

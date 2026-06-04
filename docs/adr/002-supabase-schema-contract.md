@@ -69,6 +69,7 @@ No hay columna `estado` en `cursos`: ver campos derivados.
 | `orden` | integer | not null, default 0 |
 | `jerarquia` | integer | not null, default 0 |
 | `dificultad` | text | dato fijo al crear/importar |
+| `link` | text | URL de la clase (video, lección); miniatura en detalle vía `ExternalLinkPreview` |
 
 Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_comienzo` efectiva, etc.) **no** se guarda en `clases`; sale de `seguimientos`.
 

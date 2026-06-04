@@ -281,6 +281,7 @@ export async function insertClase(
       orden,
       jerarquia: values.jerarquia ?? 0,
       dificultad: emptyToNull(values.dificultad),
+      link: emptyToNull(values.link),
     })
     .select()
     .single();

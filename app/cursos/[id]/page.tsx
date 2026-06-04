@@ -11,7 +11,7 @@ import { ConceptoList } from "@/components/study/concepto-list";
 import { ClaseForm } from "@/components/study/forms/clase-form";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
-import { CourseLinkPreview } from "@/components/study/course-link-preview";
+import { ExternalLinkPreview } from "@/components/study/external-link-preview";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
 import { useParams } from "next/navigation";
@@ -93,7 +93,7 @@ export default function CursoDetallePage() {
           meta={meta}
         />
 
-        {curso.link ? <CourseLinkPreview link={curso.link} /> : null}
+        {curso.link ? <ExternalLinkPreview link={curso.link} /> : null}
 
         <TriplePanelTabs
           panelA={{
@@ -111,6 +111,7 @@ export default function CursoDetallePage() {
                       href={`/clases/${cl.id}`}
                       nombre={cl.nombre}
                       subtitulo={cl.dificultad ?? cl.descripcion}
+                      externalLink={cl.link}
                       derivados={cl.derivados}
                       badge={`#${cl.orden}`}
                     />

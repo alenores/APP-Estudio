@@ -23,6 +23,7 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
   const [orden, setOrden] = useState("");
   const [jerarquia, setJerarquia] = useState("");
   const [dificultad, setDificultad] = useState("");
+  const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -38,6 +39,7 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
       orden,
       jerarquia,
       dificultad,
+      link,
     });
 
     if (!parsed.success) {
@@ -87,6 +89,17 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
           placeholder="ej. baja, media, alta"
         />
       </FormField>
+      <FormField label="Link de la clase" error={fieldErrors.link}>
+        <FormInput
+          type="url"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          placeholder="https://platzi.com/clases/..."
+        />
+      </FormField>
+      <p className="text-xs text-ink-muted">
+        En el detalle de la clase se muestra miniatura o ícono según el link.
+      </p>
       <FormField label="Orden" error={fieldErrors.orden}>
         <FormInput
           type="number"

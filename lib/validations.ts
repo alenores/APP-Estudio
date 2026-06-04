@@ -59,6 +59,7 @@ export const claseFormSchema = z.object({
   orden: optionalInt,
   jerarquia: optionalInt,
   dificultad: optionalText,
+  link: optionalText,
 });
 
 const optionalNivel = z
