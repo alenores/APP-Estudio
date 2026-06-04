@@ -121,12 +121,14 @@ No se hace `UPDATE` al padre al guardar un seguimiento. La pantalla de detalle c
 
 | Mostrar en UI como | Regla (misma para tema, curso o clase según FK) |
 |--------------------|--------------------------------------------------|
-| Estado (etiqueta) | `etiqueta_estado` del seguimiento con **mayor** `fecha_registro` |
-| Porcentaje de avance | `porcentaje_avance` del seguimiento con mayor `fecha_registro` |
-| Tiempo consumido | `tiempo_consumido` del seguimiento con mayor `fecha_registro` |
-| Tiempo faltante estimado | `tiempo_faltante_estimado` del seguimiento con mayor `fecha_registro` |
-| Nivel de entendimiento | `nivel_entendimiento` del seguimiento con mayor `fecha_registro` |
+| Estado (etiqueta) | `etiqueta_estado` del seguimiento **más reciente** (`fecha_registro` DESC) que tenga valor en ese campo |
+| Porcentaje de avance | `porcentaje_avance` del seguimiento más reciente que tenga valor |
+| Tiempo consumido | `tiempo_consumido` del seguimiento más reciente que tenga valor |
+| Tiempo faltante estimado | `tiempo_faltante_estimado` del seguimiento más reciente que tenga valor |
+| Nivel de entendimiento | `nivel_entendimiento` del seguimiento más reciente que tenga valor |
 | Fecha de comienzo (efectiva) | **menor** `fecha_comienzo` no nula, ordenada por `fecha_registro` ascendente (primera vez que se registró comienzo) |
+
+Cada campo escalar se resuelve **por separado**: no hace falta que el mismo registro aporte todos los valores ni que sea el de ID máximo.
 
 Si no hay seguimientos, esos campos se muestran vacíos o con placeholder en UI.
 

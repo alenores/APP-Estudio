@@ -7,8 +7,8 @@ export function sumaTiempoConsumidoTema(seguimientos: Seguimiento[]): number {
 }
 
 /**
- * Restante estimado: del seguimiento con mayor `fecha_registro` (último registro),
- * no sumatorio — alineado a ADR 002 / derivados.
+ * Restante estimado: del seguimiento más reciente que tenga `tiempo_faltante_estimado`
+ * (ADR 002 / derivados).
  */
 export function tiempoRestanteUltimoSeguimiento(
   seguimientos: Seguimiento[],
