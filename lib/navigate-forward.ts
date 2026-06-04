@@ -3,6 +3,7 @@ import {
   NAV_LEAVE_MS,
 } from "@/lib/nav-motion";
 import type { NavPanelMotion } from "@/lib/nav-panel-context";
+import { hapticSwipeCommit } from "@/lib/haptic";
 import { markNavEnter, prefersReducedMotion } from "@/lib/nav-transition";
 
 type RouterPush = { push: (href: string) => void };
@@ -20,14 +21,26 @@ export function navigateForwardLeave(
   }
 
   markNavEnter();
+  hapticSwipeCommit();
 
   if (panel) {
+    const leaveOffset = navLeaveOffsetPx();
+    panel.setActiveItemKey(null);
     panel.setIsSwiping(false);
     panel.setIsLeaving(true);
-    panel.setActiveItemKey(null);
-    panel.setSwipeOffset(navLeaveOffsetPx());
+    panel.setSwipeOffset(leaveOffset);
+
     window.setTimeout(() => {
-      router.push(href);
+      const doc = document as Document & {
+        startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+      };
+      if (doc.startViewTransition) {
+        doc.startViewTransition(() => {
+          router.push(href);
+        });
+      } else {
+        router.push(href);
+      }
     }, NAV_LEAVE_MS);
     return;
   }

@@ -2,7 +2,8 @@ import type { CSSProperties } from "react";
 import {
   NAV_ENTER_ANIMATION_KEY,
   NAV_ENTER_OPACITY_FROM,
-  NAV_ENTER_OFFSET_PX,
+  NAV_ENTER_OFFSET_FALLBACK_PX,
+  navEnterFromRightOffsetPx,
   NAV_ENTER_SCALE_FROM,
   NAV_ENTER_SETTLE_MS,
   NAV_ENTER_TRANSITION,
@@ -81,11 +82,17 @@ export function buildNavPanelStyle({
   };
 }
 
-export const NAV_ENTER_INITIAL = {
-  enterOffset: NAV_ENTER_OFFSET_PX,
-  enterScale: NAV_ENTER_SCALE_FROM,
-  enterOpacity: NAV_ENTER_OPACITY_FROM,
-};
+export function getNavEnterInitial() {
+  const fromRight =
+    typeof window !== "undefined"
+      ? navEnterFromRightOffsetPx()
+      : NAV_ENTER_OFFSET_FALLBACK_PX;
+  return {
+    enterOffset: fromRight,
+    enterScale: NAV_ENTER_SCALE_FROM,
+    enterOpacity: NAV_ENTER_OPACITY_FROM,
+  };
+}
 
 export const NAV_ENTER_FINAL = {
   enterOffset: 0,

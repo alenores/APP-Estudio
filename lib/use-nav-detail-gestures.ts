@@ -16,8 +16,8 @@ import {
 import type { NavPanelMotion } from "@/lib/nav-panel-context";
 import {
   consumeNavEnter,
+  getNavEnterInitial,
   NAV_ENTER_FINAL,
-  NAV_ENTER_INITIAL,
   NAV_ENTER_SETTLE_MS,
 } from "@/lib/nav-transition";
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
@@ -54,23 +54,33 @@ export function useNavDetailGestures({
     if (typeof window === "undefined") return;
     if (!consumeNavEnter()) return;
 
+    const initial = getNavEnterInitial();
+    panel.setIsSwiping(false);
+    panel.setIsLeaving(false);
+    panel.setSwipeOffset(0);
+    panel.setActiveItemKey(null);
+
     setIsEntering(true);
-    setEnterOffset(NAV_ENTER_INITIAL.enterOffset);
-    setEnterScale(NAV_ENTER_INITIAL.enterScale);
-    setEnterOpacity(NAV_ENTER_INITIAL.enterOpacity);
+    setEnterOffset(initial.enterOffset);
+    setEnterScale(initial.enterScale);
+    setEnterOpacity(initial.enterOpacity);
 
     const frame = window.requestAnimationFrame(() => {
-      setEnterOffset(NAV_ENTER_FINAL.enterOffset);
-      setEnterScale(NAV_ENTER_FINAL.enterScale);
-      setEnterOpacity(NAV_ENTER_FINAL.enterOpacity);
-      window.setTimeout(() => {
-        setIsEntering(false);
-      }, NAV_ENTER_SETTLE_MS);
+      window.requestAnimationFrame(() => {
+        setEnterOffset(NAV_ENTER_FINAL.enterOffset);
+        setEnterScale(NAV_ENTER_FINAL.enterScale);
+        setEnterOpacity(NAV_ENTER_FINAL.enterOpacity);
+        window.setTimeout(() => {
+          setIsEntering(false);
+        }, NAV_ENTER_SETTLE_MS);
+      });
     });
 
     return () => {
       window.cancelAnimationFrame(frame);
     };
+    // Solo al montar la ruta hija (consumeNavEnter es una sola vez).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const triggerBackLeave = useCallback(() => {

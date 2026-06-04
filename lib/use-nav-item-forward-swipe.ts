@@ -5,7 +5,7 @@ import {
   FWD_SWIPE_AXIS_MIN,
   FWD_SWIPE_COMMIT_MAX_Y,
   FWD_SWIPE_COMMIT_PX,
-  FWD_SWIPE_MAX_DRAG,
+  fwdSwipeMaxDragPx,
 } from "@/lib/nav-motion";
 import { useNavPanelOptional } from "@/lib/nav-panel-context";
 import { navigateForwardLeave } from "@/lib/navigate-forward";
@@ -84,7 +84,7 @@ export function useNavItemForwardSwipe({
       }
 
       onSwipeStarted?.();
-      panel?.setSwipeOffset(Math.max(deltaX, -FWD_SWIPE_MAX_DRAG));
+      panel?.setSwipeOffset(Math.max(deltaX, -fwdSwipeMaxDragPx()));
     },
     [enabled, onSwipeStarted, panel],
   );

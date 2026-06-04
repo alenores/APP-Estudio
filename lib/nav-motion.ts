@@ -2,7 +2,8 @@
 
 export const NAV_ENTER_ANIMATION_KEY = "app-estudio-nav-enter-v1";
 
-export const NAV_LEAVE_MS = 170;
+/** Debe cubrir la transición CSS de salida (210ms) para no cortar el gesto. */
+export const NAV_LEAVE_MS = 210;
 export const NAV_ENTER_SETTLE_MS = 220;
 
 export const NAV_OPACITY_DIVISOR = 340;
@@ -17,14 +18,17 @@ export const NAV_ENTER_TRANSITION =
 export const NAV_LEAVE_OFFSET_MIN = 320;
 export const NAV_LEAVE_WIDTH_RATIO = 0.92;
 
-export const NAV_ENTER_OFFSET_PX = 44;
+/** Entrada sutil si no hubo animación de salida previa (fallback). */
+export const NAV_ENTER_OFFSET_FALLBACK_PX = 44;
 export const NAV_ENTER_SCALE_FROM = 0.992;
 export const NAV_ENTER_OPACITY_FROM = 0.92;
 
 /** Swipe en ítem de lista → abrir hijo (izquierda). */
 export const FWD_SWIPE_COMMIT_PX = 80;
 export const FWD_SWIPE_COMMIT_MAX_Y = 70;
-export const FWD_SWIPE_MAX_DRAG = 220;
+/** Arrastre en fila: más recorrido para que el commit no “salte” tan brusco. */
+export const FWD_SWIPE_MAX_DRAG_RATIO = 0.48;
+export const FWD_SWIPE_MAX_DRAG_MIN = 260;
 export const FWD_SWIPE_AXIS_MIN = 14;
 export const FWD_SWIPE_AXIS_BIAS_Y = 10;
 
@@ -46,6 +50,19 @@ export function navLeaveOffsetPx(): number {
 export function navBackLeaveOffsetPx(): number {
   if (typeof window === "undefined") return NAV_LEAVE_OFFSET_MIN;
   return Math.max(window.innerWidth * NAV_LEAVE_WIDTH_RATIO, NAV_LEAVE_OFFSET_MIN);
+}
+
+/** Entrada del hijo: misma magnitud que la salida, desde la derecha (efecto libro). */
+export function navEnterFromRightOffsetPx(): number {
+  return navBackLeaveOffsetPx();
+}
+
+export function fwdSwipeMaxDragPx(): number {
+  if (typeof window === "undefined") return FWD_SWIPE_MAX_DRAG_MIN;
+  return Math.max(
+    window.innerWidth * FWD_SWIPE_MAX_DRAG_RATIO,
+    FWD_SWIPE_MAX_DRAG_MIN,
+  );
 }
 
 export function navPanelOpacity(offsetPx: number): number {
