@@ -81,9 +81,40 @@ html.pwa-standalone-zoom-lock body {
   animation: pulse-install-bg 2.2s ease-in-out infinite;
 }
 
+/** FAB expand: acciones aparecen desde el botón + hacia arriba, una tras otra. */
+@keyframes fab-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fab-action-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.fab-backdrop-enter {
+  animation: fab-backdrop-enter 180ms ease-out both;
+}
+
+.fab-action-enter {
+  animation: fab-action-enter 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .progress-bar-indeterminate,
-  .ios-install-pulse {
+  .ios-install-pulse,
+  .fab-backdrop-enter,
+  .fab-action-enter {
     animation: none;
   }
 }
