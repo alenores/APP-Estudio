@@ -11,51 +11,104 @@ type StudySheetProps = {
 
 const PANEL_MS = 550;
 const BACKDROP_MS = 350;
+const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function clearAnimStyles(panel: HTMLElement, backdrop: HTMLElement) {
+  panel.style.transform = "";
+  panel.style.opacity = "";
+  backdrop.style.opacity = "";
+}
 
 /**
- * Capa modal (sheet flotante desde abajo) para altas contextuales sin cambiar de ruta.
- * slideIn un frame después de open para que la transición corra en Android.
+ * Sheet desde abajo; slide con Web Animations API (fiable en Android).
  * Ver ADR 003.
  */
 export function StudySheet({ open, onClose, title, children }: StudySheetProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLButtonElement>(null);
+  const animsRef = useRef<Animation[]>([]);
   const [presented, setPresented] = useState(false);
-  const [slideIn, setSlideIn] = useState(false);
-  const [backdropIn, setBackdropIn] = useState(false);
 
   useLayoutEffect(() => {
-    if (open) {
-      setPresented(true);
-      setSlideIn(false);
-      setBackdropIn(false);
-    }
+    if (open) setPresented(true);
   }, [open]);
 
   useEffect(() => {
+    const panel = panelRef.current;
+    const backdrop = backdropRef.current;
+    if (!panel || !backdrop || !presented) return;
+
+    animsRef.current.forEach((a) => a.cancel());
+    animsRef.current = [];
+
+    const reduced = prefersReducedMotion();
+
     if (open) {
-      let frame2 = 0;
-      const frame1 = requestAnimationFrame(() => {
-        if (panelRef.current) {
-          void panelRef.current.offsetHeight;
-        }
-        frame2 = requestAnimationFrame(() => {
-          setBackdropIn(true);
-          setSlideIn(true);
-        });
-      });
+      if (reduced) {
+        clearAnimStyles(panel, backdrop);
+        return;
+      }
+
+      panel.style.transform = "translateY(100%)";
+      backdrop.style.opacity = "0";
+      void panel.offsetHeight;
+
+      const panelAnim = panel.animate(
+        [
+          { transform: "translateY(100%)" },
+          { transform: "translateY(0)" },
+        ],
+        { duration: PANEL_MS, easing: EASING, fill: "forwards" },
+      );
+      const backdropAnim = backdrop.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: BACKDROP_MS, easing: "ease-out", fill: "forwards" },
+      );
+      animsRef.current = [panelAnim, backdropAnim];
 
       return () => {
-        cancelAnimationFrame(frame1);
-        if (frame2) cancelAnimationFrame(frame2);
+        panelAnim.cancel();
+        backdropAnim.cancel();
+        clearAnimStyles(panel, backdrop);
       };
     }
 
-    setSlideIn(false);
-    setBackdropIn(false);
-    const timer = window.setTimeout(() => setPresented(false), PANEL_MS);
-    return () => window.clearTimeout(timer);
-  }, [open]);
+    if (reduced) {
+      clearAnimStyles(panel, backdrop);
+      setPresented(false);
+      return;
+    }
+
+    const panelAnim = panel.animate(
+      [{ transform: "translateY(0)" }, { transform: "translateY(100%)" }],
+      { duration: PANEL_MS, easing: EASING, fill: "forwards" },
+    );
+    const backdropAnim = backdrop.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: BACKDROP_MS, easing: "ease-out", fill: "forwards" },
+    );
+    animsRef.current = [panelAnim, backdropAnim];
+
+    let cancelled = false;
+    void Promise.all([panelAnim.finished, backdropAnim.finished]).then(() => {
+      if (cancelled) return;
+      clearAnimStyles(panel, backdrop);
+      setPresented(false);
+    });
+
+    return () => {
+      cancelled = true;
+      panelAnim.cancel();
+      backdropAnim.cancel();
+      clearAnimStyles(panel, backdrop);
+    };
+  }, [open, presented]);
 
   useEffect(() => {
     if (!presented) return;
@@ -78,16 +131,14 @@ export function StudySheet({ open, onClose, title, children }: StudySheetProps) 
       className={`fixed inset-0 z-40 flex flex-col justify-end px-3 pb-[max(1rem,env(safe-area-inset-bottom))] ${
         open ? "pointer-events-auto" : "pointer-events-none"
       }`}
-      aria-hidden={!open && !slideIn}
+      aria-hidden={!open}
     >
       <button
+        ref={backdropRef}
         type="button"
         aria-label="Cerrar"
         tabIndex={open ? 0 : -1}
-        className={`absolute inset-0 bg-ink/40 transition-opacity ease-out motion-reduce:transition-none motion-reduce:bg-ink/30 ${
-          backdropIn ? "opacity-100" : "opacity-0"
-        }`}
-        style={{ transitionDuration: `${BACKDROP_MS}ms` }}
+        className="absolute inset-0 bg-ink/40 motion-reduce:bg-ink/30"
         onClick={onClose}
       />
 
@@ -96,12 +147,7 @@ export function StudySheet({ open, onClose, title, children }: StudySheetProps) 
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative z-50 mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-[0_8px_40px_rgba(30,41,59,0.22),0_-4px_20px_rgba(30,41,59,0.08)] transition-transform ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform motion-reduce:transition-none ${
-          slideIn
-            ? "translate-y-0 motion-reduce:translate-y-0"
-            : "translate-y-full motion-reduce:translate-y-0"
-        }`}
-        style={{ transitionDuration: `${PANEL_MS}ms` }}
+        className="relative z-50 mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-[0_8px_40px_rgba(30,41,59,0.22),0_-4px_20px_rgba(30,41,59,0.08)] will-change-transform"
         onClick={(e) => e.stopPropagation()}
       >
         <div
