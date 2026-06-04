@@ -12,6 +12,7 @@ import type {
   FiltroCursoEstado,
   TemaDetalleMetrics,
 } from "@/app/hooks/useTemaDetalleMetrics";
+import { TemaEstadoCard } from "@/components/tema-detalle/tema-estado-card";
 import { TemaNivelGauge } from "@/components/tema-detalle/tema-nivel-gauge";
 import { TemaTiempoPieCard } from "@/components/tema-detalle/tema-tiempo-pie-card";
 import { formatDuracionMinutos } from "@/lib/format-duracion";
@@ -203,12 +204,19 @@ export function TemaDetalleView({
         ) : null}
       </section>
 
-      <div className="td-rise td-d3 mt-3 grid grid-cols-2 gap-2">
-        <TemaNivelGauge nivel={metrics.nivel} />
-        <TemaTiempoPieCard
-          invertidoMin={metrics.tiempoInvertidoMin}
-          restanteMin={metrics.tiempoRestanteMin}
-        />
+      <div className="td-rise td-d3 mt-3 grid grid-cols-2 items-stretch gap-2">
+        <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
+        <div className="flex min-h-0 flex-col gap-2">
+          <TemaTiempoPieCard
+            invertidoMin={metrics.tiempoInvertidoMin}
+            restanteMin={metrics.tiempoRestanteMin}
+            className="min-h-0 flex-1"
+          />
+          <TemaEstadoCard
+            estado={metrics.estadoTema}
+            className="min-h-0 flex-1"
+          />
+        </div>
       </div>
 
       <div className="td-rise td-d5 mt-7">

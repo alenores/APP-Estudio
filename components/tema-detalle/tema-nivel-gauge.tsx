@@ -9,6 +9,7 @@ import { NIVEL_MAX, NIVEL_MIN } from "@/lib/estado-ui";
 type TemaNivelGaugeProps = {
   nivel: number | null;
   delayClass?: string;
+  className?: string;
 };
 
 const CX = 100;
@@ -22,7 +23,11 @@ export function agujaRotacionGrados(nivel: number): number {
 }
 
 /** Semicírculo tipo cartel de riesgo: rojo→ámbar→verde + aguja. */
-export function TemaNivelGauge({ nivel, delayClass = "td-d3" }: TemaNivelGaugeProps) {
+export function TemaNivelGauge({
+  nivel,
+  delayClass = "td-d3",
+  className = "",
+}: TemaNivelGaugeProps) {
   const palabra = nivelEntendimientoPalabra(nivel);
   const color = nivelEntendimientoColor(nivel);
   const needleTransform =
@@ -32,7 +37,7 @@ export function TemaNivelGauge({ nivel, delayClass = "td-d3" }: TemaNivelGaugePr
 
   return (
     <section
-      className={`td-card td-rise ${delayClass} flex min-w-0 flex-col items-center px-2 pb-2 pt-2.5`}
+      className={`td-card td-rise ${delayClass} flex h-full min-w-0 flex-col items-center px-2 pb-2 pt-2.5 ${className}`}
     >
       <span className="mb-0.5 w-full truncate text-center text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
         Entendimiento
