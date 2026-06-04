@@ -6,21 +6,12 @@ import {
   type ChildQuickAction,
 } from "@/components/study/child-context-menu";
 import { LONG_PRESS_MS } from "@/lib/fab-open-delay";
+import { hapticContextMenu, hapticLightTap } from "@/lib/haptic";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type EntityCardWithQuickActionsProps = EntityCardProps & {
   onQuickAction: (action: ChildQuickAction) => void;
 };
-
-function hapticLongPress() {
-  try {
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate(12);
-    }
-  } catch {
-    /* sin API */
-  }
-}
 
 const MOVE_CANCEL_PX = 12;
 
@@ -53,7 +44,7 @@ export function EntityCardWithQuickActions({
     const el = wrapRef.current;
     if (!el) return;
     longPressDone.current = true;
-    hapticLongPress();
+    hapticContextMenu();
     setMenuRect(el.getBoundingClientRect());
     setPressing(false);
   }, []);
@@ -72,6 +63,7 @@ export function EntityCardWithQuickActions({
 
   function onTouchStart(e: React.TouchEvent) {
     if (e.touches.length !== 1) return;
+    hapticLightTap();
     beginPress(e.touches[0].clientX, e.touches[0].clientY);
   }
 

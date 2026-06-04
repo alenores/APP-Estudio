@@ -23,7 +23,7 @@ export function AppShell({ title, backHref, children, actions }: AppShellProps) 
   return (
     <div
       ref={swipeRef}
-      className="mx-auto flex w-full max-w-lg flex-1 flex-col"
+      className="mx-auto flex w-full max-w-lg flex-1 flex-col bg-paper will-change-transform"
     >
       <header className="sticky top-0 z-10 border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3">

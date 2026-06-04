@@ -1,5 +1,6 @@
 "use client";
 
+import { hapticOpen } from "@/lib/haptic";
 import { useEffect, useId, useRef } from "react";
 
 /** Desplazamiento hacia abajo (px) para cerrar con swipe. */
@@ -11,17 +12,6 @@ type StudySheetProps = {
   title: string;
   children: React.ReactNode;
 };
-
-/** Vibración corta al abrir (Android); falla en silencio si no hay soporte. */
-function hapticOpen() {
-  try {
-    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
-      navigator.vibrate(12);
-    }
-  } catch {
-    /* sin permiso o navegador sin API */
-  }
-}
 
 /**
  * Sheet flotante para altas contextuales. Sin slide al abrir (ADR 006).

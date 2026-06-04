@@ -46,13 +46,15 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
    - Confirmar con SHA del footer en el celular; la emulación PC **no alcanza** para animaciones.
 
 6. **Long press en card hijo** (cursos bajo tema, clases bajo curso)
-   - Mantener apretada la card ~480 ms (`LONG_PRESS_MS` en `lib/fab-open-delay.ts`): vibración + barra contextual **encima de la card** con Seguimiento / Concepto del **hijo** (no del padre).
+   - Mantener apretada la card ~480 ms (`LONG_PRESS_MS`): pulso leve al tocar (`hapticLightTap`) + patrón al abrir menú (`hapticContextMenu` en `lib/haptic.ts`; el timer puede perder user activation en algunos Android).
+   - Barra contextual **encima de la card** (ancho adaptativo, 2 botones) con Seguimiento / Concepto del **hijo**.
    - Tap corto sigue abriendo el detalle; el ícono de link externo no dispara el menú.
    - Mismos sheets y forms que el FAB; título del sheet puede incluir el nombre del hijo.
 
 7. **Volver atrás con swipe** (`AppShell` con `backHref`)
-   - Swipe horizontal hacia la derecha desde el borde izquierdo (~40 px) o recorrido amplio (≥100 px); ejecuta el mismo destino que el botón ← (`router.push(backHref)`).
-   - Sin animación de transición de página; no compite con swipe abajo del `StudySheet` (eje vertical distinto).
+   - Swipe horizontal hacia la derecha: el panel **sigue el dedo** (`translateX` + sombra/opacidad); al soltar, rebote o commit (~33 % ancho / ≥88 px) y luego `router.push(backHref)`.
+   - Desde borde izquierdo (~40 px) o recorrido amplio (≥100 px) para armar el gesto.
+   - Vibración al confirmar: `hapticSwipeCommit` en `lib/haptic.ts`. No compite con swipe abajo del `StudySheet`.
 
 ## Archivos de referencia
 

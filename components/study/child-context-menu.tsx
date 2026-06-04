@@ -18,8 +18,17 @@ const ACTIONS: { id: ChildQuickAction; label: string }[] = [
   { id: "concepto", label: "Concepto" },
 ];
 
+function menuWidth(anchorRect: DOMRect): number {
+  if (typeof window === "undefined") return 320;
+  const viewportPad = 16;
+  const maxW = window.innerWidth - viewportPad * 2;
+  const minW = 300;
+  const cardW = anchorRect.width + 24;
+  return Math.min(maxW, Math.max(minW, cardW, 280));
+}
+
 /**
- * Barra contextual encima de la card (opción B): seguimiento / concepto del hijo.
+ * Barra contextual encima de la card: dos acciones fijas, ancho adaptativo.
  */
 export function ChildContextMenu({
   anchorRect,
@@ -29,8 +38,8 @@ export function ChildContextMenu({
 }: ChildContextMenuProps) {
   const menuId = useId();
   const pickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const barWidth = 260;
-  const barHeight = 48;
+  const barWidth = menuWidth(anchorRect);
+  const barHeight = 52;
   const top = Math.max(12, anchorRect.top - barHeight - 10);
   const left = Math.min(
     Math.max(8, anchorRect.left + anchorRect.width / 2 - barWidth / 2),
@@ -71,7 +80,7 @@ export function ChildContextMenu({
         id={menuId}
         role="menu"
         aria-label={`Acciones para ${entityName}`}
-        className="fixed z-50 flex gap-2 rounded-2xl border border-border bg-paper-elevated p-2 shadow-lg"
+        className="fixed z-50 grid grid-cols-2 gap-2.5 rounded-2xl border border-border bg-paper-elevated p-2.5 shadow-lg"
         style={{ top, left, width: barWidth }}
       >
         {ACTIONS.map((action) => (
@@ -80,10 +89,10 @@ export function ChildContextMenu({
             type="button"
             role="menuitem"
             onClick={() => pick(action.id)}
-            className={`flex-1 justify-center ${fabActionButtonClass.solid}`}
+            className={`min-w-0 whitespace-nowrap ${fabActionButtonClass.solid}`}
           >
-            <span className="text-lg leading-none">+</span>
-            {action.label}
+            <span className="shrink-0 text-lg leading-none">+</span>
+            <span className="truncate">{action.label}</span>
           </button>
         ))}
       </div>
