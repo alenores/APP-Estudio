@@ -18,7 +18,6 @@ import { TemaTiempoPieCard } from "@/components/tema-detalle/tema-tiempo-pie-car
 import { formatDuracionMinutos } from "@/lib/format-duracion";
 import {
   estadoBadgeClass,
-  estadoChipDetalleClass,
   estadoFilterDotClass,
   estadoLabel,
   ESTADO_OPCIONES,
@@ -97,7 +96,6 @@ export function TemaDetalleView({
     );
   }, [cursos, filtro]);
 
-  const estadoTexto = estadoLabel(metrics.estadoTema) ?? "Sin estado";
   const tlStyle = {
     "--td-fill-pct": metrics.fillPct,
     "--td-gap-left": metrics.gapLeft,
@@ -122,12 +120,6 @@ export function TemaDetalleView({
         <h1 className="mt-1.5 text-[34px] font-extrabold leading-[1.05] tracking-tight text-[var(--td-ink)] max-[430px]:text-[30px]">
           {tema.nombre}
         </h1>
-        <span
-          className={`mt-3 ${estadoChipDetalleClass(metrics.estadoTema)}`}
-        >
-          <span className="td-chip-dot" aria-hidden />
-          {estadoTexto}
-        </span>
         {tema.descripcion ? (
           <p className="mt-3.5 max-w-[36ch] text-[15px] text-[var(--td-ink-soft)]">
             {tema.descripcion}
@@ -135,7 +127,22 @@ export function TemaDetalleView({
         ) : null}
       </section>
 
-      <section className="td-card td-rise td-d2 mt-3.5 px-6 pb-6 pt-5">
+      <div className="td-rise td-d2 mt-3 grid grid-cols-2 items-stretch gap-2">
+        <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
+        <div className="flex min-h-0 flex-col gap-2">
+          <TemaTiempoPieCard
+            invertidoMin={metrics.tiempoInvertidoMin}
+            restanteMin={metrics.tiempoRestanteMin}
+            className="min-h-0 flex-1"
+          />
+          <TemaEstadoCard
+            estado={metrics.estadoTema}
+            className="min-h-0 flex-1"
+          />
+        </div>
+      </div>
+
+      <section className="td-card td-rise td-d3 mt-3 px-6 pb-6 pt-5">
         <div className="mb-6 flex items-center justify-between gap-2">
           <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--td-faint)]">
             Calendario y avance
@@ -203,21 +210,6 @@ export function TemaDetalleView({
           <NotaCalendario nota={metrics.nota} delta={metrics.delta} />
         ) : null}
       </section>
-
-      <div className="td-rise td-d3 mt-3 grid grid-cols-2 items-stretch gap-2">
-        <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
-        <div className="flex min-h-0 flex-col gap-2">
-          <TemaTiempoPieCard
-            invertidoMin={metrics.tiempoInvertidoMin}
-            restanteMin={metrics.tiempoRestanteMin}
-            className="min-h-0 flex-1"
-          />
-          <TemaEstadoCard
-            estado={metrics.estadoTema}
-            className="min-h-0 flex-1"
-          />
-        </div>
-      </div>
 
       <div className="td-rise td-d5 mt-7">
         <div className="relative flex overflow-hidden rounded-[14px] border border-[var(--td-line)] bg-[var(--td-line-soft)] p-1">

@@ -102,22 +102,6 @@ export function estadoLabel(estado: string | null): string | null {
   return ESTADO_OPCIONES.find((o) => o.value === key)?.label ?? estado;
 }
 
-/** Fondo/borde de mini-card de estado (columna derecha detalle tema). */
-export function estadoMiniCardSurfaceClass(estado: string | null): string {
-  switch (normalizarEstado(estado)) {
-    case "sin empezar":
-      return "border-[color-mix(in_srgb,var(--td-e-azul)_35%,var(--td-line))] bg-[color-mix(in_srgb,var(--td-e-azul-pale)_55%,var(--td-card))]";
-    case "en curso":
-      return "border-[color-mix(in_srgb,var(--td-e-azul)_50%,var(--td-line))] bg-[color-mix(in_srgb,var(--td-e-azul)_12%,var(--td-card))]";
-    case "pausado":
-      return "border-[var(--td-e-gris)] bg-[color-mix(in_srgb,var(--td-e-gris)_35%,var(--td-card))]";
-    case "terminado":
-      return "border-[color-mix(in_srgb,var(--td-e-salvia)_45%,var(--td-line))] bg-[color-mix(in_srgb,var(--td-e-salvia)_18%,var(--td-card))]";
-    default:
-      return "border-[var(--td-line)] bg-[var(--td-card)]";
-  }
-}
-
 /** Chip de cabecera en detalle de tema (mockup). */
 export function estadoChipDetalleClass(estado: string | null): string {
   switch (normalizarEstado(estado)) {

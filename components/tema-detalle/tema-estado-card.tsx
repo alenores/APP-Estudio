@@ -1,11 +1,6 @@
 "use client";
 
-import { TemaMiniCard } from "@/components/tema-detalle/tema-mini-card";
-import {
-  estadoChipDetalleClass,
-  estadoLabel,
-  estadoMiniCardSurfaceClass,
-} from "@/lib/estado-ui";
+import { estadoChipDetalleClass, estadoLabel } from "@/lib/estado-ui";
 
 type TemaEstadoCardProps = {
   estado: string | null;
@@ -13,6 +8,7 @@ type TemaEstadoCardProps = {
   className?: string;
 };
 
+/** La card es el estado: color, punto y texto (sin título ni chip anidado). */
 export function TemaEstadoCard({
   estado,
   delayClass = "td-d4",
@@ -21,18 +17,11 @@ export function TemaEstadoCard({
   const texto = estadoLabel(estado) ?? "Sin estado";
 
   return (
-    <TemaMiniCard
-      title="Estado"
-      delayClass={delayClass}
-      surfaceClass={estadoMiniCardSurfaceClass(estado)}
-      className={className}
+    <section
+      className={`td-card td-rise ${delayClass} ${estadoChipDetalleClass(estado)} !flex min-h-0 w-full flex-1 items-center justify-center gap-2 px-2 py-2 ${className}`}
     >
-      <div className="flex items-center justify-center py-0.5">
-        <span className={estadoChipDetalleClass(estado)}>
-          <span className="td-chip-dot" aria-hidden />
-          {texto}
-        </span>
-      </div>
-    </TemaMiniCard>
+      <span className="td-chip-dot shrink-0" aria-hidden />
+      <span className="truncate text-[13px] font-bold">{texto}</span>
+    </section>
   );
 }
