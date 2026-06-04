@@ -12,6 +12,8 @@ import type {
   FiltroCursoEstado,
   TemaDetalleMetrics,
 } from "@/app/hooks/useTemaDetalleMetrics";
+import { TemaNivelGauge } from "@/components/tema-detalle/tema-nivel-gauge";
+import { TemaTiempoPieCard } from "@/components/tema-detalle/tema-tiempo-pie-card";
 import { formatDuracionMinutos } from "@/lib/format-duracion";
 import {
   estadoBadgeClass,
@@ -201,61 +203,12 @@ export function TemaDetalleView({
         ) : null}
       </section>
 
-      <div className="td-rise td-d3 mt-3.5 grid grid-cols-1 gap-3.5 min-[431px]:grid-cols-[1.05fr_1fr]">
-        <section className="td-card flex flex-col items-center px-4 pb-4 pt-4">
-          <span className="self-start text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-faint)]">
-            Nivel de entendimiento
-          </span>
-          <div className="relative mt-1.5 w-full max-w-[190px]">
-            <svg viewBox="0 0 200 118" className="block h-auto w-full">
-              <defs>
-                <linearGradient id="td-gz-gradient" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stopColor="var(--td-plum-pale)" />
-                  <stop offset="1" stopColor="var(--td-plum-deep)" />
-                </linearGradient>
-              </defs>
-              <path
-                className="fill-none stroke-[var(--td-line)]"
-                strokeWidth={15}
-                strokeLinecap="round"
-                d="M20,100 A80,80 0 0 1 180,100"
-              />
-              <path
-                className="td-gz-val"
-                d="M20,100 A80,80 0 0 1 180,100"
-              />
-            </svg>
-            <div className="pointer-events-none absolute inset-x-0 top-[46%] text-center">
-              <span className="text-[40px] font-extrabold leading-none tracking-tight text-[var(--td-plum-deep)]">
-                {metrics.nivel ?? "—"}
-              </span>
-              <span className="text-sm font-bold text-[var(--td-faint)]">
-                /10
-              </span>
-            </div>
-          </div>
-          <div className="mt-0 flex w-full justify-between px-1.5 text-[11px] font-bold text-[var(--td-faint)]">
-            <span>1</span>
-            <span>10</span>
-          </div>
-          {metrics.nivelPalabra ? (
-            <p className="mt-1 text-[13px] font-extrabold text-[var(--td-plum-deep)]">
-              {metrics.nivelPalabra}
-            </p>
-          ) : null}
-        </section>
-        <div className="flex flex-col gap-3.5">
-          <Ministat
-            label="Tiempo invertido"
-            value={formatDuracionMinutos(metrics.tiempoInvertidoMin)}
-            delayClass="td-d4"
-          />
-          <Ministat
-            label="Restante estimado"
-            value={formatDuracionMinutos(metrics.tiempoRestanteMin)}
-            delayClass="td-d4"
-          />
-        </div>
+      <div className="td-rise td-d3 mt-3.5 grid grid-cols-1 gap-3.5 min-[431px]:grid-cols-[1fr_1.05fr]">
+        <TemaNivelGauge nivel={metrics.nivel} />
+        <TemaTiempoPieCard
+          invertidoMin={metrics.tiempoInvertidoMin}
+          restanteMin={metrics.tiempoRestanteMin}
+        />
       </div>
 
       <div className="td-rise td-d5 mt-7">
@@ -385,41 +338,6 @@ function VeredictoChip({ veredicto }: { veredicto: VeredictoUi }) {
       {prefix}
       {veredicto.label}
     </span>
-  );
-}
-
-function Ministat({
-  label,
-  value,
-  delayClass,
-}: {
-  label: string;
-  value: string;
-  delayClass: string;
-}) {
-  const match = value.match(/^(\d+h)\s*(\d+)m$/);
-  return (
-    <section
-      className={`td-card td-rise ${delayClass} flex flex-1 flex-col justify-center px-4 py-4`}
-    >
-      <div className="text-[10.5px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
-        {label}
-      </div>
-      <div className="mt-1 text-[23px] font-extrabold tracking-tight text-[var(--td-ink)]">
-        {value === "—" ? (
-          "—"
-        ) : match ? (
-          <>
-            {match[1]} {match[2]}
-            <small className="text-sm font-semibold text-[var(--td-ink-soft)]">
-              m
-            </small>
-          </>
-        ) : (
-          value
-        )}
-      </div>
-    </section>
   );
 }
 
