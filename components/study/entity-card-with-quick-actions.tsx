@@ -107,6 +107,7 @@ export function EntityCardWithQuickActions({
       >
         <EntityCard
           {...card}
+          forwardTransition
           blockNavigation={menuRect !== null}
           onNavigateBlocked={() => {
             longPressDone.current = false;

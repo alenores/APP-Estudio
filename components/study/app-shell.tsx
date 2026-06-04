@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
+import { animateEnterForward, consumeNavForward } from "@/lib/nav-transition";
 import { useSwipeBack } from "@/lib/use-swipe-back";
 
 type AppShellProps = {
@@ -20,9 +21,16 @@ export function AppShell({ title, backHref, children, actions }: AppShellProps) 
   }, [backHref, router]);
   const swipeRef = useSwipeBack(backHref ? goBack : undefined);
 
+  useEffect(() => {
+    const panel = swipeRef.current;
+    if (!panel || !consumeNavForward()) return;
+    animateEnterForward(panel);
+  }, []);
+
   return (
     <div
       ref={swipeRef}
+      data-nav-panel
       className="mx-auto flex w-full max-w-lg flex-1 flex-col bg-paper will-change-transform"
     >
       <header className="sticky top-0 z-10 border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">

@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { estadoDotClass, estadoLabel } from "@/lib/estado-ui";
+import { navigateForward } from "@/lib/navigate-forward";
+import { useRouter } from "next/navigation";
 
 export type EntityCardProps = {
   href: string;
@@ -15,6 +19,8 @@ export type EntityCardProps = {
   /** Tras long-press con menú contextual, evita abrir el detalle en el mismo tap. */
   blockNavigation?: boolean;
   onNavigateBlocked?: () => void;
+  /** Transición adelante (entra desde la derecha) al abrir detalle del hijo. */
+  forwardTransition?: boolean;
 };
 
 export function EntityCard({
@@ -26,22 +32,31 @@ export function EntityCard({
   badge,
   blockNavigation = false,
   onNavigateBlocked,
+  forwardTransition = false,
 }: EntityCardProps) {
+  const router = useRouter();
   const { etiqueta_estado, porcentaje_avance } = derivados;
   const estadoTexto = estadoLabel(etiqueta_estado);
   const hasExternal = Boolean(externalLink?.trim());
+
+  async function onCardClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (blockNavigation) {
+      e.preventDefault();
+      onNavigateBlocked?.();
+      return;
+    }
+    if (forwardTransition) {
+      e.preventDefault();
+      await navigateForward(router, href);
+    }
+  }
 
   return (
     <div className="flex items-start gap-2 rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md">
       <Link
         href={href}
         className="flex min-w-0 flex-1 items-start gap-3"
-        onClick={(e) => {
-          if (blockNavigation) {
-            e.preventDefault();
-            onNavigateBlocked?.();
-          }
-        }}
+        onClick={onCardClick}
       >
         <span
           className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${estadoDotClass(etiqueta_estado)}`}

@@ -51,7 +51,11 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
    - Tap corto sigue abriendo el detalle; el ícono de link externo no dispara el menú.
    - Mismos sheets y forms que el FAB; título del sheet puede incluir el nombre del hijo.
 
-7. **Volver atrás con swipe** (`AppShell` con `backHref`)
+7. **Entrar a un hijo (card con `forwardTransition`)**
+   - Tap en curso/clase bajo tema o curso: la pantalla actual se desplaza a la **izquierda**; la siguiente **entra desde la derecha** (`lib/nav-transition.ts`, `navigate-forward.ts`).
+   - Espejo del swipe atrás (salida a la derecha). `data-nav-panel` en `AppShell`. Respetar `prefers-reduced-motion`.
+
+8. **Volver atrás con swipe** (`AppShell` con `backHref`)
    - Swipe horizontal hacia la derecha: el panel **sigue el dedo** (`translateX` + sombra/opacidad); al soltar, rebote o commit (~33 % ancho / ≥88 px) y luego `router.push(backHref)`.
    - Desde borde izquierdo (~40 px) o recorrido amplio (≥100 px) para armar el gesto.
    - Vibración al confirmar: `hapticSwipeCommit` en `lib/haptic.ts`. No compite con swipe abajo del `StudySheet`.
@@ -62,6 +66,7 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
 |-----|--------|
 | Delay FAB → sheet | `lib/fab-open-delay.ts`, `fab-expand-menu.tsx`, `fab-action-button.tsx` |
 | Sheet simple | `components/study/study-sheet.tsx` |
+| Navegación adelante (card hijo) | `lib/nav-transition.ts`, `lib/navigate-forward.ts`, `entity-card.tsx` |
 | Swipe atrás en detalle | `lib/use-swipe-back.ts`, `components/study/app-shell.tsx` |
 | Menú contextual card hijo | `entity-card-with-quick-actions.tsx`, `child-context-menu.tsx` |
 | Preview link curso/clase | `components/study/external-link-preview.tsx`, `app/api/link-preview` |
