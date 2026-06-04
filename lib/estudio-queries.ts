@@ -14,7 +14,7 @@ import type {
   ClaseFormValues,
   ConceptoFormValues,
   CursoFormValues,
-  SeguimientoFormValues,
+  SeguimientoInsertValues,
   TemaFormValues,
 } from "@/lib/validations";
 
@@ -447,7 +447,7 @@ export function claseConDerivados(
   return { ...clase, derivados: derivarDesdeSeguimientos(seguimientos) };
 }
 
-export type InsertSeguimientoInput = SeguimientoFormValues & {
+export type InsertSeguimientoInput = SeguimientoInsertValues & {
   tema_id?: number;
   curso_id?: number;
   clase_id?: number;

@@ -91,6 +91,15 @@ Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_
 
 Al insertar: rellenar `user_id = auth.uid()` y **solo** la FK de la dimensión activa.
 
+**Formulario de alta (UI):** según la dimensión del padre, solo se ofrecen estos campos (el resto va `null` en insert):
+
+| Dimensión | Campos en formulario |
+|-----------|----------------------|
+| Tema | `etiqueta_estado`, `tiempo_consumido`, `fecha_alerta`, `fecha_comienzo`, `nivel_entendimiento` |
+| Curso / clase | los de tema + `porcentaje_avance`, `tiempo_faltante_estimado` |
+
+Implementación: `lib/seguimiento-form-scope.ts`, `seguimientoFormSchemaForScope` en `lib/validations.ts`.
+
 #### `conceptos` (misma dimensión que seguimientos; sin progreso)
 
 | Columna | Tipo | Notas |

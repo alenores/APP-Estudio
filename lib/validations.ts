@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { ESTADOS_SEGUIMIENTO, NIVELES_ENTENDIMIENTO } from "@/lib/estado-ui";
+import {
+  seguimientoMuestraAvanceCurso,
+  type SeguimientoFormScope,
+} from "@/lib/seguimiento-form-scope";
 
 const optionalText = z.string().trim().optional().or(z.literal(""));
 
@@ -67,28 +71,61 @@ const optionalNivel = z
     "Nivel inválido",
   );
 
-export const seguimientoFormSchema = z.object({
-  etiqueta_estado: z
-    .string()
-    .trim()
-    .min(1, "El estado es obligatorio")
-    .refine(
-      (v) => (ESTADOS_SEGUIMIENTO as readonly string[]).includes(v),
-      "Estado inválido",
-    ),
-  porcentaje_avance: optionalPercent,
-  comentario: optionalText,
+const seguimientoEtiquetaEstado = z
+  .string()
+  .trim()
+  .min(1, "El estado es obligatorio")
+  .refine(
+    (v) => (ESTADOS_SEGUIMIENTO as readonly string[]).includes(v),
+    "Estado inválido",
+  );
+
+const seguimientoCamposBase = {
+  etiqueta_estado: seguimientoEtiquetaEstado,
   fecha_comienzo: optionalDate,
   fecha_alerta: optionalDate,
   tiempo_consumido: optionalInt,
-  tiempo_faltante_estimado: optionalInt,
   nivel_entendimiento: optionalNivel,
+};
+
+const seguimientoCamposAvanceCurso = {
+  porcentaje_avance: optionalPercent,
+  tiempo_faltante_estimado: optionalInt,
+};
+
+/** Schema según dimensión: tema sin % ni tiempo faltante; curso/clase con avance. */
+export function seguimientoFormSchemaForScope(scope: SeguimientoFormScope) {
+  if (seguimientoMuestraAvanceCurso(scope)) {
+    return z.object({ ...seguimientoCamposBase, ...seguimientoCamposAvanceCurso });
+  }
+  return z.object(seguimientoCamposBase);
+}
+
+/** @deprecated Usar seguimientoFormSchemaForScope */
+export const seguimientoFormSchema = z.object({
+  ...seguimientoCamposBase,
+  ...seguimientoCamposAvanceCurso,
+  comentario: optionalText,
 });
 
 export type TemaFormValues = z.infer<typeof temaFormSchema>;
 export type CursoFormValues = z.infer<typeof cursoFormSchema>;
 export type ClaseFormValues = z.infer<typeof claseFormSchema>;
-export type SeguimientoFormValues = z.infer<typeof seguimientoFormSchema>;
+export type SeguimientoFormValues = z.infer<
+  ReturnType<typeof seguimientoFormSchemaForScope>
+>;
+
+/** Payload completo hacia Supabase (campos no usados en UI van undefined → null). */
+export type SeguimientoInsertValues = {
+  etiqueta_estado: string;
+  fecha_comienzo?: string;
+  fecha_alerta?: string;
+  tiempo_consumido?: number;
+  nivel_entendimiento?: string;
+  porcentaje_avance?: number;
+  tiempo_faltante_estimado?: number;
+  comentario?: string;
+};
 
 export const conceptoFormSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
