@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 
 export type FabExpandAction = {
-  href: string;
+  id: string;
   label: string;
   /** solid = estilo FabLink (seguimiento); dashed = estilo Agregar entidad (curso) */
   variant?: "solid" | "dashed";
@@ -12,16 +11,18 @@ export type FabExpandAction = {
 
 type FabExpandMenuProps = {
   actions: FabExpandAction[];
+  onSelect: (id: string) => void;
   /** Etiqueta del botón principal (solo ícono + visible). */
   mainLabel?: string;
 };
 
 /**
- * FAB (+) con acciones apiladas hacia arriba (detalle de tema).
- * Sin animación escalonada: prioridad móvil y código fácil de mantener.
+ * FAB (+) con acciones apiladas hacia arriba (detalle de tema/curso).
+ * onSelect abre sheet en la página padre; sin navegación a /nuevo.
  */
 export function FabExpandMenu({
   actions,
+  onSelect,
   mainLabel = "Más acciones",
 }: FabExpandMenuProps) {
   const [open, setOpen] = useState(false);
@@ -35,6 +36,11 @@ export function FabExpandMenu({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
+
+  function pick(id: string) {
+    setOpen(false);
+    onSelect(id);
+  }
 
   return (
     <>
@@ -55,11 +61,11 @@ export function FabExpandMenu({
             className="flex flex-col items-end gap-2.5 pb-1"
           >
             {actions.map((action) => (
-              <Link
-                key={action.href}
-                href={action.href}
+              <button
+                key={action.id}
+                type="button"
                 role="menuitem"
-                onClick={() => setOpen(false)}
+                onClick={() => pick(action.id)}
                 className={
                   action.variant === "dashed"
                     ? "flex items-center gap-2 rounded-full border border-dashed border-accent/50 bg-paper-elevated px-4 py-2.5 text-sm font-semibold text-accent shadow-md transition-colors hover:border-accent hover:bg-accent-subtle active:scale-95"
@@ -68,7 +74,7 @@ export function FabExpandMenu({
               >
                 <span className="text-lg leading-none">+</span>
                 {action.label}
-              </Link>
+              </button>
             ))}
           </div>
         ) : null}

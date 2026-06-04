@@ -55,12 +55,14 @@ app/page.tsx                    → home + enlace a temas
 app/login/page.tsx              → auth (password / magic link)
 app/temas/page.tsx                    → listado temas
 app/temas/nuevo/page.tsx              → alta tema
-app/temas/[id]/page.tsx               → detalle tema
-app/temas/[id]/cursos/nuevo/page.tsx  → alta curso
-app/cursos/[id]/page.tsx              → detalle curso
-app/cursos/[id]/clases/nuevo/page.tsx → alta clase
-app/clases/[id]/page.tsx              → detalle clase
-app/seguimientos/nuevo/page.tsx       → alta seguimiento
+app/temas/[id]/page.tsx               → detalle tema (+ sheet curso/seguimiento)
+app/cursos/[id]/page.tsx              → detalle curso (+ sheet clase/seguimiento)
+app/clases/[id]/page.tsx              → detalle clase (+ sheet seguimiento)
+components/study/study-sheet.tsx      → capa modal alta de hijos
+components/study/forms/*              → CursoForm, ClaseForm, SeguimientoForm
+app/temas/[id]/cursos/nuevo/page.tsx  → redirect → tema (legacy URL)
+app/cursos/[id]/clases/nuevo/page.tsx → redirect → curso (legacy URL)
+app/seguimientos/nuevo/page.tsx       → redirect → /temas (legacy URL)
 lib/validations.ts                    → Zod formularios
 lib/estudio-queries.ts          → queries Supabase negocio
 lib/seguimiento-derivados.ts    → campos derivados UI

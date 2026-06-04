@@ -14,14 +14,14 @@ export function useClaseDetalle(claseId: number | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (opts?: { silent?: boolean }) => {
     if (claseId == null) {
       setError("Identificador de clase inválido");
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!opts?.silent) setLoading(true);
     setError(null);
 
     const [claseRes, segsRes] = await Promise.all([
@@ -31,20 +31,20 @@ export function useClaseDetalle(claseId: number | null) {
 
     if (claseRes.error || segsRes.error) {
       setError(claseRes.error ?? segsRes.error);
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
       return;
     }
 
     if (!claseRes.data) {
       setError("Clase no encontrada");
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
       return;
     }
 
     const segs = segsRes.data ?? [];
     setSeguimientos(segs);
     setClase(claseConDerivados(claseRes.data, segs));
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [claseId]);
 
   useEffect(() => {

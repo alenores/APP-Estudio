@@ -4,15 +4,24 @@ import { useClaseDetalle } from "@/app/hooks/useClaseDetalle";
 import { AppShell } from "@/components/study/app-shell";
 import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
-import { FabLink } from "@/components/study/fab-link";
+import { FabActionButton } from "@/components/study/fab-action-button";
+import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
+import { StudySheet } from "@/components/study/study-sheet";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
+import { useState } from "react";
 
 export default function ClaseDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { clase, seguimientos, loading, error } = useClaseDetalle(id);
+  const { clase, seguimientos, loading, error, reload } = useClaseDetalle(id);
+  const [sheetOpen, setSheetOpen] = useState(false);
+
+  async function onSeguimientoCreated() {
+    setSheetOpen(false);
+    await reload({ silent: true });
+  }
 
   if (loading) {
     return (
@@ -44,7 +53,7 @@ export default function ClaseDetallePage() {
           meta={meta}
         />
 
-        <section className="space-y-3">
+        <section className="space-y-3 pb-20">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
             Seguimiento ({seguimientos.length})
           </h3>
@@ -55,10 +64,22 @@ export default function ClaseDetallePage() {
           <TextLink href={`/cursos/${clase.curso_id}`}>Volver al curso</TextLink>
         </p>
       </AppShell>
-      <FabLink
-        href={`/seguimientos/nuevo?clase_id=${clase.id}`}
+
+      <FabActionButton
         label="Seguimiento"
+        onClick={() => setSheetOpen(true)}
       />
+
+      <StudySheet
+        open={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        title="Nuevo seguimiento"
+      >
+        <SeguimientoForm
+          parent={{ claseId: clase.id }}
+          onSuccess={onSeguimientoCreated}
+        />
+      </StudySheet>
     </>
   );
 }

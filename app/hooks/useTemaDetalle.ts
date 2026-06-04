@@ -17,14 +17,14 @@ export function useTemaDetalle(temaId: number | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (opts?: { silent?: boolean }) => {
     if (temaId == null) {
       setError("Identificador de tema inválido");
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!opts?.silent) setLoading(true);
     setError(null);
 
     const [temaRes, cursosRes, segsRes] = await Promise.all([
@@ -35,13 +35,13 @@ export function useTemaDetalle(temaId: number | null) {
 
     if (temaRes.error || cursosRes.error || segsRes.error) {
       setError(temaRes.error ?? cursosRes.error ?? segsRes.error);
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
       return;
     }
 
     if (!temaRes.data) {
       setError("Tema no encontrado");
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
       return;
     }
 
@@ -56,7 +56,7 @@ export function useTemaDetalle(temaId: number | null) {
       setCursos(withDeriv.data);
     }
 
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [temaId]);
 
   useEffect(() => {

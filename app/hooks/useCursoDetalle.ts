@@ -17,14 +17,14 @@ export function useCursoDetalle(cursoId: number | null) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (opts?: { silent?: boolean }) => {
     if (cursoId == null) {
       setError("Identificador de curso inválido");
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    if (!opts?.silent) setLoading(true);
     setError(null);
 
     const [cursoRes, clasesRes, segsRes] = await Promise.all([
@@ -35,13 +35,13 @@ export function useCursoDetalle(cursoId: number | null) {
 
     if (cursoRes.error || clasesRes.error || segsRes.error) {
       setError(cursoRes.error ?? clasesRes.error ?? segsRes.error);
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
       return;
     }
 
     if (!cursoRes.data) {
       setError("Curso no encontrado");
-      setLoading(false);
+      if (!opts?.silent) setLoading(false);
       return;
     }
 
@@ -56,7 +56,7 @@ export function useCursoDetalle(cursoId: number | null) {
       setClases(withDeriv.data);
     }
 
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
   }, [cursoId]);
 
   useEffect(() => {

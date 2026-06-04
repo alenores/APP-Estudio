@@ -2,15 +2,21 @@
 
 import { useCursoDetalle } from "@/app/hooks/useCursoDetalle";
 import { AppShell } from "@/components/study/app-shell";
-import { AddEntityLink, AlertText, LoadingText, TextLink } from "@/components/study/form-field";
+import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
-import { FabLink } from "@/components/study/fab-link";
+import { FabExpandMenu } from "@/components/study/fab-expand-menu";
+import { ClaseForm } from "@/components/study/forms/clase-form";
+import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
+import { StudySheet } from "@/components/study/study-sheet";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
+import { useState } from "react";
+
+type CursoSheet = null | "clase" | "seguimiento";
 
 function formatFecha(value: string | null) {
   if (!value) return null;
@@ -28,7 +34,17 @@ function formatFecha(value: string | null) {
 export default function CursoDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { curso, clases, seguimientos, loading, error } = useCursoDetalle(id);
+  const { curso, clases, seguimientos, loading, error, reload } = useCursoDetalle(id);
+  const [sheet, setSheet] = useState<CursoSheet>(null);
+
+  function closeSheet() {
+    setSheet(null);
+  }
+
+  async function onChildCreated() {
+    closeSheet();
+    await reload({ silent: true });
+  }
 
   if (loading) {
     return (
@@ -84,14 +100,10 @@ export default function CursoDetallePage() {
           panelA={{
             label: `Clases (${clases.length})`,
             content: (
-              <div className="space-y-3">
-                <AddEntityLink
-                  href={`/cursos/${curso.id}/clases/nuevo`}
-                  label="Agregar clase"
-                />
+              <div className="space-y-3 pb-20">
                 {clases.length === 0 ? (
                   <p className="text-center text-sm text-ink-muted">
-                    Sin clases todavía.
+                    Sin clases todavía. Usá + para agregar una.
                   </p>
                 ) : (
                   clases.map((cl) => (
@@ -110,7 +122,11 @@ export default function CursoDetallePage() {
           }}
           panelB={{
             label: `Seguimiento (${seguimientos.length})`,
-            content: <SeguimientoList items={seguimientos} />,
+            content: (
+              <div className="pb-20">
+                <SeguimientoList items={seguimientos} />
+              </div>
+            ),
           }}
         />
 
@@ -118,10 +134,34 @@ export default function CursoDetallePage() {
           <TextLink href={`/temas/${curso.tema_id}`}>Volver al tema</TextLink>
         </p>
       </AppShell>
-      <FabLink
-        href={`/seguimientos/nuevo?curso_id=${curso.id}`}
-        label="Seguimiento"
+
+      <FabExpandMenu
+        mainLabel="Acciones del curso"
+        onSelect={(actionId) => setSheet(actionId as CursoSheet)}
+        actions={[
+          { id: "seguimiento", label: "Seguimiento", variant: "solid" },
+          { id: "clase", label: "Agregar clase", variant: "dashed" },
+        ]}
       />
+
+      <StudySheet
+        open={sheet === "clase"}
+        onClose={closeSheet}
+        title="Nueva clase"
+      >
+        <ClaseForm cursoId={curso.id} onSuccess={onChildCreated} />
+      </StudySheet>
+
+      <StudySheet
+        open={sheet === "seguimiento"}
+        onClose={closeSheet}
+        title="Nuevo seguimiento"
+      >
+        <SeguimientoForm
+          parent={{ cursoId: curso.id }}
+          onSuccess={onChildCreated}
+        />
+      </StudySheet>
     </>
   );
 }
