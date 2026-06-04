@@ -1,5 +1,7 @@
 "use client";
 
+import { DeployShaFooter } from "@/components/deploy-sha-footer";
+import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { createClient } from "@/lib/supabase/client";
 import {
   FormField,
@@ -61,7 +63,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-lg flex-col justify-center gap-6 px-4 py-10">
+    <main className={`${NAV_STAGE_MAIN_CLASS} px-4 py-10`}>
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center gap-6">
       <header className="space-y-2 text-center">
         <PageTitle>APP Estudio</PageTitle>
         <PageLead>Iniciá sesión para acceder a tus temas.</PageLead>
@@ -108,6 +111,8 @@ export default function LoginPage() {
       <p className="text-center text-xs text-ink-muted">
         <TextLink href="/">Volver al inicio</TextLink>
       </p>
+      </div>
+      <DeployShaFooter />
     </main>
   );
 }

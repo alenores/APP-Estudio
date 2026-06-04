@@ -4,7 +4,7 @@ export function DeployShaFooter() {
 
   return (
     <p
-      className="shrink-0 py-3 text-center font-mono text-[10px] leading-none text-ink-muted/70"
+      className="shrink-0 py-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] text-center font-mono text-[10px] leading-none text-ink-muted/60"
       aria-label={`Versión desplegada ${sha}`}
     >
       {sha}

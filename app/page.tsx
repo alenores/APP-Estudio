@@ -12,6 +12,8 @@ import {
   SecondaryButtonLink,
   SurfaceCard,
 } from "@/components/study/form-field";
+import { DeployShaFooter } from "@/components/deploy-sha-footer";
+import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { createClient } from "@/lib/supabase/client";
 import {
   getPwaInstalledServerSnapshot,
@@ -47,7 +49,8 @@ export default function HomePage() {
     !isInstalledMode && pwaOnDeviceInBrowser !== true;
 
   return (
-    <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-4 py-8">
+    <main className={`${NAV_STAGE_MAIN_CLASS} px-4 py-8`}>
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6">
       <header className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <PageTitle>APP Estudio</PageTitle>
@@ -103,6 +106,8 @@ export default function HomePage() {
           </div>
         </SurfaceCard>
       ) : null}
+      </div>
+      <DeployShaFooter />
     </main>
   );
 }

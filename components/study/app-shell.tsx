@@ -6,6 +6,8 @@ import type { ReactNode } from "react";
 import { useCallback } from "react";
 import { NavPanelProvider, useNavPanel } from "@/lib/nav-panel-context";
 import { buildNavPanelStyle } from "@/lib/nav-transition";
+import { DeployShaFooter } from "@/components/deploy-sha-footer";
+import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { useNavDetailGestures } from "@/lib/use-nav-detail-gestures";
 
 type AppShellProps = {
@@ -53,13 +55,13 @@ function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
 
   return (
     <main
-      className="flex min-h-dvh flex-1 flex-col overflow-x-hidden bg-gradient-to-b from-accent-subtle via-[#e8eef4] to-accent-subtle px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4"
+      className={`${NAV_STAGE_MAIN_CLASS} px-2 pt-4`}
       style={{ touchAction: backHref ? "pan-y" : undefined }}
       {...pointerHandlers}
     >
       <div
         data-nav-panel
-        className="mx-auto flex w-full max-w-lg flex-1 flex-col rounded-2xl bg-paper shadow-xl ring-1 ring-border/70 will-change-transform"
+        className="mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl bg-paper shadow-xl ring-1 ring-border/70 will-change-transform"
         style={panelStyle}
       >
         <header className="sticky top-0 z-10 rounded-t-2xl border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">
@@ -81,6 +83,7 @@ function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
         </header>
         <div className="flex flex-1 flex-col gap-6 px-4 py-6">{children}</div>
       </div>
+      <DeployShaFooter />
     </main>
   );
 }

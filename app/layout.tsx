@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
-import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { EstudioDataRoot } from "@/components/study/estudio-data-root";
+import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { ServiceWorkerRegister } from "./sw-register";
 import "./globals.css";
 
@@ -57,13 +57,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex min-h-full flex-col bg-paper text-ink">
+      <body className={`${NAV_STAGE_MAIN_CLASS} min-h-full text-ink`}>
         <PreventViewportZoom />
         <ServiceWorkerRegister />
-        <div className="flex min-h-0 flex-1 flex-col">
-          <EstudioDataRoot>{children}</EstudioDataRoot>
-        </div>
-        <DeployShaFooter />
+        <EstudioDataRoot>{children}</EstudioDataRoot>
       </body>
     </html>
   );
