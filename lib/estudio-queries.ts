@@ -507,6 +507,7 @@ export async function insertConcepto(
     tema_id: input.tema_id ?? null,
     curso_id: input.curso_id ?? null,
     clase_id: input.clase_id ?? null,
+    titulo: input.titulo,
     descripcion: input.descripcion,
     jerarquia: input.jerarquia ?? 0,
   });

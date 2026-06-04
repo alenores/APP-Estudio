@@ -3,6 +3,8 @@
 import { FormField, FormInput, FormTextarea } from "@/components/study/form-field";
 
 type ConceptoFormFieldsProps = {
+  titulo: string;
+  setTitulo: (v: string) => void;
   descripcion: string;
   setDescripcion: (v: string) => void;
   jerarquia: string;
@@ -11,6 +13,8 @@ type ConceptoFormFieldsProps = {
 };
 
 export function ConceptoFormFields({
+  titulo,
+  setTitulo,
   descripcion,
   setDescripcion,
   jerarquia,
@@ -19,6 +23,13 @@ export function ConceptoFormFields({
 }: ConceptoFormFieldsProps) {
   return (
     <>
+      <FormField label="Título" error={fieldErrors?.titulo}>
+        <FormInput
+          value={titulo}
+          onChange={(e) => setTitulo(e.target.value)}
+          placeholder="Nombre corto del concepto"
+        />
+      </FormField>
       <FormField label="Descripción" error={fieldErrors?.descripcion}>
         <FormTextarea
           value={descripcion}

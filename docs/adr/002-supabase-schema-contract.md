@@ -99,6 +99,7 @@ Al insertar: rellenar `user_id = auth.uid()` y **solo** la FK de la dimensión a
 | `curso_id` | bigint | nullable |
 | `clase_id` | bigint | nullable |
 | `fecha_registro` | timestamptz | not null, default now() |
+| `titulo` | text | not null en UI (Zod) |
 | `descripcion` | text | not null en UI (Zod) |
 | `jerarquia` | integer | not null, default 0 — desempate / agrupación visual |
 

@@ -45,6 +45,7 @@ export type Concepto = {
   tema_id: number | null;
   curso_id: number | null;
   clase_id: number | null;
+  titulo: string;
   descripcion: string;
   jerarquia: number;
   fecha_registro: string;

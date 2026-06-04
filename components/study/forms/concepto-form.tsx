@@ -18,6 +18,7 @@ type ConceptoFormProps = {
 };
 
 export function ConceptoForm({ parent, onSuccess }: ConceptoFormProps) {
+  const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [jerarquia, setJerarquia] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,6 +31,7 @@ export function ConceptoForm({ parent, onSuccess }: ConceptoFormProps) {
     setFieldErrors({});
 
     const parsed = conceptoFormSchema.safeParse({
+      titulo,
       descripcion,
       jerarquia,
     });
@@ -69,6 +71,8 @@ export function ConceptoForm({ parent, onSuccess }: ConceptoFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <ConceptoFormFields
+        titulo={titulo}
+        setTitulo={setTitulo}
         descripcion={descripcion}
         setDescripcion={setDescripcion}
         jerarquia={jerarquia}

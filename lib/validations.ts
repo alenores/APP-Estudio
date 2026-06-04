@@ -91,6 +91,7 @@ export type ClaseFormValues = z.infer<typeof claseFormSchema>;
 export type SeguimientoFormValues = z.infer<typeof seguimientoFormSchema>;
 
 export const conceptoFormSchema = z.object({
+  titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
   descripcion: z
     .string()
     .trim()
