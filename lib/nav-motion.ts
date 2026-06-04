@@ -24,13 +24,17 @@ export const NAV_ENTER_SCALE_FROM = 0.992;
 export const NAV_ENTER_OPACITY_FROM = 0.92;
 
 /** Swipe en ítem de lista → abrir hijo (izquierda). */
-export const FWD_SWIPE_COMMIT_PX = 80;
-export const FWD_SWIPE_COMMIT_MAX_Y = 70;
-/** Arrastre en fila: más recorrido para que el commit no “salte” tan brusco. */
-export const FWD_SWIPE_MAX_DRAG_RATIO = 0.48;
-export const FWD_SWIPE_MAX_DRAG_MIN = 260;
-export const FWD_SWIPE_AXIS_MIN = 14;
-export const FWD_SWIPE_AXIS_BIAS_Y = 10;
+export const FWD_SWIPE_COMMIT_PX = 52;
+export const FWD_SWIPE_COMMIT_MAX_Y = 72;
+/** El dedo suele empezar al centro: el panel se mueve más que el dedo. */
+export const FWD_PANEL_DRAG_GAIN = 1.45;
+/** Umbral alternativo: % del ancho si el dedo no alcanza 52px antes del borde. */
+export const FWD_SWIPE_COMMIT_WIDTH_RATIO = 0.2;
+/** Arrastre visual del panel (tope). */
+export const FWD_SWIPE_MAX_DRAG_RATIO = 0.92;
+export const FWD_SWIPE_MAX_DRAG_MIN = 280;
+export const FWD_SWIPE_AXIS_MIN = 10;
+export const FWD_SWIPE_AXIS_BIAS_Y = 12;
 
 /** Swipe en detalle → volver (derecha). */
 export const BACK_SWIPE_COMMIT_PX = 70;
@@ -62,6 +66,14 @@ export function fwdSwipeMaxDragPx(): number {
   return Math.max(
     window.innerWidth * FWD_SWIPE_MAX_DRAG_RATIO,
     FWD_SWIPE_MAX_DRAG_MIN,
+  );
+}
+
+export function fwdSwipeCommitPx(): number {
+  if (typeof window === "undefined") return FWD_SWIPE_COMMIT_PX;
+  return Math.max(
+    FWD_SWIPE_COMMIT_PX,
+    Math.round(window.innerWidth * FWD_SWIPE_COMMIT_WIDTH_RATIO),
   );
 }
 

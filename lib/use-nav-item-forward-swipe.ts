@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  FWD_PANEL_DRAG_GAIN,
   FWD_SWIPE_AXIS_BIAS_Y,
   FWD_SWIPE_AXIS_MIN,
   FWD_SWIPE_COMMIT_MAX_Y,
-  FWD_SWIPE_COMMIT_PX,
+  fwdSwipeCommitPx,
   fwdSwipeMaxDragPx,
+  navLeaveOffsetPx,
 } from "@/lib/nav-motion";
 import { useNavPanelOptional } from "@/lib/nav-panel-context";
 import { navigateForwardLeave } from "@/lib/navigate-forward";
@@ -28,6 +30,28 @@ type UseNavItemForwardSwipeOptions = {
   onSwipeStarted?: () => void;
 };
 
+function stopBubble(event: PointerEvent<HTMLElement>) {
+  event.stopPropagation();
+}
+
+function panelOffsetFromFingerDelta(deltaX: number): number {
+  const maxDrag = fwdSwipeMaxDragPx();
+  const gained = deltaX * FWD_PANEL_DRAG_GAIN;
+  return Math.max(gained, -maxDrag);
+}
+
+function shouldCommitForwardSwipe(deltaX: number, deltaY: number, panelOffset: number): boolean {
+  if (Math.abs(deltaY) >= FWD_SWIPE_COMMIT_MAX_Y) return false;
+
+  const commitPx = fwdSwipeCommitPx();
+  if (deltaX <= -commitPx) return true;
+
+  const leavePx = Math.abs(navLeaveOffsetPx());
+  if (leavePx > 0 && Math.abs(panelOffset) >= leavePx * 0.32) return true;
+
+  return false;
+}
+
 /**
  * Swipe ← en fila de lista + tap: mueve el panel del AppShell y abre el hijo.
  */
@@ -42,16 +66,19 @@ export function useNavItemForwardSwipe({
   const panel = useNavPanelOptional();
   const pointerStartRef = useRef<PointerStart | null>(null);
   const suppressClickRef = useRef(false);
+  const swipeStartedRef = useRef(false);
 
   const resetSwipe = useCallback(() => {
     panel?.resetSwipe();
     pointerStartRef.current = null;
     suppressClickRef.current = false;
+    swipeStartedRef.current = false;
   }, [panel]);
 
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!enabled || blockNavigation || event.pointerType !== "touch") return;
+      stopBubble(event);
 
       pointerStartRef.current = {
         x: event.clientX,
@@ -59,6 +86,7 @@ export function useNavItemForwardSwipe({
         href,
         itemKey,
       };
+      swipeStartedRef.current = false;
       panel?.setActiveItemKey(itemKey);
       panel?.setIsSwiping(true);
       panel?.setIsLeaving(false);
@@ -70,6 +98,7 @@ export function useNavItemForwardSwipe({
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!enabled || event.pointerType !== "touch") return;
+      stopBubble(event);
       const start = pointerStartRef.current;
       if (!start || panel?.isLeaving) return;
 
@@ -83,8 +112,12 @@ export function useNavItemForwardSwipe({
         return;
       }
 
-      onSwipeStarted?.();
-      panel?.setSwipeOffset(Math.max(deltaX, -fwdSwipeMaxDragPx()));
+      if (!swipeStartedRef.current) {
+        swipeStartedRef.current = true;
+        onSwipeStarted?.();
+      }
+
+      panel?.setSwipeOffset(panelOffsetFromFingerDelta(deltaX));
     },
     [enabled, onSwipeStarted, panel],
   );
@@ -92,6 +125,7 @@ export function useNavItemForwardSwipe({
   const onPointerUp = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       if (!enabled || event.pointerType !== "touch") return;
+      stopBubble(event);
       const start = pointerStartRef.current;
       if (!start || panel?.isLeaving) {
         resetSwipe();
@@ -100,10 +134,9 @@ export function useNavItemForwardSwipe({
 
       const deltaX = event.clientX - start.x;
       const deltaY = event.clientY - start.y;
-      const shouldOpen =
-        deltaX <= -FWD_SWIPE_COMMIT_PX && Math.abs(deltaY) < FWD_SWIPE_COMMIT_MAX_Y;
+      const panelOffset = panel?.swipeOffset ?? 0;
 
-      if (!shouldOpen) {
+      if (!shouldCommitForwardSwipe(deltaX, deltaY, panelOffset)) {
         resetSwipe();
         return;
       }
@@ -115,13 +148,18 @@ export function useNavItemForwardSwipe({
     [enabled, panel, resetSwipe, router],
   );
 
-  const onPointerCancel = useCallback(() => {
-    resetSwipe();
-  }, [resetSwipe]);
+  const onPointerCancel = useCallback(
+    (event: PointerEvent<HTMLElement>) => {
+      stopBubble(event);
+      resetSwipe();
+    },
+    [resetSwipe],
+  );
 
   const onClick = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       if (!enabled) return;
+      event.stopPropagation();
 
       if (suppressClickRef.current) {
         event.preventDefault();

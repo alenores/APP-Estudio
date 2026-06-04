@@ -52,7 +52,7 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
    - Mismos sheets y forms que el FAB; título del sheet puede incluir el nombre del hijo.
 
 7. **Entrar a un hijo (card con `forwardTransition`)**
-   - **Tap** o **swipe ←** en la fila (`EntityCard` / `entity-card-with-quick-actions`): la hoja `data-nav-panel` se corre a la izquierda (~92 % ancho, **170 ms**), `sessionStorage` `app-estudio-nav-enter-v1`, luego `router.push`. Sin texto «Deslizá» en la card.
+   - **Tap** o **swipe ←** en la fila (`EntityCard` / `entity-card-with-quick-actions`): la hoja `data-nav-panel` se corre a la izquierda (~92 % ancho, **210 ms**), `sessionStorage`, luego `router.push`. Cards curso/clase: **pointer** en el Link (no `touch` en el wrapper). Panel con **ganancia** ~1.45× el dedo; commit ~52 px o ~32 % de la salida (dedo al centro de la pantalla).
    - Long press en la misma card cancela el timer si arranca el swipe horizontal (`onForwardSwipeStart`).
    - Detalle hijo al montar: entrada desde la **derecha** (~92 % ancho, mismo orden que la salida), `scale` 0.992→1, doble `rAF` en Android (`lib/use-nav-detail-gestures.ts`). Salida adelante espera **210 ms** (transición CSS) antes de `push`; opcional `startViewTransition` si el navegador lo soporta.
 
