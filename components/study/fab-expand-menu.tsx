@@ -17,7 +17,11 @@ type FabExpandMenuProps = {
 };
 
 /** Retraso entre cada ítem: el más cercano al + (abajo) sale primero. */
-const STAGGER_MS = 700;
+const STAGGER_MS = 90;
+const ENTER_MS = 320;
+
+const actionBase =
+  "flex items-center gap-2 rounded-full text-sm font-semibold shadow-md transition-[opacity,transform,background-color,border-color] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:translate-y-0 motion-reduce:scale-100";
 
 /**
  * FAB circular (+) que despliega acciones apiladas hacia arriba.
@@ -28,7 +32,23 @@ export function FabExpandMenu({
   mainLabel = "Más acciones",
 }: FabExpandMenuProps) {
   const [open, setOpen] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const menuId = useId();
+
+  useEffect(() => {
+    if (!open) {
+      setRevealed(false);
+      return;
+    }
+    let frame2 = 0;
+    const frame1 = requestAnimationFrame(() => {
+      frame2 = requestAnimationFrame(() => setRevealed(true));
+    });
+    return () => {
+      cancelAnimationFrame(frame1);
+      if (frame2) cancelAnimationFrame(frame2);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +65,9 @@ export function FabExpandMenu({
         <button
           type="button"
           aria-label="Cerrar menú"
-          className="fab-backdrop-enter fixed inset-0 z-20 bg-ink/20"
+          className={`fixed inset-0 z-20 bg-ink/20 transition-opacity duration-200 ease-out motion-reduce:transition-none ${
+            revealed ? "opacity-100" : "opacity-0"
+          }`}
           onClick={() => setOpen(false)}
         />
       ) : null}
@@ -58,9 +80,11 @@ export function FabExpandMenu({
             className="flex flex-col items-end gap-2.5 pb-1"
           >
             {actions.map((action, index) => {
-              // Índice visual desde abajo: el último del array está junto al +.
               const fromBottom = actions.length - 1 - index;
               const delayMs = fromBottom * STAGGER_MS;
+              const enterState = revealed
+                ? "opacity-100 translate-y-0 scale-100"
+                : "opacity-0 translate-y-7 scale-[0.82]";
 
               return (
                 <Link
@@ -68,11 +92,14 @@ export function FabExpandMenu({
                   href={action.href}
                   role="menuitem"
                   onClick={() => setOpen(false)}
-                  style={{ animationDelay: `${delayMs}ms` }}
-                  className={`fab-action-enter ${
+                  style={{
+                    transitionDuration: `${ENTER_MS}ms`,
+                    transitionDelay: revealed ? `${delayMs}ms` : "0ms",
+                  }}
+                  className={`${actionBase} ${enterState} active:scale-95 ${
                     action.variant === "dashed"
-                      ? "flex items-center gap-2 rounded-full border border-dashed border-accent/50 bg-paper-elevated px-4 py-2.5 text-sm font-semibold text-accent shadow-md transition hover:border-accent hover:bg-accent-subtle active:scale-95"
-                      : "flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition hover:bg-accent-hover active:scale-95"
+                      ? "border border-dashed border-accent/50 bg-paper-elevated px-4 py-2.5 text-accent hover:border-accent hover:bg-accent-subtle"
+                      : "bg-accent px-4 py-2.5 text-white shadow-lg shadow-accent/25 hover:bg-accent-hover"
                   }`}
                 >
                   <span className="text-lg leading-none">+</span>
@@ -90,7 +117,7 @@ export function FabExpandMenu({
           aria-controls={open ? menuId : undefined}
           aria-label={mainLabel}
           onClick={() => setOpen((v) => !v)}
-          className={`flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl font-light leading-none text-white shadow-lg shadow-accent/25 transition-[transform,background-color] duration-700 ease-out hover:bg-accent-hover active:scale-95 ${open ? "rotate-45" : ""}`}
+          className={`flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl font-light leading-none text-white shadow-lg shadow-accent/25 transition-[transform,background-color] duration-300 ease-out hover:bg-accent-hover active:scale-95 motion-reduce:transition-none ${open ? "rotate-45" : ""}`}
         >
           +
         </button>
