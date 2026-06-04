@@ -12,11 +12,12 @@ import { getSessionUserId, insertCurso } from "@/lib/estudio-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
 import { cursoFormSchema } from "@/lib/validations";
 import { useParams, useRouter } from "next/navigation";
+import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
 export default function NuevoCursoPage() {
   const params = useParams();
-  const temaId = typeof params.id === "string" ? params.id : "";
+  const temaId = parseEntityId(typeof params.id === "string" ? params.id : undefined);
   const router = useRouter();
 
   const [nombre, setNombre] = useState("");
@@ -33,7 +34,7 @@ export default function NuevoCursoPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!temaId) {
+    if (temaId == null) {
       setError("Falta el tema.");
       return;
     }
@@ -80,7 +81,7 @@ export default function NuevoCursoPage() {
   }
 
   return (
-    <AppShell title="Nuevo curso" backHref={`/temas/${temaId}`}>
+    <AppShell title="Nuevo curso" backHref={temaId != null ? `/temas/${temaId}` : "/temas"}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField label="Nombre *" error={fieldErrors.nombre}>
           <FormInput

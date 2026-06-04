@@ -9,6 +9,7 @@ import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabLink } from "@/components/study/fab-link";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
+import { parseEntityId } from "@/lib/parse-entity-id";
 
 function formatFecha(value: string | null) {
   if (!value) return null;
@@ -25,7 +26,7 @@ function formatFecha(value: string | null) {
 
 export default function CursoDetallePage() {
   const params = useParams();
-  const id = typeof params.id === "string" ? params.id : "";
+  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
   const { curso, clases, seguimientos, loading, error } = useCursoDetalle(id);
 
   if (loading) {

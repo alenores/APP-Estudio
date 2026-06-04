@@ -8,13 +8,19 @@ import {
 import type { ClaseConDerivados, Seguimiento } from "@/app/types/estudio";
 import { useCallback, useEffect, useState } from "react";
 
-export function useClaseDetalle(claseId: string) {
+export function useClaseDetalle(claseId: number | null) {
   const [clase, setClase] = useState<ClaseConDerivados | null>(null);
   const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
+    if (claseId == null) {
+      setError("Identificador de clase inválido");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

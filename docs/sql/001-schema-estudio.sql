@@ -1,13 +1,15 @@
--- APP Estudio — esquema inicial (Supabase SQL Editor)
--- Ejecutar una vez con sesión de proyecto. Requiere Supabase Auth habilitado.
+-- APP Estudio — esquema (Supabase SQL Editor)
 -- Ver docs/adr/002-supabase-schema-contract.md y docs/adr/005-auth-rls.md
+--
+-- ids de negocio: bigint autoincremental (temas, cursos, clases, seguimientos).
+-- user_id: uuid → auth.users (sin cambios).
 
 -- ---------------------------------------------------------------------------
 -- Tablas
 -- ---------------------------------------------------------------------------
 
 create table public.temas (
-  id uuid primary key default gen_random_uuid(),
+  id bigint generated always as identity primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
   nombre text not null,
   descripcion text,
@@ -19,9 +21,9 @@ create table public.temas (
 );
 
 create table public.cursos (
-  id uuid primary key default gen_random_uuid(),
+  id bigint generated always as identity primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  tema_id uuid not null references public.temas (id) on delete cascade,
+  tema_id bigint not null references public.temas (id) on delete cascade,
   nombre text not null,
   descripcion text,
   orden integer not null default 0,
@@ -34,9 +36,9 @@ create table public.cursos (
 );
 
 create table public.clases (
-  id uuid primary key default gen_random_uuid(),
+  id bigint generated always as identity primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  curso_id uuid not null references public.cursos (id) on delete cascade,
+  curso_id bigint not null references public.cursos (id) on delete cascade,
   nombre text not null,
   descripcion text,
   orden integer not null default 0,
@@ -46,11 +48,11 @@ create table public.clases (
 );
 
 create table public.seguimientos (
-  id uuid primary key default gen_random_uuid(),
+  id bigint generated always as identity primary key,
   user_id uuid not null references auth.users (id) on delete cascade,
-  tema_id uuid references public.temas (id) on delete cascade,
-  curso_id uuid references public.cursos (id) on delete cascade,
-  clase_id uuid references public.clases (id) on delete cascade,
+  tema_id bigint references public.temas (id) on delete cascade,
+  curso_id bigint references public.cursos (id) on delete cascade,
+  clase_id bigint references public.clases (id) on delete cascade,
   fecha_registro timestamptz not null default now(),
   etiqueta_estado text,
   porcentaje_avance numeric(5, 2),

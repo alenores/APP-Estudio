@@ -2,7 +2,7 @@
 
 ## Estado
 
-Aceptado — 2026-06-03 (fase 2 — tablas definidas)
+Aceptado — 2026-06-03 (fase 2 — tablas definidas; ids numéricos 2026-06-03)
 
 ## Contexto
 
@@ -23,7 +23,9 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Clase | `clases` | `curso_id` → `cursos.id` |
 | Seguimiento | `seguimientos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 
-Todas incluyen `id` (uuid PK), `user_id` (FK `auth.users`), `created_at`.
+Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
+
+En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `number` en TypeScript; los segmentos de URL se parsean con `lib/parse-entity-id.ts`. `user_id` sigue siendo `string` (uuid).
 
 `ON DELETE CASCADE`: borrar tema elimina cursos, clases y seguimientos en cadena; borrar curso elimina clases y sus seguimientos.
 
@@ -44,7 +46,7 @@ Todas incluyen `id` (uuid PK), `user_id` (FK `auth.users`), `created_at`.
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
-| `tema_id` | uuid | not null, FK |
+| `tema_id` | bigint | not null, FK |
 | `nombre` | text | not null |
 | `descripcion` | text | |
 | `orden` | integer | not null, default 0 |
@@ -60,7 +62,7 @@ No hay columna `estado` en `cursos`: ver campos derivados.
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
-| `curso_id` | uuid | not null, FK |
+| `curso_id` | bigint | not null, FK |
 | `nombre` | text | not null |
 | `descripcion` | text | |
 | `orden` | integer | not null, default 0 |
@@ -73,9 +75,9 @@ Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
-| `tema_id` | uuid | nullable; uno de tres con CHECK |
-| `curso_id` | uuid | nullable |
-| `clase_id` | uuid | nullable |
+| `tema_id` | bigint | nullable; uno de tres con CHECK |
+| `curso_id` | bigint | nullable |
+| `clase_id` | bigint | nullable |
 | `fecha_registro` | timestamptz | not null, default now() |
 | `etiqueta_estado` | text | ej. comenzado, pausado, terminado |
 | `porcentaje_avance` | numeric(5,2) | |

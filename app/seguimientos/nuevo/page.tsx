@@ -4,6 +4,7 @@ import { AppShell } from "@/components/study/app-shell";
 import { FormError, FormSubmitButton, LoadingText } from "@/components/study/form-field";
 import { SeguimientoFormFields } from "@/components/study/seguimiento-form-fields";
 import { getSessionUserId, insertSeguimiento } from "@/lib/estudio-queries";
+import { parseEntityId } from "@/lib/parse-entity-id";
 import { zodFieldErrors } from "@/lib/form-errors";
 import { seguimientoFormSchema } from "@/lib/validations";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,9 +13,9 @@ import { Suspense, useState } from "react";
 function NuevoSeguimientoForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const temaId = searchParams.get("tema_id") ?? "";
-  const cursoId = searchParams.get("curso_id") ?? "";
-  const claseId = searchParams.get("clase_id") ?? "";
+  const temaId = parseEntityId(searchParams.get("tema_id"));
+  const cursoId = parseEntityId(searchParams.get("curso_id"));
+  const claseId = parseEntityId(searchParams.get("clase_id"));
 
   const [etiqueta, setEtiqueta] = useState("");
   const [porcentaje, setPorcentaje] = useState("");
@@ -28,18 +29,21 @@ function NuevoSeguimientoForm() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const backHref = temaId
-    ? `/temas/${temaId}`
-    : cursoId
-      ? `/cursos/${cursoId}`
-      : claseId
-        ? `/clases/${claseId}`
-        : "/temas";
+  const backHref =
+    temaId != null
+      ? `/temas/${temaId}`
+      : cursoId != null
+        ? `/cursos/${cursoId}`
+        : claseId != null
+          ? `/clases/${claseId}`
+          : "/temas";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!temaId && !cursoId && !claseId) {
-      setError("Falta tema_id, curso_id o clase_id en la URL.");
+    const fkCount =
+      Number(temaId != null) + Number(cursoId != null) + Number(claseId != null);
+    if (fkCount !== 1) {
+      setError("Falta tema_id, curso_id o clase_id válido en la URL.");
       return;
     }
 
@@ -72,9 +76,9 @@ function NuevoSeguimientoForm() {
 
     const result = await insertSeguimiento(userId, {
       ...parsed.data,
-      tema_id: temaId || undefined,
-      curso_id: cursoId || undefined,
-      clase_id: claseId || undefined,
+      tema_id: temaId ?? undefined,
+      curso_id: cursoId ?? undefined,
+      clase_id: claseId ?? undefined,
     });
 
     setLoading(false);

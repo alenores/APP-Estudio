@@ -10,7 +10,7 @@ import {
 import type { ClaseConDerivados, CursoConDerivados, Seguimiento } from "@/app/types/estudio";
 import { useCallback, useEffect, useState } from "react";
 
-export function useCursoDetalle(cursoId: string) {
+export function useCursoDetalle(cursoId: number | null) {
   const [curso, setCurso] = useState<CursoConDerivados | null>(null);
   const [clases, setClases] = useState<ClaseConDerivados[]>([]);
   const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
@@ -18,6 +18,12 @@ export function useCursoDetalle(cursoId: string) {
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
+    if (cursoId == null) {
+      setError("Identificador de curso inválido");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

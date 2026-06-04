@@ -7,10 +7,11 @@ import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabLink } from "@/components/study/fab-link";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
+import { parseEntityId } from "@/lib/parse-entity-id";
 
 export default function ClaseDetallePage() {
   const params = useParams();
-  const id = typeof params.id === "string" ? params.id : "";
+  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
   const { clase, seguimientos, loading, error } = useClaseDetalle(id);
 
   if (loading) {

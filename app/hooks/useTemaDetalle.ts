@@ -10,7 +10,7 @@ import {
 import type { CursoConDerivados, Seguimiento, TemaConDerivados } from "@/app/types/estudio";
 import { useCallback, useEffect, useState } from "react";
 
-export function useTemaDetalle(temaId: string) {
+export function useTemaDetalle(temaId: number | null) {
   const [tema, setTema] = useState<TemaConDerivados | null>(null);
   const [cursos, setCursos] = useState<CursoConDerivados[]>([]);
   const [seguimientos, setSeguimientos] = useState<Seguimiento[]>([]);
@@ -18,6 +18,12 @@ export function useTemaDetalle(temaId: string) {
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
+    if (temaId == null) {
+      setError("Identificador de tema inválido");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

@@ -61,7 +61,7 @@ export async function listTemasConDerivados(): Promise<{
 
   if (segErr) return { data: null, error: segErr.message };
 
-  const porTema = new Map<string, Seguimiento[]>();
+  const porTema = new Map<number, Seguimiento[]>();
   for (const s of (segs ?? []) as Seguimiento[]) {
     if (!s.tema_id) continue;
     const list = porTema.get(s.tema_id) ?? [];
@@ -75,7 +75,7 @@ export async function listTemasConDerivados(): Promise<{
   };
 }
 
-export async function getTemaById(id: string): Promise<{
+export async function getTemaById(id: number): Promise<{
   data: Tema | null;
   error: string | null;
 }> {
@@ -89,7 +89,7 @@ export async function getTemaById(id: string): Promise<{
   return { data: data as Tema | null, error: error?.message ?? null };
 }
 
-export async function listCursosByTema(temaId: string): Promise<{
+export async function listCursosByTema(temaId: number): Promise<{
   data: Curso[] | null;
   error: string | null;
 }> {
@@ -105,7 +105,7 @@ export async function listCursosByTema(temaId: string): Promise<{
   return { data: data as Curso[] | null, error: error?.message ?? null };
 }
 
-export async function listSeguimientosByTema(temaId: string): Promise<{
+export async function listSeguimientosByTema(temaId: number): Promise<{
   data: Seguimiento[] | null;
   error: string | null;
 }> {
@@ -133,7 +133,7 @@ export async function attachDerivadosToCursos(
 
   if (error) return { data: [], error: error.message };
 
-  const porCurso = new Map<string, Seguimiento[]>();
+  const porCurso = new Map<number, Seguimiento[]>();
   for (const s of (segs ?? []) as Seguimiento[]) {
     if (!s.curso_id) continue;
     const list = porCurso.get(s.curso_id) ?? [];
@@ -158,7 +158,7 @@ export function temaConDerivados(
 }
 
 export type InsertSeguimientoTemaInput = {
-  tema_id: string;
+  tema_id: number;
   etiqueta_estado?: string | null;
   porcentaje_avance?: number | null;
   comentario?: string | null;
@@ -185,7 +185,7 @@ export async function getNextOrdenTema(userId: string): Promise<number> {
   return (data?.orden ?? -1) + 1;
 }
 
-export async function getNextOrdenCurso(temaId: string): Promise<number> {
+export async function getNextOrdenCurso(temaId: number): Promise<number> {
   const supabase = createClient();
   const { data } = await supabase
     .from("cursos")
@@ -197,7 +197,7 @@ export async function getNextOrdenCurso(temaId: string): Promise<number> {
   return (data?.orden ?? -1) + 1;
 }
 
-export async function getNextOrdenClase(cursoId: string): Promise<number> {
+export async function getNextOrdenClase(cursoId: number): Promise<number> {
   const supabase = createClient();
   const { data } = await supabase
     .from("clases")
@@ -235,7 +235,7 @@ export async function insertTema(
 
 export async function insertCurso(
   userId: string,
-  temaId: string,
+  temaId: number,
   values: CursoFormValues,
 ): Promise<{ data: Curso | null; error: string | null }> {
   const supabase = createClient();
@@ -263,7 +263,7 @@ export async function insertCurso(
 
 export async function insertClase(
   userId: string,
-  cursoId: string,
+  cursoId: number,
   values: ClaseFormValues,
 ): Promise<{ data: Clase | null; error: string | null }> {
   const supabase = createClient();
@@ -286,7 +286,7 @@ export async function insertClase(
   return { data: data as Clase | null, error: error?.message ?? null };
 }
 
-export async function getCursoById(id: string): Promise<{
+export async function getCursoById(id: number): Promise<{
   data: Curso | null;
   error: string | null;
 }> {
@@ -300,7 +300,7 @@ export async function getCursoById(id: string): Promise<{
   return { data: data as Curso | null, error: error?.message ?? null };
 }
 
-export async function listClasesByCurso(cursoId: string): Promise<{
+export async function listClasesByCurso(cursoId: number): Promise<{
   data: Clase[] | null;
   error: string | null;
 }> {
@@ -316,7 +316,7 @@ export async function listClasesByCurso(cursoId: string): Promise<{
   return { data: data as Clase[] | null, error: error?.message ?? null };
 }
 
-export async function listSeguimientosByCurso(cursoId: string): Promise<{
+export async function listSeguimientosByCurso(cursoId: number): Promise<{
   data: Seguimiento[] | null;
   error: string | null;
 }> {
@@ -330,7 +330,7 @@ export async function listSeguimientosByCurso(cursoId: string): Promise<{
   return { data: data as Seguimiento[] | null, error: error?.message ?? null };
 }
 
-export async function listSeguimientosByClase(claseId: string): Promise<{
+export async function listSeguimientosByClase(claseId: number): Promise<{
   data: Seguimiento[] | null;
   error: string | null;
 }> {
@@ -344,7 +344,7 @@ export async function listSeguimientosByClase(claseId: string): Promise<{
   return { data: data as Seguimiento[] | null, error: error?.message ?? null };
 }
 
-export async function getClaseById(id: string): Promise<{
+export async function getClaseById(id: number): Promise<{
   data: Clase | null;
   error: string | null;
 }> {
@@ -372,7 +372,7 @@ export async function attachDerivadosToClases(
 
   if (error) return { data: [], error: error.message };
 
-  const porClase = new Map<string, Seguimiento[]>();
+  const porClase = new Map<number, Seguimiento[]>();
   for (const s of (segs ?? []) as Seguimiento[]) {
     if (!s.clase_id) continue;
     const list = porClase.get(s.clase_id) ?? [];
@@ -404,18 +404,18 @@ export function claseConDerivados(
 }
 
 export type InsertSeguimientoInput = SeguimientoFormValues & {
-  tema_id?: string;
-  curso_id?: string;
-  clase_id?: string;
+  tema_id?: number;
+  curso_id?: number;
+  clase_id?: number;
 };
 
 export async function insertSeguimiento(
   userId: string,
   input: InsertSeguimientoInput,
 ): Promise<{ error: string | null }> {
-  const hasTema = Boolean(input.tema_id);
-  const hasCurso = Boolean(input.curso_id);
-  const hasClase = Boolean(input.clase_id);
+  const hasTema = input.tema_id != null;
+  const hasCurso = input.curso_id != null;
+  const hasClase = input.clase_id != null;
   if (Number(hasTema) + Number(hasCurso) + Number(hasClase) !== 1) {
     return { error: "Indicá exactamente tema_id, curso_id o clase_id." };
   }
