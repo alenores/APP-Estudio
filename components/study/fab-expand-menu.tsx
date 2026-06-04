@@ -17,7 +17,7 @@ type FabExpandMenuProps = {
 };
 
 /** Retraso entre cada ítem: el más cercano al + (abajo) sale primero. */
-const STAGGER_MS = 320;
+const STAGGER_MS = 700;
 
 /**
  * FAB circular (+) que despliega acciones apiladas hacia arriba.
@@ -90,7 +90,7 @@ export function FabExpandMenu({
           aria-controls={open ? menuId : undefined}
           aria-label={mainLabel}
           onClick={() => setOpen((v) => !v)}
-          className={`flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl font-light leading-none text-white shadow-lg shadow-accent/25 transition-[transform,background-color] duration-[600ms] ease-out hover:bg-accent-hover active:scale-95 ${open ? "rotate-45" : ""}`}
+          className={`flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl font-light leading-none text-white shadow-lg shadow-accent/25 transition-[transform,background-color] duration-700 ease-out hover:bg-accent-hover active:scale-95 ${open ? "rotate-45" : ""}`}
         >
           +
         </button>
