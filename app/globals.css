@@ -81,9 +81,24 @@ html.pwa-standalone-zoom-lock body {
   animation: pulse-install-bg 2.2s ease-in-out infinite;
 }
 
+/** StudySheet: solo fade del velo (sin mover el panel; fiable en móvil). */
+@keyframes sheet-backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet-backdrop-enter {
+  animation: sheet-backdrop-enter 280ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .progress-bar-indeterminate,
-  .ios-install-pulse {
+  .ios-install-pulse,
+  .sheet-backdrop-enter {
     animation: none;
   }
 }
