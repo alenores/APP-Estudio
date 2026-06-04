@@ -10,6 +10,10 @@ APP Estudio es **móvil-first** (PWA en Chrome Android). En desarrollo, las anim
 
 Este ADR fija el **patrón que sí funciona** para futuras features con “animación” o sensación de respuesta al toque.
 
+## Excepción: detalle de tema (`/temas/[id]`)
+
+Animaciones de entrada en página (`rise`, timeline, velocímetro, `panelin` en pestañas) según `docs/mockups/detalle-tema.html`. Scope CSS `.tema-detalle-page` + `prefers-reduced-motion`. No extender a `StudySheet` ni FAB.
+
 ## Lo que no usar (salvo pedido explícito del dueño)
 
 | Técnica | Problema en Android |

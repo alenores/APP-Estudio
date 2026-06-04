@@ -1,21 +1,17 @@
 "use client";
 
-import { useTemaDetalle } from "@/app/hooks/useTemaDetalle";
+import { useTemaDetalleMetrics } from "@/app/hooks/useTemaDetalleMetrics";
 import { AppShell } from "@/components/study/app-shell";
-import { TriplePanelTabs } from "@/components/study/triple-panel-tabs";
-import { EntityCardWithQuickActions } from "@/components/study/entity-card-with-quick-actions";
-import { TemaInfoSection } from "@/components/study/tema-info-section";
 import { AlertText, LoadingText } from "@/components/study/form-field";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
 import type { ChildQuickAction } from "@/components/study/child-context-menu";
-import { ConceptoList } from "@/components/study/concepto-list";
 import { CursoForm } from "@/components/study/forms/curso-form";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import type { ConceptoParent } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import type { SeguimientoParent } from "@/components/study/forms/seguimiento-form";
-import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
+import { TemaDetalleView } from "@/components/tema-detalle/tema-detalle-view";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
@@ -29,8 +25,8 @@ type SheetState =
 export default function TemaDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { tema, cursos, seguimientos, conceptos, loading, error, reload } =
-    useTemaDetalle(id);
+  const { tema, cursos, seguimientos, conceptos, loading, error, reload, metrics } =
+    useTemaDetalleMetrics(id);
   const [sheet, setSheet] = useState<SheetState>(null);
 
   function closeSheet() {
@@ -42,7 +38,11 @@ export default function TemaDetallePage() {
     await reload({ silent: true });
   }
 
-  function openCursoQuickAction(cursoId: number, nombre: string, action: ChildQuickAction) {
+  function openCursoQuickAction(
+    cursoId: number,
+    nombre: string,
+    action: ChildQuickAction,
+  ) {
     if (action === "seguimiento") {
       setSheet({
         mode: "seguimiento",
@@ -66,7 +66,7 @@ export default function TemaDetallePage() {
     );
   }
 
-  if (error || !tema) {
+  if (error || !tema || !metrics) {
     return (
       <AppShell title="Tema" backHref="/temas">
         <AlertText>{error ?? "No encontrado"}</AlertText>
@@ -85,52 +85,18 @@ export default function TemaDetallePage() {
 
   return (
     <>
-      <AppShell title={tema.nombre} backHref="/temas">
-        <TemaInfoSection tema={tema} />
-
-        <TriplePanelTabs
-          panelA={{
-            label: `Cursos (${cursos.length})`,
-            content: (
-              <div className="space-y-3 pb-20">
-                {cursos.length === 0 ? (
-                  <p className="text-center text-sm text-ink-muted">
-                    Sin cursos todavía. Usá + para agregar uno.
-                  </p>
-                ) : (
-                  cursos.map((c) => (
-                    <EntityCardWithQuickActions
-                      key={c.id}
-                      href={`/cursos/${c.id}`}
-                      nombre={c.nombre}
-                      subtitulo={c.descripcion}
-                      externalLink={c.link}
-                      derivados={c.derivados}
-                      onQuickAction={(action: ChildQuickAction) =>
-                        openCursoQuickAction(c.id, c.nombre, action)
-                      }
-                    />
-                  ))
-                )}
-              </div>
-            ),
-          }}
-          panelB={{
-            label: `Seguimiento (${seguimientos.length})`,
-            content: (
-              <div className="pb-20">
-                <SeguimientoList items={seguimientos} />
-              </div>
-            ),
-          }}
-          panelC={{
-            label: `Conceptos (${conceptos.length})`,
-            content: (
-              <div className="pb-20">
-                <ConceptoList items={conceptos} />
-              </div>
-            ),
-          }}
+      <AppShell
+        breadcrumb={`Tema · ${tema.nombre}`}
+        backHref="/temas"
+        contentClassName="flex flex-1 flex-col gap-0 px-2 py-4"
+      >
+        <TemaDetalleView
+          tema={tema}
+          cursos={cursos}
+          seguimientos={seguimientos}
+          conceptos={conceptos}
+          metrics={metrics}
+          onCursoQuickAction={openCursoQuickAction}
         />
       </AppShell>
 

@@ -81,7 +81,7 @@ Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_
 | `curso_id` | bigint | nullable |
 | `clase_id` | bigint | nullable |
 | `fecha_registro` | timestamptz | not null, default now() |
-| `etiqueta_estado` | text | ej. comenzado, pausado, terminado |
+| `etiqueta_estado` | text | `sin empezar`, `en curso`, `pausado`, `terminado` (exactos, con espacio) |
 | `porcentaje_avance` | numeric(5,2) | |
 | `tiempo_consumido` | integer | minutos (convención UI) |
 | `tiempo_faltante_estimado` | integer | minutos |

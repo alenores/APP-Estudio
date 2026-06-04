@@ -54,7 +54,10 @@ create table public.seguimientos (
   curso_id bigint references public.cursos (id) on delete cascade,
   clase_id bigint references public.clases (id) on delete cascade,
   fecha_registro timestamptz not null default now(),
-  etiqueta_estado text,
+  etiqueta_estado text check (
+    etiqueta_estado is null
+    or etiqueta_estado in ('sin empezar', 'en curso', 'pausado', 'terminado')
+  ),
   porcentaje_avance numeric(5, 2),
   tiempo_consumido integer,
   tiempo_faltante_estimado integer,

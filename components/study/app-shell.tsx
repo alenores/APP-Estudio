@@ -11,16 +11,27 @@ import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { useNavDetailGestures } from "@/lib/use-nav-detail-gestures";
 
 type AppShellProps = {
-  title: string;
+  /** Título en cabecera; omitir si solo usás `breadcrumb`. */
+  title?: string;
+  /** Crumb superior (ej. detalle tema); reemplaza el `<h1>`. */
+  breadcrumb?: string;
   backHref?: string;
   children: ReactNode;
   actions?: ReactNode;
+  contentClassName?: string;
 };
 
 /**
  * Escenario fijo (fondo) + hoja `data-nav-panel` que se desliza — efecto “libro” al navegar.
  */
-function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
+function AppShellInner({
+  title = "",
+  breadcrumb,
+  backHref,
+  children,
+  actions,
+  contentClassName,
+}: AppShellProps) {
   const router = useRouter();
   const panel = useNavPanel();
 
@@ -44,20 +55,14 @@ function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
     enterOpacity: detail.enterOpacity,
   });
 
-  const pointerHandlers = backHref
-    ? {
-        onPointerDown: detail.onPointerDown,
-        onPointerMove: detail.onPointerMove,
-        onPointerUp: detail.onPointerUp,
-        onPointerCancel: detail.onPointerCancel,
-      }
-    : {};
-
   return (
     <main
       className={`${NAV_STAGE_MAIN_CLASS} px-2 pt-4`}
       style={{ touchAction: backHref ? "pan-y" : undefined }}
-      {...pointerHandlers}
+      onPointerDown={backHref ? detail.onPointerDown : undefined}
+      onPointerMove={backHref ? detail.onPointerMove : undefined}
+      onPointerUp={backHref ? detail.onPointerUp : undefined}
+      onPointerCancel={backHref ? detail.onPointerCancel : undefined}
     >
       <div
         data-nav-panel
@@ -75,13 +80,26 @@ function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
                 ←
               </Link>
             ) : null}
-            <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-ink">
-              {title}
-            </h1>
+            {breadcrumb ? (
+              <p className="min-w-0 flex-1 truncate text-xs font-bold uppercase tracking-[0.14em] text-ink-muted">
+                {breadcrumb}
+              </p>
+            ) : (
+              <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-ink">
+                {title}
+              </h1>
+            )}
             {actions}
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-6 px-4 py-6">{children}</div>
+        <div
+          className={
+            contentClassName ??
+            "flex flex-1 flex-col gap-6 px-4 py-6"
+          }
+        >
+          {children}
+        </div>
       </div>
       <DeployShaFooter />
     </main>
