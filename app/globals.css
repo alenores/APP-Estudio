@@ -480,6 +480,24 @@ html.pwa-standalone-zoom-lock body {
   box-shadow: 0 12px 26px -16px rgba(27, 34, 43, 0.3);
 }
 
+.tema-detalle-page .td-zone {
+  border-radius: 22px;
+  border: 1px solid var(--td-line);
+  background: color-mix(in srgb, var(--td-card) 92%, var(--td-line-soft));
+  padding: 10px;
+  box-shadow: var(--td-shadow);
+}
+
+.tema-detalle-page .td-zone-contenido {
+  margin-top: 14px;
+}
+
+.tema-detalle-page .td-zone-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .tema-detalle-page .td-item {
   background: var(--td-card);
   border: 1px solid var(--td-line);

@@ -11,9 +11,36 @@ type TemaTiempoPieCardProps = {
   className?: string;
 };
 
-const R = 18;
-const C = 2 * Math.PI * R;
 const PIE = 46;
+const CX = PIE / 2;
+const CY = PIE / 2;
+const R = 20;
+
+const COLOR_INV = "var(--td-navy)";
+const COLOR_REST = "var(--td-e-gris)";
+
+function polar(cx: number, cy: number, r: number, degFromTop: number) {
+  const rad = ((degFromTop - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+/** Porción de torta (pizza) desde degFromTop inicio hasta fin (sentido horario). */
+function pieSlicePath(
+  cx: number,
+  cy: number,
+  r: number,
+  startDeg: number,
+  endDeg: number,
+): string {
+  if (endDeg - startDeg >= 360) {
+    endDeg = startDeg + 359.999;
+  }
+  if (endDeg <= startDeg) return "";
+  const start = polar(cx, cy, r, startDeg);
+  const end = polar(cx, cy, r, endDeg);
+  const large = endDeg - startDeg > 180 ? 1 : 0;
+  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${large} 1 ${end.x} ${end.y} Z`;
+}
 
 export function TemaTiempoPieCard({
   invertidoMin,
@@ -22,9 +49,13 @@ export function TemaTiempoPieCard({
   className = "",
 }: TemaTiempoPieCardProps) {
   const pie = porcionesTiempoPie(invertidoMin, restanteMin);
-  const invLen = pie.total > 0 ? (pie.invertido / pie.total) * C : 0;
-  const restLen = pie.total > 0 ? C - invLen : 0;
-  const cx = PIE / 2;
+  const invDeg = pie.total > 0 ? (pie.invertido / pie.total) * 360 : 0;
+  const invPath =
+    invDeg > 0 ? pieSlicePath(CX, CY, R, 0, invDeg) : "";
+  const restPath =
+    invDeg < 360 && pie.total > 0
+      ? pieSlicePath(CX, CY, R, invDeg, 360)
+      : "";
 
   return (
     <TemaMiniCard
@@ -32,93 +63,64 @@ export function TemaTiempoPieCard({
       delayClass={delayClass}
       className={className}
     >
-      <div className="flex min-w-0 items-center gap-1">
+      <div className="flex min-w-0 items-center gap-1.5">
         <div className="min-w-0 flex-1 space-y-0.5">
           <TiempoLinea
             label="Inv."
             value={formatDuracionMinutos(invertidoMin)}
-            pct={pie.pctInvertido}
             dotClass="bg-[var(--td-navy)]"
           />
           <TiempoLinea
             label="Rest."
             value={formatDuracionMinutos(restanteMin)}
-            pct={pie.pctRestante}
-            dotClass="bg-[var(--td-line)] ring-1 ring-[var(--td-faint)]/40"
+            dotClass="bg-[var(--td-e-gris)] ring-1 ring-[var(--td-faint)]/35"
           />
           {pie.total === 0 ? (
             <p className="text-[9px] text-[var(--td-faint)]">Sin datos</p>
           ) : null}
         </div>
-        <div className="relative shrink-0" aria-hidden>
+        <div className="shrink-0" aria-hidden>
           <svg width={PIE} height={PIE} viewBox={`0 0 ${PIE} ${PIE}`}>
-            <circle
-              cx={cx}
-              cy={cx}
-              r={R}
-              fill="none"
-              stroke="var(--td-line-soft)"
-              strokeWidth="7"
-            />
-            {pie.total > 0 ? (
+            {pie.total === 0 ? (
+              <circle
+                cx={CX}
+                cy={CY}
+                r={R}
+                fill="var(--td-line-soft)"
+                stroke="var(--td-line)"
+                strokeWidth="1"
+              />
+            ) : (
               <>
-                <circle
-                  cx={cx}
-                  cy={cx}
-                  r={R}
-                  fill="none"
-                  stroke="var(--td-navy)"
-                  strokeWidth="7"
-                  strokeDasharray={`${invLen} ${C - invLen}`}
-                  transform={`rotate(-90 ${cx} ${cx})`}
-                />
-                <circle
-                  cx={cx}
-                  cy={cx}
-                  r={R}
-                  fill="none"
-                  stroke="var(--td-e-azul-pale)"
-                  strokeWidth="7"
-                  strokeDasharray={`${restLen} ${C - restLen}`}
-                  strokeDashoffset={-invLen}
-                  transform={`rotate(-90 ${cx} ${cx})`}
-                />
+                {invPath ? <path d={invPath} fill={COLOR_INV} /> : null}
+                {restPath ? <path d={restPath} fill={COLOR_REST} /> : null}
               </>
-            ) : null}
+            )}
           </svg>
-          {pie.total > 0 ? (
-            <span className="absolute inset-0 flex items-center justify-center text-[8px] font-extrabold text-[var(--td-ink-soft)]">
-              {pie.pctInvertido}%
-            </span>
-          ) : null}
         </div>
       </div>
     </TemaMiniCard>
   );
 }
 
+const TD_TIEMPO_DOT =
+  "mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-[var(--td-faint)]/35";
+
 function TiempoLinea({
   label,
   value,
-  pct,
   dotClass,
 }: {
   label: string;
   value: string;
-  pct: number;
   dotClass: string;
 }) {
   return (
     <div className="flex min-w-0 items-center gap-1">
-      <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotClass}`} />
+      <span className={`${TD_TIEMPO_DOT} ${dotClass}`} aria-hidden />
       <div className="min-w-0 truncate leading-tight">
         <span className="text-[9px] font-bold uppercase text-[var(--td-faint)]">
           {label}
-          {pct > 0 ? (
-            <span className="ml-0.5 normal-case text-[var(--td-ink-soft)]">
-              {pct}%
-            </span>
-          ) : null}
         </span>
         <span className="ml-1 text-[12px] font-extrabold text-[var(--td-ink)]">
           {value}
