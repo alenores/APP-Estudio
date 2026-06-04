@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import {
   nivelEntendimientoColor,
   nivelEntendimientoPalabra,
@@ -16,7 +15,8 @@ const CX = 100;
 const CY = 100;
 const NEEDLE_R = 68;
 
-function agujaRotacionGrados(nivel: number): number {
+/** Grados SVG: 1 = izquierda (-90°), 10 = derecha (+90°). */
+export function agujaRotacionGrados(nivel: number): number {
   const t = (nivel - NIVEL_MIN) / (NIVEL_MAX - NIVEL_MIN);
   return -90 + t * 180;
 }
@@ -25,17 +25,19 @@ function agujaRotacionGrados(nivel: number): number {
 export function TemaNivelGauge({ nivel, delayClass = "td-d3" }: TemaNivelGaugeProps) {
   const palabra = nivelEntendimientoPalabra(nivel);
   const color = nivelEntendimientoColor(nivel);
-  const needleRotate =
-    nivel != null ? `${agujaRotacionGrados(nivel)}deg` : "-90deg";
+  const needleTransform =
+    nivel != null
+      ? `rotate(${agujaRotacionGrados(nivel)}, ${CX}, ${CY})`
+      : undefined;
 
   return (
     <section
-      className={`td-card td-rise ${delayClass} flex flex-col items-center px-3 pb-3 pt-3`}
+      className={`td-card td-rise ${delayClass} flex min-w-0 flex-col items-center px-2 pb-2 pt-2.5`}
     >
-      <span className="mb-1 self-start text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-faint)]">
-        Nivel de entendimiento
+      <span className="mb-0.5 w-full truncate text-center text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
+        Entendimiento
       </span>
-      <div className="relative w-full max-w-[168px]">
+      <div className="relative w-full">
         <svg viewBox="0 0 200 118" className="block h-auto w-full" aria-hidden>
           <defs>
             <linearGradient
@@ -66,16 +68,8 @@ export function TemaNivelGauge({ nivel, delayClass = "td-d3" }: TemaNivelGaugePr
             strokeLinecap="round"
             opacity={0.95}
           />
-          {nivel != null ? (
-            <g
-              className="td-needle-group"
-              style={
-                {
-                  "--td-needle-to": needleRotate,
-                  transformOrigin: `${CX}px ${CY}px`,
-                } as CSSProperties
-              }
-            >
+          {needleTransform ? (
+            <g transform={needleTransform}>
               <line
                 x1={CX}
                 y1={CY}
@@ -99,20 +93,20 @@ export function TemaNivelGauge({ nivel, delayClass = "td-d3" }: TemaNivelGaugePr
           )}
         </svg>
         <div
-          className="pointer-events-none absolute inset-x-0 top-[38%] text-center"
+          className="pointer-events-none absolute inset-x-0 top-[36%] text-center leading-none"
           style={{ color }}
         >
-          <span className="text-[34px] font-extrabold leading-none tracking-tight">
+          <span className="text-[26px] font-extrabold tracking-tight">
             {nivel ?? "—"}
           </span>
           {nivel != null ? (
-            <span className="text-xs font-bold text-[var(--td-faint)]">/10</span>
+            <span className="text-[10px] font-bold text-[var(--td-faint)]">/10</span>
           ) : null}
         </div>
       </div>
       {palabra ? (
         <p
-          className="mt-0.5 text-center text-[12px] font-extrabold"
+          className="mt-0.5 truncate text-center text-[10px] font-extrabold"
           style={{ color }}
         >
           {palabra}

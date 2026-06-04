@@ -203,7 +203,7 @@ export function TemaDetalleView({
         ) : null}
       </section>
 
-      <div className="td-rise td-d3 mt-3.5 grid grid-cols-1 gap-3.5 min-[431px]:grid-cols-[1fr_1.05fr]">
+      <div className="td-rise td-d3 mt-3 grid grid-cols-2 gap-2">
         <TemaNivelGauge nivel={metrics.nivel} />
         <TemaTiempoPieCard
           invertidoMin={metrics.tiempoInvertidoMin}

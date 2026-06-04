@@ -368,18 +368,6 @@ html.pwa-standalone-zoom-lock body {
   animation: td-gz 1.3s 0.5s forwards;
 }
 
-.tema-detalle-page .td-needle-group {
-  transform: rotate(-90deg);
-  transform-origin: 100px 100px;
-  animation: td-needle-sweep 1.1s 0.45s cubic-bezier(0.3, 0.8, 0.3, 1) forwards;
-}
-
-@keyframes td-needle-sweep {
-  to {
-    transform: rotate(var(--td-needle-to, 0deg));
-  }
-}
-
 .tema-detalle-page .td-pie-inv,
 .tema-detalle-page .td-pie-rest {
   transition: stroke-dasharray 0.6s ease;
@@ -518,14 +506,8 @@ html.pwa-standalone-zoom-lock body {
   .tema-detalle-page .td-tl-gap {
     width: var(--td-gap-width);
   }
-  .tema-detalle-page .td-gz-val,
-  .tema-detalle-page .td-needle-group {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  .tema-detalle-page .td-needle-group {
-    transform: rotate(var(--td-needle-to, -90deg));
+  .tema-detalle-page .td-gz-val {
+    stroke-dashoffset: var(--td-gz-offset);
   }
   .tema-detalle-page .td-ctab-ind {
     transition: none;
