@@ -23,6 +23,7 @@ Aceptado — 2026-06-03
 4. **Alta contextual** (curso bajo tema, clase bajo curso, seguimiento bajo tema/curso/clase): abrir `StudySheet` en la página de detalle del padre; al guardar, `reload({ silent: true })` del hook y cerrar sheet — **no** `router.replace` al hijo creado. El usuario entra al detalle del hijo solo si toca la card en el listado.
 5. **Nuevo tema** desde listado: sigue en `/temas/nuevo` (raíz del árbol). Rutas `/…/nuevo` antiguas redirigen al padre.
 6. **`StudySheet` sin slide del panel** (Chrome Android no anima bien `transform` al abrir). Permitido: fade del velo (`.sheet-backdrop-enter`), vibración corta al abrir, panel flotante instantáneo. **No** WAAPI, `retained`, ni `translateY` animado en el sheet — mismo criterio que el FAB sin escalonado.
+7. **FAB → sheet:** `FAB_OPEN_DELAY_MS` (120 ms en `lib/fab-open-delay.ts`) entre el `active` del botón y `onSelect`/abrir sheet; feedback táctil sin animar el panel.
 
 ## Consecuencias
 

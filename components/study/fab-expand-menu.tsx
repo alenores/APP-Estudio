@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { FAB_OPEN_DELAY_MS } from "@/lib/fab-open-delay";
+import { useEffect, useId, useRef, useState } from "react";
 
 export type FabExpandAction = {
   id: string;
@@ -16,9 +17,16 @@ type FabExpandMenuProps = {
   mainLabel?: string;
 };
 
+const actionButtonClass = {
+  dashed:
+    "flex items-center gap-2 rounded-full border border-dashed border-accent/50 bg-paper-elevated px-4 py-2.5 text-sm font-semibold text-accent shadow-md transition-[transform,colors] duration-150 hover:border-accent hover:bg-accent-subtle active:scale-95",
+  solid:
+    "flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-[transform,colors] duration-150 hover:bg-accent-hover active:scale-95",
+};
+
 /**
  * FAB (+) con acciones apiladas hacia arriba (detalle de tema/curso).
- * onSelect abre sheet en la página padre; sin navegación a /nuevo.
+ * Breve delay antes de onSelect para que se vea el active del botón.
  */
 export function FabExpandMenu({
   actions,
@@ -27,6 +35,7 @@ export function FabExpandMenu({
 }: FabExpandMenuProps) {
   const [open, setOpen] = useState(false);
   const menuId = useId();
+  const pickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -37,9 +46,19 @@ export function FabExpandMenu({
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
+  useEffect(() => {
+    return () => {
+      if (pickTimerRef.current) clearTimeout(pickTimerRef.current);
+    };
+  }, []);
+
   function pick(id: string) {
-    setOpen(false);
-    onSelect(id);
+    if (pickTimerRef.current) return;
+    pickTimerRef.current = setTimeout(() => {
+      pickTimerRef.current = null;
+      setOpen(false);
+      onSelect(id);
+    }, FAB_OPEN_DELAY_MS);
   }
 
   return (
@@ -68,8 +87,8 @@ export function FabExpandMenu({
                 onClick={() => pick(action.id)}
                 className={
                   action.variant === "dashed"
-                    ? "flex items-center gap-2 rounded-full border border-dashed border-accent/50 bg-paper-elevated px-4 py-2.5 text-sm font-semibold text-accent shadow-md transition-colors hover:border-accent hover:bg-accent-subtle active:scale-95"
-                    : "flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/25 transition-colors hover:bg-accent-hover active:scale-95"
+                    ? actionButtonClass.dashed
+                    : actionButtonClass.solid
                 }
               >
                 <span className="text-lg leading-none">+</span>
