@@ -5,8 +5,8 @@ import { AppShell } from "@/components/study/app-shell";
 import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
-import { AddEntityLink, AlertText, LoadingText } from "@/components/study/form-field";
-import { FabLink } from "@/components/study/fab-link";
+import { AlertText, LoadingText } from "@/components/study/form-field";
+import { FabExpandMenu } from "@/components/study/fab-expand-menu";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
@@ -74,11 +74,7 @@ export default function TemaDetallePage() {
           panelA={{
             label: `Cursos (${cursos.length})`,
             content: (
-              <div className="space-y-3">
-                <AddEntityLink
-                  href={`/temas/${tema.id}/cursos/nuevo`}
-                  label="Agregar curso"
-                />
+              <div className="space-y-3 pb-20">
                 {cursos.length === 0 ? (
                   <p className="text-center text-sm text-ink-muted">
                     Sin cursos todavía.
@@ -100,13 +96,28 @@ export default function TemaDetallePage() {
           }}
           panelB={{
             label: `Seguimiento (${seguimientos.length})`,
-            content: <SeguimientoList items={seguimientos} />,
+            content: (
+              <div className="pb-20">
+                <SeguimientoList items={seguimientos} />
+              </div>
+            ),
           }}
         />
       </AppShell>
-      <FabLink
-        href={`/seguimientos/nuevo?tema_id=${tema.id}`}
-        label="Seguimiento"
+      <FabExpandMenu
+        mainLabel="Acciones del tema"
+        actions={[
+          {
+            href: `/seguimientos/nuevo?tema_id=${tema.id}`,
+            label: "Seguimiento",
+            variant: "solid",
+          },
+          {
+            href: `/temas/${tema.id}/cursos/nuevo`,
+            label: "Agregar curso",
+            variant: "dashed",
+          },
+        ]}
       />
     </>
   );
