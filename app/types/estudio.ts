@@ -1,7 +1,7 @@
 /** Filas alineadas con ADR 002 — nombres exactos de columnas Supabase. */
 
 export type Tema = {
-  id: string;
+  id: number;
   user_id: string;
   nombre: string;
   descripcion: string | null;
@@ -13,9 +13,9 @@ export type Tema = {
 };
 
 export type Curso = {
-  id: string;
+  id: number;
   user_id: string;
-  tema_id: string;
+  tema_id: number;
   nombre: string;
   descripcion: string | null;
   orden: number;
@@ -28,9 +28,9 @@ export type Curso = {
 };
 
 export type Clase = {
-  id: string;
+  id: number;
   user_id: string;
-  curso_id: string;
+  curso_id: number;
   nombre: string;
   descripcion: string | null;
   orden: number;
@@ -40,11 +40,11 @@ export type Clase = {
 };
 
 export type Seguimiento = {
-  id: string;
+  id: number;
   user_id: string;
-  tema_id: string | null;
-  curso_id: string | null;
-  clase_id: string | null;
+  tema_id: number | null;
+  curso_id: number | null;
+  clase_id: number | null;
   fecha_registro: string;
   etiqueta_estado: string | null;
   porcentaje_avance: number | null;
