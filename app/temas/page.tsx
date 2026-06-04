@@ -51,6 +51,7 @@ export default function TemasPage() {
               nombre={t.nombre}
               subtitulo={t.descripcion}
               derivados={t.derivados}
+              forwardTransition
             />
           </li>
         ))}

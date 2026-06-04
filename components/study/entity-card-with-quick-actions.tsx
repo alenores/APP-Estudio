@@ -16,7 +16,7 @@ type EntityCardWithQuickActionsProps = EntityCardProps & {
 const MOVE_CANCEL_PX = 12;
 
 /**
- * Card de curso/clase: tap corto → detalle; mantener apretado → menú seguimiento/concepto del hijo.
+ * Card de curso/clase: tap o swipe ← → detalle; mantener apretado → menú seguimiento/concepto.
  */
 export function EntityCardWithQuickActions({
   onQuickAction,
@@ -62,7 +62,7 @@ export function EntityCardWithQuickActions({
   );
 
   function onTouchStart(e: React.TouchEvent) {
-    if (e.touches.length !== 1) return;
+    if (e.touches.length !== 1 || menuRect) return;
     hapticLightTap();
     beginPress(e.touches[0].clientX, e.touches[0].clientY);
   }
@@ -79,7 +79,7 @@ export function EntityCardWithQuickActions({
   }
 
   function onMouseDown(e: React.MouseEvent) {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || menuRect) return;
     beginPress(e.clientX, e.clientY);
   }
 
@@ -109,6 +109,7 @@ export function EntityCardWithQuickActions({
           {...card}
           forwardTransition
           blockNavigation={menuRect !== null}
+          onForwardSwipeStart={clearTimer}
           onNavigateBlocked={() => {
             longPressDone.current = false;
           }}

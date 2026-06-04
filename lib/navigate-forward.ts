@@ -1,30 +1,36 @@
 import {
-  animateExitForward,
-  findNavPanel,
-  markNavForward,
-  prefersReducedMotion,
-} from "@/lib/nav-transition";
+  navLeaveOffsetPx,
+  NAV_LEAVE_MS,
+} from "@/lib/nav-motion";
+import type { NavPanelMotion } from "@/lib/nav-panel-context";
+import { markNavEnter, prefersReducedMotion } from "@/lib/nav-transition";
 
-type AppRouterPush = { push: (href: string) => void };
+type RouterPush = { push: (href: string) => void };
 
-/** Tap en card hijo: animación de salida y luego `router.push`. */
-export async function navigateForward(
-  router: AppRouterPush,
+/** Salida hacia hijo (tap o swipe en ítem): panel a la izquierda y navegación. */
+export function navigateForwardLeave(
+  router: RouterPush,
   href: string,
-): Promise<void> {
+  panel?: NavPanelMotion | null,
+): void {
   if (prefersReducedMotion()) {
+    markNavEnter();
     router.push(href);
     return;
   }
 
-  const panel = findNavPanel();
+  markNavEnter();
+
   if (panel) {
-    await animateExitForward(panel);
-    panel.style.transform = "";
-    panel.style.transition = "";
-    panel.style.opacity = "";
+    panel.setIsSwiping(false);
+    panel.setIsLeaving(true);
+    panel.setActiveItemKey(null);
+    panel.setSwipeOffset(navLeaveOffsetPx());
+    window.setTimeout(() => {
+      router.push(href);
+    }, NAV_LEAVE_MS);
+    return;
   }
 
-  markNavForward();
   router.push(href);
 }

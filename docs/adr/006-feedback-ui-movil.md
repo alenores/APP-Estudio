@@ -52,13 +52,14 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
    - Mismos sheets y forms que el FAB; título del sheet puede incluir el nombre del hijo.
 
 7. **Entrar a un hijo (card con `forwardTransition`)**
-   - Tap en curso/clase bajo tema o curso: la pantalla actual se desplaza a la **izquierda**; la siguiente **entra desde la derecha** (`lib/nav-transition.ts`, `navigate-forward.ts`).
-   - Espejo del swipe atrás (salida a la derecha). `data-nav-panel` en `AppShell`. Respetar `prefers-reduced-motion`.
+   - **Tap** o **swipe ←** en la fila (`EntityCard` / `entity-card-with-quick-actions`): el panel `data-nav-panel` se corre a la izquierda (~92 % ancho, **170 ms**), `sessionStorage` `app-estudio-nav-enter-v1`, luego `router.push`.
+   - Hint en fila: «← Deslizá» / «Soltá para entrar» (umbral swipe **80 px**). Constantes en `lib/nav-motion.ts`; gesto en `lib/use-nav-item-forward-swipe.ts`.
+   - Long press en la misma card cancela el timer si arranca el swipe horizontal (`onForwardSwipeStart`).
+   - Detalle hijo al montar: entrada `enterOffset` 44→0, `scale` 0.992→1, opacidad 0.92→1 (`lib/use-nav-detail-gestures.ts`). Respetar `prefers-reduced-motion`.
 
 8. **Volver atrás con swipe** (`AppShell` con `backHref`)
-   - Swipe horizontal hacia la derecha: el panel **sigue el dedo** (`translateX` + sombra/opacidad); al soltar, rebote o commit (~33 % ancho / ≥88 px) y luego `router.push(backHref)`.
-   - Desde borde izquierdo (~40 px) o recorrido amplio (≥100 px) para armar el gesto.
-   - Vibración al confirmar: `hapticSwipeCommit` en `lib/haptic.ts`. No compite con swipe abajo del `StudySheet`.
+   - Swipe horizontal hacia la **derecha** en el panel (pointer, `touchAction: pan-y`): el panel sigue el dedo (cap **260 px**); commit **>70 px** y `|Δy| < 90` → salida **+92 % ancho**, **170 ms**, `router.replace(backHref)`.
+   - Intención horizontal vs vertical con `swipeIntentRef` (no compite con scroll). Vibración al confirmar: `hapticSwipeCommit`. No compite con swipe abajo del `StudySheet`.
 
 ## Archivos de referencia
 
@@ -66,8 +67,8 @@ Este ADR fija el **patrón que sí funciona** para futuras features con “anima
 |-----|--------|
 | Delay FAB → sheet | `lib/fab-open-delay.ts`, `fab-expand-menu.tsx`, `fab-action-button.tsx` |
 | Sheet simple | `components/study/study-sheet.tsx` |
-| Navegación adelante (card hijo) | `lib/nav-transition.ts`, `lib/navigate-forward.ts`, `entity-card.tsx` |
-| Swipe atrás en detalle | `lib/use-swipe-back.ts`, `components/study/app-shell.tsx` |
+| Navegación adelante (tap + swipe ←) | `lib/nav-motion.ts`, `lib/nav-panel-context.tsx`, `lib/use-nav-item-forward-swipe.ts`, `lib/navigate-forward.ts`, `entity-card.tsx` |
+| Entrada detalle + swipe atrás | `lib/use-nav-detail-gestures.ts`, `lib/nav-transition.ts`, `components/study/app-shell.tsx` |
 | Menú contextual card hijo | `entity-card-with-quick-actions.tsx`, `child-context-menu.tsx` |
 | Preview link curso/clase | `components/study/external-link-preview.tsx`, `app/api/link-preview` |
 | Fade velo | `app/globals.css` → `.sheet-backdrop-enter` |

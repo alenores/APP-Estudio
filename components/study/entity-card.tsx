@@ -4,7 +4,8 @@ import Link from "next/link";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { estadoDotClass, estadoLabel } from "@/lib/estado-ui";
-import { navigateForward } from "@/lib/navigate-forward";
+import { FWD_SWIPE_HINT_THRESHOLD } from "@/lib/nav-motion";
+import { useNavItemForwardSwipe } from "@/lib/use-nav-item-forward-swipe";
 import { useRouter } from "next/navigation";
 
 export type EntityCardProps = {
@@ -19,8 +20,10 @@ export type EntityCardProps = {
   /** Tras long-press con menú contextual, evita abrir el detalle en el mismo tap. */
   blockNavigation?: boolean;
   onNavigateBlocked?: () => void;
-  /** Transición adelante (entra desde la derecha) al abrir detalle del hijo. */
+  /** Tap o swipe ←: transición hacia detalle del hijo (paridad gestos móvil). */
   forwardTransition?: boolean;
+  /** Cancela long-press del padre al detectar swipe horizontal. */
+  onForwardSwipeStart?: () => void;
 };
 
 export function EntityCard({
@@ -33,30 +36,39 @@ export function EntityCard({
   blockNavigation = false,
   onNavigateBlocked,
   forwardTransition = false,
+  onForwardSwipeStart,
 }: EntityCardProps) {
   const router = useRouter();
   const { etiqueta_estado, porcentaje_avance } = derivados;
   const estadoTexto = estadoLabel(etiqueta_estado);
   const hasExternal = Boolean(externalLink?.trim());
 
-  async function onCardClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    if (blockNavigation) {
-      e.preventDefault();
-      onNavigateBlocked?.();
-      return;
-    }
-    if (forwardTransition) {
-      e.preventDefault();
-      await navigateForward(router, href);
-    }
-  }
+  const nav = useNavItemForwardSwipe({
+    router,
+    href,
+    itemKey: href,
+    enabled: forwardTransition,
+    blockNavigation,
+    onSwipeStarted: onForwardSwipeStart,
+  });
+
+  const showSwipeHint =
+    forwardTransition &&
+    nav.isActiveSwipeItem &&
+    nav.swipeProgress > FWD_SWIPE_HINT_THRESHOLD;
 
   return (
     <div className="flex items-start gap-2 rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md">
       <Link
         href={href}
+        prefetch={false}
         className="flex min-w-0 flex-1 items-start gap-3"
-        onClick={onCardClick}
+        onClick={forwardTransition ? nav.onClick : undefined}
+        onPointerDown={forwardTransition ? nav.onPointerDown : undefined}
+        onPointerMove={forwardTransition ? nav.onPointerMove : undefined}
+        onPointerUp={forwardTransition ? nav.onPointerUp : undefined}
+        onPointerCancel={forwardTransition ? nav.onPointerCancel : undefined}
+        style={forwardTransition ? { touchAction: "pan-y" } : undefined}
       >
         <span
           className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${estadoDotClass(etiqueta_estado)}`}
@@ -74,13 +86,24 @@ export function EntityCard({
           {subtitulo ? (
             <p className="mt-1 line-clamp-2 text-xs text-ink-muted">{subtitulo}</p>
           ) : null}
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             {estadoTexto ? (
               <span className="text-xs text-ink-muted">{estadoTexto}</span>
             ) : null}
             {porcentaje_avance != null ? (
               <span className="text-xs font-medium text-accent">
                 {porcentaje_avance}%
+              </span>
+            ) : null}
+            {forwardTransition ? (
+              <span className="ml-auto inline-flex items-center gap-1 text-[11px] italic text-ink-muted/80">
+                {showSwipeHint ? (
+                  "Soltá para entrar"
+                ) : (
+                  <>
+                    <span aria-hidden>←</span> Deslizá
+                  </>
+                )}
               </span>
             ) : null}
           </div>
