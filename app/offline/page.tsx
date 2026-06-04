@@ -5,7 +5,7 @@ export default function OfflinePage() {
         <p className="text-xs font-semibold uppercase tracking-wider text-accent">
           Sin conexión
         </p>
-        <h1 className="mt-2 font-serif text-2xl font-semibold">No hay internet</h1>
+        <h1 className="mt-2 text-2xl font-semibold">No hay internet</h1>
         <p className="mt-3 text-sm leading-6 text-ink-muted">
           Esta app funciona con datos en línea desde Supabase. Cuando vuelva la señal,
           recargá la página. El ícono instalado sigue siendo la forma recomendada de

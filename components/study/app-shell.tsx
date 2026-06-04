@@ -22,7 +22,7 @@ export function AppShell({ title, backHref, children, actions }: AppShellProps) 
               ←
             </Link>
           ) : null}
-          <h1 className="min-w-0 flex-1 truncate font-serif text-lg font-semibold text-ink">
+          <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-ink">
             {title}
           </h1>
           {actions}
