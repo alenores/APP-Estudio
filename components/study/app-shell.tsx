@@ -15,6 +15,9 @@ type AppShellProps = {
   actions?: ReactNode;
 };
 
+/**
+ * Escenario fijo (fondo) + hoja `data-nav-panel` que se desliza — efecto “libro” al navegar.
+ */
 function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
   const router = useRouter();
   const panel = useNavPanel();
@@ -49,31 +52,36 @@ function AppShellInner({ title, backHref, children, actions }: AppShellProps) {
     : {};
 
   return (
-    <div
-      data-nav-panel
-      className="mx-auto flex w-full max-w-lg flex-1 flex-col bg-paper will-change-transform"
-      style={{ touchAction: "pan-y", ...panelStyle }}
+    <main
+      className="flex min-h-dvh flex-1 flex-col overflow-x-hidden bg-gradient-to-b from-accent-subtle via-[#e8eef4] to-accent-subtle px-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4"
+      style={{ touchAction: backHref ? "pan-y" : undefined }}
       {...pointerHandlers}
     >
-      <header className="sticky top-0 z-10 border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          {backHref ? (
-            <Link
-              href={backHref}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition hover:bg-accent-subtle hover:text-accent"
-              aria-label="Volver"
-            >
-              ←
-            </Link>
-          ) : null}
-          <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-ink">
-            {title}
-          </h1>
-          {actions}
-        </div>
-      </header>
-      <div className="flex flex-1 flex-col gap-6 px-4 py-6">{children}</div>
-    </div>
+      <div
+        data-nav-panel
+        className="mx-auto flex w-full max-w-lg flex-1 flex-col rounded-2xl bg-paper shadow-xl ring-1 ring-border/70 will-change-transform"
+        style={panelStyle}
+      >
+        <header className="sticky top-0 z-10 rounded-t-2xl border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            {backHref ? (
+              <Link
+                href={backHref}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition hover:bg-accent-subtle hover:text-accent"
+                aria-label="Volver"
+              >
+                ←
+              </Link>
+            ) : null}
+            <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-ink">
+              {title}
+            </h1>
+            {actions}
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-6 px-4 py-6">{children}</div>
+      </div>
+    </main>
   );
 }
 

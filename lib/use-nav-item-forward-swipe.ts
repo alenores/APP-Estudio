@@ -151,21 +151,12 @@ export function useNavItemForwardSwipe({
     [blockNavigation, enabled, href, panel, router],
   );
 
-  const swipeProgress =
-    panel?.activeItemKey === itemKey
-      ? Math.min(Math.abs(panel.swipeOffset) / 80, 1)
-      : 0;
-
-  const isActiveSwipeItem = panel?.activeItemKey === itemKey;
-
   return {
     onPointerDown,
     onPointerMove,
     onPointerUp,
     onPointerCancel,
     onClick,
-    swipeProgress,
-    isActiveSwipeItem,
     suppressClickRef,
   };
 }

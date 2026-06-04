@@ -4,7 +4,6 @@ import Link from "next/link";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { estadoDotClass, estadoLabel } from "@/lib/estado-ui";
-import { FWD_SWIPE_HINT_THRESHOLD } from "@/lib/nav-motion";
 import { useNavItemForwardSwipe } from "@/lib/use-nav-item-forward-swipe";
 import { useRouter } from "next/navigation";
 
@@ -34,7 +33,6 @@ export function EntityCard({
   derivados,
   badge,
   blockNavigation = false,
-  onNavigateBlocked,
   forwardTransition = false,
   onForwardSwipeStart,
 }: EntityCardProps) {
@@ -51,11 +49,6 @@ export function EntityCard({
     blockNavigation,
     onSwipeStarted: onForwardSwipeStart,
   });
-
-  const showSwipeHint =
-    forwardTransition &&
-    nav.isActiveSwipeItem &&
-    nav.swipeProgress > FWD_SWIPE_HINT_THRESHOLD;
 
   return (
     <div className="flex items-start gap-2 rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md">
@@ -86,24 +79,13 @@ export function EntityCard({
           {subtitulo ? (
             <p className="mt-1 line-clamp-2 text-xs text-ink-muted">{subtitulo}</p>
           ) : null}
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {estadoTexto ? (
               <span className="text-xs text-ink-muted">{estadoTexto}</span>
             ) : null}
             {porcentaje_avance != null ? (
               <span className="text-xs font-medium text-accent">
                 {porcentaje_avance}%
-              </span>
-            ) : null}
-            {forwardTransition ? (
-              <span className="ml-auto inline-flex items-center gap-1 text-[11px] italic text-ink-muted/80">
-                {showSwipeHint ? (
-                  "Soltá para entrar"
-                ) : (
-                  <>
-                    <span aria-hidden>←</span> Deslizá
-                  </>
-                )}
               </span>
             ) : null}
           </div>

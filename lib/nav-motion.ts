@@ -27,8 +27,6 @@ export const FWD_SWIPE_COMMIT_MAX_Y = 70;
 export const FWD_SWIPE_MAX_DRAG = 220;
 export const FWD_SWIPE_AXIS_MIN = 14;
 export const FWD_SWIPE_AXIS_BIAS_Y = 10;
-export const FWD_SWIPE_HINT_DIVISOR = 80;
-export const FWD_SWIPE_HINT_THRESHOLD = 0.55;
 
 /** Swipe en detalle → volver (derecha). */
 export const BACK_SWIPE_COMMIT_PX = 70;
