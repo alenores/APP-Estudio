@@ -39,6 +39,18 @@ export type Clase = {
   created_at: string;
 };
 
+export type Concepto = {
+  id: number;
+  user_id: string;
+  tema_id: number | null;
+  curso_id: number | null;
+  clase_id: number | null;
+  descripcion: string;
+  jerarquia: number;
+  fecha_registro: string;
+  created_at: string;
+};
+
 export type Seguimiento = {
   id: number;
   user_id: string;

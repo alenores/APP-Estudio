@@ -3,11 +3,13 @@
 import { useCursoDetalle } from "@/app/hooks/useCursoDetalle";
 import { AppShell } from "@/components/study/app-shell";
 import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
-import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
+import { TriplePanelTabs } from "@/components/study/triple-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
+import { ConceptoList } from "@/components/study/concepto-list";
 import { ClaseForm } from "@/components/study/forms/clase-form";
+import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import { PlatformLinkIcon } from "@/components/study/platform-link-icon";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
@@ -16,7 +18,7 @@ import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
-type CursoSheet = null | "clase" | "seguimiento";
+type CursoSheet = null | "clase" | "seguimiento" | "concepto";
 
 function formatFecha(value: string | null) {
   if (!value) return null;
@@ -34,7 +36,8 @@ function formatFecha(value: string | null) {
 export default function CursoDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { curso, clases, seguimientos, loading, error, reload } = useCursoDetalle(id);
+  const { curso, clases, seguimientos, conceptos, loading, error, reload } =
+    useCursoDetalle(id);
   const [sheet, setSheet] = useState<CursoSheet>(null);
 
   function closeSheet() {
@@ -96,7 +99,7 @@ export default function CursoDetallePage() {
           </div>
         ) : null}
 
-        <DualPanelTabs
+        <TriplePanelTabs
           panelA={{
             label: `Clases (${clases.length})`,
             content: (
@@ -128,6 +131,14 @@ export default function CursoDetallePage() {
               </div>
             ),
           }}
+          panelC={{
+            label: `Conceptos (${conceptos.length})`,
+            content: (
+              <div className="pb-20">
+                <ConceptoList items={conceptos} />
+              </div>
+            ),
+          }}
         />
 
         <p className="text-center text-xs text-ink-muted">
@@ -140,6 +151,7 @@ export default function CursoDetallePage() {
         onSelect={(actionId) => setSheet(actionId as CursoSheet)}
         actions={[
           { id: "seguimiento", label: "Seguimiento", variant: "solid" },
+          { id: "concepto", label: "Concepto", variant: "solid" },
           { id: "clase", label: "Agregar clase", variant: "dashed" },
         ]}
       />
@@ -161,6 +173,14 @@ export default function CursoDetallePage() {
           parent={{ cursoId: curso.id }}
           onSuccess={onChildCreated}
         />
+      </StudySheet>
+
+      <StudySheet
+        open={sheet === "concepto"}
+        onClose={closeSheet}
+        title="Nuevo concepto"
+      >
+        <ConceptoForm parent={{ cursoId: curso.id }} onSuccess={onChildCreated} />
       </StudySheet>
     </>
   );

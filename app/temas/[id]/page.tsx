@@ -2,12 +2,14 @@
 
 import { useTemaDetalle } from "@/app/hooks/useTemaDetalle";
 import { AppShell } from "@/components/study/app-shell";
-import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
+import { TriplePanelTabs } from "@/components/study/triple-panel-tabs";
 import { EntityCard } from "@/components/study/entity-card";
 import { TemaInfoSection } from "@/components/study/tema-info-section";
 import { AlertText, LoadingText } from "@/components/study/form-field";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
+import { ConceptoList } from "@/components/study/concepto-list";
 import { CursoForm } from "@/components/study/forms/curso-form";
+import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
@@ -15,12 +17,13 @@ import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
-type TemaSheet = null | "curso" | "seguimiento";
+type TemaSheet = null | "curso" | "seguimiento" | "concepto";
 
 export default function TemaDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { tema, cursos, seguimientos, loading, error, reload } = useTemaDetalle(id);
+  const { tema, cursos, seguimientos, conceptos, loading, error, reload } =
+    useTemaDetalle(id);
   const [sheet, setSheet] = useState<TemaSheet>(null);
 
   function closeSheet() {
@@ -53,7 +56,7 @@ export default function TemaDetallePage() {
       <AppShell title={tema.nombre} backHref="/temas">
         <TemaInfoSection tema={tema} />
 
-        <DualPanelTabs
+        <TriplePanelTabs
           panelA={{
             label: `Cursos (${cursos.length})`,
             content: (
@@ -85,6 +88,14 @@ export default function TemaDetallePage() {
               </div>
             ),
           }}
+          panelC={{
+            label: `Conceptos (${conceptos.length})`,
+            content: (
+              <div className="pb-20">
+                <ConceptoList items={conceptos} />
+              </div>
+            ),
+          }}
         />
       </AppShell>
 
@@ -93,6 +104,7 @@ export default function TemaDetallePage() {
         onSelect={(actionId) => setSheet(actionId as TemaSheet)}
         actions={[
           { id: "seguimiento", label: "Seguimiento", variant: "solid" },
+          { id: "concepto", label: "Concepto", variant: "solid" },
           { id: "curso", label: "Agregar curso", variant: "dashed" },
         ]}
       />
@@ -114,6 +126,14 @@ export default function TemaDetallePage() {
           parent={{ temaId: tema.id }}
           onSuccess={onChildCreated}
         />
+      </StudySheet>
+
+      <StudySheet
+        open={sheet === "concepto"}
+        onClose={closeSheet}
+        title="Nuevo concepto"
+      >
+        <ConceptoForm parent={{ temaId: tema.id }} onSuccess={onChildCreated} />
       </StudySheet>
     </>
   );

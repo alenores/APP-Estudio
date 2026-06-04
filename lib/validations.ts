@@ -89,3 +89,14 @@ export type TemaFormValues = z.infer<typeof temaFormSchema>;
 export type CursoFormValues = z.infer<typeof cursoFormSchema>;
 export type ClaseFormValues = z.infer<typeof claseFormSchema>;
 export type SeguimientoFormValues = z.infer<typeof seguimientoFormSchema>;
+
+export const conceptoFormSchema = z.object({
+  descripcion: z
+    .string()
+    .trim()
+    .min(1, "La descripción es obligatoria")
+    .max(2000),
+  jerarquia: optionalInt,
+});
+
+export type ConceptoFormValues = z.infer<typeof conceptoFormSchema>;

@@ -22,12 +22,13 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Curso | `cursos` | `tema_id` → `temas.id` |
 | Clase | `clases` | `curso_id` → `cursos.id` |
 | Seguimiento | `seguimientos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
+| Concepto | `conceptos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 
 Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
 
 En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `number` en TypeScript; los segmentos de URL se parsean con `lib/parse-entity-id.ts`. `user_id` sigue siendo `string` (uuid).
 
-`ON DELETE CASCADE`: borrar tema elimina cursos, clases y seguimientos en cadena; borrar curso elimina clases y sus seguimientos.
+`ON DELETE CASCADE`: borrar tema elimina cursos, clases, seguimientos y conceptos en cadena; borrar curso elimina clases y sus seguimientos/conceptos.
 
 ### Columnas por tabla
 
@@ -90,6 +91,19 @@ Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_
 
 Al insertar: rellenar `user_id = auth.uid()` y **solo** la FK de la dimensión activa.
 
+#### `conceptos` (misma dimensión que seguimientos; sin progreso)
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `tema_id` | bigint | nullable; uno de tres con CHECK |
+| `curso_id` | bigint | nullable |
+| `clase_id` | bigint | nullable |
+| `fecha_registro` | timestamptz | not null, default now() |
+| `descripcion` | text | not null en UI (Zod) |
+| `jerarquia` | integer | not null, default 0 — desempate / agrupación visual |
+
+Al insertar: `user_id = auth.uid()` y **solo** la FK activa. No alimenta campos derivados del padre (eso sigue siendo solo `seguimientos`).
+
 ### Campos derivados (solo lectura en UI / `lib/`)
 
 No se hace `UPDATE` al padre al guardar un seguimiento. La pantalla de detalle combina fila del padre + agregación sobre `seguimientos` del mismo `tema_id` / `curso_id` / `clase_id`.
@@ -113,6 +127,7 @@ Implementación prevista: funciones en `lib/` (ej. `lib/seguimiento-derivados.ts
 - Cursos de un tema: `WHERE tema_id = ?` + mismo orden
 - Clases de un curso: `WHERE curso_id = ?` + mismo orden
 - Seguimientos de una dimensión: `ORDER BY fecha_registro DESC`
+- Conceptos de una dimensión: `ORDER BY fecha_registro DESC`
 
 ### Mapeo al frontend
 

@@ -3,8 +3,11 @@
 import { useClaseDetalle } from "@/app/hooks/useClaseDetalle";
 import { AppShell } from "@/components/study/app-shell";
 import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
+import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
 import { EntityDetailHeader } from "@/components/study/entity-detail-header";
-import { FabActionButton } from "@/components/study/fab-action-button";
+import { FabExpandMenu } from "@/components/study/fab-expand-menu";
+import { ConceptoList } from "@/components/study/concepto-list";
+import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
@@ -12,14 +15,21 @@ import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
+type ClaseSheet = null | "seguimiento" | "concepto";
+
 export default function ClaseDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { clase, seguimientos, loading, error, reload } = useClaseDetalle(id);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const { clase, seguimientos, conceptos, loading, error, reload } =
+    useClaseDetalle(id);
+  const [sheet, setSheet] = useState<ClaseSheet>(null);
 
-  async function onSeguimientoCreated() {
-    setSheetOpen(false);
+  function closeSheet() {
+    setSheet(null);
+  }
+
+  async function onChildCreated() {
+    closeSheet();
     await reload({ silent: true });
   }
 
@@ -53,32 +63,56 @@ export default function ClaseDetallePage() {
           meta={meta}
         />
 
-        <section className="space-y-3 pb-20">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-            Seguimiento ({seguimientos.length})
-          </h3>
-          <SeguimientoList items={seguimientos} />
-        </section>
+        <DualPanelTabs
+          panelA={{
+            label: `Seguimiento (${seguimientos.length})`,
+            content: (
+              <div className="pb-20">
+                <SeguimientoList items={seguimientos} />
+              </div>
+            ),
+          }}
+          panelB={{
+            label: `Conceptos (${conceptos.length})`,
+            content: (
+              <div className="pb-20">
+                <ConceptoList items={conceptos} />
+              </div>
+            ),
+          }}
+        />
 
         <p className="text-center text-xs text-ink-muted">
           <TextLink href={`/cursos/${clase.curso_id}`}>Volver al curso</TextLink>
         </p>
       </AppShell>
 
-      <FabActionButton
-        label="Seguimiento"
-        onClick={() => setSheetOpen(true)}
+      <FabExpandMenu
+        mainLabel="Acciones de la clase"
+        onSelect={(actionId) => setSheet(actionId as ClaseSheet)}
+        actions={[
+          { id: "seguimiento", label: "Seguimiento", variant: "solid" },
+          { id: "concepto", label: "Concepto", variant: "solid" },
+        ]}
       />
 
       <StudySheet
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
+        open={sheet === "seguimiento"}
+        onClose={closeSheet}
         title="Nuevo seguimiento"
       >
         <SeguimientoForm
           parent={{ claseId: clase.id }}
-          onSuccess={onSeguimientoCreated}
+          onSuccess={onChildCreated}
         />
+      </StudySheet>
+
+      <StudySheet
+        open={sheet === "concepto"}
+        onClose={closeSheet}
+        title="Nuevo concepto"
+      >
+        <ConceptoForm parent={{ claseId: clase.id }} onSuccess={onChildCreated} />
       </StudySheet>
     </>
   );

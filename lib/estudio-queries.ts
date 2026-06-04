@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/client";
 import type {
   Clase,
   ClaseConDerivados,
+  Concepto,
   Curso,
   CursoConDerivados,
   Seguimiento,
@@ -11,6 +12,7 @@ import type {
 } from "@/app/types/estudio";
 import type {
   ClaseFormValues,
+  ConceptoFormValues,
   CursoFormValues,
   SeguimientoFormValues,
   TemaFormValues,
@@ -344,6 +346,48 @@ export async function listSeguimientosByClase(claseId: number): Promise<{
   return { data: data as Seguimiento[] | null, error: error?.message ?? null };
 }
 
+export async function listConceptosByTema(temaId: number): Promise<{
+  data: Concepto[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("conceptos")
+    .select("*")
+    .eq("tema_id", temaId)
+    .order("fecha_registro", { ascending: false });
+
+  return { data: data as Concepto[] | null, error: error?.message ?? null };
+}
+
+export async function listConceptosByCurso(cursoId: number): Promise<{
+  data: Concepto[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("conceptos")
+    .select("*")
+    .eq("curso_id", cursoId)
+    .order("fecha_registro", { ascending: false });
+
+  return { data: data as Concepto[] | null, error: error?.message ?? null };
+}
+
+export async function listConceptosByClase(claseId: number): Promise<{
+  data: Concepto[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("conceptos")
+    .select("*")
+    .eq("clase_id", claseId)
+    .order("fecha_registro", { ascending: false });
+
+  return { data: data as Concepto[] | null, error: error?.message ?? null };
+}
+
 export async function getClaseById(id: number): Promise<{
   data: Clase | null;
   error: string | null;
@@ -434,6 +478,37 @@ export async function insertSeguimiento(
     tiempo_consumido: input.tiempo_consumido ?? null,
     tiempo_faltante_estimado: input.tiempo_faltante_estimado ?? null,
     nivel_entendimiento: emptyToNull(input.nivel_entendimiento),
+  });
+
+  return { error: error?.message ?? null };
+}
+
+export type InsertConceptoInput = ConceptoFormValues & {
+  tema_id?: number;
+  curso_id?: number;
+  clase_id?: number;
+};
+
+/** Misma regla de dimensión única que seguimientos (CHECK en Supabase). */
+export async function insertConcepto(
+  userId: string,
+  input: InsertConceptoInput,
+): Promise<{ error: string | null }> {
+  const hasTema = input.tema_id != null;
+  const hasCurso = input.curso_id != null;
+  const hasClase = input.clase_id != null;
+  if (Number(hasTema) + Number(hasCurso) + Number(hasClase) !== 1) {
+    return { error: "Indicá exactamente tema_id, curso_id o clase_id." };
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.from("conceptos").insert({
+    user_id: userId,
+    tema_id: input.tema_id ?? null,
+    curso_id: input.curso_id ?? null,
+    clase_id: input.clase_id ?? null,
+    descripcion: input.descripcion,
+    jerarquia: input.jerarquia ?? 0,
   });
 
   return { error: error?.message ?? null };
