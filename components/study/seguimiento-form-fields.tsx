@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  ESTADO_OPCIONES,
-  NIVEL_OPCIONES,
-} from "@/lib/estado-ui";
+import { ESTADO_OPCIONES, NIVEL_MAX, NIVEL_MIN } from "@/lib/estado-ui";
 import type { SeguimientoFormScope } from "@/lib/seguimiento-form-scope";
 import { seguimientoMuestraAvanceCurso } from "@/lib/seguimiento-form-scope";
 import { FormField, FormInput, FormSelect } from "@/components/study/form-field";
@@ -109,18 +106,17 @@ export function SeguimientoFormFields({
         />
       </FormField>
 
-      <FormField label="Nivel de entendimiento" error={fieldErrors.nivel_entendimiento}>
-        <FormSelect
+      <FormField label="Nivel de entendimiento (1–10)" error={fieldErrors.nivel_entendimiento}>
+        <FormInput
+          type="number"
+          min={NIVEL_MIN}
+          max={NIVEL_MAX}
+          step={1}
+          inputMode="numeric"
           value={nivelEntendimiento}
           onChange={(e) => setNivelEntendimiento(e.target.value)}
-        >
-          <option value="">Sin especificar</option>
-          {NIVEL_OPCIONES.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </FormSelect>
+          placeholder="Sin especificar"
+        />
       </FormField>
 
       {muestraAvance ? (

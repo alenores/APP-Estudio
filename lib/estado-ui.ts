@@ -21,16 +21,34 @@ export const ESTADO_OPCIONES: { value: EstadoSeguimiento; label: string }[] = [
   { value: "completado", label: "Completado" },
 ];
 
-/** Valores que se persisten en `nivel_entendimiento`. */
-export const NIVELES_ENTENDIMIENTO = ["alto", "medio", "bajo"] as const;
+/** Valores 1–10 persistidos en `nivel_entendimiento` (columna text en Supabase). */
+export const NIVELES_ENTENDIMIENTO = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+] as const;
 
 export type NivelEntendimiento = (typeof NIVELES_ENTENDIMIENTO)[number];
 
-export const NIVEL_OPCIONES: { value: NivelEntendimiento; label: string }[] = [
-  { value: "alto", label: "Alto" },
-  { value: "medio", label: "Medio" },
-  { value: "bajo", label: "Bajo" },
-];
+export const NIVEL_MIN = 1;
+export const NIVEL_MAX = 10;
+
+/** Texto en listados (acepta valores viejos alto/medio/bajo sin romper). */
+export function nivelEntendimientoLabel(valor: string | null): string | null {
+  if (!valor?.trim()) return null;
+  const n = Number(valor);
+  if (Number.isInteger(n) && n >= NIVEL_MIN && n <= NIVEL_MAX) {
+    return String(n);
+  }
+  return valor;
+}
 
 function normalizarEstado(estado: string | null): EstadoSeguimiento | null {
   if (!estado) return null;

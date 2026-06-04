@@ -1,5 +1,5 @@
 import type { Seguimiento } from "@/app/types/estudio";
-import { estadoBadgeClass, estadoLabel } from "@/lib/estado-ui";
+import { estadoBadgeClass, estadoLabel, nivelEntendimientoLabel } from "@/lib/estado-ui";
 
 type SeguimientoListProps = {
   items: Seguimiento[];
@@ -47,7 +47,11 @@ export function SeguimientoList({
             ) : null}
             <div className="mt-2 flex flex-wrap gap-2 text-xs text-ink-muted">
               {s.porcentaje_avance != null ? <span>{s.porcentaje_avance}%</span> : null}
-              {s.nivel_entendimiento ? <span>{s.nivel_entendimiento}</span> : null}
+              {nivelEntendimientoLabel(s.nivel_entendimiento) ? (
+                <span>
+                  Nivel {nivelEntendimientoLabel(s.nivel_entendimiento)}
+                </span>
+              ) : null}
             </div>
           </li>
         );

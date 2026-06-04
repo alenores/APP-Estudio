@@ -88,7 +88,7 @@ Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_
 | `comentario` | text | |
 | `fecha_alerta` | date | |
 | `fecha_comienzo` | date | puede alimentar “fecha de comienzo” derivada del padre |
-| `nivel_entendimiento` | text | |
+| `nivel_entendimiento` | text | escala **1–10** (string `"1"`…`"10"` en UI) |
 
 Al insertar: rellenar `user_id = auth.uid()` y **solo** la FK de la dimensión activa.
 

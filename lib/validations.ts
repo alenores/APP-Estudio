@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ESTADOS_SEGUIMIENTO, NIVELES_ENTENDIMIENTO } from "@/lib/estado-ui";
+import { ESTADOS_SEGUIMIENTO } from "@/lib/estado-ui";
 import {
   seguimientoMuestraAvanceCurso,
   type SeguimientoFormScope,
@@ -62,15 +62,19 @@ export const claseFormSchema = z.object({
   link: optionalText,
 });
 
-const optionalNivel = z
+const optionalNivelEntendimiento = z
   .string()
   .trim()
   .optional()
   .or(z.literal(""))
+  .transform((v) => (v === "" ? undefined : Number(v)))
   .refine(
-    (v) => !v || (NIVELES_ENTENDIMIENTO as readonly string[]).includes(v),
-    "Nivel inválido",
-  );
+    (v) =>
+      v === undefined ||
+      (Number.isInteger(v) && v >= 1 && v <= 10),
+    "Entre 1 y 10",
+  )
+  .transform((v) => (v === undefined ? undefined : String(v)));
 
 const seguimientoEtiquetaEstado = z
   .string()
@@ -86,7 +90,7 @@ const seguimientoCamposBase = {
   fecha_comienzo: optionalDate,
   fecha_alerta: optionalDate,
   tiempo_consumido: optionalInt,
-  nivel_entendimiento: optionalNivel,
+  nivel_entendimiento: optionalNivelEntendimiento,
 };
 
 const seguimientoCamposAvanceCurso = {
