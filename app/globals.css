@@ -1009,3 +1009,7 @@ html.pwa-standalone-zoom-lock body {
 .mapa-flow-node:active {
   cursor: grabbing;
 }
+.mapa-canvas-wrap .react-flow__edge.selected .react-flow__edge-path {
+  stroke: #35618f;
+  stroke-width: 2.5;
+}

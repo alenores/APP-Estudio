@@ -1,4 +1,4 @@
-import type { MapaNodo } from "@/app/types/mapa";
+import type { MapaEnlace, MapaEnlaceTipo, MapaNodo } from "@/app/types/mapa";
 import { getSessionUserId } from "@/lib/estudio-queries";
 import { posicionDesdeEtapaCarril } from "@/lib/mapa-layout";
 import { createClient } from "@/lib/supabase/client";
@@ -85,6 +85,55 @@ export async function deleteMapaNodo(
 ): Promise<{ error: string | null }> {
   const supabase = createClient();
   const { error } = await supabase.from("mapa_nodos").delete().eq("id", id);
+  return { error: error?.message ?? null };
+}
+
+export async function listMapaEnlaces(): Promise<{
+  data: MapaEnlace[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("mapa_enlaces")
+    .select("*")
+    .order("id", ORDEN_ETAPA);
+
+  return {
+    data: data as MapaEnlace[] | null,
+    error: error?.message ?? null,
+  };
+}
+
+export async function insertMapaEnlace(
+  userId: string,
+  origen_id: number,
+  destino_id: number,
+  tipo: MapaEnlaceTipo | null = "prerequisito",
+): Promise<{ data: MapaEnlace | null; error: string | null }> {
+  if (origen_id === destino_id) {
+    return { data: null, error: "Un nodo no puede enlazarse consigo mismo." };
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("mapa_enlaces")
+    .insert({
+      user_id: userId,
+      origen_id,
+      destino_id,
+      tipo,
+    })
+    .select()
+    .single();
+
+  return { data: data as MapaEnlace | null, error: error?.message ?? null };
+}
+
+export async function deleteMapaEnlace(
+  id: number,
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase.from("mapa_enlaces").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 

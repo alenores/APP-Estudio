@@ -29,7 +29,16 @@ type VistaMapa = "lienzo" | "lista";
 
 /** Mapa de conocimiento — ABM + lienzo (ADR 009). Solo escritorio. */
 export function MapaNodosView() {
-  const { nodos, loading, error, reload, patchPosicion } = useMapaNodos();
+  const {
+    nodos,
+    enlaces,
+    loading,
+    error,
+    reload,
+    patchPosicion,
+    addEnlace,
+    removeEnlace,
+  } = useMapaNodos();
   const [vista, setVista] = useState<VistaMapa>("lienzo");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<MapaNodo | null>(null);
@@ -49,6 +58,10 @@ export function MapaNodosView() {
     [patchPosicion],
   );
 
+  function tituloNodo(id: number): string {
+    return nodos.find((n) => n.id === id)?.titulo ?? `#${id}`;
+  }
+
   function closeModals() {
     setCreating(false);
     setEditing(null);
@@ -66,7 +79,7 @@ export function MapaNodosView() {
   if (error) {
     return (
       <AlertText>
-        {error.includes("mapa_nodos")
+        {error.includes("mapa_nodos") || error.includes("mapa_enlaces")
           ? "Las tablas del mapa aún no existen en Supabase. Ejecutá docs/sql/002-schema-mapa-conocimiento.sql en el SQL Editor."
           : error}
       </AlertText>
@@ -77,9 +90,10 @@ export function MapaNodosView() {
     <div className="flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="max-w-2xl text-sm text-[var(--td-ink-soft)]">
-          <strong className="font-semibold text-[var(--td-ink)]">Nodos</strong> del
-          mapa de conocimiento — arrastrá en el lienzo para ubicarlos en la línea de
-          tiempo. No confundir con conceptos de estudio.
+          <strong className="font-semibold text-[var(--td-ink)]">Nodos</strong> y{" "}
+          <strong className="font-semibold text-[var(--td-ink)]">enlaces</strong> del
+          mapa — arrastrá nodos en el lienzo; conectá desde el punto derecho al
+          izquierdo de otro nodo. Delete sobre una flecha para quitarla.
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <div
@@ -127,8 +141,11 @@ export function MapaNodosView() {
       >
         <MapaCanvas
           nodos={nodos}
+          enlaces={enlaces}
           onEditNodo={handleEditNodo}
           onPositionSaved={handlePositionSaved}
+          onEnlaceCreated={addEnlace}
+          onEnlaceRemoved={removeEnlace}
         />
       </div>
 
@@ -143,52 +160,95 @@ export function MapaNodosView() {
             Todavía no hay nodos. Creá el primero para armar tu mapa.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-[var(--td-line)]">
-            <table className="desktop-data-table w-full min-w-[640px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/60 text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
-                  <th className="px-3 py-2.5">Título</th>
-                  <th className="px-3 py-2.5">Etapa</th>
-                  <th className="px-3 py-2.5">Carril</th>
-                  <th className="px-3 py-2.5">Posición</th>
-                  <th className="px-3 py-2.5" />
-                </tr>
-              </thead>
-              <tbody>
-                {nodos.map((n) => (
-                  <tr
-                    key={n.id}
-                    className="border-b border-[var(--td-line)]/80 last:border-0 hover:bg-[var(--td-line-soft)]/35"
-                  >
-                    <td className="px-3 py-2.5">
-                      <p className="font-medium text-[var(--td-ink)]">{n.titulo}</p>
-                      {n.descripcion?.trim() ? (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-[var(--td-ink-soft)]">
-                          {n.descripcion}
-                        </p>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2.5 tabular-nums">{n.etapa}</td>
-                    <td className="px-3 py-2.5 tabular-nums">{n.carril}</td>
-                    <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-[var(--td-ink-soft)]">
-                      {(() => {
-                        const p = posicionNodoEnLienzo(n);
-                        return `${Math.round(p.x)}, ${Math.round(p.y)}`;
-                      })()}
-                    </td>
-                    <td className="px-3 py-2.5 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setEditing(n)}
-                        className="rounded-lg border border-[var(--td-line)] px-2.5 py-1 text-xs font-semibold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
-                      >
-                        Editar
-                      </button>
-                    </td>
+          <div className="space-y-6">
+            <div className="overflow-x-auto rounded-xl border border-[var(--td-line)]">
+              <table className="desktop-data-table w-full min-w-[640px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/60 text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
+                    <th className="px-3 py-2.5">Título</th>
+                    <th className="px-3 py-2.5">Etapa</th>
+                    <th className="px-3 py-2.5">Carril</th>
+                    <th className="px-3 py-2.5">Posición</th>
+                    <th className="px-3 py-2.5" />
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {nodos.map((n) => (
+                    <tr
+                      key={n.id}
+                      className="border-b border-[var(--td-line)]/80 last:border-0 hover:bg-[var(--td-line-soft)]/35"
+                    >
+                      <td className="px-3 py-2.5">
+                        <p className="font-medium text-[var(--td-ink)]">{n.titulo}</p>
+                        {n.descripcion?.trim() ? (
+                          <p className="mt-0.5 line-clamp-1 text-xs text-[var(--td-ink-soft)]">
+                            {n.descripcion}
+                          </p>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2.5 tabular-nums">{n.etapa}</td>
+                      <td className="px-3 py-2.5 tabular-nums">{n.carril}</td>
+                      <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-[var(--td-ink-soft)]">
+                        {(() => {
+                          const p = posicionNodoEnLienzo(n);
+                          return `${Math.round(p.x)}, ${Math.round(p.y)}`;
+                        })()}
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setEditing(n)}
+                          className="rounded-lg border border-[var(--td-line)] px-2.5 py-1 text-xs font-semibold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
+                        >
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div>
+              <h2 className="mb-2 text-xs font-extrabold uppercase tracking-wide text-[var(--td-faint)]">
+                Enlaces ({enlaces.length})
+              </h2>
+              {enlaces.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-[var(--td-line)] px-4 py-8 text-center text-sm text-[var(--td-faint)]">
+                  Todavía no hay enlaces. Creálos en el lienzo arrastrando entre nodos.
+                </p>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-[var(--td-line)]">
+                  <table className="desktop-data-table w-full min-w-[480px] text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/60 text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
+                        <th className="px-3 py-2.5">Origen</th>
+                        <th className="px-3 py-2.5">Destino</th>
+                        <th className="px-3 py-2.5">Tipo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {enlaces.map((e) => (
+                        <tr
+                          key={e.id}
+                          className="border-b border-[var(--td-line)]/80 last:border-0"
+                        >
+                          <td className="px-3 py-2.5 font-medium text-[var(--td-ink)]">
+                            {tituloNodo(e.origen_id)}
+                          </td>
+                          <td className="px-3 py-2.5 font-medium text-[var(--td-ink)]">
+                            → {tituloNodo(e.destino_id)}
+                          </td>
+                          <td className="px-3 py-2.5 text-[var(--td-ink-soft)]">
+                            {e.tipo ?? "prerequisito"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

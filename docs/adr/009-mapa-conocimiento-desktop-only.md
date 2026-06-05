@@ -91,7 +91,7 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | **0** (hecho) | ADR 009, SQL 002, middleware, regla Cursor |
 | **1** | ABM nodos (lista + form), sin canvas |
 | **2** (hecho) | React Flow: nodos en pos_x/pos_y, drag → guardar |
-| **3** | Enlaces (crear/borrar, flechas) |
+| **3** (hecho) | Enlaces (crear/borrar, flechas) |
 | **4** | Guías timeline / carriles, minimapa |
 | **5** | Estética nodos custom |
 | **6** (futuro) | FK opcional nodo ↔ tema/curso |
