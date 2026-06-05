@@ -80,7 +80,7 @@ export function DetallePageShell({
           "radial-gradient(circle at 10% 4%, rgba(39,72,103,.045), transparent 38%), radial-gradient(circle at 92% 96%, rgba(60,138,90,.045), transparent 40%)",
       }}
     >
-      {children}
+      <div className="flex flex-col gap-3">{children}</div>
     </div>
   );
 }
@@ -122,7 +122,7 @@ export function DetalleMetricGrid({
   estado: EstudioDetalleMetrics["estado"];
 }) {
   return (
-    <div className="td-rise td-d2 mt-3 grid grid-cols-2 items-stretch gap-2">
+    <div className="td-rise td-d2 grid grid-cols-2 items-stretch gap-2">
       <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
       <div className="flex min-h-0 flex-col gap-1.5">
         <TemaTiempoPieCard
@@ -156,26 +156,35 @@ export function DetalleCalendarioSection({
   } as CSSProperties;
 
   return (
-    <section className="td-card td-rise td-d3 mt-3 overflow-visible px-6 pb-6 pt-5">
-      <div className="mb-6 flex items-center justify-between gap-2">
+    <section className="td-card td-rise td-d3 overflow-visible px-6 pb-6 pt-5">
+      <div className="mb-3 flex items-start justify-between gap-3">
         <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--td-faint)]">
           Calendario y avance
         </span>
-        <VeredictoChip veredicto={metrics.veredicto} />
+        <VeredictoChip
+          veredicto={metrics.veredicto}
+          className="relative z-20 shrink-0"
+        />
       </div>
-      <div className="td-tl-wrap relative mx-1 overflow-visible pt-11" style={tlWrapStyle}>
-        {metrics.showToday ? (
-          <div className="td-today-flag" style={{ left: hoyLeft, ...TODAY_MARKER_STYLE }}>
-            HOY · <b>{formatHoyFlag()}</b>
-          </div>
-        ) : null}
+      <div className="td-tl-wrap relative mx-1 overflow-visible" style={tlWrapStyle}>
         <div className="relative h-4 overflow-visible rounded-[10px] bg-[var(--td-line)]">
+          {metrics.showToday ? (
+            <>
+              <div
+                className="td-today-flag td-today-flag--track"
+                style={{ left: hoyLeft, ...TODAY_MARKER_STYLE }}
+              >
+                HOY · <b>{formatHoyFlag()}</b>
+              </div>
+              <div
+                className="td-tl-today"
+                style={{ left: hoyLeft, ...TODAY_MARKER_STYLE }}
+              />
+            </>
+          ) : null}
           <div className="td-tl-fill" />
           {metrics.showGap ? (
             <div className={`td-tl-gap ${metrics.veredicto.gapClass}`} />
-          ) : null}
-          {metrics.showToday ? (
-            <div className="td-tl-today" style={{ left: hoyLeft, ...TODAY_MARKER_STYLE }} />
           ) : null}
         </div>
       </div>
@@ -418,7 +427,13 @@ export function ConceptosPanelItems({ items }: { items: Concepto[] }) {
   );
 }
 
-function VeredictoChip({ veredicto }: { veredicto: VeredictoUi }) {
+function VeredictoChip({
+  veredicto,
+  className = "",
+}: {
+  veredicto: VeredictoUi;
+  className?: string;
+}) {
   const prefix =
     veredicto.key === "atrasado"
       ? "⚠ "
@@ -426,7 +441,7 @@ function VeredictoChip({ veredicto }: { veredicto: VeredictoUi }) {
         ? "✓ "
         : "";
   return (
-    <span className={veredicto.chipClass}>
+    <span className={`${veredicto.chipClass} ${className}`.trim()}>
       {prefix}
       {veredicto.label}
     </span>

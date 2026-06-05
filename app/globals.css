@@ -354,6 +354,11 @@ html.pwa-standalone-zoom-lock body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.tema-detalle-page .td-today-flag--track {
+  top: auto;
+  bottom: calc(100% + 6px);
+  z-index: 3;
+}
 .tema-detalle-page .td-today-flag::after {
   content: "";
   position: absolute;
@@ -502,7 +507,7 @@ html.pwa-standalone-zoom-lock body {
 }
 
 .tema-detalle-page .td-zone-contenido {
-  margin-top: 2.25rem;
+  margin-top: 0;
 }
 
 .tema-detalle-page .td-item {

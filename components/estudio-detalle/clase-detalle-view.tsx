@@ -51,7 +51,7 @@ export function ClaseDetalleView({
       />
 
       {clase.link ? (
-        <div className="td-rise td-d2 mt-3 overflow-hidden rounded-[22px] border border-[var(--td-line)] bg-[var(--td-card)] shadow-[var(--td-shadow)]">
+        <div className="td-rise td-d2 overflow-hidden rounded-[22px] border border-[var(--td-line)] bg-[var(--td-card)] shadow-[var(--td-shadow)]">
           <ExternalLinkPreview link={clase.link} />
         </div>
       ) : null}

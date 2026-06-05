@@ -59,7 +59,7 @@ export function TemaTiempoPieCard({
 
   return (
     <TemaMiniCard
-      title="TIEMPO"
+      title="DEDICACIÓN"
       delayClass={delayClass}
       className={className}
     >
