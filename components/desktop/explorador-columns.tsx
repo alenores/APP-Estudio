@@ -1,5 +1,6 @@
 "use client";
 
+import { ExploradorCardExpanded } from "@/components/desktop/explorador-card-expanded";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import type { ClasesCursoStats } from "@/lib/curso-clases-stats";
@@ -22,11 +23,16 @@ type ExploradorColumnCardProps = {
   onSelect: () => void;
   onDoubleClick?: () => void;
   descripcion?: string | null;
+  fechaFin?: string | null;
   fechaParen?: string | null;
   clasesStats?: ClasesCursoStats;
   link?: string | null;
   dificultad?: string | null;
   orden?: number;
+  seguimientosCount?: number;
+  conceptosCount?: number;
+  onOpenSeguimientos?: () => void;
+  onOpenConceptos?: () => void;
 };
 
 export function ExploradorColumnCard({
@@ -38,12 +44,30 @@ export function ExploradorColumnCard({
   onSelect,
   onDoubleClick,
   descripcion,
+  fechaFin = null,
   fechaParen,
   clasesStats,
   link,
   dificultad,
   orden,
+  seguimientosCount = 0,
+  conceptosCount = 0,
+  onOpenSeguimientos,
+  onOpenConceptos,
 }: ExploradorColumnCardProps) {
+  const expandedSlot =
+    selected && onOpenSeguimientos && onOpenConceptos ? (
+      <ExploradorCardExpanded
+        descripcion={descripcion ?? null}
+        fechaFin={fechaFin}
+        seguimientosCount={seguimientosCount}
+        conceptosCount={conceptosCount}
+        derivados={derivados}
+        onOpenSeguimientos={onOpenSeguimientos}
+        onOpenConceptos={onOpenConceptos}
+      />
+    ) : null;
+
   return (
     <EstudioProgressCard
       kind={kind}
@@ -59,6 +83,7 @@ export function ExploradorColumnCard({
       link={link}
       dificultad={dificultad}
       orden={orden}
+      expandedSlot={expandedSlot}
     />
   );
 }
@@ -79,8 +104,8 @@ export function ExploradorColumn({
   children,
 }: ExploradorColumnProps) {
   return (
-    <section className="flex min-h-0 min-w-0 flex-1 flex-col border-r border-[var(--td-line)] last:border-r-0">
-      <header className="shrink-0 border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/50 px-3 py-2">
+    <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]">
+      <header className="shrink-0 border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/50 px-3 py-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
             {label}{" "}
@@ -99,7 +124,7 @@ export function ExploradorColumn({
             {emptyMessage}
           </p>
         ) : (
-          <div className="flex flex-col gap-2">{children}</div>
+          <div className="flex flex-col gap-2.5">{children}</div>
         )}
       </div>
     </section>

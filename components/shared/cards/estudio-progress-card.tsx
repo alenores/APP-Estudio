@@ -33,6 +33,8 @@ export type EstudioProgressCardProps = {
   descripcion?: string | null;
   dificultad?: string | null;
   orden?: number;
+  /** Panel extra al seleccionar (explorador PC). */
+  expandedSlot?: ReactNode;
 };
 
 export function EstudioProgressCard({
@@ -51,6 +53,7 @@ export function EstudioProgressCard({
   descripcion,
   dificultad,
   orden,
+  expandedSlot,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
@@ -75,7 +78,7 @@ export function EstudioProgressCard({
           </span>
         ) : null}
       </div>
-      {kind === "tema" && descripcion ? (
+      {kind === "tema" && descripcion && !expandedSlot ? (
         <p className="mt-1 line-clamp-2 text-xs font-medium text-[var(--td-ink-soft)]">
           {descripcion}
         </p>
@@ -150,11 +153,11 @@ export function EstudioProgressCard({
   return (
     <article
       data-explorer-id={explorerId}
-      className={`td-ccard relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] transition-[transform,box-shadow,border-color] duration-150 ${interactive ? "cursor-pointer" : ""} ${
+      className={`td-ccard relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] transition-[transform,box-shadow,border-color] duration-200 ${interactive ? "cursor-pointer" : ""} ${
         selected
-          ? "z-[1] border-[var(--td-navy)] shadow-[0_4px_16px_-6px_rgba(39,72,103,.28)] ring-2 ring-[var(--td-navy)]/25"
+          ? "z-[1] border-[var(--td-navy)] shadow-[0_6px_20px_-8px_rgba(39,72,103,.35)] ring-2 ring-[var(--td-navy)]/30"
           : "hover:border-[var(--td-navy)]/35 hover:shadow-sm"
-      } ${className}`}
+      } ${expandedSlot ? "shadow-[0_6px_20px_-8px_rgba(39,72,103,.22)]" : ""} ${className}`}
       onClick={interactive ? onSelect : undefined}
       onDoubleClick={onDoubleClick}
       onKeyDown={
@@ -170,18 +173,25 @@ export function EstudioProgressCard({
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
     >
-      <div className={estadoStripDetalleClass(derivados.etiqueta_estado)}>
+      <div
+        className={`${estadoStripDetalleClass(derivados.etiqueta_estado)} self-stretch`}
+      >
         <span>{estadoTexto}</span>
       </div>
-      <div className="relative min-w-0 flex-1 px-4 py-3.5">
-        {pct > 0 ? (
-          <div
-            className={estadoFillDetalleClass(derivados.etiqueta_estado)}
-            style={fillStyle}
-            aria-hidden
-          />
+      <div className="relative min-w-0 flex-1 flex flex-col">
+        <div className="relative px-4 py-3.5">
+          {pct > 0 ? (
+            <div
+              className={estadoFillDetalleClass(derivados.etiqueta_estado)}
+              style={fillStyle}
+              aria-hidden
+            />
+          ) : null}
+          <div className="relative z-[1] min-w-0">{wrappedBody}</div>
+        </div>
+        {expandedSlot ? (
+          <div className="relative z-[1] px-4 pb-3.5">{expandedSlot}</div>
         ) : null}
-        <div className="relative z-[1] min-w-0">{wrappedBody}</div>
       </div>
     </article>
   );

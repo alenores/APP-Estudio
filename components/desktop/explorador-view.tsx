@@ -5,6 +5,7 @@ import {
   parseExplorerSelection,
   useEstudioExplorer,
 } from "@/app/hooks/useEstudioExplorer";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { useExploradorKeyboard } from "@/app/hooks/useExploradorKeyboard";
 import {
   ExploradorCreateModal,
@@ -24,6 +25,7 @@ import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
 } from "@/lib/explorer-entity-panel";
+import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
@@ -80,6 +82,7 @@ export function ExploradorView() {
     error,
     packReady,
   } = useEstudioExplorer(rawSelection);
+  const { cacheData } = useEstudioData();
   const [panelModal, setPanelModal] = useState<PanelModalState | null>(null);
   const [createKind, setCreateKind] = useState<ExploradorCreateKind | null>(
     null,
@@ -137,6 +140,22 @@ export function ExploradorView() {
       ? (clases.find((cl) => cl.id === selection.claseId) ?? null)
       : null;
 
+  function entityCounts(ref: ExplorerEntityRef | null) {
+    if (!ref || !cacheData) return { seguimientos: 0, conceptos: 0 };
+    const records = getExplorerEntityRecords(cacheData, ref);
+    return {
+      seguimientos: records.seguimientos.length,
+      conceptos: records.conceptos.length,
+    };
+  }
+
+  function cardHandlers(ref: ExplorerEntityRef) {
+    return {
+      onOpenSeguimientos: () => openPanel(ref, "seguimientos"),
+      onOpenConceptos: () => openPanel(ref, "conceptos"),
+    };
+  }
+
   const selectedTemaRef: ExplorerEntityRef | null = selectedTema
     ? { kind: "tema", id: selectedTema.id, nombre: selectedTema.nombre }
     : null;
@@ -190,7 +209,7 @@ export function ExploradorView() {
       ) : null}
       {error ? <AlertText>{error}</AlertText> : null}
       {!loading && packReady ? (
-        <div className="mt-3 flex min-h-0 flex-1 overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]">
+        <div className="mt-3 flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent p-0.5">
           <ExploradorColumn
             label="Temas"
             count={temas.length}
@@ -204,7 +223,14 @@ export function ExploradorView() {
               ...entityActions(selectedTemaRef, actionHandlers),
             ]}
           >
-            {temas.map((t) => (
+            {temas.map((t) => {
+              const ref: ExplorerEntityRef = {
+                kind: "tema",
+                id: t.id,
+                nombre: t.nombre,
+              };
+              const counts = entityCounts(ref);
+              return (
               <ExploradorColumnCard
                 key={t.id}
                 kind="tema"
@@ -212,18 +238,18 @@ export function ExploradorView() {
                 nombre={t.nombre}
                 derivados={t.derivados}
                 descripcion={t.descripcion}
+                fechaFin={t.fecha_estimada_fin}
+                seguimientosCount={counts.seguimientos}
+                conceptosCount={counts.conceptos}
                 selected={selection.temaId === t.id}
                 onSelect={() =>
                   go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
                 }
-                onDoubleClick={() =>
-                  openPanel(
-                    { kind: "tema", id: t.id, nombre: t.nombre },
-                    "seguimientos",
-                  )
-                }
+                onDoubleClick={() => openPanel(ref, "seguimientos")}
+                {...cardHandlers(ref)}
               />
-            ))}
+            );
+            })}
           </ExploradorColumn>
 
           <ExploradorColumn
@@ -248,16 +274,27 @@ export function ExploradorView() {
               ...entityActions(selectedCursoRef, actionHandlers),
             ]}
           >
-            {cursos.map((c) => (
+            {cursos.map((c) => {
+              const ref: ExplorerEntityRef = {
+                kind: "curso",
+                id: c.id,
+                nombre: c.nombre,
+              };
+              const counts = entityCounts(ref);
+              return (
               <ExploradorColumnCard
                 key={c.id}
                 kind="curso"
                 explorerId={c.id}
                 nombre={c.nombre}
                 derivados={c.derivados}
+                descripcion={c.descripcion}
+                fechaFin={c.fecha_estimada_fin}
                 fechaParen={fechaParentesisCurso(c)}
                 clasesStats={clasesStatsPorCurso.get(c.id)}
                 link={c.link}
+                seguimientosCount={counts.seguimientos}
+                conceptosCount={counts.conceptos}
                 selected={selection.cursoId === c.id}
                 onSelect={() =>
                   go(
@@ -268,14 +305,11 @@ export function ExploradorView() {
                     }),
                   )
                 }
-                onDoubleClick={() =>
-                  openPanel(
-                    { kind: "curso", id: c.id, nombre: c.nombre },
-                    "seguimientos",
-                  )
-                }
+                onDoubleClick={() => openPanel(ref, "seguimientos")}
+                {...cardHandlers(ref)}
               />
-            ))}
+            );
+            })}
           </ExploradorColumn>
 
           <ExploradorColumn
@@ -300,17 +334,27 @@ export function ExploradorView() {
               ...entityActions(selectedClaseRef, actionHandlers),
             ]}
           >
-            {clases.map((cl) => (
+            {clases.map((cl) => {
+              const ref: ExplorerEntityRef = {
+                kind: "clase",
+                id: cl.id,
+                nombre: cl.nombre,
+              };
+              const counts = entityCounts(ref);
+              return (
               <ExploradorColumnCard
                 key={cl.id}
                 kind="clase"
                 explorerId={cl.id}
                 nombre={cl.nombre}
                 derivados={cl.derivados}
+                descripcion={cl.descripcion}
+                fechaFin={null}
                 link={cl.link}
                 dificultad={cl.dificultad}
-                descripcion={cl.descripcion}
                 orden={cl.orden}
+                seguimientosCount={counts.seguimientos}
+                conceptosCount={counts.conceptos}
                 selected={selection.claseId === cl.id}
                 onSelect={() =>
                   go(
@@ -321,14 +365,11 @@ export function ExploradorView() {
                     }),
                   )
                 }
-                onDoubleClick={() =>
-                  openPanel(
-                    { kind: "clase", id: cl.id, nombre: cl.nombre },
-                    "seguimientos",
-                  )
-                }
+                onDoubleClick={() => openPanel(ref, "seguimientos")}
+                {...cardHandlers(ref)}
               />
-            ))}
+            );
+            })}
           </ExploradorColumn>
         </div>
       ) : null}
