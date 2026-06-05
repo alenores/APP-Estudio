@@ -5,7 +5,7 @@ import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import { explorerColumnHeaderClass } from "@/lib/estudio-shell-tone";
-import type { ReactNode } from "react";
+import type { ReactNode, WheelEvent } from "react";
 
 export type ExploradorColumnAction = {
   label: string;
@@ -133,7 +133,10 @@ export function ExploradorColumn({
           </div>
         </div>
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+      <div
+        className="explorer-column-body min-h-0 flex-1 overflow-y-auto p-3"
+        onWheel={onColumnBodyWheel}
+      >
         {count === 0 ? (
           <p className="rounded-lg border border-dashed border-[var(--td-line)] px-3 py-8 text-center text-sm text-[var(--td-faint)]">
             {emptyMessage}
@@ -144,6 +147,21 @@ export function ExploradorColumn({
       </div>
     </section>
   );
+}
+
+/** Evita que la rueda desplace la página mientras la columna aún puede scrollear. */
+function onColumnBodyWheel(e: WheelEvent<HTMLDivElement>) {
+  const el = e.currentTarget;
+  if (el.scrollHeight <= el.clientHeight + 1) return;
+
+  const { scrollTop, clientHeight, scrollHeight } = el;
+  const dy = e.deltaY;
+  const atTop = scrollTop <= 0;
+  const atBottom = scrollTop + clientHeight >= scrollHeight - 1;
+
+  if ((dy < 0 && !atTop) || (dy > 0 && !atBottom)) {
+    e.stopPropagation();
+  }
 }
 
 function ColumnHeaderButton({

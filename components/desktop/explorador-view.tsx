@@ -192,7 +192,7 @@ export function ExploradorView() {
       ) : null}
       {error ? <AlertText>{error}</AlertText> : null}
       {!loading && packReady ? (
-        <div className="mt-3 flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent p-0.5">
+        <div className="explorer-columns-grid mt-3 flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent p-0.5">
           <ExploradorColumn
             columnKind="tema"
             label="Temas"

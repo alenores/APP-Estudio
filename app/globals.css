@@ -874,16 +874,27 @@ html.pwa-standalone-zoom-lock body {
 
 .desktop-explorador {
   min-height: calc(100vh - 8rem);
+  --explorer-column-max-h: calc(100vh - 13rem);
 }
 
-/* —— Explorador PC: motion (solo escritorio; ADR 006 aplica a móvil) —— */
+.desktop-explorador .explorer-columns-grid {
+  min-height: min(24rem, var(--explorer-column-max-h));
+}
+
 .desktop-explorador .explorer-column-panel {
+  max-height: var(--explorer-column-max-h);
   transition:
     box-shadow 220ms ease,
     border-color 220ms ease,
     transform 220ms ease;
 }
 
+.desktop-explorador .explorer-column-body {
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
+/* —— Explorador PC: motion (solo escritorio; ADR 006 aplica a móvil) —— */
 .desktop-explorador .explorer-column-panel:hover {
   box-shadow:
     0 10px 36px -12px rgba(39, 72, 103, 0.22),
