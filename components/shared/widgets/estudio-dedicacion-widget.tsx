@@ -12,8 +12,7 @@ export type EstudioDedicacionWidgetProps = {
   className?: string;
 };
 
-const PIE_FULL = 46;
-const PIE_COMPACT = 40;
+const PIE_VIEW = 48;
 
 function polar(cx: number, cy: number, r: number, degFromTop: number) {
   const rad = ((degFromTop - 90) * Math.PI) / 180;
@@ -46,10 +45,9 @@ export function EstudioDedicacionWidget({
   className = "",
 }: EstudioDedicacionWidgetProps) {
   const compact = size === "compact";
-  const pieSize = compact ? PIE_COMPACT : PIE_FULL;
-  const cx = pieSize / 2;
-  const cy = pieSize / 2;
-  const r = compact ? 17 : 20;
+  const cx = PIE_VIEW / 2;
+  const cy = PIE_VIEW / 2;
+  const r = compact ? 20.5 : 21.5;
 
   const pie = porcionesTiempoPie(invertidoMin, restanteMin);
   const invDeg = pie.total > 0 ? (pie.invertido / pie.total) * 360 : 0;
@@ -65,20 +63,16 @@ export function EstudioDedicacionWidget({
       delayClass={delayClass}
       className={`${compact ? "min-h-[7.5rem]" : ""} ${className}`}
     >
-      <div
-        className={`flex min-w-0 items-center ${
-          compact ? "h-full gap-2.5 py-0.5" : "gap-1.5"
-        }`}
-      >
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+      <div className="flex min-h-0 flex-1 items-stretch gap-2">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
           <TiempoLinea
-            label="Consum:"
+            label="Consumido"
             value={formatDuracionMinutos(invertidoMin)}
             dotClass="bg-[var(--td-navy)]"
             compact={compact}
           />
           <TiempoLinea
-            label="Restante:"
+            label="Restante"
             value={formatDuracionMinutos(restanteMin)}
             dotClass="bg-[var(--td-e-gris)] ring-1 ring-[var(--td-faint)]/35"
             compact={compact}
@@ -87,8 +81,18 @@ export function EstudioDedicacionWidget({
             <p className="text-[9px] text-[var(--td-faint)]">Sin datos</p>
           ) : null}
         </div>
-        <div className="shrink-0 self-center" aria-hidden>
-          <svg width={pieSize} height={pieSize} viewBox={`0 0 ${pieSize} ${pieSize}`}>
+        <div
+          className={`flex shrink-0 items-center justify-center self-stretch ${
+            compact
+              ? "aspect-square w-[4.25rem] max-w-[42%]"
+              : "aspect-square w-[4rem] max-w-[44%]"
+          }`}
+          aria-hidden
+        >
+          <svg
+            viewBox={`0 0 ${PIE_VIEW} ${PIE_VIEW}`}
+            className="block h-full w-full"
+          >
             {pie.total === 0 ? (
               <circle
                 cx={cx}
@@ -111,9 +115,6 @@ export function EstudioDedicacionWidget({
   );
 }
 
-const TD_TIEMPO_DOT =
-  "mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full ring-1 ring-[var(--td-faint)]/35";
-
 function TiempoLinea({
   label,
   value,
@@ -126,20 +127,21 @@ function TiempoLinea({
   compact: boolean;
 }) {
   return (
-    <div className="flex min-w-0 items-start gap-1.5">
-      <span className={`${TD_TIEMPO_DOT} ${dotClass}`} aria-hidden />
-      <div className="min-w-0 leading-tight">
-        <p className="text-[9px] font-bold uppercase tracking-wide text-[var(--td-faint)]">
-          {label}
-        </p>
-        <p
-          className={`font-extrabold text-[var(--td-ink)] ${
-            compact ? "text-[13px]" : "text-[12px]"
-          }`}
-        >
-          {value}
-        </p>
-      </div>
+    <div className="flex min-w-0 items-center gap-1.5">
+      <span
+        className={`h-2 w-2 shrink-0 rounded-full ring-1 ring-[var(--td-faint)]/35 ${dotClass}`}
+        aria-hidden
+      />
+      <span className="min-w-0 flex-1 truncate text-[9px] font-bold uppercase tracking-wide text-[var(--td-faint)]">
+        {label}
+      </span>
+      <span
+        className={`shrink-0 font-extrabold tabular-nums leading-none text-[var(--td-ink)] ${
+          compact ? "text-sm" : "text-[13px]"
+        }`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
