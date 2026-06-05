@@ -5,7 +5,9 @@ import { MapaNodosView } from "@/components/desktop/mapa/mapa-nodos-view";
 export default function MapaPage() {
   return (
     <DesktopShell title="Mapa de conocimiento">
-      <MapaNodosView />
+      <div className="flex min-h-0 flex-1 flex-col">
+        <MapaNodosView />
+      </div>
     </DesktopShell>
   );
 }

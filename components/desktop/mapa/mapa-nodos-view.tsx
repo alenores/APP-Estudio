@@ -1,18 +1,45 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMapaNodos } from "@/app/hooks/useMapaNodos";
 import type { MapaNodo } from "@/app/types/mapa";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { MapaNodoForm } from "@/components/desktop/mapa/mapa-nodo-form";
 import { AlertText, LoadingText } from "@/components/ui";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
-/** Fase 1 — ABM de nodos sin canvas (ADR 009). Solo escritorio. */
+const MapaCanvas = dynamic(
+  () =>
+    import("@/components/desktop/mapa/mapa-canvas").then((m) => ({
+      default: m.MapaCanvas,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex min-h-[min(68vh,720px)] flex-1 items-center justify-center rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/20 text-sm text-[var(--td-faint)]">
+        Cargando lienzo…
+      </div>
+    ),
+  },
+);
+
+type VistaMapa = "lienzo" | "lista";
+
+/** Mapa de conocimiento — ABM + lienzo (ADR 009). Solo escritorio. */
 export function MapaNodosView() {
   const { nodos, loading, error, reload } = useMapaNodos();
+  const [vista, setVista] = useState<VistaMapa>("lienzo");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<MapaNodo | null>(null);
+
+  const handleEditNodo = useCallback(
+    (id: number) => {
+      const nodo = nodos.find((n) => n.id === id);
+      if (nodo) setEditing(nodo);
+    },
+    [nodos],
+  );
 
   function closeModals() {
     setCreating(false);
@@ -39,23 +66,54 @@ export function MapaNodosView() {
   }
 
   return (
-    <>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-xl text-sm text-[var(--td-ink-soft)]">
-          Registrá <strong className="font-semibold text-[var(--td-ink)]">nodos</strong>{" "}
-          del mapa de conocimiento. En la fase 2 verás el lienzo gráfico. No confundir
-          con conceptos de estudio.
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-2xl text-sm text-[var(--td-ink-soft)]">
+          <strong className="font-semibold text-[var(--td-ink)]">Nodos</strong> del
+          mapa de conocimiento — arrastrá en el lienzo para ubicarlos en la línea de
+          tiempo. No confundir con conceptos de estudio.
         </p>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="shrink-0 rounded-lg bg-[var(--td-navy)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--td-navy-2)]"
-        >
-          + Nuevo nodo
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <div
+            className="flex rounded-lg border border-[var(--td-line)] p-0.5"
+            role="tablist"
+            aria-label="Vista del mapa"
+          >
+            {(
+              [
+                { id: "lienzo" as const, label: "Lienzo" },
+                { id: "lista" as const, label: "Lista" },
+              ] as const
+            ).map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={vista === id}
+                onClick={() => setVista(id)}
+                className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
+                  vista === id
+                    ? "bg-[var(--td-navy)] text-white"
+                    : "text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="shrink-0 rounded-lg bg-[var(--td-navy)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--td-navy-2)]"
+          >
+            + Nuevo nodo
+          </button>
+        </div>
       </div>
 
-      {nodos.length === 0 ? (
+      {vista === "lienzo" ? (
+        <MapaCanvas nodos={nodos} onEditNodo={handleEditNodo} />
+      ) : nodos.length === 0 ? (
         <p className="rounded-xl border border-dashed border-[var(--td-line)] px-6 py-14 text-center text-sm text-[var(--td-faint)]">
           Todavía no hay nodos. Creá el primero para armar tu mapa.
         </p>
@@ -133,6 +191,6 @@ export function MapaNodosView() {
           </div>
         ) : null}
       </DesktopModal>
-    </>
+    </div>
   );
 }

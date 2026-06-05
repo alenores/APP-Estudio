@@ -1,5 +1,6 @@
 import type { MapaNodo } from "@/app/types/mapa";
 import { getSessionUserId } from "@/lib/estudio-queries";
+import { posicionDesdeEtapaCarril } from "@/lib/mapa-layout";
 import { createClient } from "@/lib/supabase/client";
 import type { MapaNodoFormValues } from "@/lib/validations";
 
@@ -33,16 +34,23 @@ export async function insertMapaNodo(
   values: MapaNodoFormValues,
 ): Promise<{ data: MapaNodo | null; error: string | null }> {
   const supabase = createClient();
+  const etapa = values.etapa ?? 0;
+  const carril = values.carril ?? 0;
+  const pos =
+    values.pos_x != null && values.pos_y != null
+      ? { x: values.pos_x, y: values.pos_y }
+      : posicionDesdeEtapaCarril(etapa, carril);
+
   const { data, error } = await supabase
     .from("mapa_nodos")
     .insert({
       user_id: userId,
       titulo: values.titulo,
       descripcion: emptyToNull(values.descripcion),
-      pos_x: values.pos_x ?? 0,
-      pos_y: values.pos_y ?? 0,
-      carril: values.carril ?? 0,
-      etapa: values.etapa ?? 0,
+      pos_x: pos.x,
+      pos_y: pos.y,
+      carril,
+      etapa,
     })
     .select()
     .single();
