@@ -1,0 +1,81 @@
+"use client";
+
+import type { MapaNodo } from "@/app/types/mapa";
+import { computeMapaGridBounds } from "@/lib/mapa-grid-bounds";
+import {
+  MAPA_CARRIL_HEIGHT,
+  MAPA_ETAPA_WIDTH,
+  MAPA_ORIGIN_X,
+  MAPA_ORIGIN_Y,
+} from "@/lib/mapa-layout";
+import { ViewportPortal } from "@xyflow/react";
+import { useMemo } from "react";
+
+/** Columnas de etapa + carriles horizontales (ADR 009 fase 4). */
+export function MapaTimelineGuides({ nodos }: { nodos: MapaNodo[] }) {
+  const bounds = useMemo(() => computeMapaGridBounds(nodos), [nodos]);
+
+  return (
+    <ViewportPortal>
+      <svg
+        className="mapa-timeline-guides"
+        width={bounds.width}
+        height={bounds.height}
+        aria-hidden
+      >
+        {bounds.etapas.map((etapa) => {
+          const x = MAPA_ORIGIN_X + etapa * MAPA_ETAPA_WIDTH;
+          return (
+            <g key={`etapa-${etapa}`}>
+              <rect
+                x={x}
+                y={0}
+                width={MAPA_ETAPA_WIDTH}
+                height={bounds.height}
+                className={
+                  etapa % 2 === 0
+                    ? "mapa-guide-col-even"
+                    : "mapa-guide-col-odd"
+                }
+              />
+              <line
+                x1={x}
+                y1={0}
+                x2={x}
+                y2={bounds.height}
+                className="mapa-guide-vline"
+              />
+              <text x={x + 10} y={26} className="mapa-guide-etapa-label">
+                Etapa {etapa}
+              </text>
+            </g>
+          );
+        })}
+        <line
+          x1={MAPA_ORIGIN_X + (bounds.etapas.at(-1)! + 1) * MAPA_ETAPA_WIDTH}
+          y1={0}
+          x2={MAPA_ORIGIN_X + (bounds.etapas.at(-1)! + 1) * MAPA_ETAPA_WIDTH}
+          y2={bounds.height}
+          className="mapa-guide-vline"
+        />
+        {bounds.carriles.map((carril) => {
+          const y = MAPA_ORIGIN_Y + carril * MAPA_CARRIL_HEIGHT;
+          return (
+            <g key={`carril-${carril}`}>
+              <line
+                x1={0}
+                y1={y}
+                x2={bounds.width}
+                y2={y}
+                className="mapa-guide-hline"
+              />
+              <text x={6} y={y - 8} className="mapa-guide-carril-label">
+                Carril {carril}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </ViewportPortal>
+  );
+}

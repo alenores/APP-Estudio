@@ -2,6 +2,7 @@
 
 import type { MapaEnlace, MapaNodo } from "@/app/types/mapa";
 import { mapaFlowNodeTypes } from "@/components/desktop/mapa/mapa-nodo-node";
+import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { posicionNodoEnLienzo } from "@/lib/mapa-layout";
 import {
@@ -13,6 +14,7 @@ import {
 import {
   Background,
   Controls,
+  MiniMap,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
@@ -210,9 +212,18 @@ function MapaCanvasInner({
         maxZoom={1.75}
         proOptions={{ hideAttribution: true }}
       >
+        <MapaTimelineGuides nodos={nodos} />
         <MapaFitView count={nodos.length} />
-        <Background gap={20} size={1} color="#cbd5e1" />
+        <Background gap={28} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
+        <MiniMap
+          className="mapa-minimap"
+          nodeColor="#94a3b8"
+          nodeStrokeColor="#264a6e"
+          maskColor="rgba(241, 245, 249, 0.82)"
+          pannable
+          zoomable
+        />
       </ReactFlow>
     </div>
   );

@@ -1013,3 +1013,53 @@ html.pwa-standalone-zoom-lock body {
   stroke: #35618f;
   stroke-width: 2.5;
 }
+
+.mapa-timeline-guides {
+  pointer-events: none;
+  z-index: 0;
+}
+.mapa-guide-col-even {
+  fill: rgba(255, 255, 255, 0.42);
+}
+.mapa-guide-col-odd {
+  fill: rgba(220, 238, 251, 0.35);
+}
+.mapa-guide-vline {
+  stroke: rgba(38, 74, 110, 0.14);
+  stroke-width: 1;
+}
+.mapa-guide-hline {
+  stroke: rgba(38, 74, 110, 0.1);
+  stroke-width: 1;
+  stroke-dasharray: 6 8;
+}
+.mapa-guide-etapa-label {
+  fill: #264a6e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.mapa-guide-carril-label {
+  fill: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  opacity: 0.65;
+}
+.mapa-canvas-wrap .react-flow__nodes {
+  z-index: 2;
+}
+.mapa-canvas-wrap .react-flow__edges {
+  z-index: 1;
+}
+.mapa-minimap {
+  margin: 0 12px 12px 0 !important;
+  border-radius: 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -6px rgba(27, 34, 43, 0.2);
+}
+.mapa-minimap .react-flow__minimap-mask {
+  fill: rgba(241, 245, 249, 0.82);
+}

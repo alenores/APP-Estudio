@@ -9,6 +9,8 @@ export const MAPA_CARRIL_HEIGHT = 120;
 const MAPA_ORIGIN_X = 48;
 const MAPA_ORIGIN_Y = 48;
 
+export { MAPA_ORIGIN_X, MAPA_ORIGIN_Y };
+
 /** Posición inicial sugerida desde etapa + carril (sin depender del padre). */
 export function posicionDesdeEtapaCarril(
   etapa: number,
