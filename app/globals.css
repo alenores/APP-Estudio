@@ -909,6 +909,7 @@ html.pwa-standalone-zoom-lock body {
     transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 520ms ease,
     border-color 420ms ease,
+    margin-top 520ms cubic-bezier(0.22, 1, 0.36, 1),
     margin-bottom 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -920,9 +921,17 @@ html.pwa-standalone-zoom-lock body {
 
 .desktop-explorador .explorer-progress-card[data-expanded="true"] {
   transform: scale(1.032);
+  margin-top: 14px;
   box-shadow:
     0 16px 40px -14px rgba(39, 72, 103, 0.42),
     0 6px 16px -8px rgba(39, 72, 103, 0.2);
+}
+
+.desktop-explorador
+  .explorer-column-body
+  > div
+  > .explorer-progress-card[data-expanded="true"]:first-child {
+  margin-top: 0;
 }
 
 .desktop-explorador .explorer-expand-panel {
