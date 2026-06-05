@@ -901,9 +901,16 @@ html.pwa-standalone-zoom-lock body {
     transform 220ms ease;
 }
 
+.desktop-explorador .explorer-column-panel > header {
+  position: relative;
+  z-index: 2;
+}
+
 .desktop-explorador .explorer-column-body {
   overscroll-behavior-y: contain;
   scrollbar-gutter: stable;
+  padding-top: 0.5rem;
+  padding-bottom: 0.25rem;
 }
 
 /* —— Explorador PC: motion (solo escritorio; ADR 006 aplica a móvil) —— */
@@ -929,7 +936,7 @@ html.pwa-standalone-zoom-lock body {
 }
 
 .desktop-explorador .explorer-progress-card:not([data-selected="true"]):hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 6px 18px -8px rgba(39, 72, 103, 0.18);
   border-color: color-mix(in srgb, var(--td-navy) 28%, var(--td-line));
 }
@@ -980,7 +987,7 @@ html.pwa-standalone-zoom-lock body {
   from {
     opacity: 0;
     max-height: 0;
-    transform: translateY(-8px) scale(0.98);
+    transform: translateY(4px) scale(0.99);
   }
   to {
     opacity: 1;
