@@ -21,6 +21,7 @@ import {
 import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner";
 import { AlertText, LoadingText } from "@/components/ui";
 import { fechaParentesisCurso } from "@/lib/curso-card-fecha";
+import { fechaParentesisTema } from "@/lib/tema-card-fecha";
 import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
@@ -77,6 +78,7 @@ export function ExploradorView() {
     cursos,
     clases,
     clasesStatsPorCurso,
+    cursosStatsPorTema,
     selection,
     loading,
     error,
@@ -239,6 +241,9 @@ export function ExploradorView() {
                 derivados={t.derivados}
                 descripcion={t.descripcion}
                 fechaFin={t.fecha_estimada_fin}
+                fechaParen={fechaParentesisTema(t)}
+                hijosStats={cursosStatsPorTema.get(t.id)}
+                hijosLabel="cursos"
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 selected={selection.temaId === t.id}
@@ -291,7 +296,8 @@ export function ExploradorView() {
                 descripcion={c.descripcion}
                 fechaFin={c.fecha_estimada_fin}
                 fechaParen={fechaParentesisCurso(c)}
-                clasesStats={clasesStatsPorCurso.get(c.id)}
+                hijosStats={clasesStatsPorCurso.get(c.id)}
+                hijosLabel="clases"
                 link={c.link}
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}

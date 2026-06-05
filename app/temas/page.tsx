@@ -3,7 +3,7 @@
 import { useTemasList } from "@/app/hooks/useTemasList";
 import { AppShell } from "@/components/mobile/shell/app-shell";
 import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner";
-import { EntityCard } from "@/components/mobile/cards/entity-card";
+import { TemaListCard } from "@/components/mobile/cards/tema-list-card";
 import { FabLink } from "@/components/mobile/fab/fab-link";
 import {
   AlertText,
@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 export default function TemasPage() {
   const router = useRouter();
-  const { temas, loading, error } = useTemasList();
+  const { temas, cursosStatsPorTema, loading, error } = useTemasList();
 
   async function signOut() {
     const supabase = createClient();
@@ -50,12 +50,11 @@ export default function TemasPage() {
       <ul className="space-y-3">
         {temas.map((t) => (
           <li key={t.id}>
-            <EntityCard
-              href={`/temas/${t.id}`}
-              nombre={t.nombre}
-              subtitulo={t.descripcion}
-              derivados={t.derivados}
-              forwardTransition
+            <TemaListCard
+              tema={t}
+              cursosStats={
+                cursosStatsPorTema.get(t.id) ?? { terminadas: 0, total: 0 }
+              }
             />
           </li>
         ))}

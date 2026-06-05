@@ -3,7 +3,7 @@
 import { ExploradorCardExpanded } from "@/components/desktop/explorador-card-expanded";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
-import type { ClasesCursoStats } from "@/lib/curso-clases-stats";
+import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import type { ReactNode } from "react";
 
 export type ExploradorColumnAction = {
@@ -25,7 +25,8 @@ type ExploradorColumnCardProps = {
   descripcion?: string | null;
   fechaFin?: string | null;
   fechaParen?: string | null;
-  clasesStats?: ClasesCursoStats;
+  hijosStats?: HijosProgressStats;
+  hijosLabel?: "cursos" | "clases";
   link?: string | null;
   dificultad?: string | null;
   orden?: number;
@@ -46,7 +47,8 @@ export function ExploradorColumnCard({
   descripcion,
   fechaFin = null,
   fechaParen,
-  clasesStats,
+  hijosStats,
+  hijosLabel,
   link,
   dificultad,
   orden,
@@ -79,7 +81,8 @@ export function ExploradorColumnCard({
       onDoubleClick={onDoubleClick}
       descripcion={descripcion}
       fechaParen={fechaParen}
-      clasesStats={clasesStats}
+      hijosStats={hijosStats}
+      hijosLabel={hijosLabel}
       link={link}
       dificultad={dificultad}
       orden={orden}

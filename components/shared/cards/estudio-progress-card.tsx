@@ -2,8 +2,7 @@
 
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
-import type { ClasesCursoStats } from "@/lib/curso-clases-stats";
-import { formatDuracionMinutos } from "@/lib/format-duracion";
+import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import {
   estadoFillDetalleClass,
   estadoLabel,
@@ -28,7 +27,9 @@ export type EstudioProgressCardProps = {
   /** Contenido interactivo (Link móvil con gestos). Si no hay, el cuerpo es estático. */
   bodyWrapper?: (content: ReactNode) => ReactNode;
   fechaParen?: string | null;
-  clasesStats?: ClasesCursoStats;
+  /** Progreso de hijos (cursos en tema, clases en curso) desde seguimientos. */
+  hijosStats?: HijosProgressStats;
+  hijosLabel?: "cursos" | "clases";
   link?: string | null;
   descripcion?: string | null;
   dificultad?: string | null;
@@ -48,7 +49,8 @@ export function EstudioProgressCard({
   className = "",
   bodyWrapper,
   fechaParen,
-  clasesStats,
+  hijosStats,
+  hijosLabel = "clases",
   link,
   descripcion,
   dificultad,
@@ -64,27 +66,25 @@ export function EstudioProgressCard({
     pct > 0 ? { width: `${Math.min(100, pct)}%` } : { display: "none" };
 
   const donutOffset =
-    clasesStats && clasesStats.total > 0
-      ? DONUT_C * (1 - clasesStats.terminadas / clasesStats.total)
+    hijosStats && hijosStats.total > 0
+      ? DONUT_C * (1 - hijosStats.terminadas / hijosStats.total)
       : DONUT_C;
+
+  const showDonut =
+    (kind === "tema" || kind === "curso") && hijosStats != null;
 
   const body = (
     <>
       <div className="text-[15px] font-bold leading-snug text-[var(--td-ink)]">
         {nombre}
-        {kind === "curso" && fechaParen ? (
+        {(kind === "tema" || kind === "curso") && fechaParen ? (
           <span className="ml-1 text-[13px] font-semibold text-[var(--td-fecha-muted)]">
             {fechaParen}
           </span>
         ) : null}
       </div>
-      {kind === "tema" && descripcion && !expandedSlot ? (
-        <p className="mt-1 line-clamp-2 text-xs font-medium text-[var(--td-ink-soft)]">
-          {descripcion}
-        </p>
-      ) : null}
       <div className="mt-2.5 flex items-center gap-3">
-        {kind === "curso" && clasesStats ? (
+        {showDonut ? (
           <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-[var(--td-donut-text)]">
             <svg className="h-6 w-6 shrink-0" viewBox="0 0 28 28" aria-hidden>
               <circle
@@ -108,17 +108,10 @@ export function EstudioProgressCard({
             </svg>
             <span>
               <b className="font-extrabold text-[var(--td-donut-num)]">
-                {clasesStats.terminadas}
+                {hijosStats!.terminadas}
               </b>
-              /{clasesStats.total} clases
+              /{hijosStats!.total} {hijosLabel}
             </span>
-          </span>
-        ) : null}
-        {kind === "tema" &&
-        derivados.tiempo_consumido != null &&
-        derivados.tiempo_consumido > 0 ? (
-          <span className="text-xs font-semibold text-[var(--td-donut-text)]">
-            {formatDuracionMinutos(derivados.tiempo_consumido)}
           </span>
         ) : null}
         {kind === "clase" ? (

@@ -1,8 +1,9 @@
 import type { EstudioOfflineCacheData } from "@/lib/estudio-offline-cache";
 import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
 import { normalizarEstado } from "@/lib/estado-ui";
+import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 
-export type ClasesCursoStats = { terminadas: number; total: number };
+export type { ClasesCursoStats, HijosProgressStats } from "@/lib/hijos-progress-stats";
 
 function seguimientosPorClase(
   cache: EstudioOfflineCacheData,
@@ -15,7 +16,7 @@ function seguimientosPorClase(
 export function clasesStatsPorCurso(
   cache: EstudioOfflineCacheData,
   cursoId: number,
-): ClasesCursoStats {
+): HijosProgressStats {
   const clases = cache.clases.filter((c) => c.curso_id === cursoId);
   let terminadas = 0;
   for (const cl of clases) {
@@ -31,8 +32,8 @@ export function clasesStatsPorCurso(
 export function clasesStatsMapPorCursos(
   cache: EstudioOfflineCacheData,
   cursoIds: number[],
-): Map<number, ClasesCursoStats> {
-  const map = new Map<number, ClasesCursoStats>();
+): Map<number, HijosProgressStats> {
+  const map = new Map<number, HijosProgressStats>();
   for (const id of cursoIds) {
     map.set(id, clasesStatsPorCurso(cache, id));
   }

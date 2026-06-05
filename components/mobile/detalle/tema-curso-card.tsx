@@ -6,7 +6,7 @@ import {
   type ChildQuickAction,
 } from "@/components/mobile/cards/child-context-menu";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
-import type { ClasesCursoStats } from "@/lib/curso-clases-stats";
+import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import { fechaParentesisCurso } from "@/lib/curso-card-fecha";
 import { LONG_PRESS_MS } from "@/lib/fab-open-delay";
 import { hapticContextMenu, hapticLightTap } from "@/lib/haptic";
@@ -26,7 +26,7 @@ const MOVE_CANCEL_PX = 14;
 
 type TemaCursoCardProps = {
   curso: CursoConDerivados;
-  clasesStats: ClasesCursoStats;
+  clasesStats: HijosProgressStats;
   onQuickAction: (action: ChildQuickAction) => void;
 };
 
@@ -128,7 +128,8 @@ export function TemaCursoCard({
           nombre={curso.nombre}
           derivados={curso.derivados}
           fechaParen={fechaParentesisCurso(curso)}
-          clasesStats={clasesStats}
+          hijosStats={clasesStats}
+          hijosLabel="clases"
           link={curso.link}
           className={menuRect ? "z-20 ring-2 ring-[var(--td-navy)]/40" : ""}
           bodyWrapper={(content) => (
