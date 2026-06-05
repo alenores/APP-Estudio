@@ -41,6 +41,17 @@ function formatHoyFlag(): string {
   });
 }
 
+/** Evita que el cartel HOY se corte en los bordes (móvil). */
+function posicionCartelHoy(todayPct: string): string {
+  const n = Number.parseFloat(todayPct);
+  if (Number.isNaN(n)) return todayPct;
+  return `${Math.min(94, Math.max(6, n))}%`;
+}
+
+const TODAY_MARKER_STYLE = {
+  transform: "translateX(-50%)",
+} as const;
+
 export function DetallePageShell({
   metrics,
   children,
@@ -132,26 +143,36 @@ export function DetalleCalendarioSection({
   fechaFin: string | null;
   avanceLabel: string;
 }) {
+  const hoyLeft = posicionCartelHoy(metrics.todayPct);
+  const tlWrapStyle = {
+    "--td-today-pct": hoyLeft,
+    "--td-fill-pct": metrics.fillPct,
+    "--td-gap-left": metrics.gapLeft,
+    "--td-gap-width": metrics.showGap ? metrics.gapWidth : "0%",
+  } as CSSProperties;
+
   return (
-    <section className="td-card td-rise td-d3 mt-3 px-6 pb-6 pt-5">
+    <section className="td-card td-rise td-d3 mt-3 overflow-visible px-6 pb-6 pt-5">
       <div className="mb-6 flex items-center justify-between gap-2">
         <span className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-[var(--td-faint)]">
           Calendario y avance
         </span>
         <VeredictoChip veredicto={metrics.veredicto} />
       </div>
-      <div className="relative mx-1">
+      <div className="td-tl-wrap relative mx-1 overflow-visible pt-11" style={tlWrapStyle}>
         {metrics.showToday ? (
-          <div className="td-today-flag">
+          <div className="td-today-flag" style={{ left: hoyLeft, ...TODAY_MARKER_STYLE }}>
             HOY · <b>{formatHoyFlag()}</b>
           </div>
         ) : null}
-        <div className="relative h-4 rounded-[10px] bg-[var(--td-line)]">
+        <div className="relative h-4 overflow-visible rounded-[10px] bg-[var(--td-line)]">
           <div className="td-tl-fill" />
           {metrics.showGap ? (
             <div className={`td-tl-gap ${metrics.veredicto.gapClass}`} />
           ) : null}
-          {metrics.showToday ? <div className="td-tl-today" /> : null}
+          {metrics.showToday ? (
+            <div className="td-tl-today" style={{ left: hoyLeft, ...TODAY_MARKER_STYLE }} />
+          ) : null}
         </div>
       </div>
       <div className="mt-3.5 flex justify-between gap-4">
