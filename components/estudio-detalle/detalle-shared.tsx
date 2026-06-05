@@ -76,11 +76,7 @@ export function DetallePageShell({
   return (
     <div
       className={`${jakartaDetalle.className} estudio-detalle-page tema-detalle-page flex min-h-full w-full flex-1 flex-col pb-24`}
-      style={{
-        ...tlStyle,
-        backgroundImage:
-          "radial-gradient(circle at 10% 4%, rgba(39,72,103,.045), transparent 38%), radial-gradient(circle at 92% 96%, rgba(60,138,90,.045), transparent 40%)",
-      }}
+      style={tlStyle}
     >
       <div className="td-section-stack flex flex-col gap-4">{children}</div>
     </div>
@@ -257,9 +253,9 @@ export function DetalleTabBar({
     tabCount === 3 ? "w-[calc((100%-8px)/3)]" : "w-[calc((100%-8px)/2)]";
 
   return (
-    <div className="relative flex overflow-hidden rounded-[14px] border border-[var(--td-line)] bg-[var(--td-line-soft)] p-1">
+    <div className="td-tabbar relative flex overflow-hidden rounded-[14px] border border-[var(--td-zone-line)] bg-[var(--td-zone-track)] p-1">
       <span
-        className={`td-ctab-ind pointer-events-none absolute bottom-1 left-1 top-1 z-[1] ${widthClass} rounded-[10px] bg-[var(--td-card)] shadow-[0_2px_8px_-2px_rgba(27,34,43,.2)]`}
+        className={`td-ctab-ind pointer-events-none absolute bottom-1 left-1 top-1 z-[1] ${widthClass} rounded-[10px] bg-[var(--td-zone-tab-active)] shadow-[0_2px_8px_-2px_rgba(27,34,43,.25)]`}
         style={{ transform: `translateX(${tabIndex * 100}%)` }}
         aria-hidden
       />
@@ -271,11 +267,17 @@ export function DetalleTabBar({
           aria-selected={t.active}
           onClick={t.onClick}
           className={`relative z-[2] flex-1 rounded-[10px] border-0 bg-transparent py-2.5 font-bold text-sm transition-colors duration-200 ${
-            t.active ? "text-[var(--td-navy)]" : "text-[var(--td-ink-soft)]"
+            t.active
+              ? "text-white"
+              : "text-[var(--td-filter-text-muted)]"
           }`}
         >
           {t.label}{" "}
-          <span className="text-xs font-semibold opacity-55">{t.count}</span>
+          <span
+            className={`text-xs font-semibold ${t.active ? "text-white/75" : "opacity-55"}`}
+          >
+            {t.count}
+          </span>
         </button>
       ))}
     </div>
@@ -383,7 +385,7 @@ export function DetalleFiltroEstadosCompact<T extends string>({
         role="listbox"
         aria-label={`Estados de ${entityLabel}`}
         style={menuStyle}
-        className={`${jakartaDetalle.className} overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] py-1 shadow-[var(--td-shadow)]`}
+        className={`td-filtro-menu ${jakartaDetalle.className} overflow-hidden rounded-xl border border-[var(--td-line)] py-1 shadow-[var(--td-shadow)]`}
       >
         {filtros.map((f) => {
           const active = filtro === f.key;
@@ -435,10 +437,10 @@ export function DetalleFiltroEstadosCompact<T extends string>({
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className={`text-[11px] font-medium transition-colors ${
+          className={`text-[11px] font-semibold transition-colors ${
             filtro === "todos"
-              ? "text-[var(--td-faint)] hover:text-[var(--td-ink-soft)]"
-              : "text-[var(--td-ink-soft)] hover:text-[var(--td-ink)]"
+              ? "text-[var(--td-filter-text-muted)] hover:text-[var(--td-filter-text)]"
+              : "text-[var(--td-filter-text)] hover:text-[var(--td-ink)]"
           }`}
         >
           {etiquetaActiva}
@@ -452,8 +454,8 @@ export function DetalleFiltroEstadosCompact<T extends string>({
           onClick={() => setOpen((v) => !v)}
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-[transform,colors,border-color] duration-150 active:scale-95 ${
             open
-              ? "border-[var(--td-line)] bg-[var(--td-line-soft)] text-[var(--td-ink-soft)]"
-              : "border-transparent bg-transparent text-[var(--td-faint)] hover:border-[var(--td-line)] hover:bg-[var(--td-line-soft)]/60"
+              ? "border-[var(--td-zone-line)] bg-[var(--td-zone-track)] text-[var(--td-filter-text)]"
+              : "border-transparent bg-transparent text-[var(--td-filter-text-muted)] hover:border-[var(--td-zone-line)] hover:bg-[var(--td-zone-track)] hover:text-[var(--td-filter-text)]"
           }`}
         >
           <FiltroIcono aria-hidden />
