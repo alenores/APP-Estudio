@@ -61,10 +61,10 @@ export function EstudioDedicacionWidget({
     <MiniCard
       title="Dedicación"
       delayClass={delayClass}
-      className={`${compact ? "min-h-[7.5rem]" : ""} ${className}`}
+      className={`${compact ? "min-h-[5.25rem] !py-1.5" : ""} ${className}`}
     >
-      <div className="flex min-h-0 flex-1 items-stretch gap-2">
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1.5">
+      <div className="flex min-h-0 flex-1 items-stretch gap-1.5">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-1">
           <TiempoLinea
             label="Consumido"
             value={formatDuracionMinutos(invertidoMin)}
@@ -84,7 +84,7 @@ export function EstudioDedicacionWidget({
         <div
           className={`flex shrink-0 items-center justify-center self-stretch ${
             compact
-              ? "aspect-square w-[4.25rem] max-w-[42%]"
+              ? "aspect-square w-[2.75rem] max-w-[38%]"
               : "aspect-square w-[4rem] max-w-[44%]"
           }`}
           aria-hidden
@@ -137,7 +137,7 @@ function TiempoLinea({
       </span>
       <span
         className={`shrink-0 font-extrabold tabular-nums leading-none text-[var(--td-ink)] ${
-          compact ? "text-sm" : "text-[13px]"
+          compact ? "text-xs" : "text-[13px]"
         }`}
       >
         {value}

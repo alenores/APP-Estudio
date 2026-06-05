@@ -83,7 +83,7 @@ export function ExternalLinkPreview({
       rel="noopener noreferrer"
       className={
         card
-          ? "block w-full overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] shadow-sm transition hover:border-[var(--td-navy)]/35 hover:shadow-md active:scale-[0.99]"
+          ? "mx-auto block w-full max-w-[11.5rem] overflow-hidden rounded-lg border border-[var(--td-line)] bg-[var(--td-card)] shadow-sm transition hover:border-[var(--td-navy)]/35 hover:shadow-md active:scale-[0.99]"
           : "mx-auto block w-full max-w-md overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-sm transition hover:border-accent/40 hover:shadow-md active:scale-[0.99]"
       }
       onClick={(e) => e.stopPropagation()}
@@ -94,7 +94,7 @@ export function ExternalLinkPreview({
         alt=""
         className={
           card
-            ? "aspect-video max-h-[7.5rem] w-full object-cover"
+            ? "aspect-video h-[3.75rem] w-full object-cover"
             : "aspect-video w-full object-cover"
         }
         loading="lazy"

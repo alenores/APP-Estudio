@@ -36,29 +36,29 @@ export function ExploradorCardExpanded({
 
   return (
     <div
-      className="explorer-expand-panel space-y-3 border-t border-[var(--td-line)]/80 pt-3"
+      className="explorer-expand-panel space-y-2 border-t border-[var(--td-line)]/80 pt-2"
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <div className="space-y-2">
-        <p className="text-xs leading-relaxed text-[var(--td-ink-soft)]">
+      <div className="space-y-1.5">
+        <p className="line-clamp-2 text-[11px] leading-snug text-[var(--td-ink-soft)]">
           {descripcion?.trim() ? descripcion : "Sin descripción"}
         </p>
         {showFechas ? (
-          <div className="flex justify-between gap-4 border-t border-[var(--td-line)]/60 pt-2">
+          <div className="flex justify-between gap-3 border-t border-[var(--td-line)]/60 pt-1.5">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
+              <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--td-faint)]">
                 Inicio
               </p>
-              <p className="mt-0.5 text-sm font-bold text-[var(--td-ink-soft)]">
+              <p className="text-xs font-bold text-[var(--td-ink-soft)]">
                 {formatFechaCalendario(fechaInicio)}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
+              <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--td-faint)]">
                 Fin
               </p>
-              <p className="mt-0.5 text-sm font-bold text-[var(--td-ink-soft)]">
+              <p className="text-xs font-bold text-[var(--td-ink-soft)]">
                 {formatFechaCalendario(fechaFin)}
               </p>
             </div>
@@ -66,7 +66,7 @@ export function ExploradorCardExpanded({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-2">
         <EstudioNivelGauge nivel={nivel} size="compact" />
         <EstudioDedicacionWidget
           invertidoMin={invertidoMin}
@@ -75,7 +75,7 @@ export function ExploradorCardExpanded({
         />
       </div>
 
-      <div className="explorer-record-row flex gap-2 border-t border-[var(--td-line)]/70 pt-3">
+      <div className="explorer-record-row flex gap-1.5 border-t border-[var(--td-line)]/70 pt-2">
         <RecordActionTile
           label="Seguimientos"
           count={seguimientosCount}
@@ -101,14 +101,14 @@ function RecordActionTile({
   onOpen: () => void;
 }) {
   return (
-    <div className="explorer-record-tile flex min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/35 px-2.5 py-2">
-      <div className="min-w-0">
-        <p className="truncate text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--td-faint)]">
+    <div className="explorer-record-tile flex min-w-0 flex-1 items-center justify-between gap-1.5 rounded-lg border border-[var(--td-line)] bg-[var(--td-line-soft)]/35 px-2 py-1.5">
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <p className="truncate text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--td-faint)]">
           {label}
         </p>
-        <p className="text-lg font-extrabold leading-none text-[var(--td-ink)]">
+        <span className="shrink-0 text-sm font-extrabold tabular-nums leading-none text-[var(--td-ink)]">
           {count}
-        </p>
+        </span>
       </div>
       <button
         type="button"
@@ -118,7 +118,7 @@ function RecordActionTile({
           e.stopPropagation();
           onOpen();
         }}
-        className="explorer-action-plus inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] bg-white text-sm font-bold leading-none text-[var(--td-navy)] shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-150 hover:border-[var(--td-navy)]/35 hover:bg-[var(--td-navy)] hover:text-white hover:shadow-md active:scale-95"
+        className="explorer-action-plus inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] bg-white text-xs font-bold leading-none text-[var(--td-navy)] shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-150 hover:border-[var(--td-navy)]/35 hover:bg-[var(--td-navy)] hover:text-white hover:shadow-md active:scale-95"
       >
         +
       </button>

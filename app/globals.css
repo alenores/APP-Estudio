@@ -738,7 +738,7 @@ html.pwa-standalone-zoom-lock body {
   }
   to {
     opacity: 1;
-    max-height: 480px;
+    max-height: 360px;
     transform: translateY(0) scale(1);
   }
 }

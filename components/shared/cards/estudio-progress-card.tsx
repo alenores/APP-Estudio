@@ -188,7 +188,7 @@ export function EstudioProgressCard({
           <div className="relative z-[1] min-w-0">{wrappedBody}</div>
         </div>
         {showLinkPreview ? (
-          <div className="relative z-[1] px-4 pb-2 pt-2.5">
+          <div className="relative z-[1] px-4 pb-1.5 pt-2">
             <ExternalLinkPreview link={link!} variant="card" />
           </div>
         ) : null}
