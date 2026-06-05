@@ -601,6 +601,95 @@ html.pwa-standalone-zoom-lock body {
   min-height: calc(100vh - 8rem);
 }
 
+/* —— Explorador PC: motion (solo escritorio; ADR 006 aplica a móvil) —— */
+.desktop-explorador .explorer-column-panel {
+  transition:
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease;
+}
+
+.desktop-explorador .explorer-column-panel:hover {
+  box-shadow:
+    0 10px 36px -12px rgba(39, 72, 103, 0.22),
+    0 4px 14px -6px rgba(39, 72, 103, 0.1);
+}
+
+.desktop-explorador .explorer-progress-card {
+  transition:
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.desktop-explorador .explorer-progress-card:not([data-selected="true"]):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px -8px rgba(39, 72, 103, 0.18);
+  border-color: color-mix(in srgb, var(--td-navy) 28%, var(--td-line));
+}
+
+.desktop-explorador .explorer-progress-card[data-selected="true"] {
+  transform: scale(1.008);
+}
+
+.desktop-explorador .explorer-expand-panel {
+  animation: explorer-expand-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.desktop-explorador .explorer-expand-panel .grid > * {
+  animation: explorer-fade-up 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 40ms;
+}
+
+.desktop-explorador .explorer-expand-panel .grid > *:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.desktop-explorador .explorer-record-tile {
+  animation: explorer-fade-up 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 80ms;
+}
+
+.desktop-explorador .explorer-record-row .explorer-record-tile:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+@keyframes explorer-expand-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes explorer-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .desktop-explorador .explorer-column-panel,
+  .desktop-explorador .explorer-progress-card {
+    transition: none;
+    transform: none !important;
+  }
+
+  .desktop-explorador .explorer-expand-panel,
+  .desktop-explorador .explorer-record-tile,
+  .desktop-explorador .explorer-expand-panel .grid > * {
+    animation: none;
+  }
+}
+
 .desktop-modal-theme {
   --td-card: #ffffff;
   --td-line: #cbd5e1;

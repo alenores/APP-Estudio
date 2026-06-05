@@ -153,11 +153,12 @@ export function EstudioProgressCard({
   return (
     <article
       data-explorer-id={explorerId}
-      className={`td-ccard relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] transition-[transform,box-shadow,border-color] duration-200 ${interactive ? "cursor-pointer" : ""} ${
+      data-selected={selected ? "true" : undefined}
+      className={`td-ccard explorer-progress-card relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] ${interactive ? "cursor-pointer" : ""} ${
         selected
-          ? "z-[1] border-[var(--td-navy)] shadow-[0_6px_20px_-8px_rgba(39,72,103,.35)] ring-2 ring-[var(--td-navy)]/30"
-          : "hover:border-[var(--td-navy)]/35 hover:shadow-sm"
-      } ${expandedSlot ? "shadow-[0_6px_20px_-8px_rgba(39,72,103,.22)]" : ""} ${className}`}
+          ? "z-[1] border-[var(--td-navy)] shadow-[0_8px_24px_-10px_rgba(39,72,103,.4)] ring-2 ring-[var(--td-navy)]/30"
+          : ""
+      } ${className}`}
       onClick={interactive ? onSelect : undefined}
       onDoubleClick={onDoubleClick}
       onKeyDown={
@@ -190,7 +191,7 @@ export function EstudioProgressCard({
           <div className="relative z-[1] min-w-0">{wrappedBody}</div>
         </div>
         {expandedSlot ? (
-          <div className="relative z-[1] px-4 pb-3.5">{expandedSlot}</div>
+          <div className="relative z-[1] px-4 pb-3.5 pt-0">{expandedSlot}</div>
         ) : null}
       </div>
     </article>

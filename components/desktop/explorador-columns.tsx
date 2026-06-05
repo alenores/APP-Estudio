@@ -104,7 +104,7 @@ export function ExploradorColumn({
   children,
 }: ExploradorColumnProps) {
   return (
-    <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]">
+    <section className="explorer-column-panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]">
       <header className="shrink-0 border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/50 px-3 py-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
@@ -145,7 +145,7 @@ function ColumnHeaderButton({
       aria-label={title ?? label}
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+      className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-[transform,background-color,border-color,color,box-shadow] duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
         primary
           ? "bg-[var(--td-navy)] text-white hover:bg-[var(--td-navy-2)]"
           : "border border-[var(--td-line)] bg-white text-[var(--td-filter-text-muted)] hover:border-[var(--td-navy)]/40 hover:text-[var(--td-navy)]"

@@ -9,7 +9,8 @@ Componentes usados por **móvil y escritorio** (o por el layout global). Pueden 
 | `data/` | Provider global del paquete local (`EstudioDataRoot`) |
 | `sync/` | Banner «Actualizar» (`EstudioSyncBanner`) |
 | `forms/` | Formularios de entidad (tema, curso, clase, seguimiento, concepto) + campos compartidos |
-| `cards/` | Card de avance con franja de estado (`EstudioProgressCard`) — móvil detalle + explorador PC |
+| `cards/` | Card de avance (`EstudioProgressCard`) — móvil detalle + explorador PC |
+| `widgets/` | Métricas compartidas: `EstudioNivelGauge`, `EstudioDedicacionWidget` |
 | `links/` | Preview de links externos (`ExternalLinkPreview`) |
 
 ## Reglas

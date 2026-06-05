@@ -1,9 +1,7 @@
 "use client";
 
-import {
-  ExploradorMiniDedicacion,
-  ExploradorMiniEntendimiento,
-} from "@/components/desktop/explorador-mini-widgets";
+import { EstudioDedicacionWidget } from "@/components/shared/widgets/estudio-dedicacion-widget";
+import { EstudioNivelGauge } from "@/components/shared/widgets/estudio-nivel-gauge";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { formatFechaCalendario } from "@/lib/format-fecha-calendario";
 import { parseNivelEntendimiento } from "@/lib/nivel-entendimiento-ui";
@@ -33,43 +31,48 @@ export function ExploradorCardExpanded({
 
   return (
     <div
-      className="space-y-2.5 border-t border-[var(--td-line)]/80 pt-2.5"
+      className="explorer-expand-panel space-y-3 border-t border-[var(--td-line)]/80 pt-3"
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <p className="text-xs leading-relaxed text-[var(--td-ink-soft)]">
-        {descripcion?.trim() ? descripcion : "Sin descripción"}
-      </p>
-      <p className="text-[10px] font-semibold text-[var(--td-faint)]">
-        Fin estimado{" "}
-        <span className="font-bold text-[var(--td-ink-soft)]">
-          {formatFechaCalendario(fechaFin)}
-        </span>
-      </p>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-        <RecordCountRow
+      <div className="space-y-1.5">
+        <p className="text-xs leading-relaxed text-[var(--td-ink-soft)]">
+          {descripcion?.trim() ? descripcion : "Sin descripción"}
+        </p>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--td-faint)]">
+          Fin estimado{" "}
+          <span className="normal-case tracking-normal text-[var(--td-ink-soft)]">
+            {formatFechaCalendario(fechaFin)}
+          </span>
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2.5">
+        <EstudioNivelGauge nivel={nivel} size="compact" />
+        <EstudioDedicacionWidget
+          invertidoMin={invertidoMin}
+          restanteMin={restanteMin}
+          size="compact"
+        />
+      </div>
+
+      <div className="explorer-record-row flex gap-2 border-t border-[var(--td-line)]/70 pt-3">
+        <RecordActionTile
           label="Seguimientos"
           count={seguimientosCount}
           onOpen={onOpenSeguimientos}
         />
-        <RecordCountRow
+        <RecordActionTile
           label="Conceptos"
           count={conceptosCount}
           onOpen={onOpenConceptos}
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-1.5">
-        <ExploradorMiniEntendimiento nivel={nivel} />
-        <ExploradorMiniDedicacion
-          invertidoMin={invertidoMin}
-          restanteMin={restanteMin}
         />
       </div>
     </div>
   );
 }
 
-function RecordCountRow({
+function RecordActionTile({
   label,
   count,
   onOpen,
@@ -79,9 +82,15 @@ function RecordCountRow({
   onOpen: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] text-[var(--td-ink-soft)]">
-      <span className="font-semibold text-[var(--td-faint)]">{label}</span>
-      <b className="text-[var(--td-ink)]">{count}</b>
+    <div className="explorer-record-tile flex min-w-0 flex-1 items-center justify-between gap-2 rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/35 px-2.5 py-2">
+      <div className="min-w-0">
+        <p className="truncate text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--td-faint)]">
+          {label}
+        </p>
+        <p className="text-lg font-extrabold leading-none text-[var(--td-ink)]">
+          {count}
+        </p>
+      </div>
       <button
         type="button"
         title={`Abrir ${label.toLowerCase()}`}
@@ -90,10 +99,10 @@ function RecordCountRow({
           e.stopPropagation();
           onOpen();
         }}
-        className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] bg-white text-[11px] font-bold leading-none text-[var(--td-navy)] transition-colors hover:border-[var(--td-navy)]/40 hover:bg-[var(--td-line-soft)]"
+        className="explorer-action-plus inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] bg-white text-sm font-bold leading-none text-[var(--td-navy)] shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-150 hover:border-[var(--td-navy)]/35 hover:bg-[var(--td-navy)] hover:text-white hover:shadow-md active:scale-95"
       >
         +
       </button>
-    </span>
+    </div>
   );
 }
