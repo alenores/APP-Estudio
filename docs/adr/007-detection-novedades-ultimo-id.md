@@ -1,23 +1,35 @@
-# ADR 007: Detección de novedades por último `id`
+# ADR 007: Detección de novedades (id + contenido)
 
 ## Estado
 
-Aceptado — 2026-06-04
+Aceptado — 2026-06-04 (ampliado 2026-06-04: digest de filas)
 
 ## Contexto
 
-Con el paquete local (ADR 001), el usuario no debe descargar todo en cada visita. Basta saber si en Supabase hay filas **nuevas** respecto al snapshot.
+Con el paquete local (ADR 001), el usuario no debe descargar todo en cada visita. Hay que detectar:
+
+- filas **nuevas** o **borradas** (`maxId`, `rowCount`);
+- **ediciones** de filas existentes (cambio en columnas sin nuevo `id`).
 
 ## Decisión
 
-1. **`EstudioDataSignature`:** `{ temas, cursos, clases, seguimientos, conceptos }` — cada valor es el mayor `id` visto (número ≥ 0).
-2. **Remoto:** por tabla, `select('id').order('id', { ascending: false }).limit(1)` (RLS aplica `user_id`).
-3. **Local:** `signature` guardada en el snapshot; si falta, inferir con `max(id)` de los arrays del paquete.
-4. **Hay novedad** si `remote[t] > local[t]` en **alguna** tabla → UI muestra **Actualizar**.
-5. **Sin novedad:** opcionalmente actualizar `signature` local al remoto (como Vías) para evitar falsos positivos tras sync parcial.
-6. **No** usar conteo de filas ni `updated_at` en fase 1.
+1. **`EstudioTableSignature` por tabla:** `{ maxId, rowCount, digest }`.
+2. **`digest`:** hash estable (djb2) del JSON canónico de **todas** las filas (`select *`, orden `id asc`), columnas incluidas tal cual vienen de Supabase.
+3. **Local:** la firma se **recalcula** desde los arrays del snapshot (`buildSignatureFromSnapshot`); no confiar solo en la firma persistida para comparar.
+4. **Remoto:** misma huella por tabla en paralelo (5 consultas livianas para uso personal; no es la descarga ordenada del botón Actualizar).
+5. **Hay novedad** si en **alguna** tabla difiere `maxId`, `rowCount` o `digest` → UI muestra **Actualizar**.
+6. **Sin novedad:** persistir `signature` remota en el paquete local (como Vías) para alinear metadatos.
+7. Firmas **legacy** (solo número = max id) se normalizan al leer; la comparación real usa digest local vs remoto.
 
 ## Consecuencias
 
-- Implementación en `checkEstudioUpdatesAvailable()` dentro de `lib/estudio-offline-cache.ts`.
+- Implementación: `lib/estudio-table-digest.ts`, `checkEstudioUpdatesAvailable()` en `lib/estudio-offline-cache.ts`.
 - Una comprobación por carga de documento (session flag en `useEstudioData`), no por cada navegación interna.
+- Ediciones en Supabase (Table Editor, SQL) disparan **Actualizar** aunque no haya nuevo `id`.
+
+## Archivos
+
+| Qué | Dónde |
+|-----|--------|
+| Digest / hash | `lib/estudio-table-digest.ts` |
+| Check + snapshot | `lib/estudio-offline-cache.ts` |

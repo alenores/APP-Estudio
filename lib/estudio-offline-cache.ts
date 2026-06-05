@@ -1,4 +1,10 @@
 import { createClient } from "@/lib/supabase/client";
+import {
+  buildTableContentSignature,
+  emptyTableContentSignature,
+  tableContentSignatureChanged,
+  type TableContentSignature,
+} from "@/lib/estudio-table-digest";
 import type {
   Clase,
   Concepto,
@@ -18,12 +24,15 @@ export const ESTUDIO_TABLE = {
 
 export type EstudioTableName = (typeof ESTUDIO_TABLE)[keyof typeof ESTUDIO_TABLE];
 
+/** Huella por tabla: max id, cantidad de filas y digest del contenido. */
+export type EstudioTableSignature = TableContentSignature;
+
 export type EstudioDataSignature = {
-  temas: number;
-  cursos: number;
-  clases: number;
-  seguimientos: number;
-  conceptos: number;
+  temas: EstudioTableSignature;
+  cursos: EstudioTableSignature;
+  clases: EstudioTableSignature;
+  seguimientos: EstudioTableSignature;
+  conceptos: EstudioTableSignature;
 };
 
 export type EstudioOfflineCacheData = {
@@ -73,36 +82,50 @@ export function clearEstudioOfflineCache(): void {
   }
 }
 
-function maxEntityId(items: { id: number }[]): number {
-  return items.length ? Math.max(...items.map((item) => item.id)) : 0;
-}
-
 export function buildSignatureFromSnapshot(
   data: EstudioOfflineCacheData,
 ): EstudioDataSignature {
   return {
-    temas: maxEntityId(data.temas),
-    cursos: maxEntityId(data.cursos),
-    clases: maxEntityId(data.clases),
-    seguimientos: maxEntityId(data.seguimientos),
-    conceptos: maxEntityId(data.conceptos),
+    temas: buildTableContentSignature(data.temas),
+    cursos: buildTableContentSignature(data.cursos),
+    clases: buildTableContentSignature(data.clases),
+    seguimientos: buildTableContentSignature(data.seguimientos),
+    conceptos: buildTableContentSignature(data.conceptos),
   };
 }
 
+/** Siempre desde filas del paquete local (incluye digest por columnas). */
 function resolveLocalSignature(cached: EstudioOfflineCacheData): EstudioDataSignature {
-  if (cached.signature) {
-    return normalizeSignature(cached.signature);
-  }
   return buildSignatureFromSnapshot(cached);
 }
 
-function normalizeSignature(raw: Partial<EstudioDataSignature> | undefined): EstudioDataSignature {
+function normalizeTableSignature(raw: unknown): EstudioTableSignature {
+  if (raw && typeof raw === "object" && "digest" in raw) {
+    const row = raw as Partial<EstudioTableSignature>;
+    return {
+      maxId: finiteId(row.maxId),
+      rowCount: finiteId(row.rowCount),
+      digest: typeof row.digest === "string" ? row.digest : "0",
+    };
+  }
+
+  if (typeof raw === "number") {
+    return { maxId: finiteId(raw), rowCount: 0, digest: "0" };
+  }
+
+  return emptyTableContentSignature();
+}
+
+/** Acepta firmas legacy (solo max id numérico por tabla). */
+export function normalizeSignature(
+  raw: Partial<Record<EstudioTableName, unknown>> | undefined,
+): EstudioDataSignature {
   return {
-    temas: finiteId(raw?.temas),
-    cursos: finiteId(raw?.cursos),
-    clases: finiteId(raw?.clases),
-    seguimientos: finiteId(raw?.seguimientos),
-    conceptos: finiteId(raw?.conceptos),
+    temas: normalizeTableSignature(raw?.temas),
+    cursos: normalizeTableSignature(raw?.cursos),
+    clases: normalizeTableSignature(raw?.clases),
+    seguimientos: normalizeTableSignature(raw?.seguimientos),
+    conceptos: normalizeTableSignature(raw?.conceptos),
   };
 }
 
@@ -110,34 +133,26 @@ function finiteId(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-async function fetchTableLastId(table: EstudioTableName): Promise<{
-  lastId: number;
+async function fetchTableContentSignature(table: EstudioTableName): Promise<{
+  signature: EstudioTableSignature;
   error: string | null;
 }> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from(table)
-    .select("id")
-    .order("id", { ascending: false })
-    .limit(1);
+    .select("*")
+    .order("id", { ascending: true });
 
   if (error) {
     return {
-      lastId: 0,
+      signature: emptyTableContentSignature(),
       error: `No se pudo consultar ${table}: ${error.message}`,
     };
   }
 
-  const rawId = data?.[0]?.id;
-  const lastId =
-    typeof rawId === "number"
-      ? rawId
-      : typeof rawId === "string"
-        ? Number(rawId)
-        : 0;
-
+  const rows = (data ?? []) as { id: number }[];
   return {
-    lastId: Number.isFinite(lastId) ? lastId : 0,
+    signature: buildTableContentSignature(rows),
     error: null,
   };
 }
@@ -147,11 +162,11 @@ async function fetchRemoteSignature(): Promise<{
   error: string | null;
 }> {
   const [temasRes, cursosRes, clasesRes, segsRes, conceptosRes] = await Promise.all([
-    fetchTableLastId(ESTUDIO_TABLE.temas),
-    fetchTableLastId(ESTUDIO_TABLE.cursos),
-    fetchTableLastId(ESTUDIO_TABLE.clases),
-    fetchTableLastId(ESTUDIO_TABLE.seguimientos),
-    fetchTableLastId(ESTUDIO_TABLE.conceptos),
+    fetchTableContentSignature(ESTUDIO_TABLE.temas),
+    fetchTableContentSignature(ESTUDIO_TABLE.cursos),
+    fetchTableContentSignature(ESTUDIO_TABLE.clases),
+    fetchTableContentSignature(ESTUDIO_TABLE.seguimientos),
+    fetchTableContentSignature(ESTUDIO_TABLE.conceptos),
   ]);
 
   const firstError =
@@ -167,11 +182,11 @@ async function fetchRemoteSignature(): Promise<{
 
   return {
     signature: {
-      temas: temasRes.lastId,
-      cursos: cursosRes.lastId,
-      clases: clasesRes.lastId,
-      seguimientos: segsRes.lastId,
-      conceptos: conceptosRes.lastId,
+      temas: temasRes.signature,
+      cursos: cursosRes.signature,
+      clases: clasesRes.signature,
+      seguimientos: segsRes.signature,
+      conceptos: conceptosRes.signature,
     },
     error: null,
   };
@@ -190,11 +205,14 @@ function buildChangedTables(
   remote: EstudioDataSignature,
 ): EstudioChangedTables {
   return {
-    temas: local.temas !== remote.temas,
-    cursos: local.cursos !== remote.cursos,
-    clases: local.clases !== remote.clases,
-    seguimientos: local.seguimientos !== remote.seguimientos,
-    conceptos: local.conceptos !== remote.conceptos,
+    temas: tableContentSignatureChanged(local.temas, remote.temas),
+    cursos: tableContentSignatureChanged(local.cursos, remote.cursos),
+    clases: tableContentSignatureChanged(local.clases, remote.clases),
+    seguimientos: tableContentSignatureChanged(
+      local.seguimientos,
+      remote.seguimientos,
+    ),
+    conceptos: tableContentSignatureChanged(local.conceptos, remote.conceptos),
   };
 }
 
@@ -228,7 +246,10 @@ export async function checkEstudioUpdatesAvailable(
   const hasUpdates = Object.values(changedTables).some(Boolean);
 
   if (!hasUpdates) {
-    writeEstudioOfflineCache({ ...cached, signature: remoteSignature });
+    writeEstudioOfflineCache({
+      ...cached,
+      signature: remoteSignature,
+    });
   }
 
   return {
@@ -312,13 +333,15 @@ export async function downloadEstudioSnapshot(): Promise<{
     clases,
     seguimientos,
     conceptos,
-    signature: {
-      temas: maxEntityId(temas),
-      cursos: maxEntityId(cursos),
-      clases: maxEntityId(clases),
-      seguimientos: maxEntityId(seguimientos),
-      conceptos: maxEntityId(conceptos),
-    },
+    signature: buildSignatureFromSnapshot({
+      updatedAt: "",
+      userId: user.id,
+      temas,
+      cursos,
+      clases,
+      seguimientos,
+      conceptos,
+    }),
   };
 
   if (!writeEstudioOfflineCache(snapshot)) {

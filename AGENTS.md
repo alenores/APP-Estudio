@@ -12,7 +12,7 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 |---|---|
 | `docs/adr/000-como-trabajamos.md` | Flujo con IA, un solo usuario, comentarios |
 | `docs/adr/001-paquete-local-consulta.md` | **Paquete local** + botón Actualizar (lectura desde snapshot) |
-| `docs/adr/007-detection-novedades-ultimo-id.md` | Detección novedades `MAX(id)` |
+| `docs/adr/007-detection-novedades-ultimo-id.md` | Detección novedades (id + digest contenido) |
 | `docs/adr/002-supabase-schema-contract.md` | Nombres exactos de tablas/columnas (borrador) |
 | `docs/adr/003-frontend-layer-separation.md` | Hook vs page vs components |
 | `docs/adr/004-pwa-install-standalone.md` | Instalación, standalone, APP Estudio |
@@ -72,7 +72,8 @@ app/temas/nuevo/page.tsx             → alta tema
 app/temas/[id]/page.tsx              → detalle tema
 app/cursos/[id]/page.tsx             → detalle curso
 app/clases/[id]/page.tsx             → detalle clase
-lib/estudio-offline-cache.ts         → snapshot + MAX(id) + download
+lib/estudio-offline-cache.ts         → snapshot + firma remota + download
+lib/estudio-table-digest.ts          → digest por tabla (ediciones)
 lib/estudio-offline-read.ts          → lectura local derivados
 app/hooks/useEstudioData.tsx         → contexto paquete local
 components/study/estudio-sync-banner.tsx → Actualizar
