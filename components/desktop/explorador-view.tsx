@@ -10,16 +10,16 @@ import {
   ExploradorCreateModal,
   type ExploradorCreateKind,
 } from "@/components/desktop/explorador-create-modal";
+import type { ExploradorColumnAction } from "@/components/desktop/explorador-columns";
 import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
-import { ExploradorToolbar } from "@/components/desktop/explorador-toolbar";
-import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner";
-import { AlertText, LoadingText } from "@/components/ui";
 import {
   ExploradorColumn,
   ExploradorColumnCard,
 } from "@/components/desktop/explorador-columns";
-import { explorerCardMetaLines } from "@/lib/explorer-card-meta";
+import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner";
+import { AlertText, LoadingText } from "@/components/ui";
+import { fechaParentesisCurso } from "@/lib/curso-card-fecha";
 import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
@@ -31,6 +31,37 @@ type PanelModalState = {
   entity: ExplorerEntityRef;
   panel: ExplorerPanelKind;
 };
+
+function entityActions(
+  entity: ExplorerEntityRef | null,
+  handlers: {
+    onEdit: (entity: ExplorerEntityRef) => void;
+    onOpenPanel: (entity: ExplorerEntityRef, panel: ExplorerPanelKind) => void;
+  },
+): ExploradorColumnAction[] {
+  const disabled = entity == null;
+  return [
+    {
+      label: "Editar",
+      title: disabled ? "Seleccioná un ítem" : `Editar ${entity.nombre}`,
+      disabled,
+      onClick: () => entity && handlers.onEdit(entity),
+    },
+    {
+      label: "Seg.",
+      title: disabled ? "Seleccioná un ítem" : `Seguimientos de ${entity.nombre}`,
+      disabled,
+      onClick: () =>
+        entity && handlers.onOpenPanel(entity, "seguimientos"),
+    },
+    {
+      label: "Conc.",
+      title: disabled ? "Seleccioná un ítem" : `Conceptos de ${entity.nombre}`,
+      disabled,
+      onClick: () => entity && handlers.onOpenPanel(entity, "conceptos"),
+    },
+  ];
+}
 
 export function ExploradorView() {
   const router = useRouter();
@@ -93,6 +124,34 @@ export function ExploradorView() {
     );
   }
 
+  const selectedTema =
+    selection.temaId != null
+      ? (temas.find((t) => t.id === selection.temaId) ?? null)
+      : null;
+  const selectedCurso =
+    selection.cursoId != null
+      ? (cursos.find((c) => c.id === selection.cursoId) ?? null)
+      : null;
+  const selectedClase =
+    selection.claseId != null
+      ? (clases.find((cl) => cl.id === selection.claseId) ?? null)
+      : null;
+
+  const selectedTemaRef: ExplorerEntityRef | null = selectedTema
+    ? { kind: "tema", id: selectedTema.id, nombre: selectedTema.nombre }
+    : null;
+  const selectedCursoRef: ExplorerEntityRef | null = selectedCurso
+    ? { kind: "curso", id: selectedCurso.id, nombre: selectedCurso.nombre }
+    : null;
+  const selectedClaseRef: ExplorerEntityRef | null = selectedClase
+    ? { kind: "clase", id: selectedClase.id, nombre: selectedClase.nombre }
+    : null;
+
+  const actionHandlers = {
+    onEdit: setEditEntity,
+    onOpenPanel: openPanel,
+  };
+
   const editTema =
     editEntity?.kind === "tema"
       ? (temas.find((t) => t.id === editEntity.id) ?? null)
@@ -120,16 +179,10 @@ export function ExploradorView() {
   return (
     <div className="desktop-explorador flex min-h-0 flex-1 flex-col">
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-[11px] text-[var(--td-faint)]">
-            ↑↓ navegar · ←→ columnas · Enter seleccionar · E editar · S seguimientos · C conceptos
-          </p>
-          <ExploradorToolbar
-            temaId={selection.temaId}
-            cursoId={selection.cursoId}
-            onCreate={setCreateKind}
-          />
-        </div>
+        <p className="text-[11px] text-[var(--td-faint)]">
+          Seleccioná una card · acciones en la cabecera de cada columna · ↑↓
+          navegar · ←→ columnas · E editar · S seguimientos · C conceptos
+        </p>
         <EstudioSyncBanner />
       </div>
       {loading ? (
@@ -141,37 +194,32 @@ export function ExploradorView() {
           <ExploradorColumn
             label="Temas"
             count={temas.length}
-            emptyMessage="No hay temas. Usá + Tema arriba a la derecha."
+            emptyMessage="No hay temas. Usá + Tema en la cabecera."
+            actions={[
+              {
+                label: "+ Tema",
+                primary: true,
+                onClick: () => setCreateKind("tema"),
+              },
+              ...entityActions(selectedTemaRef, actionHandlers),
+            ]}
           >
             {temas.map((t) => (
               <ExploradorColumnCard
                 key={t.id}
+                kind="tema"
                 explorerId={t.id}
-                title={t.nombre}
-                subtitle={t.descripcion}
-                estado={t.derivados.etiqueta_estado}
-                metaLines={explorerCardMetaLines({ derivados: t.derivados })}
+                nombre={t.nombre}
+                derivados={t.derivados}
+                descripcion={t.descripcion}
                 selected={selection.temaId === t.id}
                 onSelect={() =>
                   go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
                 }
-                onEdit={() =>
-                  setEditEntity({
-                    kind: "tema",
-                    id: t.id,
-                    nombre: t.nombre,
-                  })
-                }
-                onOpenSeguimientos={() =>
+                onDoubleClick={() =>
                   openPanel(
                     { kind: "tema", id: t.id, nombre: t.nombre },
                     "seguimientos",
-                  )
-                }
-                onOpenConceptos={() =>
-                  openPanel(
-                    { kind: "tema", id: t.id, nombre: t.nombre },
-                    "conceptos",
                   )
                 }
               />
@@ -184,20 +232,32 @@ export function ExploradorView() {
             emptyMessage={
               selection.temaId == null
                 ? "Elegí un tema para ver sus cursos."
-                : "Este tema no tiene cursos. Usá + Curso."
+                : "Este tema no tiene cursos. Usá + Curso en la cabecera."
             }
+            actions={[
+              {
+                label: "+ Curso",
+                primary: true,
+                disabled: selection.temaId == null,
+                title:
+                  selection.temaId == null
+                    ? "Elegí un tema para crear un curso"
+                    : "Nuevo curso en el tema seleccionado",
+                onClick: () => setCreateKind("curso"),
+              },
+              ...entityActions(selectedCursoRef, actionHandlers),
+            ]}
           >
             {cursos.map((c) => (
               <ExploradorColumnCard
                 key={c.id}
+                kind="curso"
                 explorerId={c.id}
-                title={c.nombre}
-                subtitle={c.descripcion}
-                estado={c.derivados.etiqueta_estado}
-                metaLines={explorerCardMetaLines({
-                  derivados: c.derivados,
-                  clasesStats: clasesStatsPorCurso.get(c.id),
-                })}
+                nombre={c.nombre}
+                derivados={c.derivados}
+                fechaParen={fechaParentesisCurso(c)}
+                clasesStats={clasesStatsPorCurso.get(c.id)}
+                link={c.link}
                 selected={selection.cursoId === c.id}
                 onSelect={() =>
                   go(
@@ -208,23 +268,10 @@ export function ExploradorView() {
                     }),
                   )
                 }
-                onEdit={() =>
-                  setEditEntity({
-                    kind: "curso",
-                    id: c.id,
-                    nombre: c.nombre,
-                  })
-                }
-                onOpenSeguimientos={() =>
+                onDoubleClick={() =>
                   openPanel(
                     { kind: "curso", id: c.id, nombre: c.nombre },
                     "seguimientos",
-                  )
-                }
-                onOpenConceptos={() =>
-                  openPanel(
-                    { kind: "curso", id: c.id, nombre: c.nombre },
-                    "conceptos",
                   )
                 }
               />
@@ -237,17 +284,33 @@ export function ExploradorView() {
             emptyMessage={
               selection.cursoId == null
                 ? "Elegí un curso para ver sus clases."
-                : "Este curso no tiene clases. Usá + Clase."
+                : "Este curso no tiene clases. Usá + Clase en la cabecera."
             }
+            actions={[
+              {
+                label: "+ Clase",
+                primary: true,
+                disabled: selection.cursoId == null,
+                title:
+                  selection.cursoId == null
+                    ? "Elegí un curso para crear una clase"
+                    : "Nueva clase en el curso seleccionado",
+                onClick: () => setCreateKind("clase"),
+              },
+              ...entityActions(selectedClaseRef, actionHandlers),
+            ]}
           >
             {clases.map((cl) => (
               <ExploradorColumnCard
                 key={cl.id}
+                kind="clase"
                 explorerId={cl.id}
-                title={cl.nombre}
-                subtitle={cl.descripcion}
-                estado={cl.derivados.etiqueta_estado}
-                metaLines={explorerCardMetaLines({ derivados: cl.derivados })}
+                nombre={cl.nombre}
+                derivados={cl.derivados}
+                link={cl.link}
+                dificultad={cl.dificultad}
+                descripcion={cl.descripcion}
+                orden={cl.orden}
                 selected={selection.claseId === cl.id}
                 onSelect={() =>
                   go(
@@ -258,27 +321,11 @@ export function ExploradorView() {
                     }),
                   )
                 }
-                onEdit={() =>
-                  setEditEntity({
-                    kind: "clase",
-                    id: cl.id,
-                    nombre: cl.nombre,
-                  })
-                }
-                onOpenSeguimientos={() =>
+                onDoubleClick={() =>
                   openPanel(
                     { kind: "clase", id: cl.id, nombre: cl.nombre },
                     "seguimientos",
                   )
-                }
-                onOpenConceptos={() =>
-                  openPanel(
-                    { kind: "clase", id: cl.id, nombre: cl.nombre },
-                    "conceptos",
-                  )
-                }
-                footer={
-                  cl.dificultad ? `Dificultad: ${cl.dificultad}` : undefined
                 }
               />
             ))}

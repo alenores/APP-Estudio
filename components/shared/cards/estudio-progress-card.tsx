@@ -1,0 +1,188 @@
+"use client";
+
+import type { SeguimientoDerivados } from "@/app/types/estudio";
+import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
+import type { ClasesCursoStats } from "@/lib/curso-clases-stats";
+import { formatDuracionMinutos } from "@/lib/format-duracion";
+import {
+  estadoFillDetalleClass,
+  estadoLabel,
+  estadoStripDetalleClass,
+} from "@/lib/estado-ui";
+import type { CSSProperties, ReactNode } from "react";
+
+const DONUT_R = 11;
+const DONUT_C = 2 * Math.PI * DONUT_R;
+
+export type EstudioProgressCardKind = "tema" | "curso" | "clase";
+
+export type EstudioProgressCardProps = {
+  kind: EstudioProgressCardKind;
+  nombre: string;
+  derivados: SeguimientoDerivados;
+  selected?: boolean;
+  explorerId?: number;
+  onSelect?: () => void;
+  onDoubleClick?: () => void;
+  className?: string;
+  /** Contenido interactivo (Link móvil con gestos). Si no hay, el cuerpo es estático. */
+  bodyWrapper?: (content: ReactNode) => ReactNode;
+  fechaParen?: string | null;
+  clasesStats?: ClasesCursoStats;
+  link?: string | null;
+  descripcion?: string | null;
+  dificultad?: string | null;
+  orden?: number;
+};
+
+export function EstudioProgressCard({
+  kind,
+  nombre,
+  derivados,
+  selected = false,
+  explorerId,
+  onSelect,
+  onDoubleClick,
+  className = "",
+  bodyWrapper,
+  fechaParen,
+  clasesStats,
+  link,
+  descripcion,
+  dificultad,
+  orden,
+}: EstudioProgressCardProps) {
+  const pct = derivados.porcentaje_avance ?? 0;
+  const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
+  const hasLink = Boolean(link?.trim());
+  const interactive = onSelect != null;
+
+  const fillStyle: CSSProperties =
+    pct > 0 ? { width: `${Math.min(100, pct)}%` } : { display: "none" };
+
+  const donutOffset =
+    clasesStats && clasesStats.total > 0
+      ? DONUT_C * (1 - clasesStats.terminadas / clasesStats.total)
+      : DONUT_C;
+
+  const body = (
+    <>
+      <div className="text-[15px] font-bold leading-snug text-[var(--td-ink)]">
+        {nombre}
+        {kind === "curso" && fechaParen ? (
+          <span className="ml-1 text-[13px] font-semibold text-[var(--td-fecha-muted)]">
+            {fechaParen}
+          </span>
+        ) : null}
+      </div>
+      {kind === "tema" && descripcion ? (
+        <p className="mt-1 line-clamp-2 text-xs font-medium text-[var(--td-ink-soft)]">
+          {descripcion}
+        </p>
+      ) : null}
+      <div className="mt-2.5 flex items-center gap-3">
+        {kind === "curso" && clasesStats ? (
+          <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-[var(--td-donut-text)]">
+            <svg className="h-6 w-6 shrink-0" viewBox="0 0 28 28" aria-hidden>
+              <circle
+                className="fill-none stroke-[var(--td-donut-track)]"
+                cx="14"
+                cy="14"
+                r={DONUT_R}
+                strokeWidth="4.5"
+              />
+              <circle
+                className="fill-none stroke-[var(--td-donut-val)]"
+                cx="14"
+                cy="14"
+                r={DONUT_R}
+                strokeWidth="4.5"
+                strokeLinecap="round"
+                strokeDasharray={DONUT_C}
+                strokeDashoffset={donutOffset}
+                style={{ transform: "rotate(-90deg)", transformOrigin: "center" }}
+              />
+            </svg>
+            <span>
+              <b className="font-extrabold text-[var(--td-donut-num)]">
+                {clasesStats.terminadas}
+              </b>
+              /{clasesStats.total} clases
+            </span>
+          </span>
+        ) : null}
+        {kind === "tema" &&
+        derivados.tiempo_consumido != null &&
+        derivados.tiempo_consumido > 0 ? (
+          <span className="text-xs font-semibold text-[var(--td-donut-text)]">
+            {formatDuracionMinutos(derivados.tiempo_consumido)}
+          </span>
+        ) : null}
+        {kind === "clase" ? (
+          dificultad || descripcion ? (
+            <span className="truncate text-xs font-semibold text-[var(--td-donut-text)]">
+              {dificultad ?? descripcion}
+            </span>
+          ) : (
+            <span className="text-xs font-semibold text-[var(--td-faint)]">
+              Clase #{orden ?? "—"}
+            </span>
+          )
+        ) : null}
+        <span className="ml-auto flex items-center gap-3">
+          <span className="text-base font-extrabold text-[var(--td-ink)]">
+            {pct}%
+          </span>
+          {hasLink ? (
+            <PlatformLinkIcon
+              link={link!}
+              size="sm"
+              className="!h-7 !w-7 shrink-0 rounded-[9px]"
+            />
+          ) : null}
+        </span>
+      </div>
+    </>
+  );
+
+  const wrappedBody = bodyWrapper ? bodyWrapper(body) : body;
+
+  return (
+    <article
+      data-explorer-id={explorerId}
+      className={`td-ccard relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] transition-[transform,box-shadow,border-color] duration-150 ${interactive ? "cursor-pointer" : ""} ${
+        selected
+          ? "z-[1] border-[var(--td-navy)] shadow-[0_4px_16px_-6px_rgba(39,72,103,.28)] ring-2 ring-[var(--td-navy)]/25"
+          : "hover:border-[var(--td-navy)]/35 hover:shadow-sm"
+      } ${className}`}
+      onClick={interactive ? onSelect : undefined}
+      onDoubleClick={onDoubleClick}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelect?.();
+              }
+            }
+          : undefined
+      }
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+    >
+      <div className={estadoStripDetalleClass(derivados.etiqueta_estado)}>
+        <span>{estadoTexto}</span>
+      </div>
+      <div className="relative min-w-0 flex-1 px-4 py-3.5">
+        {pct > 0 ? (
+          <div
+            className={estadoFillDetalleClass(derivados.etiqueta_estado)}
+            style={fillStyle}
+            aria-hidden
+          />
+        ) : null}
+        <div className="relative z-[1] min-w-0">{wrappedBody}</div>
+      </div>
+    </article>
+  );
+}

@@ -1,7 +1,10 @@
 import type { Seguimiento, SeguimientoDerivados } from "@/app/types/estudio";
 
+/** Estado por defecto cuando no hay seguimientos (entidad recién creada). */
+export const ESTADO_SIN_SEGUIMIENTOS = "sin empezar";
+
 const VACIO: SeguimientoDerivados = {
-  etiqueta_estado: null,
+  etiqueta_estado: ESTADO_SIN_SEGUIMIENTOS,
   porcentaje_avance: null,
   tiempo_consumido: null,
   tiempo_faltante_estimado: null,
@@ -73,7 +76,7 @@ export function derivarDesdeSeguimientos(
   return {
     etiqueta_estado:
       ultimoSeguimientoConCampo(seguimientos, tieneEtiquetaEstado)
-        ?.etiqueta_estado ?? null,
+        ?.etiqueta_estado ?? ESTADO_SIN_SEGUIMIENTOS,
     porcentaje_avance: sumaPorcentajeAvanceSeguimientos(seguimientos),
     tiempo_consumido:
       ultimoSeguimientoConCampo(seguimientos, tieneTiempoConsumido)

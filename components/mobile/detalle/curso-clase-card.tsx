@@ -5,13 +5,8 @@ import {
   ChildContextMenu,
   type ChildQuickAction,
 } from "@/components/mobile/cards/child-context-menu";
-import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
+import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
 import { LONG_PRESS_MS } from "@/lib/fab-open-delay";
-import {
-  estadoFillDetalleClass,
-  estadoLabel,
-  estadoStripDetalleClass,
-} from "@/lib/estado-ui";
 import { hapticContextMenu, hapticLightTap } from "@/lib/haptic";
 import { FWD_SWIPE_AXIS_MIN } from "@/lib/nav-motion";
 import { useNavItemForwardSwipe } from "@/lib/use-nav-item-forward-swipe";
@@ -22,7 +17,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type PointerEvent,
 } from "react";
 
@@ -43,10 +37,6 @@ export function CursoClaseCard({ clase, onQuickAction }: CursoClaseCardProps) {
   const startY = useRef(0);
   const [menuRect, setMenuRect] = useState<DOMRect | null>(null);
   const [pressing, setPressing] = useState(false);
-
-  const pct = clase.derivados.porcentaje_avance ?? 0;
-  const estadoTexto = estadoLabel(clase.derivados.etiqueta_estado) ?? "—";
-  const subtitulo = clase.dificultad ?? clase.descripcion;
 
   const nav = useNavItemForwardSwipe({
     router,
@@ -115,72 +105,42 @@ export function CursoClaseCard({ clase, onQuickAction }: CursoClaseCardProps) {
     [clearTimer],
   );
 
-  const fillStyle: CSSProperties =
-    pct > 0 ? { width: `${Math.min(100, pct)}%` } : { display: "none" };
-
   return (
     <>
       <div
         ref={wrapRef}
-        className={`td-ccard relative flex cursor-pointer overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] transition-[transform,box-shadow] duration-150 ${pressing ? "scale-[0.99]" : ""} ${menuRect ? "z-20 ring-2 ring-[var(--td-navy)]/40" : ""}`}
+        className={pressing ? "scale-[0.99] transition-transform duration-150" : ""}
         style={{ touchAction: "pan-y" }}
         onPointerDown={onWrapPointerDown}
         onPointerMove={onWrapPointerMove}
         onPointerUp={() => clearTimer()}
         onPointerCancel={() => clearTimer()}
       >
-        <div
-          className={estadoStripDetalleClass(clase.derivados.etiqueta_estado)}
-        >
-          <span>{estadoTexto}</span>
-        </div>
-        <div className="relative min-w-0 flex-1 px-4 py-3.5">
-          {pct > 0 ? (
-            <div
-              className={estadoFillDetalleClass(clase.derivados.etiqueta_estado)}
-              style={fillStyle}
-              aria-hidden
-            />
-          ) : null}
-          <Link
-            href={href}
-            prefetch={false}
-            className="relative z-[1] block min-w-0"
-            onClick={nav.onClick}
-            onPointerDown={nav.onPointerDown}
-            onPointerMove={nav.onPointerMove}
-            onPointerUp={nav.onPointerUp}
-            onPointerCancel={nav.onPointerCancel}
-            style={{ touchAction: "pan-y" }}
-          >
-            <div className="text-[15px] font-bold leading-snug text-[var(--td-ink)]">
-              {clase.nombre}
-            </div>
-            <div className="mt-2.5 flex items-center gap-3">
-              {subtitulo ? (
-                <span className="truncate text-xs font-semibold text-[var(--td-donut-text)]">
-                  {subtitulo}
-                </span>
-              ) : (
-                <span className="text-xs font-semibold text-[var(--td-faint)]">
-                  Clase #{clase.orden}
-                </span>
-              )}
-              <span className="ml-auto flex items-center gap-3">
-                <span className="text-base font-extrabold text-[var(--td-ink)]">
-                  {pct}%
-                </span>
-                {clase.link?.trim() ? (
-                  <PlatformLinkIcon
-                    link={clase.link}
-                    size="sm"
-                    className="!h-7 !w-7 shrink-0 rounded-[9px]"
-                  />
-                ) : null}
-              </span>
-            </div>
-          </Link>
-        </div>
+        <EstudioProgressCard
+          kind="clase"
+          nombre={clase.nombre}
+          derivados={clase.derivados}
+          link={clase.link}
+          dificultad={clase.dificultad}
+          descripcion={clase.descripcion}
+          orden={clase.orden}
+          className={menuRect ? "z-20 ring-2 ring-[var(--td-navy)]/40" : ""}
+          bodyWrapper={(content) => (
+            <Link
+              href={href}
+              prefetch={false}
+              className="block min-w-0"
+              onClick={nav.onClick}
+              onPointerDown={nav.onPointerDown}
+              onPointerMove={nav.onPointerMove}
+              onPointerUp={nav.onPointerUp}
+              onPointerCancel={nav.onPointerCancel}
+              style={{ touchAction: "pan-y" }}
+            >
+              {content}
+            </Link>
+          )}
+        />
       </div>
 
       {menuRect ? (
