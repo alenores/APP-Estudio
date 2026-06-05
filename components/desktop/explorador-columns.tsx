@@ -20,6 +20,8 @@ type ExploradorColumnCardProps = {
   nombre: string;
   derivados: SeguimientoDerivados;
   selected: boolean;
+  /** Panel expandido (solo la columna con foco activo). */
+  expanded?: boolean;
   onSelect: () => void;
   onDoubleClick?: () => void;
   descripcion?: string | null;
@@ -42,6 +44,7 @@ export function ExploradorColumnCard({
   nombre,
   derivados,
   selected,
+  expanded = selected,
   onSelect,
   onDoubleClick,
   descripcion,
@@ -58,7 +61,7 @@ export function ExploradorColumnCard({
   onOpenConceptos,
 }: ExploradorColumnCardProps) {
   const expandedSlot =
-    selected && onOpenSeguimientos && onOpenConceptos ? (
+    expanded && onOpenSeguimientos && onOpenConceptos ? (
       <ExploradorCardExpanded
         descripcion={descripcion ?? null}
         fechaFin={fechaFin}

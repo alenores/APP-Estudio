@@ -41,6 +41,7 @@ export default function TemasPage() {
         </button>
       }
     >
+      <div className="estudio-progress-cards">
       <EstudioSyncBanner />
       {loading ? <LoadingText>Cargando temas…</LoadingText> : null}
       {error ? <AlertText>{error}</AlertText> : null}
@@ -59,6 +60,7 @@ export default function TemasPage() {
           </li>
         ))}
       </ul>
+      </div>
       <p className="pb-20 text-center text-xs text-ink-muted">
         <TextLink href="/">Inicio</TextLink>
       </p>

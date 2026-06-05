@@ -247,6 +247,11 @@ export function ExploradorView() {
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 selected={selection.temaId === t.id}
+                expanded={
+                  selection.temaId === t.id &&
+                  selection.cursoId == null &&
+                  selection.claseId == null
+                }
                 onSelect={() =>
                   go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
                 }
@@ -302,6 +307,9 @@ export function ExploradorView() {
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 selected={selection.cursoId === c.id}
+                expanded={
+                  selection.cursoId === c.id && selection.claseId == null
+                }
                 onSelect={() =>
                   go(
                     explorerHref({
@@ -362,6 +370,7 @@ export function ExploradorView() {
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 selected={selection.claseId === cl.id}
+                expanded={selection.claseId === cl.id}
                 onSelect={() =>
                   go(
                     explorerHref({
