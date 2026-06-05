@@ -31,6 +31,7 @@ export default function TemasPage() {
     <AppShell
       title="Temas"
       backHref="/"
+      shellTone="tema"
       actions={
         <button
           type="button"

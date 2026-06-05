@@ -4,6 +4,7 @@ import { ExploradorCardExpanded } from "@/components/desktop/explorador-card-exp
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
+import { explorerColumnHeaderClass } from "@/lib/estudio-shell-tone";
 import type { ReactNode } from "react";
 
 export type ExploradorColumnAction = {
@@ -99,6 +100,7 @@ export function ExploradorColumnCard({
 }
 
 type ExploradorColumnProps = {
+  columnKind: "tema" | "curso" | "clase";
   label: string;
   count: number;
   emptyMessage: string;
@@ -107,6 +109,7 @@ type ExploradorColumnProps = {
 };
 
 export function ExploradorColumn({
+  columnKind,
   label,
   count,
   emptyMessage,
@@ -115,7 +118,9 @@ export function ExploradorColumn({
 }: ExploradorColumnProps) {
   return (
     <section className="explorer-column-panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]">
-      <header className="shrink-0 border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/50 px-3 py-2.5">
+      <header
+        className={`${explorerColumnHeaderClass(columnKind)} shrink-0 border-b border-[var(--td-line)]/80 px-3 py-2.5`}
+      >
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
             {label}{" "}

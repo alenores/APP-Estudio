@@ -15,7 +15,7 @@ export default function NuevoTemaPage() {
   }
 
   return (
-    <AppShell title="Nuevo tema" backHref="/temas">
+    <AppShell title="Nuevo tema" backHref="/temas" shellTone="tema">
       <TemaForm onSuccess={(id) => void onSuccess(id)} />
     </AppShell>
   );

@@ -194,6 +194,7 @@ export function ExploradorView() {
       {!loading && packReady ? (
         <div className="mt-3 flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent p-0.5">
           <ExploradorColumn
+            columnKind="tema"
             label="Temas"
             count={temas.length}
             emptyMessage="No hay temas. Usá el botón + en la cabecera."
@@ -246,6 +247,7 @@ export function ExploradorView() {
           </ExploradorColumn>
 
           <ExploradorColumn
+            columnKind="curso"
             label="Cursos"
             count={cursos.length}
             emptyMessage={
@@ -311,6 +313,7 @@ export function ExploradorView() {
           </ExploradorColumn>
 
           <ExploradorColumn
+            columnKind="clase"
             label="Clases"
             count={clases.length}
             emptyMessage={

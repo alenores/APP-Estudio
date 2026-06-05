@@ -8,6 +8,10 @@ import { NavPanelProvider, useNavPanel } from "@/lib/nav-panel-context";
 import { buildNavPanelStyle } from "@/lib/nav-transition";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
+import {
+  mobileShellToneClass,
+  type EstudioShellTone,
+} from "@/lib/estudio-shell-tone";
 import { useNavDetailGestures } from "@/lib/use-nav-detail-gestures";
 
 type AppShellProps = {
@@ -19,6 +23,8 @@ type AppShellProps = {
   children: ReactNode;
   actions?: ReactNode;
   contentClassName?: string;
+  /** Tono del panel deslizante según entidad (tema / curso / clase). */
+  shellTone?: EstudioShellTone;
 };
 
 /**
@@ -31,6 +37,7 @@ function AppShellInner({
   children,
   actions,
   contentClassName,
+  shellTone = "neutral",
 }: AppShellProps) {
   const router = useRouter();
   const panel = useNavPanel();
@@ -66,10 +73,10 @@ function AppShellInner({
     >
       <div
         data-nav-panel
-        className="mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl bg-paper shadow-xl ring-1 ring-border/70 will-change-transform"
+        className={`mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl shadow-xl ring-1 ring-black/10 will-change-transform ${mobileShellToneClass(shellTone)}`}
         style={panelStyle}
       >
-        <header className="sticky top-0 z-10 rounded-t-2xl border-b border-border bg-paper/95 px-4 py-3 backdrop-blur-md">
+        <header className="mobile-shell-header sticky top-0 z-10 rounded-t-2xl border-b px-4 py-3 backdrop-blur-md">
           <div className="flex items-center gap-3">
             {backHref ? (
               <Link

@@ -32,7 +32,7 @@ export default function ClaseDetallePage() {
 
   if (loading) {
     return (
-      <AppShell title="Clase" backHref="/temas">
+      <AppShell title="Clase" backHref="/temas" shellTone="clase">
         <LoadingText />
       </AppShell>
     );
@@ -40,7 +40,7 @@ export default function ClaseDetallePage() {
 
   if (error || !clase || !metrics) {
     return (
-      <AppShell title="Clase" backHref="/temas">
+      <AppShell title="Clase" backHref="/temas" shellTone="clase">
         <AlertText>{error ?? "No encontrada"}</AlertText>
       </AppShell>
     );
@@ -51,6 +51,7 @@ export default function ClaseDetallePage() {
       <AppShell
         breadcrumb={`Clase · ${clase.nombre}`}
         backHref={`/cursos/${clase.curso_id}`}
+        shellTone="clase"
         contentClassName="estudio-detalle-shell tema-detalle-shell flex min-h-0 flex-1 flex-col gap-0 px-2 pt-4 pb-0"
       >
         <ClaseDetalleView

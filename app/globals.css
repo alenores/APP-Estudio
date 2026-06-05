@@ -19,6 +19,13 @@
   --estado-pausado: #c7c3ba;
   --estado-pausado-text: #6b675f;
   --estado-terminado: #54734f;
+
+  /** Fondo gris general (móvil + PC) y tonos de contenedor por entidad. */
+  --estudio-stage-bg: #94a3b8;
+  --estudio-shell-tema: #d4f0eb;
+  --estudio-shell-curso: #dceefb;
+  --estudio-shell-clase: #fde8e4;
+  --estudio-shell-neutral: #fcfaf5;
 }
 
 @theme inline {
@@ -110,12 +117,12 @@ html.pwa-standalone-zoom-lock body {
 .tema-detalle-shell,
 .estudio-detalle-page,
 .tema-detalle-page {
-  --td-paper: #94a3b8;
+  --td-paper: var(--estudio-stage-bg);
 }
 
 .estudio-detalle-shell,
 .tema-detalle-shell {
-  background-color: var(--td-paper);
+  background-color: transparent;
   border-radius: 0 0 1rem 1rem;
   overflow: hidden;
   min-height: 100%;
@@ -164,6 +171,49 @@ html.pwa-standalone-zoom-lock body {
   --td-filter-text-muted: #475569;
   color: var(--td-ink);
   background-color: var(--td-paper);
+}
+
+/* Móvil: el tono vive en AppShell; el contenido interno no repinta gris. */
+.mobile-shell-tone-tema .estudio-detalle-page,
+.mobile-shell-tone-curso .estudio-detalle-page,
+.mobile-shell-tone-clase .estudio-detalle-page,
+.mobile-shell-tone-neutral .estudio-detalle-page {
+  background-color: transparent;
+}
+
+.mobile-shell-tone-tema {
+  --mobile-shell-bg: var(--estudio-shell-tema);
+}
+.mobile-shell-tone-curso {
+  --mobile-shell-bg: var(--estudio-shell-curso);
+}
+.mobile-shell-tone-clase {
+  --mobile-shell-bg: var(--estudio-shell-clase);
+}
+.mobile-shell-tone-neutral {
+  --mobile-shell-bg: var(--estudio-shell-neutral);
+}
+
+.mobile-shell-tone-tema,
+.mobile-shell-tone-curso,
+.mobile-shell-tone-clase,
+.mobile-shell-tone-neutral {
+  background-color: var(--mobile-shell-bg);
+}
+
+.mobile-shell-header {
+  background-color: color-mix(in srgb, var(--mobile-shell-bg) 88%, white);
+  border-bottom-color: color-mix(in srgb, var(--mobile-shell-bg) 55%, #cbd5e1);
+}
+
+.explorer-column-header--tema {
+  background-color: var(--estudio-shell-tema);
+}
+.explorer-column-header--curso {
+  background-color: var(--estudio-shell-curso);
+}
+.explorer-column-header--clase {
+  background-color: var(--estudio-shell-clase);
 }
 
 /** Listado móvil /temas: mismas variables de card sin fondo gris de detalle. */
