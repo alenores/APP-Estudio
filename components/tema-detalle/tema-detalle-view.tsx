@@ -106,7 +106,7 @@ export function TemaDetalleView({
 
   return (
     <div
-      className={`${jakarta.className} tema-detalle-page -mx-1 min-h-full pb-24`}
+      className={`${jakarta.className} tema-detalle-page -mx-1 flex min-h-full flex-1 flex-col pb-24`}
       style={{
         ...tlStyle,
         backgroundImage:

@@ -88,7 +88,7 @@ export default function TemaDetallePage() {
       <AppShell
         breadcrumb={`Tema · ${tema.nombre}`}
         backHref="/temas"
-        contentClassName="flex flex-1 flex-col gap-0 px-2 py-4"
+        contentClassName="tema-detalle-shell flex min-h-0 flex-1 flex-col gap-0 px-2 pt-4 pb-0"
       >
         <TemaDetalleView
           tema={tema}
