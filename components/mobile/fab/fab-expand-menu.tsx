@@ -1,6 +1,6 @@
 "use client";
 
-import { fabActionButtonClass } from "@/components/mobile/fab/fab-action-styles";
+import { fabActionClassForId } from "@/components/mobile/fab/fab-action-styles";
 import { FAB_OPEN_DELAY_MS } from "@/lib/fab-open-delay";
 import { useEffect, useId, useRef, useState } from "react";
 
@@ -79,11 +79,7 @@ export function FabExpandMenu({
                 type="button"
                 role="menuitem"
                 onClick={() => pick(action.id)}
-                className={
-                  action.variant === "dashed"
-                    ? fabActionButtonClass.dashed
-                    : fabActionButtonClass.solid
-                }
+                className={fabActionClassForId(action.id, action.variant)}
               >
                 <span className="text-lg leading-none">+</span>
                 {action.label}

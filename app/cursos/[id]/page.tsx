@@ -123,6 +123,7 @@ export default function CursoDetallePage() {
         onClose={closeSheet}
         title="Nueva clase"
         subtitle={curso.nombre}
+        tone="clase"
       >
         <ClaseForm cursoId={curso.id} onSuccess={onChildCreated} />
       </StudySheet>
@@ -132,6 +133,7 @@ export default function CursoDetallePage() {
         onClose={closeSheet}
         title="Nuevo seguimiento"
         subtitle={seguimientoSubtitle}
+        tone="seguimiento"
       >
         {sheet?.mode === "seguimiento" ? (
           <SeguimientoForm

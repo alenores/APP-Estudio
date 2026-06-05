@@ -76,6 +76,7 @@ export default function ClaseDetallePage() {
         onClose={closeSheet}
         title="Nuevo seguimiento"
         subtitle={clase.nombre}
+        tone="seguimiento"
       >
         <SeguimientoForm
           parent={{ claseId: clase.id }}

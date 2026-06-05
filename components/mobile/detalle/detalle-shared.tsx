@@ -12,6 +12,7 @@ import {
   nivelEntendimientoLabel,
 } from "@/lib/estado-ui";
 import type { EstudioDetalleMetrics } from "@/lib/estudio-detalle-metrics";
+import { seguimientoListItemClass } from "@/lib/estudio-shell-tone";
 import type { VeredictoUi } from "@/lib/tema-detalle-metrics";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import type { CSSProperties, ReactNode } from "react";
@@ -542,7 +543,7 @@ export function SeguimientoPanelItems({ items }: { items: Seguimiento[] }) {
       {items.map((s) => {
         const estadoTexto = estadoLabel(s.etiqueta_estado);
         return (
-          <li key={s.id} className="td-item">
+          <li key={s.id} className={seguimientoListItemClass()}>
             <div className="text-[11px] font-extrabold uppercase tracking-wide text-[var(--td-faint)]">
               {new Date(s.fecha_registro).toLocaleDateString("es-AR", {
                 day: "numeric",
@@ -558,12 +559,12 @@ export function SeguimientoPanelItems({ items }: { items: Seguimiento[] }) {
             ) : null}
             <div className="mt-2 flex flex-wrap gap-2">
               {s.porcentaje_avance != null ? (
-                <span className="rounded-full bg-[rgba(44,92,138,.09)] px-2 py-0.5 text-[11.5px] font-bold text-[var(--td-e-azul)]">
+                <span className="seguimiento-metric-chip rounded-full px-2 py-0.5 text-[11.5px] font-bold">
                   Avance {s.porcentaje_avance}%
                 </span>
               ) : null}
               {s.tiempo_consumido != null ? (
-                <span className="rounded-full bg-[rgba(44,92,138,.09)] px-2 py-0.5 text-[11.5px] font-bold text-[var(--td-e-azul)]">
+                <span className="seguimiento-metric-chip rounded-full px-2 py-0.5 text-[11.5px] font-bold">
                   {formatDuracionMinutos(s.tiempo_consumido)}
                 </span>
               ) : null}

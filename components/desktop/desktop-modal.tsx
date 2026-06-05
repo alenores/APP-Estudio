@@ -1,5 +1,9 @@
 "use client";
 
+import {
+  desktopModalToneClass,
+  type EstudioSurfaceTone,
+} from "@/lib/estudio-shell-tone";
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
@@ -11,6 +15,8 @@ type DesktopModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /** Tono visual del registro (cabecera / pie teñidos en PC). */
+  tone?: EstudioSurfaceTone;
 };
 
 /** Modal escritorio (portal, velo opaco). ADR 008 — no usar en móvil. */
@@ -22,7 +28,9 @@ export function DesktopModal({
   children,
   footer,
   wide = false,
+  tone,
 }: DesktopModalProps) {
+  const toneClass = desktopModalToneClass(tone);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -57,11 +65,11 @@ export function DesktopModal({
         role="dialog"
         aria-modal
         aria-labelledby="desktop-modal-title"
-        className={`desktop-modal-theme relative z-[81] flex max-h-[min(88vh,900px)] w-full flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] shadow-[var(--td-shadow)] ${
+        className={`desktop-modal-theme relative z-[81] flex max-h-[min(88vh,900px)] w-full flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] shadow-[var(--td-shadow)] ${toneClass} ${
           wide ? "max-w-4xl" : "max-w-2xl"
         }`}
       >
-        <header className="shrink-0 border-b border-[var(--td-line)] px-5 py-4">
+        <header className="desktop-modal-header shrink-0 border-b border-[var(--td-line)] px-5 py-4">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p
@@ -85,9 +93,9 @@ export function DesktopModal({
             </button>
           </div>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        <div className="desktop-modal-body min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer ? (
-          <footer className="shrink-0 border-t border-[var(--td-line)] bg-[var(--td-line-soft)]/40 px-5 py-3">
+          <footer className="desktop-modal-footer shrink-0 border-t border-[var(--td-line)] bg-[var(--td-line-soft)]/40 px-5 py-3">
             {footer}
           </footer>
         ) : null}

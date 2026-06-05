@@ -1,6 +1,10 @@
 "use client";
 
 import { hapticOpen } from "@/lib/haptic";
+import {
+  studySheetToneClass,
+  type EstudioSurfaceTone,
+} from "@/lib/estudio-shell-tone";
 import { useEffect, useId, useRef } from "react";
 
 /** Desplazamiento hacia abajo (px) para cerrar con swipe. */
@@ -13,6 +17,8 @@ type StudySheetProps = {
   title: string;
   /** Segunda línea: tema, curso o clase al que se agrega el registro. */
   subtitle?: string;
+  /** Tono visual del registro que se carga (tema, curso, clase, seguimiento). */
+  tone?: EstudioSurfaceTone;
   children: React.ReactNode;
 };
 
@@ -25,8 +31,10 @@ export function StudySheet({
   onClose,
   title,
   subtitle,
+  tone,
   children,
 }: StudySheetProps) {
+  const toneClass = studySheetToneClass(tone);
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -138,15 +146,19 @@ export function StudySheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-50 mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-[0_8px_40px_rgba(30,41,59,0.22),0_-4px_20px_rgba(30,41,59,0.08)] touch-pan-y"
+        className={`relative z-50 mx-auto w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-paper-elevated shadow-[0_8px_40px_rgba(30,41,59,0.22),0_-4px_20px_rgba(30,41,59,0.08)] touch-pan-y ${toneClass}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div
           data-sheet-grab
-          className="touch-none select-none bg-accent px-4 pb-3 pt-2 text-white"
+          className={`study-sheet-header touch-none select-none px-4 pb-3 pt-2 ${
+            tone ? "" : "bg-accent text-white"
+          }`}
         >
           <div
-            className="mx-auto mb-2 h-1 w-10 shrink-0 rounded-full bg-white/35"
+            className={`study-sheet-grab mx-auto mb-2 h-1 w-10 shrink-0 rounded-full ${
+              tone ? "" : "bg-white/35"
+            }`}
             aria-hidden
           />
           <div className="flex items-start justify-between gap-3">
@@ -155,7 +167,11 @@ export function StudySheet({
                 {title}
               </h2>
               {subtitle ? (
-                <p className="mt-0.5 truncate text-sm font-medium text-white/85">
+                <p
+                  className={`study-sheet-subtitle mt-0.5 truncate text-sm font-medium ${
+                    tone ? "" : "text-white/85"
+                  }`}
+                >
                   {subtitle}
                 </p>
               ) : null}
@@ -164,7 +180,9 @@ export function StudySheet({
               type="button"
               onClick={onClose}
               aria-label="Cerrar"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-xl leading-none text-white transition-colors active:bg-white/25"
+              className={`study-sheet-close flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xl leading-none transition-colors active:opacity-80 ${
+                tone ? "" : "bg-white/15 text-white active:bg-white/25"
+              }`}
             >
               ×
             </button>
@@ -173,7 +191,9 @@ export function StudySheet({
 
         <div
           ref={scrollRef}
-          className="max-h-[min(62vh,30rem)] overflow-y-auto overscroll-contain px-4 pb-4 pt-4"
+          className={`study-sheet-body max-h-[min(62vh,30rem)] overflow-y-auto overscroll-contain px-4 pb-4 pt-4 ${
+            tone ? "" : "bg-paper-elevated"
+          }`}
         >
           {children}
         </div>

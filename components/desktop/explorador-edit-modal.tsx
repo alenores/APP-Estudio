@@ -10,6 +10,7 @@ import {
   explorerEntityLabel,
   type ExplorerEntityKind,
 } from "@/lib/explorer-entity-panel";
+import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 
 type ExploradorEditModalProps = {
   kind: ExplorerEntityKind;
@@ -57,7 +58,8 @@ export function ExploradorEditModal({
   const title = `Editar ${explorerEntityLabel(kind).toLowerCase()}`;
 
   return (
-    <DesktopModal open onClose={onClose} title={title}>
+    <DesktopModal open onClose={onClose} title={title} tone={kind}>
+      <div className={estudioFormWellClass(kind)}>
       {kind === "tema" && tema ? (
         <TemaForm
           tema={tema}
@@ -81,6 +83,7 @@ export function ExploradorEditModal({
           onDelete={() => void afterDelete()}
         />
       ) : null}
+      </div>
     </DesktopModal>
   );
 }

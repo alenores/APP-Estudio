@@ -5,6 +5,7 @@ import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { ConceptoForm } from "@/components/shared/forms/concepto-form";
 import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
 import { formatDuracionMinutos } from "@/lib/format-duracion";
+import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import {
   conceptoParentFromEntity,
   explorerEntityLabel,
@@ -59,6 +60,7 @@ export function ExploradorPanelModal({
   const title =
     panel === "seguimientos" ? "Seguimientos" : "Conceptos";
   const subtitle = `${explorerEntityLabel(entity.kind)} · ${entity.nombre}`;
+  const modalTone = panel === "seguimientos" ? "seguimiento" : undefined;
 
   return (
     <DesktopModal
@@ -67,12 +69,17 @@ export function ExploradorPanelModal({
       title={title}
       subtitle={subtitle}
       wide
+      tone={modalTone}
       footer={
         adding ? null : (
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="rounded-lg bg-[var(--td-navy)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--td-navy-2)]"
+            className={`rounded-lg px-4 py-2 text-sm font-semibold text-white ${
+              panel === "seguimientos"
+                ? "desktop-modal-primary-btn bg-[var(--estudio-tone-seguimiento-accent)] hover:bg-[#9a7209]"
+                : "bg-[var(--td-navy)] hover:bg-[var(--td-navy-2)]"
+            }`}
           >
             {panel === "seguimientos" ? "+ Seguimiento" : "+ Concepto"}
           </button>
@@ -80,7 +87,13 @@ export function ExploradorPanelModal({
       }
     >
       {adding ? (
-        <div className="rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/30 p-4">
+        <div
+          className={
+            panel === "seguimientos"
+              ? estudioFormWellClass("seguimiento")
+              : "rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/30 p-4"
+          }
+        >
           <p className="mb-3 text-sm font-semibold text-[var(--td-ink)]">
             Nuevo registro
           </p>
@@ -119,17 +132,17 @@ function SeguimientosTable({
 }) {
   if (items.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed border-[var(--td-line)] px-4 py-10 text-center text-sm text-[var(--td-faint)]">
+      <p className="seguimientos-empty-state rounded-lg border border-dashed px-4 py-10 text-center text-sm text-[var(--td-faint)]">
         Todavía no hay seguimientos.
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[var(--td-line)]">
+    <div className="seguimientos-table overflow-x-auto rounded-xl border border-[var(--td-line)]">
       <table className="desktop-data-table w-full min-w-[640px] text-left text-sm">
         <thead>
-          <tr className="border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/60 text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
+          <tr className="seguimientos-table-head border-b border-[var(--td-line)] text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
             <th className="px-3 py-2.5">Fecha</th>
             <th className="px-3 py-2.5">Estado</th>
             <th className="px-3 py-2.5">Avance</th>
@@ -142,7 +155,7 @@ function SeguimientosTable({
           {items.map((s) => (
             <tr
               key={s.id}
-              className="border-b border-[var(--td-line)]/80 last:border-0 hover:bg-[var(--td-line-soft)]/35"
+              className="seguimientos-table-row border-b border-[var(--td-line)]/80 last:border-0 hover:bg-[var(--td-line-soft)]/35"
             >
               <td className="whitespace-nowrap px-3 py-2.5 text-[var(--td-ink)]">
                 {formatFecha(s.fecha_registro)}

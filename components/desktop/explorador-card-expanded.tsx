@@ -4,6 +4,7 @@ import { EstudioDedicacionWidget } from "@/components/shared/widgets/estudio-ded
 import { EstudioNivelGauge } from "@/components/shared/widgets/estudio-nivel-gauge";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { formatFechaCalendario } from "@/lib/format-fecha-calendario";
+import { recordActionTileClass } from "@/lib/estudio-shell-tone";
 import { parseNivelEntendimiento } from "@/lib/nivel-entendimiento-ui";
 
 type ExploradorCardExpandedProps = {
@@ -80,6 +81,7 @@ export function ExploradorCardExpanded({
           label="Seguimientos"
           count={seguimientosCount}
           onOpen={onOpenSeguimientos}
+          tone="seguimiento"
         />
         <RecordActionTile
           label="Conceptos"
@@ -95,13 +97,22 @@ function RecordActionTile({
   label,
   count,
   onOpen,
+  tone,
 }: {
   label: string;
   count: number;
   onOpen: () => void;
+  tone?: "seguimiento";
 }) {
+  const tileClass =
+    tone === "seguimiento"
+      ? recordActionTileClass("seguimiento")
+      : "explorer-record-tile border border-[var(--td-line)] bg-[var(--td-line-soft)]/35";
+
   return (
-    <div className="explorer-record-tile flex min-w-0 flex-1 items-center justify-between gap-1.5 rounded-lg border border-[var(--td-line)] bg-[var(--td-line-soft)]/35 px-2 py-1.5">
+    <div
+      className={`${tileClass} flex min-w-0 flex-1 items-center justify-between gap-1.5 rounded-lg px-2 py-1.5`}
+    >
       <div className="flex min-w-0 flex-1 items-center gap-1.5">
         <p className="truncate text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--td-faint)]">
           {label}{" "}

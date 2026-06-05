@@ -25,7 +25,10 @@
   --estudio-shell-tema: #d4f0eb;
   --estudio-shell-curso: #dceefb;
   --estudio-shell-clase: #fde8e4;
+  --estudio-shell-seguimiento: #faf3d4;
   --estudio-shell-neutral: #fcfaf5;
+  --estudio-tone-seguimiento-ink: #5c5318;
+  --estudio-tone-seguimiento-accent: #b8860b;
 }
 
 @theme inline {
@@ -214,6 +217,206 @@ html.pwa-standalone-zoom-lock body {
 }
 .explorer-column-header--clase {
   background-color: var(--estudio-shell-clase);
+}
+
+/* —— Tonos por registro / formulario (seguimiento + entidades en modals/sheets) —— */
+.study-sheet-tone-tema {
+  --study-tone-bg: var(--estudio-shell-tema);
+  --study-tone-ink: var(--td-ink);
+  --study-tone-accent: var(--td-navy);
+  --study-tone-accent-hover: var(--td-navy-2);
+}
+.study-sheet-tone-curso {
+  --study-tone-bg: var(--estudio-shell-curso);
+  --study-tone-ink: var(--td-ink);
+  --study-tone-accent: var(--td-navy);
+  --study-tone-accent-hover: var(--td-navy-2);
+}
+.study-sheet-tone-clase {
+  --study-tone-bg: var(--estudio-shell-clase);
+  --study-tone-ink: var(--td-ink);
+  --study-tone-accent: var(--td-navy);
+  --study-tone-accent-hover: var(--td-navy-2);
+}
+.study-sheet-tone-seguimiento {
+  --study-tone-bg: var(--estudio-shell-seguimiento);
+  --study-tone-ink: var(--estudio-tone-seguimiento-ink);
+  --study-tone-accent: var(--estudio-tone-seguimiento-accent);
+  --study-tone-accent-hover: #9a7209;
+}
+
+.study-sheet-tone-tema,
+.study-sheet-tone-curso,
+.study-sheet-tone-clase,
+.study-sheet-tone-seguimiento {
+  border-color: color-mix(in srgb, var(--study-tone-bg) 45%, #cbd5e1);
+}
+
+.study-sheet-tone-tema .study-sheet-header,
+.study-sheet-tone-curso .study-sheet-header,
+.study-sheet-tone-clase .study-sheet-header,
+.study-sheet-tone-seguimiento .study-sheet-header {
+  background: var(--study-tone-bg);
+  color: var(--study-tone-ink);
+}
+
+.study-sheet-tone-tema .study-sheet-header .study-sheet-subtitle,
+.study-sheet-tone-curso .study-sheet-header .study-sheet-subtitle,
+.study-sheet-tone-clase .study-sheet-header .study-sheet-subtitle,
+.study-sheet-tone-seguimiento .study-sheet-header .study-sheet-subtitle {
+  color: color-mix(in srgb, var(--study-tone-ink) 72%, transparent);
+}
+
+.study-sheet-tone-tema .study-sheet-header .study-sheet-grab,
+.study-sheet-tone-curso .study-sheet-header .study-sheet-grab,
+.study-sheet-tone-clase .study-sheet-header .study-sheet-grab,
+.study-sheet-tone-seguimiento .study-sheet-header .study-sheet-grab {
+  background: color-mix(in srgb, var(--study-tone-ink) 18%, transparent);
+}
+
+.study-sheet-tone-tema .study-sheet-close,
+.study-sheet-tone-curso .study-sheet-close,
+.study-sheet-tone-clase .study-sheet-close,
+.study-sheet-tone-seguimiento .study-sheet-close {
+  background: color-mix(in srgb, var(--study-tone-ink) 10%, white);
+  color: var(--study-tone-ink);
+}
+
+.study-sheet-tone-tema .study-sheet-body,
+.study-sheet-tone-curso .study-sheet-body,
+.study-sheet-tone-clase .study-sheet-body,
+.study-sheet-tone-seguimiento .study-sheet-body {
+  background: color-mix(in srgb, var(--study-tone-bg) 28%, white);
+}
+
+.desktop-modal-tone-tema {
+  --modal-tone-bg: var(--estudio-shell-tema);
+}
+.desktop-modal-tone-curso {
+  --modal-tone-bg: var(--estudio-shell-curso);
+}
+.desktop-modal-tone-clase {
+  --modal-tone-bg: var(--estudio-shell-clase);
+}
+.desktop-modal-tone-seguimiento {
+  --modal-tone-bg: var(--estudio-shell-seguimiento);
+  --modal-tone-ink: var(--estudio-tone-seguimiento-ink);
+  --modal-tone-accent: var(--estudio-tone-seguimiento-accent);
+  --modal-tone-accent-hover: #9a7209;
+}
+
+.desktop-modal-tone-tema,
+.desktop-modal-tone-curso,
+.desktop-modal-tone-clase,
+.desktop-modal-tone-seguimiento {
+  border-color: color-mix(in srgb, var(--modal-tone-bg) 50%, #cbd5e1);
+}
+
+.desktop-modal-tone-tema .desktop-modal-header,
+.desktop-modal-tone-curso .desktop-modal-header,
+.desktop-modal-tone-clase .desktop-modal-header,
+.desktop-modal-tone-seguimiento .desktop-modal-header {
+  background: var(--modal-tone-bg);
+}
+
+.desktop-modal-tone-seguimiento .desktop-modal-header {
+  color: var(--modal-tone-ink);
+}
+
+.desktop-modal-tone-seguimiento .desktop-modal-footer {
+  background: color-mix(in srgb, var(--modal-tone-bg) 55%, white);
+}
+
+.desktop-modal-tone-seguimiento .desktop-modal-body {
+  background: color-mix(in srgb, var(--modal-tone-bg) 22%, white);
+}
+
+.desktop-modal-tone-seguimiento .desktop-modal-primary-btn {
+  background: var(--modal-tone-accent);
+}
+.desktop-modal-tone-seguimiento .desktop-modal-primary-btn:hover {
+  background: var(--modal-tone-accent-hover);
+}
+
+.estudio-form-well--tema {
+  border-color: color-mix(in srgb, var(--estudio-shell-tema) 65%, #cbd5e1);
+  background: color-mix(in srgb, var(--estudio-shell-tema) 45%, white);
+}
+.estudio-form-well--curso {
+  border-color: color-mix(in srgb, var(--estudio-shell-curso) 65%, #cbd5e1);
+  background: color-mix(in srgb, var(--estudio-shell-curso) 45%, white);
+}
+.estudio-form-well--clase {
+  border-color: color-mix(in srgb, var(--estudio-shell-clase) 65%, #cbd5e1);
+  background: color-mix(in srgb, var(--estudio-shell-clase) 45%, white);
+}
+.estudio-form-well--seguimiento {
+  border-color: color-mix(in srgb, var(--estudio-shell-seguimiento) 70%, #d4c48a);
+  background: color-mix(in srgb, var(--estudio-shell-seguimiento) 50%, white);
+}
+
+.estudio-form-well {
+  border-radius: 0.75rem;
+  border-width: 1px;
+  padding: 1rem;
+}
+
+.explorer-record-tile--seguimiento {
+  border-color: color-mix(in srgb, var(--estudio-shell-seguimiento) 75%, #d4c48a);
+  background: color-mix(in srgb, var(--estudio-shell-seguimiento) 55%, white);
+}
+
+.explorer-record-tile--seguimiento .explorer-action-plus {
+  border-color: color-mix(in srgb, var(--estudio-tone-seguimiento-accent) 35%, #d4c48a);
+  color: var(--estudio-tone-seguimiento-accent);
+}
+.explorer-record-tile--seguimiento .explorer-action-plus:hover {
+  background: var(--estudio-tone-seguimiento-accent);
+  color: white;
+}
+
+.td-item-seguimiento {
+  border-color: color-mix(in srgb, var(--estudio-shell-seguimiento) 70%, #e7decd);
+  background: color-mix(in srgb, var(--estudio-shell-seguimiento) 38%, var(--td-card));
+  box-shadow: inset 3px 0 0 var(--estudio-tone-seguimiento-accent);
+}
+
+.td-item-seguimiento .seguimiento-metric-chip {
+  background: color-mix(in srgb, var(--estudio-shell-seguimiento) 72%, white);
+  color: var(--estudio-tone-seguimiento-ink);
+}
+
+.seguimientos-table-head {
+  background: color-mix(in srgb, var(--estudio-shell-seguimiento) 72%, white) !important;
+}
+
+.seguimientos-table-row:hover {
+  background: color-mix(
+    in srgb,
+    var(--estudio-shell-seguimiento) 28%,
+    white
+  ) !important;
+}
+
+.seguimientos-empty-state {
+  border-color: color-mix(in srgb, var(--estudio-shell-seguimiento) 70%, #d4c48a);
+  background: color-mix(in srgb, var(--estudio-shell-seguimiento) 35%, white);
+}
+
+.fab-action-seguimiento {
+  background: var(--estudio-tone-seguimiento-accent) !important;
+  color: white !important;
+  box-shadow: 0 8px 20px -6px rgba(184, 134, 11, 0.45) !important;
+}
+.fab-action-seguimiento:hover {
+  background: #9a7209 !important;
+}
+
+.child-menu-action-seguimiento {
+  background: var(--estudio-shell-seguimiento) !important;
+  color: var(--estudio-tone-seguimiento-ink) !important;
+  border: 1px solid color-mix(in srgb, var(--estudio-tone-seguimiento-accent) 35%, #d4c48a) !important;
+  box-shadow: 0 4px 14px -4px rgba(184, 134, 11, 0.35) !important;
 }
 
 /** Listado móvil /temas: mismas variables de card sin fondo gris de detalle. */

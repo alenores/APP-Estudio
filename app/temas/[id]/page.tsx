@@ -123,6 +123,7 @@ export default function TemaDetallePage() {
         onClose={closeSheet}
         title="Nuevo curso"
         subtitle={tema.nombre}
+        tone="curso"
       >
         <CursoForm temaId={tema.id} onSuccess={onChildCreated} />
       </StudySheet>
@@ -132,6 +133,7 @@ export default function TemaDetallePage() {
         onClose={closeSheet}
         title="Nuevo seguimiento"
         subtitle={seguimientoSubtitle}
+        tone="seguimiento"
       >
         {sheet?.mode === "seguimiento" ? (
           <SeguimientoForm

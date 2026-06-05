@@ -1,7 +1,7 @@
 "use client";
 
 import { FAB_OPEN_DELAY_MS } from "@/lib/fab-open-delay";
-import { fabActionButtonClass } from "@/components/mobile/fab/fab-action-styles";
+import { fabActionClassForId } from "@/components/mobile/fab/fab-action-styles";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -111,7 +111,7 @@ export function ChildContextMenu({
             type="button"
             role="menuitem"
             onClick={() => pick(action.id)}
-            className={`min-w-0 whitespace-nowrap ${fabActionButtonClass.solid}`}
+            className={`min-w-0 whitespace-nowrap ${fabActionClassForId(action.id, "solid")}`}
           >
             <span className="shrink-0 text-lg leading-none">+</span>
             <span className="truncate">{action.label}</span>
