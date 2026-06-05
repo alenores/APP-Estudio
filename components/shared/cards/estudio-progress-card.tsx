@@ -77,7 +77,7 @@ export function EstudioProgressCard({
     <>
       <div className="text-[15px] font-bold leading-snug text-[var(--td-ink)]">
         {nombre}
-        {(kind === "tema" || kind === "curso") && fechaParen ? (
+        {(kind === "tema" || kind === "curso") && fechaParen && !expandedSlot ? (
           <span className="ml-1 text-[13px] font-semibold text-[var(--td-fecha-muted)]">
             {fechaParen}
           </span>

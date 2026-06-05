@@ -7,7 +7,9 @@ import { formatFechaCalendario } from "@/lib/format-fecha-calendario";
 import { parseNivelEntendimiento } from "@/lib/nivel-entendimiento-ui";
 
 type ExploradorCardExpandedProps = {
+  kind: "tema" | "curso" | "clase";
   descripcion: string | null;
+  fechaInicio: string | null;
   fechaFin: string | null;
   seguimientosCount: number;
   conceptosCount: number;
@@ -17,7 +19,9 @@ type ExploradorCardExpandedProps = {
 };
 
 export function ExploradorCardExpanded({
+  kind,
   descripcion,
+  fechaInicio,
   fechaFin,
   seguimientosCount,
   conceptosCount,
@@ -28,6 +32,7 @@ export function ExploradorCardExpanded({
   const nivel = parseNivelEntendimiento(derivados.nivel_entendimiento);
   const invertidoMin = derivados.tiempo_consumido ?? 0;
   const restanteMin = derivados.tiempo_faltante_estimado;
+  const showFechas = kind === "tema" || kind === "curso";
 
   return (
     <div
@@ -35,16 +40,30 @@ export function ExploradorCardExpanded({
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
     >
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         <p className="text-xs leading-relaxed text-[var(--td-ink-soft)]">
           {descripcion?.trim() ? descripcion : "Sin descripción"}
         </p>
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--td-faint)]">
-          Fin estimado{" "}
-          <span className="normal-case tracking-normal text-[var(--td-ink-soft)]">
-            {formatFechaCalendario(fechaFin)}
-          </span>
-        </p>
+        {showFechas ? (
+          <div className="flex justify-between gap-4 border-t border-[var(--td-line)]/60 pt-2">
+            <div>
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
+                Inicio
+              </p>
+              <p className="mt-0.5 text-sm font-bold text-[var(--td-ink-soft)]">
+                {formatFechaCalendario(fechaInicio)}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[var(--td-faint)]">
+                Fin
+              </p>
+              <p className="mt-0.5 text-sm font-bold text-[var(--td-ink-soft)]">
+                {formatFechaCalendario(fechaFin)}
+              </p>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid grid-cols-2 gap-2.5">

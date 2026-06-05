@@ -35,35 +35,17 @@ type PanelModalState = {
   panel: ExplorerPanelKind;
 };
 
-function entityActions(
+function editColumnAction(
   entity: ExplorerEntityRef | null,
-  handlers: {
-    onEdit: (entity: ExplorerEntityRef) => void;
-    onOpenPanel: (entity: ExplorerEntityRef, panel: ExplorerPanelKind) => void;
-  },
-): ExploradorColumnAction[] {
-  const disabled = entity == null;
-  return [
-    {
-      label: "Editar",
-      title: disabled ? "Seleccioná un ítem" : `Editar ${entity.nombre}`,
-      disabled,
-      onClick: () => entity && handlers.onEdit(entity),
-    },
-    {
-      label: "Seg.",
-      title: disabled ? "Seleccioná un ítem" : `Seguimientos de ${entity.nombre}`,
-      disabled,
-      onClick: () =>
-        entity && handlers.onOpenPanel(entity, "seguimientos"),
-    },
-    {
-      label: "Conc.",
-      title: disabled ? "Seleccioná un ítem" : `Conceptos de ${entity.nombre}`,
-      disabled,
-      onClick: () => entity && handlers.onOpenPanel(entity, "conceptos"),
-    },
-  ];
+  onEdit: (entity: ExplorerEntityRef) => void,
+): ExploradorColumnAction {
+  return {
+    label: "Editar",
+    title: entity == null ? "Seleccioná un ítem" : `Editar ${entity.nombre}`,
+    variant: "edit",
+    disabled: entity == null,
+    onClick: () => entity && onEdit(entity),
+  };
 }
 
 export function ExploradorView() {
@@ -170,7 +152,6 @@ export function ExploradorView() {
 
   const actionHandlers = {
     onEdit: setEditEntity,
-    onOpenPanel: openPanel,
   };
 
   const editTema =
@@ -201,8 +182,8 @@ export function ExploradorView() {
     <div className="desktop-explorador flex min-h-0 flex-1 flex-col">
       <div className="flex flex-col gap-3">
         <p className="text-[11px] text-[var(--td-faint)]">
-          Seleccioná una card · acciones en la cabecera de cada columna · ↑↓
-          navegar · ←→ columnas · E editar · S seguimientos · C conceptos
+          Seleccioná una card · ↑↓ navegar · ←→ columnas · E editar · S/C
+          seguimientos/conceptos en la card expandida
         </p>
         <EstudioSyncBanner />
       </div>
@@ -215,14 +196,15 @@ export function ExploradorView() {
           <ExploradorColumn
             label="Temas"
             count={temas.length}
-            emptyMessage="No hay temas. Usá + Tema en la cabecera."
+            emptyMessage="No hay temas. Usá el botón + en la cabecera."
             actions={[
               {
-                label: "+ Tema",
-                primary: true,
+                label: "Nuevo tema",
+                title: "Nuevo tema",
+                variant: "create",
                 onClick: () => setCreateKind("tema"),
               },
-              ...entityActions(selectedTemaRef, actionHandlers),
+              editColumnAction(selectedTemaRef, actionHandlers.onEdit),
             ]}
           >
             {temas.map((t) => {
@@ -240,6 +222,7 @@ export function ExploradorView() {
                 nombre={t.nombre}
                 derivados={t.derivados}
                 descripcion={t.descripcion}
+                fechaInicio={t.fecha_estimada_inicio}
                 fechaFin={t.fecha_estimada_fin}
                 fechaParen={fechaParentesisTema(t)}
                 hijosStats={cursosStatsPorTema.get(t.id)}
@@ -268,20 +251,20 @@ export function ExploradorView() {
             emptyMessage={
               selection.temaId == null
                 ? "Elegí un tema para ver sus cursos."
-                : "Este tema no tiene cursos. Usá + Curso en la cabecera."
+                : "Este tema no tiene cursos. Usá el botón + en la cabecera."
             }
             actions={[
               {
-                label: "+ Curso",
-                primary: true,
-                disabled: selection.temaId == null,
+                label: "Nuevo curso",
                 title:
                   selection.temaId == null
                     ? "Elegí un tema para crear un curso"
                     : "Nuevo curso en el tema seleccionado",
+                variant: "create",
+                disabled: selection.temaId == null,
                 onClick: () => setCreateKind("curso"),
               },
-              ...entityActions(selectedCursoRef, actionHandlers),
+              editColumnAction(selectedCursoRef, actionHandlers.onEdit),
             ]}
           >
             {cursos.map((c) => {
@@ -299,6 +282,7 @@ export function ExploradorView() {
                 nombre={c.nombre}
                 derivados={c.derivados}
                 descripcion={c.descripcion}
+                fechaInicio={c.fecha_estimada_inicio}
                 fechaFin={c.fecha_estimada_fin}
                 fechaParen={fechaParentesisCurso(c)}
                 hijosStats={clasesStatsPorCurso.get(c.id)}
@@ -332,20 +316,20 @@ export function ExploradorView() {
             emptyMessage={
               selection.cursoId == null
                 ? "Elegí un curso para ver sus clases."
-                : "Este curso no tiene clases. Usá + Clase en la cabecera."
+                : "Este curso no tiene clases. Usá el botón + en la cabecera."
             }
             actions={[
               {
-                label: "+ Clase",
-                primary: true,
-                disabled: selection.cursoId == null,
+                label: "Nueva clase",
                 title:
                   selection.cursoId == null
                     ? "Elegí un curso para crear una clase"
                     : "Nueva clase en el curso seleccionado",
+                variant: "create",
+                disabled: selection.cursoId == null,
                 onClick: () => setCreateKind("clase"),
               },
-              ...entityActions(selectedClaseRef, actionHandlers),
+              editColumnAction(selectedClaseRef, actionHandlers.onEdit),
             ]}
           >
             {clases.map((cl) => {

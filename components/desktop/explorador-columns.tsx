@@ -11,7 +11,7 @@ export type ExploradorColumnAction = {
   title?: string;
   onClick: () => void;
   disabled?: boolean;
-  primary?: boolean;
+  variant?: "create" | "edit" | "text";
 };
 
 type ExploradorColumnCardProps = {
@@ -25,6 +25,7 @@ type ExploradorColumnCardProps = {
   onSelect: () => void;
   onDoubleClick?: () => void;
   descripcion?: string | null;
+  fechaInicio?: string | null;
   fechaFin?: string | null;
   fechaParen?: string | null;
   hijosStats?: HijosProgressStats;
@@ -48,6 +49,7 @@ export function ExploradorColumnCard({
   onSelect,
   onDoubleClick,
   descripcion,
+  fechaInicio = null,
   fechaFin = null,
   fechaParen,
   hijosStats,
@@ -63,7 +65,9 @@ export function ExploradorColumnCard({
   const expandedSlot =
     expanded && onOpenSeguimientos && onOpenConceptos ? (
       <ExploradorCardExpanded
+        kind={kind}
         descripcion={descripcion ?? null}
+        fechaInicio={fechaInicio}
         fechaFin={fechaFin}
         seguimientosCount={seguimientosCount}
         conceptosCount={conceptosCount}
@@ -117,7 +121,7 @@ export function ExploradorColumn({
             {label}{" "}
             <span className="font-semibold text-[var(--td-faint)]">{count}</span>
           </h2>
-          <div className="flex flex-wrap items-center gap-1">
+          <div className="flex flex-wrap items-center gap-1.5">
             {actions.map((action) => (
               <ColumnHeaderButton key={action.label} {...action} />
             ))}
@@ -142,22 +146,65 @@ function ColumnHeaderButton({
   title,
   onClick,
   disabled = false,
-  primary = false,
+  variant = "text",
 }: ExploradorColumnAction) {
+  const aria = title ?? label;
+
+  if (variant === "create" || variant === "edit") {
+    return (
+      <button
+        type="button"
+        title={aria}
+        aria-label={aria}
+        disabled={disabled}
+        onClick={onClick}
+        className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-[transform,background-color,border-color,color,box-shadow] duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+          variant === "create"
+            ? "bg-[var(--td-navy)] text-white shadow-sm hover:bg-[var(--td-navy-2)] hover:shadow-md"
+            : "border border-[var(--td-line)] bg-white text-[var(--td-navy)] shadow-sm hover:border-[var(--td-navy)]/35 hover:bg-[var(--td-line-soft)]"
+        }`}
+      >
+        {variant === "create" ? <IconPlus /> : <IconPencil />}
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
-      title={title ?? label}
-      aria-label={title ?? label}
+      title={aria}
+      aria-label={aria}
       disabled={disabled}
       onClick={onClick}
-      className={`rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-[transform,background-color,border-color,color,box-shadow] duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
-        primary
-          ? "bg-[var(--td-navy)] text-white hover:bg-[var(--td-navy-2)]"
-          : "border border-[var(--td-line)] bg-white text-[var(--td-filter-text-muted)] hover:border-[var(--td-navy)]/40 hover:text-[var(--td-navy)]"
-      }`}
+      className="rounded-md border border-[var(--td-line)] bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--td-filter-text-muted)] transition-[transform,background-color,border-color,color] duration-150 hover:border-[var(--td-navy)]/40 hover:text-[var(--td-navy)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
     >
       {label}
     </button>
+  );
+}
+
+function IconPlus() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M8 3.25v9.5M3.25 8h9.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function IconPencil() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M11.3 2.7a1.1 1.1 0 0 1 1.55 1.55L5.4 11.6 3 12l.4-2.4 7.9-7.9z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
