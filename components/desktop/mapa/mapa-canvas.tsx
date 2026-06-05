@@ -5,6 +5,7 @@ import { mapaFlowNodeTypes } from "@/components/desktop/mapa/mapa-nodo-node";
 import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { posicionNodoEnLienzo } from "@/lib/mapa-layout";
+import { mapaNodoEnlaceCounts } from "@/lib/mapa-nodo-ui";
 import {
   deleteMapaEnlace,
   getSessionUserId,
@@ -39,15 +40,22 @@ type MapaCanvasProps = {
 
 function toFlowNodes(
   nodos: MapaNodo[],
+  enlaces: MapaEnlace[],
   onEditNodo: (id: number) => void,
 ): Node[] {
   return nodos.map((nodo) => {
     const pos = posicionNodoEnLienzo(nodo);
+    const { entrada, salida } = mapaNodoEnlaceCounts(nodo.id, enlaces);
     return {
       id: String(nodo.id),
       type: "mapaNodo",
       position: pos,
-      data: { nodo, onEdit: onEditNodo },
+      data: {
+        nodo,
+        onEdit: onEditNodo,
+        enlacesEntrada: entrada,
+        enlacesSalida: salida,
+      },
       draggable: true,
     };
   });
@@ -82,7 +90,7 @@ function MapaCanvasInner({
   onEnlaceRemoved,
 }: MapaCanvasProps) {
   const [nodes, setNodes] = useState<Node[]>(() =>
-    toFlowNodes(nodos, onEditNodo),
+    toFlowNodes(nodos, enlaces, onEditNodo),
   );
   const [edges, setEdges] = useState<Edge[]>(() => toFlowEdges(enlaces));
   const [status, setStatus] = useState<string | null>(null);
@@ -93,8 +101,8 @@ function MapaCanvasInner({
   );
 
   useEffect(() => {
-    setNodes(toFlowNodes(nodos, onEditStable));
-  }, [nodos, onEditStable]);
+    setNodes(toFlowNodes(nodos, enlaces, onEditStable));
+  }, [nodos, enlaces, onEditStable]);
 
   useEffect(() => {
     setEdges(toFlowEdges(enlaces));
@@ -118,7 +126,7 @@ function MapaCanvasInner({
       );
       setStatus(null);
       if (error) {
-        setNodes(toFlowNodes(nodos, onEditStable));
+        setNodes(toFlowNodes(nodos, enlaces, onEditStable));
         return;
       }
       onPositionSaved?.(Number(node.id), node.position.x, node.position.y);
@@ -218,7 +226,13 @@ function MapaCanvasInner({
         <Controls showInteractive={false} />
         <MiniMap
           className="mapa-minimap"
-          nodeColor="#94a3b8"
+          nodeColor={(node) => {
+            const carril = Number(
+              (node.data as { nodo?: { carril?: number } })?.nodo?.carril ?? 0,
+            );
+            const tones = ["#9fd9cc", "#9ec5ef", "#f0b8ae", "#e6c86e"];
+            return tones[Math.abs(carril) % tones.length] ?? "#94a3b8";
+          }}
           nodeStrokeColor="#264a6e"
           maskColor="rgba(241, 245, 249, 0.82)"
           pannable

@@ -16,7 +16,7 @@ export type MapaGridBounds = {
 
 const PAD_ETAPA = 1;
 const PAD_CARRIL = 1;
-const NODE_W = 220;
+const NODE_W = 240;
 const NODE_H = 88;
 
 function rangeInclusive(min: number, max: number): number[] {

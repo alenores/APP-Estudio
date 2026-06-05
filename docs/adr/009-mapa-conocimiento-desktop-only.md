@@ -93,7 +93,7 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | **2** (hecho) | React Flow: nodos en pos_x/pos_y, drag → guardar |
 | **3** (hecho) | Enlaces (crear/borrar, flechas) |
 | **4** (hecho) | Guías timeline / carriles, minimapa |
-| **5** | Estética nodos custom |
+| **5** (hecho) | Estética nodos custom |
 | **6** (futuro) | FK opcional nodo ↔ tema/curso |
 
 ### 6. React Flow (fase 2+)

@@ -1,50 +1,102 @@
 "use client";
 
 import type { MapaNodo } from "@/app/types/mapa";
+import {
+  mapaNodoToneClass,
+  mapaNodoToneFromCarril,
+} from "@/lib/mapa-nodo-ui";
 import type { NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
 
 export type MapaNodoNodeData = {
   nodo: MapaNodo;
   onEdit: (id: number) => void;
+  enlacesEntrada?: number;
+  enlacesSalida?: number;
 };
 
-/** Card de nodo en el lienzo (ADR 009 — fase 2). */
-export function MapaNodoNode({ data }: NodeProps) {
-  const { nodo, onEdit } = data as MapaNodoNodeData;
+function EnlaceBadge({ label, count }: { label: string; count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="mapa-flow-node-badge" title={`${label}: ${count}`}>
+      {label} {count}
+    </span>
+  );
+}
+
+/** Card de nodo en el lienzo (ADR 009). */
+export function MapaNodoNode({ data, selected }: NodeProps) {
+  const { nodo, onEdit, enlacesEntrada = 0, enlacesSalida = 0 } =
+    data as MapaNodoNodeData;
+  const tone = mapaNodoToneFromCarril(nodo.carril);
+  const toneClass = mapaNodoToneClass(tone);
 
   return (
-    <div className="mapa-flow-node group max-w-[220px] rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 shadow-[var(--td-shadow)]">
+    <div
+      className={`${toneClass} group max-w-[240px] rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] transition-[box-shadow,transform] duration-150 ${
+        selected ? "mapa-flow-node--selected" : ""
+      }`}
+    >
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-2 !w-2 !border-[var(--td-navy)] !bg-white"
+        id="target"
+        className="mapa-flow-handle mapa-flow-handle--target"
+        title="Recibe enlaces (entrada)"
       />
-      <p className="text-[10px] font-extrabold uppercase tracking-wide text-[var(--td-faint)]">
-        Etapa {nodo.etapa} · Carril {nodo.carril}
-      </p>
-      <p className="mt-0.5 text-sm font-bold leading-snug text-[var(--td-ink)]">
-        {nodo.titulo}
-      </p>
-      {nodo.descripcion?.trim() ? (
-        <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-[var(--td-ink-soft)]">
-          {nodo.descripcion}
+
+      <div className="mapa-flow-node-strip" aria-hidden />
+
+      <div className="px-3 pb-2.5 pt-2">
+        <div className="flex items-start justify-between gap-2">
+          <div className="mapa-flow-node-meta min-w-0">
+            <span className="mapa-flow-node-etapa">Etapa {nodo.etapa}</span>
+            <span className="mapa-flow-node-dot" aria-hidden>
+              ·
+            </span>
+            <span className="mapa-flow-node-carril">Carril {nodo.carril}</span>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(nodo.id);
+            }}
+            className={`mapa-flow-node-edit shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-opacity ${
+              selected
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100"
+            }`}
+            title="Editar nodo"
+          >
+            Editar
+          </button>
+        </div>
+
+        <p className="mapa-flow-node-title mt-1.5 text-[15px] font-bold leading-snug">
+          {nodo.titulo}
         </p>
-      ) : null}
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onEdit(nodo.id);
-        }}
-        className="mt-2 rounded-md border border-[var(--td-line)] px-2 py-0.5 text-[10px] font-semibold text-[var(--td-navy)] opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[var(--td-line-soft)]"
-      >
-        Editar
-      </button>
+
+        {nodo.descripcion?.trim() ? (
+          <p className="mapa-flow-node-desc mt-1 line-clamp-2 text-[11px] leading-snug">
+            {nodo.descripcion}
+          </p>
+        ) : null}
+
+        {enlacesEntrada > 0 || enlacesSalida > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1">
+            <EnlaceBadge label="←" count={enlacesEntrada} />
+            <EnlaceBadge label="→" count={enlacesSalida} />
+          </div>
+        ) : null}
+      </div>
+
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-2 !w-2 !border-[var(--td-navy)] !bg-white"
+        id="source"
+        className="mapa-flow-handle mapa-flow-handle--source"
+        title="Creá enlaces (salida)"
       />
     </div>
   );

@@ -1005,9 +1005,169 @@ html.pwa-standalone-zoom-lock body {
 }
 .mapa-flow-node {
   cursor: grab;
+  position: relative;
+  overflow: visible;
 }
 .mapa-flow-node:active {
   cursor: grabbing;
+}
+.mapa-flow-node--selected {
+  box-shadow: 0 0 0 2px #264a6e, 0 8px 28px -8px rgba(27, 34, 43, 0.28) !important;
+  transform: translateY(-1px);
+}
+.mapa-flow-node-strip {
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+}
+.mapa-flow-node-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.mapa-flow-node-dot {
+  opacity: 0.45;
+}
+.mapa-flow-node-badge {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.125rem 0.4rem;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 1px solid rgba(38, 74, 110, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  color: #334155;
+}
+.mapa-flow-handle {
+  width: 10px !important;
+  height: 10px !important;
+  border-width: 2px !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.mapa-flow-handle--target {
+  left: -5px !important;
+  border-color: #64748b !important;
+  background: white !important;
+}
+.mapa-flow-handle--source {
+  right: -5px !important;
+  border-color: #264a6e !important;
+  background: #264a6e !important;
+}
+.mapa-flow-node:hover .mapa-flow-handle,
+.mapa-flow-node--selected .mapa-flow-handle {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(38, 74, 110, 0.12);
+}
+
+/* Tonos por carril (mint / sky / peach / gold) */
+.mapa-flow-node--mint {
+  border-color: color-mix(in srgb, #d4f0eb 55%, #cbd5e1);
+  background: linear-gradient(180deg, #f7fdfb 0%, #ffffff 38%);
+}
+.mapa-flow-node--mint .mapa-flow-node-strip {
+  background: linear-gradient(90deg, #d4f0eb, #9fd9cc);
+}
+.mapa-flow-node--mint .mapa-flow-node-etapa,
+.mapa-flow-node--mint .mapa-flow-node-carril {
+  color: #2d6a5f;
+}
+.mapa-flow-node--mint .mapa-flow-node-title {
+  color: #1b222b;
+}
+.mapa-flow-node--mint .mapa-flow-node-desc {
+  color: #475569;
+}
+.mapa-flow-node--mint .mapa-flow-node-edit {
+  border-color: color-mix(in srgb, #2d6a5f 25%, #cbd5e1);
+  color: #2d6a5f;
+}
+.mapa-flow-node--mint .mapa-flow-node-edit:hover {
+  background: #d4f0eb;
+}
+
+.mapa-flow-node--sky {
+  border-color: color-mix(in srgb, #dceefb 55%, #cbd5e1);
+  background: linear-gradient(180deg, #f5faff 0%, #ffffff 38%);
+}
+.mapa-flow-node--sky .mapa-flow-node-strip {
+  background: linear-gradient(90deg, #dceefb, #9ec5ef);
+}
+.mapa-flow-node--sky .mapa-flow-node-etapa,
+.mapa-flow-node--sky .mapa-flow-node-carril {
+  color: #264a6e;
+}
+.mapa-flow-node--sky .mapa-flow-node-title {
+  color: #1b222b;
+}
+.mapa-flow-node--sky .mapa-flow-node-desc {
+  color: #475569;
+}
+.mapa-flow-node--sky .mapa-flow-node-edit {
+  border-color: color-mix(in srgb, #264a6e 25%, #cbd5e1);
+  color: #264a6e;
+}
+.mapa-flow-node--sky .mapa-flow-node-edit:hover {
+  background: #dceefb;
+}
+
+.mapa-flow-node--peach {
+  border-color: color-mix(in srgb, #fde8e4 55%, #cbd5e1);
+  background: linear-gradient(180deg, #fffaf9 0%, #ffffff 38%);
+}
+.mapa-flow-node--peach .mapa-flow-node-strip {
+  background: linear-gradient(90deg, #fde8e4, #f0b8ae);
+}
+.mapa-flow-node--peach .mapa-flow-node-etapa,
+.mapa-flow-node--peach .mapa-flow-node-carril {
+  color: #9a4a3a;
+}
+.mapa-flow-node--peach .mapa-flow-node-title {
+  color: #1b222b;
+}
+.mapa-flow-node--peach .mapa-flow-node-desc {
+  color: #475569;
+}
+.mapa-flow-node--peach .mapa-flow-node-edit {
+  border-color: color-mix(in srgb, #9a4a3a 25%, #cbd5e1);
+  color: #9a4a3a;
+}
+.mapa-flow-node--peach .mapa-flow-node-edit:hover {
+  background: #fde8e4;
+}
+
+.mapa-flow-node--gold {
+  border-color: color-mix(in srgb, #faf3d4 60%, #d4c48a);
+  background: linear-gradient(180deg, #fffdf5 0%, #ffffff 38%);
+}
+.mapa-flow-node--gold .mapa-flow-node-strip {
+  background: linear-gradient(90deg, #faf3d4, #e6c86e);
+}
+.mapa-flow-node--gold .mapa-flow-node-etapa,
+.mapa-flow-node--gold .mapa-flow-node-carril {
+  color: #5c5318;
+}
+.mapa-flow-node--gold .mapa-flow-node-title {
+  color: #1b222b;
+}
+.mapa-flow-node--gold .mapa-flow-node-desc {
+  color: #475569;
+}
+.mapa-flow-node--gold .mapa-flow-node-edit {
+  border-color: color-mix(in srgb, #b8860b 35%, #d4c48a);
+  color: #5c5318;
+}
+.mapa-flow-node--gold .mapa-flow-node-edit:hover {
+  background: #faf3d4;
+}
+
+.mapa-canvas-wrap .react-flow__node.selected {
+  z-index: 3 !important;
 }
 .mapa-canvas-wrap .react-flow__edge.selected .react-flow__edge-path {
   stroke: #35618f;
