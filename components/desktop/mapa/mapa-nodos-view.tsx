@@ -7,6 +7,7 @@ import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { MapaNodoForm } from "@/components/desktop/mapa/mapa-nodo-form";
 import { AlertText, LoadingText } from "@/components/ui";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
+import { posicionNodoEnLienzo } from "@/lib/mapa-layout";
 import { useCallback, useState } from "react";
 
 const MapaCanvas = dynamic(
@@ -17,7 +18,7 @@ const MapaCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex min-h-[min(68vh,720px)] flex-1 items-center justify-center rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/20 text-sm text-[var(--td-faint)]">
+      <div className="flex h-[min(calc(100vh-14rem),720px)] w-full items-center justify-center rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/20 text-sm text-[var(--td-faint)]">
         Cargando lienzo…
       </div>
     ),
@@ -146,7 +147,10 @@ export function MapaNodosView() {
                   <td className="px-3 py-2.5 tabular-nums">{n.etapa}</td>
                   <td className="px-3 py-2.5 tabular-nums">{n.carril}</td>
                   <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-[var(--td-ink-soft)]">
-                    {Math.round(n.pos_x)}, {Math.round(n.pos_y)}
+                    {(() => {
+                      const p = posicionNodoEnLienzo(n);
+                      return `${Math.round(p.x)}, ${Math.round(p.y)}`;
+                    })()}
                   </td>
                   <td className="px-3 py-2.5 text-right">
                     <button

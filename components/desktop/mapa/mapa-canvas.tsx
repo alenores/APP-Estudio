@@ -8,11 +8,13 @@ import {
   Background,
   Controls,
   ReactFlow,
+  ReactFlowProvider,
+  useReactFlow,
   type Node,
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type MapaCanvasProps = {
   nodos: MapaNodo[];
@@ -35,8 +37,22 @@ function toFlowNodes(
   });
 }
 
-/** Lienzo React Flow — solo shell escritorio (ADR 009). */
-export function MapaCanvas({ nodos, onEditNodo }: MapaCanvasProps) {
+/** Centra el viewport cuando hay nodos (después de que el lienzo tiene altura). */
+function MapaFitView({ count }: { count: number }) {
+  const { fitView } = useReactFlow();
+
+  useEffect(() => {
+    if (count === 0) return;
+    const t = window.setTimeout(() => {
+      void fitView({ padding: 0.25, maxZoom: 1, duration: 150 });
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, [count, fitView]);
+
+  return null;
+}
+
+function MapaCanvasInner({ nodos, onEditNodo }: MapaCanvasProps) {
   const [nodes, setNodes] = useState<Node[]>(() =>
     toFlowNodes(nodos, onEditNodo),
   );
@@ -71,11 +87,9 @@ export function MapaCanvas({ nodos, onEditNodo }: MapaCanvasProps) {
     [nodos, onEditStable],
   );
 
-  const defaultViewport = useMemo(() => ({ x: 0, y: 0, zoom: 0.85 }), []);
-
   if (nodos.length === 0) {
     return (
-      <div className="mapa-canvas-empty flex flex-1 items-center justify-center rounded-xl border border-dashed border-[var(--td-line)] bg-[var(--td-line-soft)]/25 px-6 py-16 text-center text-sm text-[var(--td-faint)]">
+      <div className="mapa-canvas-empty flex h-[min(calc(100vh-14rem),720px)] items-center justify-center rounded-xl border border-dashed border-[var(--td-line)] bg-[var(--td-line-soft)]/25 px-6 py-16 text-center text-sm text-[var(--td-faint)]">
         Creá un nodo para verlo en el lienzo. Arrastrá para ubicarlo en la línea
         de tiempo.
       </div>
@@ -83,7 +97,7 @@ export function MapaCanvas({ nodos, onEditNodo }: MapaCanvasProps) {
   }
 
   return (
-    <div className="mapa-canvas-wrap relative min-h-[min(68vh,720px)] flex-1 overflow-hidden rounded-xl border border-[var(--td-line)] bg-[#f1f5f9]">
+    <div className="mapa-canvas-wrap relative h-[min(calc(100vh-14rem),720px)] w-full overflow-hidden rounded-xl border border-[var(--td-line)] bg-[#f1f5f9]">
       {savingId ? (
         <p className="pointer-events-none absolute right-3 top-3 z-10 rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[var(--td-ink-soft)] shadow-sm">
           Guardando posición…
@@ -95,16 +109,23 @@ export function MapaCanvas({ nodos, onEditNodo }: MapaCanvasProps) {
         nodeTypes={mapaFlowNodeTypes}
         onNodesChange={onNodesChange}
         onNodeDragStop={(e, node) => void onNodeDragStop(e, node)}
-        defaultViewport={defaultViewport}
-        minZoom={0.25}
+        minZoom={0.2}
         maxZoom={1.75}
-        fitView
-        fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
         proOptions={{ hideAttribution: true }}
       >
+        <MapaFitView count={nodos.length} />
         <Background gap={20} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
       </ReactFlow>
     </div>
+  );
+}
+
+/** Lienzo React Flow — solo shell escritorio (ADR 009). */
+export function MapaCanvas(props: MapaCanvasProps) {
+  return (
+    <ReactFlowProvider>
+      <MapaCanvasInner {...props} />
+    </ReactFlowProvider>
   );
 }

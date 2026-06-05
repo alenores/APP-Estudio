@@ -22,10 +22,17 @@ export function posicionDesdeEtapaCarril(
 
 /** Posición en React Flow: guardada en BD o derivada de etapa/carril si aún está en origen. */
 export function posicionNodoEnLienzo(nodo: MapaNodo): { x: number; y: number } {
-  const enOrigen = nodo.pos_x === 0 && nodo.pos_y === 0;
-  const tieneSemantica = nodo.etapa !== 0 || nodo.carril !== 0;
+  const px = Number(nodo.pos_x);
+  const py = Number(nodo.pos_y);
+  const enOrigen = px === 0 && py === 0;
+  const etapa = Number(nodo.etapa);
+  const carril = Number(nodo.carril);
+  const tieneSemantica = etapa !== 0 || carril !== 0;
   if (enOrigen && tieneSemantica) {
-    return posicionDesdeEtapaCarril(nodo.etapa, nodo.carril);
+    return posicionDesdeEtapaCarril(etapa, carril);
   }
-  return { x: nodo.pos_x, y: nodo.pos_y };
+  if (enOrigen) {
+    return posicionDesdeEtapaCarril(0, 0);
+  }
+  return { x: px, y: py };
 }

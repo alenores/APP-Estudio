@@ -992,6 +992,10 @@ html.pwa-standalone-zoom-lock body {
 }
 
 /* —— Mapa de conocimiento (React Flow, solo PC — ADR 009) —— */
+.mapa-canvas-wrap .react-flow {
+  width: 100%;
+  height: 100%;
+}
 .mapa-canvas-wrap .react-flow__controls button {
   border-color: var(--td-line);
   background: white;
