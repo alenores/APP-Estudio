@@ -14,11 +14,12 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type MapaCanvasProps = {
   nodos: MapaNodo[];
   onEditNodo: (id: number) => void;
+  onPositionSaved?: (id: number, pos_x: number, pos_y: number) => void;
 };
 
 function toFlowNodes(
@@ -40,9 +41,15 @@ function toFlowNodes(
 /** Centra el viewport cuando hay nodos (después de que el lienzo tiene altura). */
 function MapaFitView({ count }: { count: number }) {
   const { fitView } = useReactFlow();
+  const didFitRef = useRef(false);
 
   useEffect(() => {
-    if (count === 0) return;
+    if (count === 0) {
+      didFitRef.current = false;
+      return;
+    }
+    if (didFitRef.current) return;
+    didFitRef.current = true;
     const t = window.setTimeout(() => {
       void fitView({ padding: 0.25, maxZoom: 1, duration: 150 });
     }, 50);
@@ -52,7 +59,11 @@ function MapaFitView({ count }: { count: number }) {
   return null;
 }
 
-function MapaCanvasInner({ nodos, onEditNodo }: MapaCanvasProps) {
+function MapaCanvasInner({
+  nodos,
+  onEditNodo,
+  onPositionSaved,
+}: MapaCanvasProps) {
   const [nodes, setNodes] = useState<Node[]>(() =>
     toFlowNodes(nodos, onEditNodo),
   );
@@ -82,9 +93,11 @@ function MapaCanvasInner({ nodos, onEditNodo }: MapaCanvasProps) {
       setSavingId(null);
       if (error) {
         setNodes(toFlowNodes(nodos, onEditStable));
+        return;
       }
+      onPositionSaved?.(Number(node.id), node.position.x, node.position.y);
     },
-    [nodos, onEditStable],
+    [nodos, onEditStable, onPositionSaved],
   );
 
   if (nodos.length === 0) {

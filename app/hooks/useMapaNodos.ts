@@ -22,9 +22,19 @@ export function useMapaNodos() {
     setNodos(data ?? []);
   }, []);
 
+  /** Actualiza pos_x/pos_y en memoria tras guardar en el lienzo (sin refetch). */
+  const patchPosicion = useCallback(
+    (id: number, pos_x: number, pos_y: number) => {
+      setNodos((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, pos_x, pos_y } : n)),
+      );
+    },
+    [],
+  );
+
   useEffect(() => {
     void reload();
   }, [reload]);
 
-  return { nodos, loading, error, reload };
+  return { nodos, loading, error, reload, patchPosicion };
 }

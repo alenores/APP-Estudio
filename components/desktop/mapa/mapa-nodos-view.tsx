@@ -29,7 +29,7 @@ type VistaMapa = "lienzo" | "lista";
 
 /** Mapa de conocimiento — ABM + lienzo (ADR 009). Solo escritorio. */
 export function MapaNodosView() {
-  const { nodos, loading, error, reload } = useMapaNodos();
+  const { nodos, loading, error, reload, patchPosicion } = useMapaNodos();
   const [vista, setVista] = useState<VistaMapa>("lienzo");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<MapaNodo | null>(null);
@@ -40,6 +40,13 @@ export function MapaNodosView() {
       if (nodo) setEditing(nodo);
     },
     [nodos],
+  );
+
+  const handlePositionSaved = useCallback(
+    (id: number, pos_x: number, pos_y: number) => {
+      patchPosicion(id, pos_x, pos_y);
+    },
+    [patchPosicion],
   );
 
   function closeModals() {
@@ -112,61 +119,79 @@ export function MapaNodosView() {
         </div>
       </div>
 
-      {vista === "lienzo" ? (
-        <MapaCanvas nodos={nodos} onEditNodo={handleEditNodo} />
-      ) : nodos.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--td-line)] px-6 py-14 text-center text-sm text-[var(--td-faint)]">
-          Todavía no hay nodos. Creá el primero para armar tu mapa.
-        </p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-[var(--td-line)]">
-          <table className="desktop-data-table w-full min-w-[640px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/60 text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
-                <th className="px-3 py-2.5">Título</th>
-                <th className="px-3 py-2.5">Etapa</th>
-                <th className="px-3 py-2.5">Carril</th>
-                <th className="px-3 py-2.5">Posición</th>
-                <th className="px-3 py-2.5" />
-              </tr>
-            </thead>
-            <tbody>
-              {nodos.map((n) => (
-                <tr
-                  key={n.id}
-                  className="border-b border-[var(--td-line)]/80 last:border-0 hover:bg-[var(--td-line-soft)]/35"
-                >
-                  <td className="px-3 py-2.5">
-                    <p className="font-medium text-[var(--td-ink)]">{n.titulo}</p>
-                    {n.descripcion?.trim() ? (
-                      <p className="mt-0.5 line-clamp-1 text-xs text-[var(--td-ink-soft)]">
-                        {n.descripcion}
-                      </p>
-                    ) : null}
-                  </td>
-                  <td className="px-3 py-2.5 tabular-nums">{n.etapa}</td>
-                  <td className="px-3 py-2.5 tabular-nums">{n.carril}</td>
-                  <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-[var(--td-ink-soft)]">
-                    {(() => {
-                      const p = posicionNodoEnLienzo(n);
-                      return `${Math.round(p.x)}, ${Math.round(p.y)}`;
-                    })()}
-                  </td>
-                  <td className="px-3 py-2.5 text-right">
-                    <button
-                      type="button"
-                      onClick={() => setEditing(n)}
-                      className="rounded-lg border border-[var(--td-line)] px-2.5 py-1 text-xs font-semibold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
-                    >
-                      Editar
-                    </button>
-                  </td>
+      <div
+        className={vista === "lienzo" ? "min-h-0 flex-1" : "hidden"}
+        role="tabpanel"
+        aria-label="Lienzo"
+        aria-hidden={vista !== "lienzo"}
+      >
+        <MapaCanvas
+          nodos={nodos}
+          onEditNodo={handleEditNodo}
+          onPositionSaved={handlePositionSaved}
+        />
+      </div>
+
+      <div
+        className={vista === "lista" ? "" : "hidden"}
+        role="tabpanel"
+        aria-label="Lista"
+        aria-hidden={vista !== "lista"}
+      >
+        {nodos.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-[var(--td-line)] px-6 py-14 text-center text-sm text-[var(--td-faint)]">
+            Todavía no hay nodos. Creá el primero para armar tu mapa.
+          </p>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-[var(--td-line)]">
+            <table className="desktop-data-table w-full min-w-[640px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/60 text-[11px] font-bold uppercase tracking-wide text-[var(--td-ink-soft)]">
+                  <th className="px-3 py-2.5">Título</th>
+                  <th className="px-3 py-2.5">Etapa</th>
+                  <th className="px-3 py-2.5">Carril</th>
+                  <th className="px-3 py-2.5">Posición</th>
+                  <th className="px-3 py-2.5" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {nodos.map((n) => (
+                  <tr
+                    key={n.id}
+                    className="border-b border-[var(--td-line)]/80 last:border-0 hover:bg-[var(--td-line-soft)]/35"
+                  >
+                    <td className="px-3 py-2.5">
+                      <p className="font-medium text-[var(--td-ink)]">{n.titulo}</p>
+                      {n.descripcion?.trim() ? (
+                        <p className="mt-0.5 line-clamp-1 text-xs text-[var(--td-ink-soft)]">
+                          {n.descripcion}
+                        </p>
+                      ) : null}
+                    </td>
+                    <td className="px-3 py-2.5 tabular-nums">{n.etapa}</td>
+                    <td className="px-3 py-2.5 tabular-nums">{n.carril}</td>
+                    <td className="whitespace-nowrap px-3 py-2.5 tabular-nums text-[var(--td-ink-soft)]">
+                      {(() => {
+                        const p = posicionNodoEnLienzo(n);
+                        return `${Math.round(p.x)}, ${Math.round(p.y)}`;
+                      })()}
+                    </td>
+                    <td className="px-3 py-2.5 text-right">
+                      <button
+                        type="button"
+                        onClick={() => setEditing(n)}
+                        className="rounded-lg border border-[var(--td-line)] px-2.5 py-1 text-xs font-semibold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       <DesktopModal
         open={creating}
