@@ -180,19 +180,13 @@ export function ExploradorView() {
 
   return (
     <div className="desktop-explorador flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="flex flex-col gap-2 pb-2">
-        <p className="text-[11px] text-[var(--td-faint)]">
-          Seleccioná una card · ↑↓ navegar · ←→ columnas · E editar · S/C
-          seguimientos/conceptos en la card expandida
-        </p>
-        <EstudioSyncBanner />
-      </div>
+      <EstudioSyncBanner />
       {loading ? (
         <LoadingText>Cargando datos del estudio…</LoadingText>
       ) : null}
       {error ? <AlertText>{error}</AlertText> : null}
       {!loading && packReady ? (
-        <div className="explorer-columns-grid flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent">
+        <div className="explorer-columns-grid flex min-h-0 flex-1 gap-2 overflow-hidden bg-transparent">
           <ExploradorColumn
             columnKind="tema"
             label="Temas"

@@ -874,6 +874,10 @@ html.pwa-standalone-zoom-lock body {
   background-color: var(--desktop-shell-bg);
 }
 
+.desktop-shell .deploy-sha-footer {
+  color: rgba(226, 232, 240, 0.55);
+}
+
 .desktop-explorador {
   min-height: 0;
 }
@@ -921,7 +925,7 @@ html.pwa-standalone-zoom-lock body {
 
 .desktop-explorador .explorer-progress-card[data-expanded="true"] {
   transform: scale(1.032);
-  margin-top: 14px;
+  margin-top: 10px;
   box-shadow:
     0 16px 40px -14px rgba(39, 72, 103, 0.42),
     0 6px 16px -8px rgba(39, 72, 103, 0.2);

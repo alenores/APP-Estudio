@@ -134,7 +134,7 @@ export function ExploradorColumn({
         </div>
       </header>
       <div
-        className="explorer-column-body min-h-0 flex-1 overflow-y-auto px-3"
+        className="explorer-column-body min-h-0 flex-1 overflow-y-auto px-2"
         onWheel={onColumnBodyWheel}
       >
         {count === 0 ? (
@@ -142,7 +142,7 @@ export function ExploradorColumn({
             {emptyMessage}
           </p>
         ) : (
-          <div className="flex flex-col gap-2.5">{children}</div>
+          <div className="flex flex-col gap-2">{children}</div>
         )}
       </div>
     </section>

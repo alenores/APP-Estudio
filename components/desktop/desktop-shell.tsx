@@ -76,7 +76,7 @@ export function DesktopShell({ title, children }: DesktopShellProps) {
           </button>
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col px-6 pt-2 pb-0">
+      <main className="mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col px-6 pt-1 pb-0">
         {children}
       </main>
       <DeployShaFooter />
