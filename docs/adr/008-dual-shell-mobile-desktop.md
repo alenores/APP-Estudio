@@ -60,7 +60,8 @@ Primitivos visuales (chip, card, tokens `--td-*`) son **shared**. Wrappers disti
 
 1. **Hecho en v1:** ADR, middleware, `/explorador` 3 columnas, selección URL.
 2. **Hecho en v2:** modales seguimiento/conceptos en tabla; alta con forms compartidos; doble clic en card → seguimientos.
-3. **Siguiente:** altas de tema/curso/clase desde PC; extraer `components/ui/`.
+3. **Hecho en v3:** toolbar + Tema/Curso/Clase desde PC; `TemaForm` shared; métricas compactas en cards.
+4. **Siguiente:** extraer `components/ui/`; mover móvil a `components/mobile/`.
 
 ## Consecuencias
 

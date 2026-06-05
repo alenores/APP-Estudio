@@ -11,6 +11,7 @@ type ExploradorColumnCardProps = {
   onSelect: () => void;
   onOpenSeguimientos: () => void;
   onOpenConceptos: () => void;
+  metaLines?: string[];
   footer?: ReactNode;
 };
 
@@ -22,6 +23,7 @@ export function ExploradorColumnCard({
   onSelect,
   onOpenSeguimientos,
   onOpenConceptos,
+  metaLines,
   footer,
 }: ExploradorColumnCardProps) {
   const estadoTexto = estadoLabel(estado);
@@ -62,6 +64,11 @@ export function ExploradorColumnCard({
         {subtitle ? (
           <p className="mt-1 line-clamp-2 text-xs text-[var(--td-ink-soft)]">
             {subtitle}
+          </p>
+        ) : null}
+        {metaLines && metaLines.length > 0 ? (
+          <p className="mt-1.5 text-[10px] font-semibold text-[var(--td-filter-text-muted)]">
+            {metaLines.join(" · ")}
           </p>
         ) : null}
         {footer ? (

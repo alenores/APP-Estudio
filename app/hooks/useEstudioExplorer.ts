@@ -11,6 +11,8 @@ import {
   getTemaDetalleFromCache,
   listTemasConDerivadosFromCache,
 } from "@/lib/estudio-offline-read";
+import type { ClasesCursoStats } from "@/lib/curso-clases-stats";
+import { clasesStatsMapPorCursos } from "@/lib/curso-clases-stats";
 import { useMemo } from "react";
 
 export type ExplorerSelection = {
@@ -104,12 +106,21 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     return getCursoDetalleFromCache(cacheData, normalized.cursoId).clases;
   }, [cacheData, normalized.cursoId]);
 
+  const clasesStatsPorCurso = useMemo((): Map<number, ClasesCursoStats> => {
+    if (!cacheData || cursos.length === 0) return new Map();
+    return clasesStatsMapPorCursos(
+      cacheData,
+      cursos.map((c) => c.id),
+    );
+  }, [cacheData, cursos]);
+
   const loading = loadingPack || (!packReady && !cacheData);
 
   return {
     temas,
     cursos,
     clases,
+    clasesStatsPorCurso,
     selection: normalized,
     loading,
     error,

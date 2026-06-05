@@ -5,13 +5,19 @@ import {
   parseExplorerSelection,
   useEstudioExplorer,
 } from "@/app/hooks/useEstudioExplorer";
+import {
+  ExploradorCreateModal,
+  type ExploradorCreateKind,
+} from "@/components/desktop/explorador-create-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
+import { ExploradorToolbar } from "@/components/desktop/explorador-toolbar";
 import { EstudioSyncBanner } from "@/components/study/estudio-sync-banner";
 import { AlertText, LoadingText } from "@/components/study/form-field";
 import {
   ExploradorColumn,
   ExploradorColumnCard,
 } from "@/components/desktop/explorador-columns";
+import { explorerCardMetaLines } from "@/lib/explorer-card-meta";
 import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
@@ -31,9 +37,20 @@ export function ExploradorView() {
     () => parseExplorerSelection(searchParams),
     [searchParams],
   );
-  const { temas, cursos, clases, selection, loading, error, packReady } =
-    useEstudioExplorer(rawSelection);
+  const {
+    temas,
+    cursos,
+    clases,
+    clasesStatsPorCurso,
+    selection,
+    loading,
+    error,
+    packReady,
+  } = useEstudioExplorer(rawSelection);
   const [panelModal, setPanelModal] = useState<PanelModalState | null>(null);
+  const [createKind, setCreateKind] = useState<ExploradorCreateKind | null>(
+    null,
+  );
 
   function go(href: string) {
     router.replace(href);
@@ -43,9 +60,32 @@ export function ExploradorView() {
     setPanelModal({ entity, panel });
   }
 
+  function onCreated(partial: {
+    temaId?: number;
+    cursoId?: number;
+    claseId?: number;
+  }) {
+    go(
+      explorerHref({
+        temaId: partial.temaId ?? selection.temaId,
+        cursoId: partial.cursoId ?? null,
+        claseId: partial.claseId ?? null,
+      }),
+    );
+  }
+
   return (
     <div className="desktop-explorador flex min-h-0 flex-1 flex-col">
-      <EstudioSyncBanner />
+      <div className="flex flex-col gap-3">
+        <div className="flex justify-end">
+          <ExploradorToolbar
+            temaId={selection.temaId}
+            cursoId={selection.cursoId}
+            onCreate={setCreateKind}
+          />
+        </div>
+        <EstudioSyncBanner />
+      </div>
       {loading ? (
         <LoadingText>Cargando datos del estudio…</LoadingText>
       ) : null}
@@ -55,7 +95,7 @@ export function ExploradorView() {
           <ExploradorColumn
             label="Temas"
             count={temas.length}
-            emptyMessage="No hay temas. Creá el primero desde la app en el celular."
+            emptyMessage="No hay temas. Usá + Tema arriba a la derecha."
           >
             {temas.map((t) => (
               <ExploradorColumnCard
@@ -63,6 +103,7 @@ export function ExploradorView() {
                 title={t.nombre}
                 subtitle={t.descripcion}
                 estado={t.derivados.etiqueta_estado}
+                metaLines={explorerCardMetaLines({ derivados: t.derivados })}
                 selected={selection.temaId === t.id}
                 onSelect={() =>
                   go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
@@ -89,7 +130,7 @@ export function ExploradorView() {
             emptyMessage={
               selection.temaId == null
                 ? "Elegí un tema para ver sus cursos."
-                : "Este tema no tiene cursos."
+                : "Este tema no tiene cursos. Usá + Curso."
             }
           >
             {cursos.map((c) => (
@@ -98,6 +139,10 @@ export function ExploradorView() {
                 title={c.nombre}
                 subtitle={c.descripcion}
                 estado={c.derivados.etiqueta_estado}
+                metaLines={explorerCardMetaLines({
+                  derivados: c.derivados,
+                  clasesStats: clasesStatsPorCurso.get(c.id),
+                })}
                 selected={selection.cursoId === c.id}
                 onSelect={() =>
                   go(
@@ -130,7 +175,7 @@ export function ExploradorView() {
             emptyMessage={
               selection.cursoId == null
                 ? "Elegí un curso para ver sus clases."
-                : "Este curso no tiene clases."
+                : "Este curso no tiene clases. Usá + Clase."
             }
           >
             {clases.map((cl) => (
@@ -139,6 +184,7 @@ export function ExploradorView() {
                 title={cl.nombre}
                 subtitle={cl.descripcion}
                 estado={cl.derivados.etiqueta_estado}
+                metaLines={explorerCardMetaLines({ derivados: cl.derivados })}
                 selected={selection.claseId === cl.id}
                 onSelect={() =>
                   go(
@@ -175,6 +221,16 @@ export function ExploradorView() {
           entity={panelModal.entity}
           panel={panelModal.panel}
           onClose={() => setPanelModal(null)}
+        />
+      ) : null}
+
+      {createKind ? (
+        <ExploradorCreateModal
+          kind={createKind}
+          temaId={selection.temaId}
+          cursoId={selection.cursoId}
+          onClose={() => setCreateKind(null)}
+          onCreated={onCreated}
         />
       ) : null}
     </div>

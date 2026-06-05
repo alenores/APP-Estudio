@@ -78,8 +78,9 @@ app/(desktop)/explorador/page.tsx    → explorador 3 columnas (PC)
 lib/shell-detect.ts                  → detección shell en middleware
 lib/shell-routes.ts                  → rutas por shell
 app/hooks/useEstudioExplorer.ts      → árbol temas/cursos/clases (PC)
-components/desktop/                  → UI exclusiva escritorio (explorador, modales)
-lib/explorer-entity-panel.ts         → datos seguimiento/concepto por entidad (PC)
+components/desktop/                  → UI exclusiva escritorio (explorador, modales, toolbar)
+lib/explorer-card-meta.ts            → métricas compactas en cards PC
+components/study/forms/tema-form.tsx → alta tema (shared móvil + PC)
 lib/estudio-detalle-metrics.ts      → métricas gauge/timeline/tiempo compartidas
 lib/estudio-offline-cache.ts         → snapshot + firma remota + download
 lib/estudio-table-digest.ts          → digest por tabla (ediciones)

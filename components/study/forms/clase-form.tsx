@@ -14,7 +14,7 @@ import { useState } from "react";
 
 type ClaseFormProps = {
   cursoId: number;
-  onSuccess: () => void;
+  onSuccess: (claseId: number) => void;
 };
 
 export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
@@ -63,7 +63,9 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
       return;
     }
 
-    onSuccess();
+    if (result.data) {
+      onSuccess(result.data.id);
+    }
   }
 
   return (

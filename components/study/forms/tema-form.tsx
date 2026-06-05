@@ -7,24 +7,22 @@ import {
   FormSubmitButton,
   FormTextarea,
 } from "@/components/study/form-field";
-import { getSessionUserId, insertCurso } from "@/lib/estudio-queries";
+import { getSessionUserId, insertTema } from "@/lib/estudio-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
-import { cursoFormSchema } from "@/lib/validations";
+import { temaFormSchema } from "@/lib/validations";
 import { useState } from "react";
 
-type CursoFormProps = {
-  temaId: number;
-  onSuccess: (cursoId: number) => void;
+type TemaFormProps = {
+  onSuccess: (temaId: number) => void;
 };
 
-export function CursoForm({ temaId, onSuccess }: CursoFormProps) {
+export function TemaForm({ onSuccess }: TemaFormProps) {
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [orden, setOrden] = useState("");
   const [jerarquia, setJerarquia] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
-  const [link, setLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -34,15 +32,13 @@ export function CursoForm({ temaId, onSuccess }: CursoFormProps) {
     setError(null);
     setFieldErrors({});
 
-    const parsed = cursoFormSchema.safeParse({
+    const parsed = temaFormSchema.safeParse({
       nombre,
       descripcion,
       orden,
       jerarquia,
       fecha_estimada_inicio: fechaInicio,
       fecha_estimada_fin: fechaFin,
-      plataforma: "",
-      link,
     });
 
     if (!parsed.success) {
@@ -53,12 +49,12 @@ export function CursoForm({ temaId, onSuccess }: CursoFormProps) {
     setLoading(true);
     const userId = await getSessionUserId();
     if (!userId) {
-      setError("Sesión expirada.");
+      setError("Sesión expirada. Volvé a iniciar sesión.");
       setLoading(false);
       return;
     }
 
-    const result = await insertCurso(userId, temaId, parsed.data);
+    const result = await insertTema(userId, parsed.data);
     setLoading(false);
 
     if (result.error) {
@@ -87,17 +83,6 @@ export function CursoForm({ temaId, onSuccess }: CursoFormProps) {
           onChange={(e) => setDescripcion(e.target.value)}
         />
       </FormField>
-      <FormField label="Link del curso" error={fieldErrors.link}>
-        <FormInput
-          type="url"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="https://platzi.com/cursos/..."
-        />
-      </FormField>
-      <p className="text-xs text-ink-muted">
-        El ícono de la plataforma se obtiene automáticamente del link.
-      </p>
       <FormField label="Orden" error={fieldErrors.orden}>
         <FormInput
           type="number"
@@ -115,7 +100,10 @@ export function CursoForm({ temaId, onSuccess }: CursoFormProps) {
           onChange={(e) => setJerarquia(e.target.value)}
         />
       </FormField>
-      <FormField label="Fecha estimada inicio" error={fieldErrors.fecha_estimada_inicio}>
+      <FormField
+        label="Fecha estimada inicio"
+        error={fieldErrors.fecha_estimada_inicio}
+      >
         <FormInput
           type="date"
           value={fechaInicio}
@@ -130,7 +118,7 @@ export function CursoForm({ temaId, onSuccess }: CursoFormProps) {
         />
       </FormField>
       <FormError message={error} />
-      <FormSubmitButton loading={loading} label="Crear curso" />
+      <FormSubmitButton loading={loading} label="Crear tema" />
     </form>
   );
 }
