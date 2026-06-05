@@ -76,7 +76,7 @@ export function EstudioNivelGauge({
   return (
     <section
       className={`td-card flex min-w-0 flex-col items-center justify-between ${
-        compact ? "min-h-[5.25rem] px-2 py-1.5" : "h-full px-2 pb-2 pt-2.5"
+        compact ? "min-h-[7.5rem] px-2.5 py-2" : "h-full px-2 pb-2 pt-2.5"
       } ${delayClass ? `td-rise ${delayClass}` : ""} ${className}`}
     >
       <span
@@ -89,7 +89,7 @@ export function EstudioNivelGauge({
       <div className={`relative w-full ${compact ? "flex-1" : ""}`}>
         <svg
           viewBox="0 0 200 118"
-          className={`block w-full ${compact ? "max-h-[2.75rem]" : "h-auto"}`}
+          className={`block w-full ${compact ? "max-h-[4.25rem]" : "h-auto"}`}
           aria-hidden
         >
           <path
@@ -137,13 +137,13 @@ export function EstudioNivelGauge({
         </svg>
         <div
           className={`pointer-events-none absolute inset-x-0 text-center leading-none ${
-            compact ? "top-[26%]" : "top-[36%]"
+            compact ? "top-[28%]" : "top-[36%]"
           }`}
           style={{ color }}
         >
           <span
             className={`font-extrabold tracking-tight ${
-              compact ? "text-[17px]" : "text-[26px]"
+              compact ? "text-[22px]" : "text-[26px]"
             }`}
           >
             {nivel ?? "—"}
@@ -156,14 +156,14 @@ export function EstudioNivelGauge({
       {palabra ? (
         <p
           className={`truncate text-center font-extrabold ${
-            compact ? "mt-0.5 text-[9px]" : "mt-0.5 text-[10px]"
+            compact ? "mt-1 text-[10px]" : "mt-0.5 text-[10px]"
           }`}
           style={{ color }}
         >
           {palabra}
         </p>
       ) : (
-        <span className="mt-0.5 block h-[11px]" aria-hidden />
+        <span className="mt-1 block h-[14px]" aria-hidden />
       )}
     </section>
   );

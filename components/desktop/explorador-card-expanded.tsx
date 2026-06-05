@@ -104,11 +104,11 @@ function RecordActionTile({
     <div className="explorer-record-tile flex min-w-0 flex-1 items-center justify-between gap-1.5 rounded-lg border border-[var(--td-line)] bg-[var(--td-line-soft)]/35 px-2 py-1.5">
       <div className="flex min-w-0 flex-1 items-center gap-1.5">
         <p className="truncate text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--td-faint)]">
-          {label}
+          {label}{" "}
+          <span className="font-extrabold tabular-nums text-[var(--td-ink)]">
+            ({count})
+          </span>
         </p>
-        <span className="shrink-0 text-sm font-extrabold tabular-nums leading-none text-[var(--td-ink)]">
-          {count}
-        </span>
       </div>
       <button
         type="button"
