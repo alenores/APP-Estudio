@@ -73,7 +73,7 @@ export function DetallePageShell({
 
   return (
     <div
-      className={`${jakartaDetalle.className} estudio-detalle-page tema-detalle-page -mx-1 flex min-h-full flex-1 flex-col pb-24`}
+      className={`${jakartaDetalle.className} estudio-detalle-page tema-detalle-page flex min-h-full w-full flex-1 flex-col pb-24`}
       style={{
         ...tlStyle,
         backgroundImage:
