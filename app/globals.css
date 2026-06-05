@@ -870,19 +870,22 @@ html.pwa-standalone-zoom-lock body {
 /* —— Shell escritorio (ADR 008) —— */
 .desktop-shell {
   min-width: 1024px;
+  --desktop-shell-bg: #64748b;
+  background-color: var(--desktop-shell-bg);
 }
 
 .desktop-explorador {
-  min-height: calc(100vh - 8rem);
-  --explorer-column-max-h: calc(100vh - 13rem);
+  min-height: 0;
 }
 
 .desktop-explorador .explorer-columns-grid {
-  min-height: min(24rem, var(--explorer-column-max-h));
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .desktop-explorador .explorer-column-panel {
-  max-height: var(--explorer-column-max-h);
+  max-height: 100%;
+  height: 100%;
   transition:
     box-shadow 220ms ease,
     border-color 220ms ease,
@@ -917,7 +920,6 @@ html.pwa-standalone-zoom-lock body {
 
 .desktop-explorador .explorer-progress-card[data-expanded="true"] {
   transform: scale(1.032);
-  margin-bottom: 14px;
   box-shadow:
     0 16px 40px -14px rgba(39, 72, 103, 0.42),
     0 6px 16px -8px rgba(39, 72, 103, 0.2);

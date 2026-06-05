@@ -35,7 +35,7 @@ export function DesktopShell({ title, children }: DesktopShellProps) {
   }
 
   return (
-    <div className="desktop-shell flex min-h-full flex-col bg-[var(--td-paper)] text-[var(--td-ink)]">
+    <div className="desktop-shell flex min-h-dvh flex-col text-[var(--td-ink)]">
       <header className="shrink-0 border-b border-[var(--td-line)] bg-white/90 px-6 py-3 backdrop-blur-sm">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-center gap-6">
@@ -76,7 +76,7 @@ export function DesktopShell({ title, children }: DesktopShellProps) {
           </button>
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col px-6 py-4">
+      <main className="mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col px-6 pt-2 pb-0">
         {children}
       </main>
       <DeployShaFooter />

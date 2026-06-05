@@ -179,8 +179,8 @@ export function ExploradorView() {
   });
 
   return (
-    <div className="desktop-explorador flex min-h-0 flex-1 flex-col">
-      <div className="flex flex-col gap-3">
+    <div className="desktop-explorador flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex flex-col gap-2 pb-2">
         <p className="text-[11px] text-[var(--td-faint)]">
           Seleccioná una card · ↑↓ navegar · ←→ columnas · E editar · S/C
           seguimientos/conceptos en la card expandida
@@ -192,7 +192,7 @@ export function ExploradorView() {
       ) : null}
       {error ? <AlertText>{error}</AlertText> : null}
       {!loading && packReady ? (
-        <div className="explorer-columns-grid mt-3 flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent p-0.5">
+        <div className="explorer-columns-grid flex min-h-0 flex-1 gap-3 overflow-hidden bg-transparent">
           <ExploradorColumn
             columnKind="tema"
             label="Temas"

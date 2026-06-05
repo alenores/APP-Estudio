@@ -134,7 +134,7 @@ export function ExploradorColumn({
         </div>
       </header>
       <div
-        className="explorer-column-body min-h-0 flex-1 overflow-y-auto p-3"
+        className="explorer-column-body min-h-0 flex-1 overflow-y-auto px-3"
         onWheel={onColumnBodyWheel}
       >
         {count === 0 ? (
