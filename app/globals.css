@@ -600,3 +600,19 @@ html.pwa-standalone-zoom-lock body {
 .desktop-explorador {
   min-height: calc(100vh - 8rem);
 }
+
+.desktop-modal-theme {
+  --td-card: #ffffff;
+  --td-line: #cbd5e1;
+  --td-line-soft: #e2e8f0;
+  --td-ink: #1b222b;
+  --td-ink-soft: #334155;
+  --td-faint: #64748b;
+  --td-navy: #264a6e;
+  --td-navy-2: #35618f;
+  --td-filter-text: #334155;
+  --td-filter-text-muted: #475569;
+  --td-shadow: 0 8px 40px -8px rgba(27, 34, 43, 0.28),
+    0 4px 16px -4px rgba(27, 34, 43, 0.12);
+  background-color: #ffffff;
+}

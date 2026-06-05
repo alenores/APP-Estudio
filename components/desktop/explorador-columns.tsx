@@ -8,7 +8,9 @@ type ExploradorColumnCardProps = {
   subtitle?: string | null;
   estado: string | null;
   selected: boolean;
-  onClick: () => void;
+  onSelect: () => void;
+  onOpenSeguimientos: () => void;
+  onOpenConceptos: () => void;
   footer?: ReactNode;
 };
 
@@ -17,39 +19,92 @@ export function ExploradorColumnCard({
   subtitle,
   estado,
   selected,
-  onClick,
+  onSelect,
+  onOpenSeguimientos,
+  onOpenConceptos,
   footer,
 }: ExploradorColumnCardProps) {
   const estadoTexto = estadoLabel(estado);
 
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`w-full rounded-xl border px-3 py-3 text-left transition-[border-color,box-shadow,background] duration-150 ${
+    <article
+      className={`rounded-xl border transition-[border-color,box-shadow,background] duration-150 ${
         selected
           ? "border-[var(--td-navy)] bg-white shadow-[0_4px_16px_-6px_rgba(39,72,103,.28)] ring-1 ring-[var(--td-navy)]/25"
           : "border-[var(--td-line)] bg-[var(--td-card)] hover:border-[var(--td-navy)]/35 hover:shadow-sm"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="line-clamp-2 text-sm font-bold leading-snug text-[var(--td-ink)]">
-          {title}
-        </span>
-        {estadoTexto ? (
-          <span
-            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${estadoChipDetalleClass(estado)}`}
-          >
-            {estadoTexto}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onDoubleClick={onOpenSeguimientos}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onSelect();
+          }
+        }}
+        className="cursor-pointer px-3 pb-2 pt-3 text-left"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="line-clamp-2 text-sm font-bold leading-snug text-[var(--td-ink)]">
+            {title}
           </span>
+          {estadoTexto ? (
+            <span
+              className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${estadoChipDetalleClass(estado)}`}
+            >
+              {estadoTexto}
+            </span>
+          ) : null}
+        </div>
+        {subtitle ? (
+          <p className="mt-1 line-clamp-2 text-xs text-[var(--td-ink-soft)]">
+            {subtitle}
+          </p>
+        ) : null}
+        {footer ? (
+          <div className="mt-2 text-[11px] text-[var(--td-faint)]">{footer}</div>
         ) : null}
       </div>
-      {subtitle ? (
-        <p className="mt-1 line-clamp-2 text-xs text-[var(--td-ink-soft)]">
-          {subtitle}
-        </p>
-      ) : null}
-      {footer ? <div className="mt-2 text-[11px] text-[var(--td-faint)]">{footer}</div> : null}
+      <div className="flex gap-1 border-t border-[var(--td-line)]/80 px-2 py-1.5">
+        <ExploradorCardAction
+          label="Seguimiento"
+          shortLabel="Seg."
+          onClick={onOpenSeguimientos}
+        />
+        <ExploradorCardAction
+          label="Conceptos"
+          shortLabel="Conc."
+          onClick={onOpenConceptos}
+        />
+      </div>
+    </article>
+  );
+}
+
+function ExploradorCardAction({
+  label,
+  shortLabel,
+  onClick,
+}: {
+  label: string;
+  shortLabel: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      className="flex-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--td-filter-text-muted)] transition-colors hover:bg-[var(--td-line-soft)] hover:text-[var(--td-navy)]"
+    >
+      {shortLabel}
     </button>
   );
 }

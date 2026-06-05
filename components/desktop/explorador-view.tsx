@@ -5,14 +5,24 @@ import {
   parseExplorerSelection,
   useEstudioExplorer,
 } from "@/app/hooks/useEstudioExplorer";
+import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
 import { EstudioSyncBanner } from "@/components/study/estudio-sync-banner";
 import { AlertText, LoadingText } from "@/components/study/form-field";
 import {
   ExploradorColumn,
   ExploradorColumnCard,
 } from "@/components/desktop/explorador-columns";
+import type {
+  ExplorerEntityRef,
+  ExplorerPanelKind,
+} from "@/lib/explorer-entity-panel";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+
+type PanelModalState = {
+  entity: ExplorerEntityRef;
+  panel: ExplorerPanelKind;
+};
 
 export function ExploradorView() {
   const router = useRouter();
@@ -23,9 +33,14 @@ export function ExploradorView() {
   );
   const { temas, cursos, clases, selection, loading, error, packReady } =
     useEstudioExplorer(rawSelection);
+  const [panelModal, setPanelModal] = useState<PanelModalState | null>(null);
 
   function go(href: string) {
     router.replace(href);
+  }
+
+  function openPanel(entity: ExplorerEntityRef, panel: ExplorerPanelKind) {
+    setPanelModal({ entity, panel });
   }
 
   return (
@@ -40,7 +55,7 @@ export function ExploradorView() {
           <ExploradorColumn
             label="Temas"
             count={temas.length}
-            emptyMessage="No hay temas. Creá el primero desde la app en el celular o en /temas/nuevo."
+            emptyMessage="No hay temas. Creá el primero desde la app en el celular."
           >
             {temas.map((t) => (
               <ExploradorColumnCard
@@ -49,8 +64,20 @@ export function ExploradorView() {
                 subtitle={t.descripcion}
                 estado={t.derivados.etiqueta_estado}
                 selected={selection.temaId === t.id}
-                onClick={() =>
+                onSelect={() =>
                   go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
+                }
+                onOpenSeguimientos={() =>
+                  openPanel(
+                    { kind: "tema", id: t.id, nombre: t.nombre },
+                    "seguimientos",
+                  )
+                }
+                onOpenConceptos={() =>
+                  openPanel(
+                    { kind: "tema", id: t.id, nombre: t.nombre },
+                    "conceptos",
+                  )
                 }
               />
             ))}
@@ -72,13 +99,25 @@ export function ExploradorView() {
                 subtitle={c.descripcion}
                 estado={c.derivados.etiqueta_estado}
                 selected={selection.cursoId === c.id}
-                onClick={() =>
+                onSelect={() =>
                   go(
                     explorerHref({
                       temaId: selection.temaId,
                       cursoId: c.id,
                       claseId: null,
                     }),
+                  )
+                }
+                onOpenSeguimientos={() =>
+                  openPanel(
+                    { kind: "curso", id: c.id, nombre: c.nombre },
+                    "seguimientos",
+                  )
+                }
+                onOpenConceptos={() =>
+                  openPanel(
+                    { kind: "curso", id: c.id, nombre: c.nombre },
+                    "conceptos",
                   )
                 }
               />
@@ -101,13 +140,25 @@ export function ExploradorView() {
                 subtitle={cl.descripcion}
                 estado={cl.derivados.etiqueta_estado}
                 selected={selection.claseId === cl.id}
-                onClick={() =>
+                onSelect={() =>
                   go(
                     explorerHref({
                       temaId: selection.temaId,
                       cursoId: selection.cursoId,
                       claseId: cl.id,
                     }),
+                  )
+                }
+                onOpenSeguimientos={() =>
+                  openPanel(
+                    { kind: "clase", id: cl.id, nombre: cl.nombre },
+                    "seguimientos",
+                  )
+                }
+                onOpenConceptos={() =>
+                  openPanel(
+                    { kind: "clase", id: cl.id, nombre: cl.nombre },
+                    "conceptos",
                   )
                 }
                 footer={
@@ -117,6 +168,14 @@ export function ExploradorView() {
             ))}
           </ExploradorColumn>
         </div>
+      ) : null}
+
+      {panelModal ? (
+        <ExploradorPanelModal
+          entity={panelModal.entity}
+          panel={panelModal.panel}
+          onClose={() => setPanelModal(null)}
+        />
       ) : null}
     </div>
   );
