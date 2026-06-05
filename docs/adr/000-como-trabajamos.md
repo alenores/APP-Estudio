@@ -21,6 +21,7 @@ Desarrollo asistido por IA (Cursor) y documentación que evite decisiones implí
 7. **Alcance mínimo (IA):** implementar **solo** lo pedido. Sin refactors, UX “mejorada” ni archivos tocados fuera del pedido. Si un bug apunta a otra capa (ej. íconos PWA vs botón install), **diagnosticar y proponer**; no cambiar `InstallPwaButton`, `lib/pwa-*` ni flujo ADR 004 sin pedido explícito del dueño (misma arquitectura que otras apps del repo).
 8. **Animaciones / feedback en celular:** seguir [ADR 006](006-feedback-ui-movil.md) (delay en el botón + `active:scale`, sheet sin slide; no repetir WAAPI/escalonado salvo pedido explícito).
 9. **Dos shells móvil / escritorio:** [ADR 008](008-dual-shell-mobile-desktop.md). Detección automática en middleware; **sin** toggle de versión; pedidos de UI etiquetar `shared | mobile | desktop`.
+10. **Mapa de conocimiento:** [ADR 009](009-mapa-conocimiento-desktop-only.md). **Solo PC** — sin rutas, links ni bundle en móvil; nodos ≠ conceptos de estudio.
 
 ## Consecuencias
 

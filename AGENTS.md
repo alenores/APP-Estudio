@@ -19,11 +19,12 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/005-auth-rls.md` | Auth, `user_id`, RLS |
 | `docs/adr/006-feedback-ui-movil.md` | **Animaciones / feedback en Android** (delay FAB, sheet sin slide) |
 | `docs/adr/008-dual-shell-mobile-desktop.md` | **Dos shells** móvil vs PC (no responsive; middleware) |
+| `docs/adr/009-mapa-conocimiento-desktop-only.md` | **Mapa de conocimiento** — solo PC; nodos ≠ conceptos |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **Patrón de datos:** inspirado en *Vías de Escalada Córdoba* (`offline-cache`, `useOfflineData`), adaptado a tablas Estudio — **no** copiar imágenes ni warm de sectores.
 
-Schema SQL: `docs/sql/001-schema-estudio.sql` (ejecutar en Supabase antes de queries de negocio).
+Schema SQL: `docs/sql/001-schema-estudio.sql` (estudio); `docs/sql/002-schema-mapa-conocimiento.sql` (mapa PC).
 
 ## Reglas rápidas
 
@@ -63,6 +64,7 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/mobile/pwa/` |
 | Detalle móvil tema/curso/clase | `components/mobile/detalle/` |
 | Shell escritorio + explorador | `app/(desktop)/`, `components/desktop/`, `lib/shell-*.ts`, `useEstudioExplorer` |
+| Mapa conocimiento (solo PC) | `app/(desktop)/mapa/`, `components/desktop/mapa/`, `lib/mapa-queries.ts`, `useMapaNodos` |
 | Primitivos UI | `components/ui/` |
 | Forms compartidos | `components/shared/forms/` |
 
@@ -78,8 +80,11 @@ app/temas/[id]/page.tsx              → detalle tema (móvil)
 app/cursos/[id]/page.tsx             → detalle curso (móvil)
 app/clases/[id]/page.tsx             → detalle clase (móvil)
 app/(desktop)/explorador/page.tsx    → explorador 3 columnas (PC)
+app/(desktop)/mapa/page.tsx          → mapa conocimiento (solo PC, ADR 009)
 lib/shell-detect.ts                  → detección shell en middleware
-lib/shell-routes.ts                  → rutas por shell
+lib/shell-routes.ts                  → rutas por shell (+ DESKTOP_MAPA_PREFIX)
+lib/mapa-queries.ts                  → CRUD mapa_nodos (sin snapshot offline)
+app/hooks/useMapaNodos.ts            → datos mapa (separado de useEstudioData)
 lib/form-parent-types.ts             → ConceptoParent, SeguimientoParent
 app/hooks/useEstudioExplorer.ts      → árbol temas/cursos/clases (PC)
 app/hooks/useExploradorKeyboard.ts   → atajos teclado explorador

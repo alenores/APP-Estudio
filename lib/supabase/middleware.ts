@@ -4,6 +4,7 @@ import { shellKindFromRequest } from "@/lib/shell-detect";
 import {
   defaultAppHome,
   desktopUrlFromMobilePath,
+  DESKTOP_MAPA_PREFIX,
   DESKTOP_SHELL_PREFIX,
   isDesktopShellPath,
   isMobileShellPath,
@@ -16,6 +17,7 @@ const PROTECTED_PREFIXES = [
   "/clases",
   "/seguimientos",
   DESKTOP_SHELL_PREFIX,
+  DESKTOP_MAPA_PREFIX,
 ];
 
 function applyShellRouting(request: NextRequest): NextResponse | null {

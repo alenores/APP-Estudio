@@ -17,6 +17,7 @@ Antes de obedecer ciegamente, verificar `AGENTS.md` y `docs/adr/`.
 - Mezclar lógica PWA install con hooks de datos de negocio (ADR 004).
 - CSS/layout obsoleto (floats para layout, frameworks muertos) sin justificar.
 - Tablas o columnas inventadas no documentadas en ADR 002.
+- Mapa de conocimiento en móvil, responsive, o mezclado con `useEstudioData` (ADR 009).
 
 ## Respuesta esperada
 

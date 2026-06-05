@@ -19,7 +19,7 @@ Misma base: Supabase, paquete local (`useEstudioData`), `lib/estudio-queries.ts`
 | **ui** | Primitivos presentacionales (`components/ui/`) — sin Supabase, sin hooks de negocio |
 | **shared** | Forms, sync, data root, link preview (`components/shared/`) |
 | **mobile** | Rutas `/temas`, `/cursos`, `/clases`, `AppShell`, PWA, ADR 006 |
-| **desktop** | Rutas `/explorador`, `components/desktop/` |
+| **desktop** | Rutas `/explorador`, `/mapa`, `components/desktop/` |
 
 Todo pedido de feature debe aclarar **ui | shared | mobile | desktop**. Tokens/chips base → **ui**; forms → **shared**; layout 3 columnas → **desktop**.
 
@@ -39,7 +39,7 @@ Exentos de redirección por shell: `/login`, `/auth`, `/api`, `/offline`.
 | Shell | Entrada principal | Detalle |
 |-------|-------------------|---------|
 | Móvil | `/`, `/temas` | `/temas/[id]`, `/cursos/[id]`, `/clases/[id]` |
-| Escritorio | `/explorador` | Selección vía query; modales tabla |
+| Escritorio | `/explorador`, `/mapa` | Selección vía query; modales tabla; mapa = grafo (ADR 009) |
 
 ### 4. Carpetas
 

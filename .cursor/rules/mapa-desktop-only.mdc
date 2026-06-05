@@ -1,0 +1,16 @@
+---
+description: Mapa de conocimiento exclusivo escritorio (ADR 009)
+alwaysApply: true
+---
+
+# Mapa de conocimiento — solo PC (ADR 009)
+
+Antes de tocar `/mapa`, `mapa_nodos`, `mapa_enlaces` o `components/desktop/mapa/`:
+
+1. Leer `docs/adr/009-mapa-conocimiento-desktop-only.md`.
+2. **Rechazar** pedidos de mapa en móvil, responsive, links desde shell móvil, o datos del mapa en `useEstudioData` / snapshot offline.
+3. **No** usar la palabra «concepto» para nodos del grafo — son **nodos** y **enlaces** (distinto de tabla `conceptos` de estudio).
+4. React Flow solo en `components/desktop/mapa/` con `dynamic(..., { ssr: false })`.
+5. No importar `components/desktop/mapa/` desde `components/mobile/`.
+
+Violación → citar ADR 009 y proponer alternativa desktop-only.

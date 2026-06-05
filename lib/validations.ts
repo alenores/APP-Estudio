@@ -188,3 +188,23 @@ export const conceptoFormSchema = z.object({
 });
 
 export type ConceptoFormValues = z.infer<typeof conceptoFormSchema>;
+
+const optionalFloat = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v === "" ? undefined : Number(v)))
+  .refine((v) => v === undefined || Number.isFinite(v), "Número inválido");
+
+/** Nodo del mapa de conocimiento (ADR 009) — no es `conceptos` de estudio. */
+export const mapaNodoFormSchema = z.object({
+  titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
+  descripcion: optionalText,
+  etapa: optionalInt,
+  carril: optionalInt,
+  pos_x: optionalFloat,
+  pos_y: optionalFloat,
+});
+
+export type MapaNodoFormValues = z.infer<typeof mapaNodoFormSchema>;

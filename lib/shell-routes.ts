@@ -9,6 +9,9 @@ export const MOBILE_SHELL_PREFIXES = [
 /** Prefijo del shell escritorio (explorador 3 columnas). */
 export const DESKTOP_SHELL_PREFIX = "/explorador";
 
+/** Mapa de conocimiento — exclusivo escritorio (ADR 009). Sin acceso móvil. */
+export const DESKTOP_MAPA_PREFIX = "/mapa";
+
 /** Rutas sin redirección por shell (auth, API, offline). */
 export const SHELL_ROUTING_EXEMPT_PREFIXES = [
   "/login",
@@ -33,7 +36,9 @@ export function isMobileShellPath(pathname: string): boolean {
 export function isDesktopShellPath(pathname: string): boolean {
   return (
     pathname === DESKTOP_SHELL_PREFIX ||
-    pathname.startsWith(`${DESKTOP_SHELL_PREFIX}/`)
+    pathname.startsWith(`${DESKTOP_SHELL_PREFIX}/`) ||
+    pathname === DESKTOP_MAPA_PREFIX ||
+    pathname.startsWith(`${DESKTOP_MAPA_PREFIX}/`)
   );
 }
 

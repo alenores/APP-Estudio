@@ -1,0 +1,96 @@
+import type { MapaNodo } from "@/app/types/mapa";
+import { getSessionUserId } from "@/lib/estudio-queries";
+import { createClient } from "@/lib/supabase/client";
+import type { MapaNodoFormValues } from "@/lib/validations";
+
+const ORDEN_ETAPA = { ascending: true };
+
+function emptyToNull(value: string | undefined): string | null {
+  const t = value?.trim();
+  return t ? t : null;
+}
+
+export async function listMapaNodos(): Promise<{
+  data: MapaNodo[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("mapa_nodos")
+    .select("*")
+    .order("etapa", ORDEN_ETAPA)
+    .order("carril", ORDEN_ETAPA)
+    .order("titulo", ORDEN_ETAPA);
+
+  return {
+    data: data as MapaNodo[] | null,
+    error: error?.message ?? null,
+  };
+}
+
+export async function insertMapaNodo(
+  userId: string,
+  values: MapaNodoFormValues,
+): Promise<{ data: MapaNodo | null; error: string | null }> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("mapa_nodos")
+    .insert({
+      user_id: userId,
+      titulo: values.titulo,
+      descripcion: emptyToNull(values.descripcion),
+      pos_x: values.pos_x ?? 0,
+      pos_y: values.pos_y ?? 0,
+      carril: values.carril ?? 0,
+      etapa: values.etapa ?? 0,
+    })
+    .select()
+    .single();
+
+  return { data: data as MapaNodo | null, error: error?.message ?? null };
+}
+
+export async function updateMapaNodo(
+  id: number,
+  values: MapaNodoFormValues,
+): Promise<{ data: MapaNodo | null; error: string | null }> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("mapa_nodos")
+    .update({
+      titulo: values.titulo,
+      descripcion: emptyToNull(values.descripcion),
+      pos_x: values.pos_x ?? 0,
+      pos_y: values.pos_y ?? 0,
+      carril: values.carril ?? 0,
+      etapa: values.etapa ?? 0,
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  return { data: data as MapaNodo | null, error: error?.message ?? null };
+}
+
+export async function deleteMapaNodo(
+  id: number,
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase.from("mapa_nodos").delete().eq("id", id);
+  return { error: error?.message ?? null };
+}
+
+export async function updateMapaNodoPosition(
+  id: number,
+  pos_x: number,
+  pos_y: number,
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("mapa_nodos")
+    .update({ pos_x, pos_y })
+    .eq("id", id);
+  return { error: error?.message ?? null };
+}
+
+export { getSessionUserId };
