@@ -313,7 +313,7 @@ export function DetalleFiltroEstadosCompact<T extends string>({
   const rootRef = useRef<HTMLDivElement>(null);
 
   const activo = filtros.find((f) => f.key === filtro);
-  const filtroActivo = filtro !== "todos";
+  const etiquetaActiva = activo?.label ?? "Todos";
 
   useEffect(() => {
     if (!open) return;
@@ -337,36 +337,40 @@ export function DetalleFiltroEstadosCompact<T extends string>({
   }
 
   return (
-    <div ref={rootRef} className="relative mb-3 flex items-center justify-end gap-2">
-      {filtroActivo && activo ? (
+    <div ref={rootRef} className="relative mb-3 flex items-center justify-end">
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-[11px] font-medium text-[var(--td-faint)] transition-colors hover:text-[var(--td-ink-soft)]"
+          className={`text-[11px] font-medium transition-colors ${
+            filtro === "todos"
+              ? "text-[var(--td-faint)] hover:text-[var(--td-ink-soft)]"
+              : "text-[var(--td-ink-soft)] hover:text-[var(--td-ink)]"
+          }`}
         >
-          {activo.label}
+          {etiquetaActiva}
           <span className="opacity-70"> · {contadores[filtro]}</span>
         </button>
-      ) : null}
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-label={`Filtrar ${entityLabel} por estado`}
-        onClick={() => setOpen((v) => !v)}
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-[transform,colors,border-color] duration-150 active:scale-95 ${
-          open || filtroActivo
-            ? "border-[var(--td-line)] bg-[var(--td-line-soft)] text-[var(--td-ink-soft)]"
-            : "border-transparent bg-transparent text-[var(--td-faint)] hover:border-[var(--td-line)] hover:bg-[var(--td-line-soft)]/60"
-        }`}
-      >
-        <FiltroIcono aria-hidden />
-      </button>
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-label={`Filtrar ${entityLabel} por estado`}
+          onClick={() => setOpen((v) => !v)}
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-[transform,colors,border-color] duration-150 active:scale-95 ${
+            open
+              ? "border-[var(--td-line)] bg-[var(--td-line-soft)] text-[var(--td-ink-soft)]"
+              : "border-transparent bg-transparent text-[var(--td-faint)] hover:border-[var(--td-line)] hover:bg-[var(--td-line-soft)]/60"
+          }`}
+        >
+          <FiltroIcono aria-hidden />
+        </button>
+      </div>
       {open ? (
         <div
           role="listbox"
           aria-label={`Estados de ${entityLabel}`}
-          className="absolute right-0 top-full z-30 mt-1 min-w-[11.5rem] overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] py-1 shadow-[var(--td-shadow)]"
+          className="absolute right-0 bottom-full z-30 mb-1 min-w-[11.5rem] overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] py-1 shadow-[var(--td-shadow)]"
         >
           {filtros.map((f) => {
             const active = filtro === f.key;
