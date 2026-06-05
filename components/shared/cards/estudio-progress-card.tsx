@@ -2,6 +2,7 @@
 
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
+import { ExternalLinkPreview } from "@/components/shared/links/external-link-preview";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import {
   estadoFillDetalleClass,
@@ -61,6 +62,8 @@ export function EstudioProgressCard({
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
   const hasLink = Boolean(link?.trim());
   const interactive = onSelect != null;
+  const showLinkIcon = hasLink && !expandedSlot;
+  const showLinkPreview = hasLink && expandedSlot;
 
   const fillStyle: CSSProperties =
     pct > 0 ? { width: `${Math.min(100, pct)}%` } : { display: "none" };
@@ -129,7 +132,7 @@ export function EstudioProgressCard({
           <span className="text-base font-extrabold text-[var(--td-ink)]">
             {pct}%
           </span>
-          {hasLink ? (
+          {showLinkIcon ? (
             <PlatformLinkIcon
               link={link!}
               size="sm"
@@ -184,6 +187,11 @@ export function EstudioProgressCard({
           ) : null}
           <div className="relative z-[1] min-w-0">{wrappedBody}</div>
         </div>
+        {showLinkPreview ? (
+          <div className="relative z-[1] px-4 pb-2 pt-0">
+            <ExternalLinkPreview link={link!} variant="card" />
+          </div>
+        ) : null}
         {expandedSlot ? (
           <div className="relative z-[1] px-4 pb-3.5 pt-0">{expandedSlot}</div>
         ) : null}
