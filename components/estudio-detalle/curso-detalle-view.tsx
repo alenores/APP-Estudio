@@ -19,7 +19,7 @@ import {
   DetallePageShell,
   DetalleTabBar,
   DetalleZonaContenido,
-  DetalleFiltroEstados,
+  DetalleFiltroEstadosCompact,
   SeguimientoPanelItems,
 } from "@/components/estudio-detalle/detalle-shared";
 import {
@@ -120,12 +120,12 @@ export function CursoDetalleView({
         <div className="relative mt-4">
           {tab === "clases" ? (
             <div key="clases" className="td-cpanel-active">
-              <DetalleFiltroEstados
+              <DetalleFiltroEstadosCompact
                 filtros={FILTROS}
                 filtro={filtro}
                 contadores={metrics.contadores}
                 onSelect={setFiltro}
-                showDots
+                entityLabel="clases"
               />
               {clasesFiltradas.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-[var(--td-line)] px-4 py-9 text-center text-sm text-[var(--td-faint)]">

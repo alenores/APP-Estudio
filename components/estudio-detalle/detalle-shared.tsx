@@ -15,6 +15,7 @@ import type { EstudioDetalleMetrics } from "@/lib/estudio-detalle-metrics";
 import type { VeredictoUi } from "@/lib/tema-detalle-metrics";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const jakartaDetalle = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -291,6 +292,146 @@ export function DetalleEmptyState({ message }: { message: string }) {
     <p className="rounded-2xl border border-dashed border-[var(--td-line)] px-4 py-9 text-center text-sm text-[var(--td-faint)]">
       {message}
     </p>
+  );
+}
+
+export function DetalleFiltroEstadosCompact<T extends string>({
+  filtros,
+  filtro,
+  contadores,
+  onSelect,
+  entityLabel,
+}: {
+  filtros: { key: T; label: string }[];
+  filtro: T;
+  contadores: Record<T, number>;
+  onSelect: (key: T) => void;
+  /** Para aria-label, ej. «cursos» o «clases». */
+  entityLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const activo = filtros.find((f) => f.key === filtro);
+  const filtroActivo = filtro !== "todos";
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    function onPointerDown(e: PointerEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [open]);
+
+  function elegir(key: T) {
+    onSelect(key);
+    setOpen(false);
+  }
+
+  return (
+    <div ref={rootRef} className="relative mb-3 flex items-center justify-end gap-2">
+      {filtroActivo && activo ? (
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="text-[11px] font-medium text-[var(--td-faint)] transition-colors hover:text-[var(--td-ink-soft)]"
+        >
+          {activo.label}
+          <span className="opacity-70"> · {contadores[filtro]}</span>
+        </button>
+      ) : null}
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-label={`Filtrar ${entityLabel} por estado`}
+        onClick={() => setOpen((v) => !v)}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-[transform,colors,border-color] duration-150 active:scale-95 ${
+          open || filtroActivo
+            ? "border-[var(--td-line)] bg-[var(--td-line-soft)] text-[var(--td-ink-soft)]"
+            : "border-transparent bg-transparent text-[var(--td-faint)] hover:border-[var(--td-line)] hover:bg-[var(--td-line-soft)]/60"
+        }`}
+      >
+        <FiltroIcono aria-hidden />
+      </button>
+      {open ? (
+        <div
+          role="listbox"
+          aria-label={`Estados de ${entityLabel}`}
+          className="absolute right-0 top-full z-30 mt-1 min-w-[11.5rem] overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] py-1 shadow-[var(--td-shadow)]"
+        >
+          {filtros.map((f) => {
+            const active = filtro === f.key;
+            return (
+              <button
+                key={f.key}
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => elegir(f.key)}
+                className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition-colors duration-150 ${
+                  active
+                    ? "bg-[var(--td-line-soft)] font-semibold text-[var(--td-ink)]"
+                    : "font-medium text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]/70"
+                }`}
+              >
+                <span className="flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+                  {f.key !== "todos" ? (
+                    <span
+                      className={estadoFilterDotClass(
+                        f.key as
+                          | "sin empezar"
+                          | "en curso"
+                          | "pausado"
+                          | "terminado",
+                      )}
+                      aria-hidden
+                    />
+                  ) : (
+                    <span
+                      className="h-1.5 w-1.5 rounded-full bg-[var(--td-faint)]/50"
+                      aria-hidden
+                    />
+                  )}
+                </span>
+                <span className="min-w-0 flex-1 truncate">{f.label}</span>
+                <span className="shrink-0 text-[11px] tabular-nums text-[var(--td-faint)]">
+                  {contadores[f.key]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function FiltroIcono(props: { "aria-hidden"?: boolean }) {
+  return (
+    <svg
+      width={16}
+      height={16}
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M2 3.5h12M4.5 8h7M6.5 12.5h3"
+        stroke="currentColor"
+        strokeWidth={1.35}
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
