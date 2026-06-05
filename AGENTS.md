@@ -53,13 +53,13 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Delay toque → sheet | `lib/fab-open-delay.ts` |
 | Snapshot + sync | `lib/estudio-offline-cache.ts`, `lib/estudio-offline-read.ts` |
 | Contexto datos | `app/hooks/useEstudioData.tsx`, `components/study/estudio-data-root.tsx` |
-| Listado / detalle | `useTemasList`, `useTemaDetalle`, `useCursoDetalle`, `useClaseDetalle` |
+| Listado / detalle | `useTemasList`, `useTemaDetalle`, `useCursoDetalle`, `useClaseDetalle`, `use*DetalleMetrics` |
 | Altas Supabase | `lib/estudio-queries.ts` (insert) + `refreshSnapshot` tras éxito |
 | Validación Zod | `lib/validations.ts` |
 | Derivados de seguimiento | `lib/seguimiento-derivados.ts` |
 | Auth | login + `lib/supabase/client.ts` |
 | Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx` |
-| Home | `app/page.tsx` |
+| Detalle tema / curso / clase | `components/tema-detalle/`, `components/estudio-detalle/`, hooks `use*DetalleMetrics` |
 
 ## Mapa de archivos clave
 
@@ -70,8 +70,10 @@ app/login/page.tsx                   → auth
 app/temas/page.tsx                   → listado + EstudioSyncBanner
 app/temas/nuevo/page.tsx             → alta tema
 app/temas/[id]/page.tsx              → detalle tema
-app/cursos/[id]/page.tsx             → detalle curso
-app/clases/[id]/page.tsx             → detalle clase
+app/cursos/[id]/page.tsx             → detalle curso (UI estudio-detalle)
+app/clases/[id]/page.tsx             → detalle clase (2 tabs: seguimiento, conceptos)
+components/estudio-detalle/         → vistas compartidas curso/clase + detalle-shared
+lib/estudio-detalle-metrics.ts      → métricas gauge/timeline/tiempo compartidas
 lib/estudio-offline-cache.ts         → snapshot + firma remota + download
 lib/estudio-table-digest.ts          → digest por tabla (ediciones)
 lib/estudio-offline-read.ts          → lectura local derivados

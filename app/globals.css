@@ -105,13 +105,15 @@ html.pwa-standalone-zoom-lock body {
   }
 }
 
-/* —— Detalle de tema (mockup v6); tokens scoped a .tema-detalle-page —— */
+/* —— Detalle estudio (tema / curso / clase) —— */
+.estudio-detalle-shell,
 .tema-detalle-shell {
   background-color: #f2ede2;
   border-radius: 0 0 1rem 1rem;
   overflow: hidden;
 }
 
+.estudio-detalle-page,
 .tema-detalle-page {
   --td-paper: #f2ede2;
   --td-card: #fcfaf5;

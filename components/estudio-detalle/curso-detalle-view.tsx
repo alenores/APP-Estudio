@@ -1,17 +1,16 @@
 "use client";
 
 import type { ChildQuickAction } from "@/components/study/child-context-menu";
-import { TemaCursoCard } from "@/components/tema-detalle/tema-curso-card";
+import { ExternalLinkPreview } from "@/components/study/external-link-preview";
 import type {
+  ClaseConDerivados,
   Concepto,
   CursoConDerivados,
   Seguimiento,
-  TemaConDerivados,
 } from "@/app/types/estudio";
-import type {
-  FiltroHijoEstado,
-  TemaDetalleMetrics,
-} from "@/app/hooks/useTemaDetalleMetrics";
+import type { CursoDetalleMetrics } from "@/app/hooks/useCursoDetalleMetrics";
+import type { FiltroHijoEstado } from "@/app/hooks/useTemaDetalleMetrics";
+import { CursoClaseCard } from "@/components/estudio-detalle/curso-clase-card";
 import {
   ConceptosPanelItems,
   DetalleCalendarioSection,
@@ -23,7 +22,10 @@ import {
   DetalleFiltroEstados,
   SeguimientoPanelItems,
 } from "@/components/estudio-detalle/detalle-shared";
-import { ESTADO_OPCIONES, normalizarEstado } from "@/lib/estado-ui";
+import {
+  ESTADO_OPCIONES,
+  normalizarEstado,
+} from "@/lib/estado-ui";
 import { useMemo, useState } from "react";
 
 const FILTROS: { key: FiltroHijoEstado; label: string }[] = [
@@ -34,56 +36,62 @@ const FILTROS: { key: FiltroHijoEstado; label: string }[] = [
   })),
 ];
 
-const TAB_KEYS = ["cursos", "seguimiento", "conceptos"] as const;
+const TAB_KEYS = ["clases", "seguimiento", "conceptos"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
-type TemaDetalleViewProps = {
-  tema: TemaConDerivados;
-  cursos: CursoConDerivados[];
+type CursoDetalleViewProps = {
+  curso: CursoConDerivados;
+  clases: ClaseConDerivados[];
   seguimientos: Seguimiento[];
   conceptos: Concepto[];
-  metrics: TemaDetalleMetrics;
-  onCursoQuickAction: (
-    cursoId: number,
+  metrics: CursoDetalleMetrics;
+  onClaseQuickAction: (
+    claseId: number,
     nombre: string,
     action: ChildQuickAction,
   ) => void;
 };
 
-export function TemaDetalleView({
-  tema,
-  cursos,
+export function CursoDetalleView({
+  curso,
+  clases,
   seguimientos,
   conceptos,
   metrics,
-  onCursoQuickAction,
-}: TemaDetalleViewProps) {
+  onClaseQuickAction,
+}: CursoDetalleViewProps) {
   const [filtro, setFiltro] = useState<FiltroHijoEstado>("todos");
-  const [tab, setTab] = useState<TabKey>("cursos");
+  const [tab, setTab] = useState<TabKey>("clases");
   const tabIndex = TAB_KEYS.indexOf(tab);
 
-  const cursosFiltrados = useMemo(() => {
-    if (filtro === "todos") return cursos;
-    return cursos.filter(
+  const clasesFiltradas = useMemo(() => {
+    if (filtro === "todos") return clases;
+    return clases.filter(
       (c) => normalizarEstado(c.derivados.etiqueta_estado) === filtro,
     );
-  }, [cursos, filtro]);
+  }, [clases, filtro]);
 
   return (
     <DetallePageShell metrics={metrics}>
       <DetalleHeaderCard
-        eyebrow="Tema"
-        nombre={tema.nombre}
-        descripcion={tema.descripcion}
+        eyebrow="Curso"
+        nombre={curso.nombre}
+        descripcion={curso.descripcion}
       />
 
-      <DetalleMetricGrid metrics={metrics} estado={metrics.estadoTema} />
+      {curso.link ? (
+        <div className="td-rise td-d2 mt-3 overflow-hidden rounded-[22px] border border-[var(--td-line)] bg-[var(--td-card)] shadow-[var(--td-shadow)]">
+          <ExternalLinkPreview link={curso.link} />
+        </div>
+      ) : null}
+
+      <DetalleMetricGrid metrics={metrics} estado={metrics.estadoCurso} />
 
       <DetalleCalendarioSection
         metrics={metrics}
-        fechaInicio={tema.fecha_estimada_inicio}
-        fechaFin={tema.fecha_estimada_fin}
-        avanceLabel="Avance del temario"
+        fechaInicio={curso.fecha_estimada_inicio}
+        fechaFin={curso.fecha_estimada_fin}
+        avanceLabel="Avance del curso"
       />
 
       <DetalleZonaContenido>
@@ -93,14 +101,14 @@ export function TemaDetalleView({
           tabs={TAB_KEYS.map((key) => ({
             key,
             label:
-              key === "cursos"
-                ? "Cursos"
+              key === "clases"
+                ? "Clases"
                 : key === "seguimiento"
                   ? "Seguimiento"
                   : "Conceptos",
             count:
-              key === "cursos"
-                ? cursos.length
+              key === "clases"
+                ? clases.length
                 : key === "seguimiento"
                   ? seguimientos.length
                   : conceptos.length,
@@ -110,8 +118,8 @@ export function TemaDetalleView({
         />
 
         <div className="relative mt-4">
-          {tab === "cursos" ? (
-            <div key="cursos" className="td-cpanel-active">
+          {tab === "clases" ? (
+            <div key="clases" className="td-cpanel-active">
               <DetalleFiltroEstados
                 filtros={FILTROS}
                 filtro={filtro}
@@ -119,24 +127,18 @@ export function TemaDetalleView({
                 onSelect={setFiltro}
                 showDots
               />
-              {cursosFiltrados.length === 0 ? (
+              {clasesFiltradas.length === 0 ? (
                 <p className="rounded-2xl border border-dashed border-[var(--td-line)] px-4 py-9 text-center text-sm text-[var(--td-faint)]">
-                  No hay cursos en este filtro.
+                  No hay clases en este filtro.
                 </p>
               ) : (
                 <div className="flex flex-col gap-3">
-                  {cursosFiltrados.map((c) => (
-                    <TemaCursoCard
-                      key={c.id}
-                      curso={c}
-                      clasesStats={
-                        metrics.clasesStats.get(c.id) ?? {
-                          terminadas: 0,
-                          total: 0,
-                        }
-                      }
+                  {clasesFiltradas.map((cl) => (
+                    <CursoClaseCard
+                      key={cl.id}
+                      clase={cl}
                       onQuickAction={(action) =>
-                        onCursoQuickAction(c.id, c.nombre, action)
+                        onClaseQuickAction(cl.id, cl.nombre, action)
                       }
                     />
                   ))}
@@ -167,5 +169,3 @@ export function TemaDetalleView({
     </DetallePageShell>
   );
 }
-
-export type { FiltroHijoEstado as FiltroCursoEstado } from "@/app/hooks/useTemaDetalleMetrics";

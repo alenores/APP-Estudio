@@ -1,22 +1,17 @@
 "use client";
 
-import { useCursoDetalle } from "@/app/hooks/useCursoDetalle";
+import { useCursoDetalleMetrics } from "@/app/hooks/useCursoDetalleMetrics";
 import { AppShell } from "@/components/study/app-shell";
-import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
-import { TriplePanelTabs } from "@/components/study/triple-panel-tabs";
-import { EntityCardWithQuickActions } from "@/components/study/entity-card-with-quick-actions";
-import { EntityDetailHeader } from "@/components/study/entity-detail-header";
+import { AlertText, LoadingText } from "@/components/study/form-field";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
 import type { ChildQuickAction } from "@/components/study/child-context-menu";
-import { ConceptoList } from "@/components/study/concepto-list";
 import { ClaseForm } from "@/components/study/forms/clase-form";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import type { ConceptoParent } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
 import type { SeguimientoParent } from "@/components/study/forms/seguimiento-form";
-import { ExternalLinkPreview } from "@/components/study/external-link-preview";
-import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
+import { CursoDetalleView } from "@/components/estudio-detalle/curso-detalle-view";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
@@ -27,24 +22,11 @@ type SheetState =
   | { mode: "seguimiento"; parent: SeguimientoParent; contextLabel?: string }
   | { mode: "concepto"; parent: ConceptoParent; contextLabel?: string };
 
-function formatFecha(value: string | null) {
-  if (!value) return null;
-  try {
-    return new Date(value).toLocaleDateString("es-AR", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  } catch {
-    return value;
-  }
-}
-
 export default function CursoDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { curso, clases, seguimientos, conceptos, loading, error, reload } =
-    useCursoDetalle(id);
+  const { curso, clases, seguimientos, conceptos, loading, error, reload, metrics } =
+    useCursoDetalleMetrics(id);
   const [sheet, setSheet] = useState<SheetState>(null);
 
   function closeSheet() {
@@ -56,7 +38,11 @@ export default function CursoDetallePage() {
     await reload({ silent: true });
   }
 
-  function openClaseQuickAction(claseId: number, nombre: string, action: ChildQuickAction) {
+  function openClaseQuickAction(
+    claseId: number,
+    nombre: string,
+    action: ChildQuickAction,
+  ) {
     if (action === "seguimiento") {
       setSheet({
         mode: "seguimiento",
@@ -80,28 +66,13 @@ export default function CursoDetallePage() {
     );
   }
 
-  if (error || !curso) {
+  if (error || !curso || !metrics) {
     return (
       <AppShell title="Curso" backHref="/temas">
         <AlertText>{error ?? "No encontrado"}</AlertText>
       </AppShell>
     );
   }
-
-  const meta = [
-    curso.fecha_estimada_inicio
-      ? {
-          label: "Estimado inicio",
-          value: formatFecha(curso.fecha_estimada_inicio) ?? "",
-        }
-      : null,
-    curso.fecha_estimada_fin
-      ? {
-          label: "Estimado fin",
-          value: formatFecha(curso.fecha_estimada_fin) ?? "",
-        }
-      : null,
-  ].filter((m): m is { label: string; value: string } => m != null);
 
   const seguimientoSubtitle =
     sheet?.mode === "seguimiento"
@@ -115,67 +86,18 @@ export default function CursoDetallePage() {
   return (
     <>
       <AppShell
-        title={curso.nombre}
+        breadcrumb={`Curso · ${curso.nombre}`}
         backHref={`/temas/${curso.tema_id}`}
+        contentClassName="estudio-detalle-shell tema-detalle-shell flex min-h-0 flex-1 flex-col gap-0 px-2 pt-4 pb-0"
       >
-        <EntityDetailHeader
-          nombre={curso.nombre}
-          descripcion={curso.descripcion}
-          derivados={curso.derivados}
-          meta={meta}
+        <CursoDetalleView
+          curso={curso}
+          clases={clases}
+          seguimientos={seguimientos}
+          conceptos={conceptos}
+          metrics={metrics}
+          onClaseQuickAction={openClaseQuickAction}
         />
-
-        {curso.link ? <ExternalLinkPreview link={curso.link} /> : null}
-
-        <TriplePanelTabs
-          panelA={{
-            label: `Clases (${clases.length})`,
-            content: (
-              <div className="space-y-3 pb-20">
-                {clases.length === 0 ? (
-                  <p className="text-center text-sm text-ink-muted">
-                    Sin clases todavía. Usá + para agregar una.
-                  </p>
-                ) : (
-                  clases.map((cl) => (
-                    <EntityCardWithQuickActions
-                      key={cl.id}
-                      href={`/clases/${cl.id}`}
-                      nombre={cl.nombre}
-                      subtitulo={cl.dificultad ?? cl.descripcion}
-                      externalLink={cl.link}
-                      derivados={cl.derivados}
-                      badge={`#${cl.orden}`}
-                      onQuickAction={(action: ChildQuickAction) =>
-                        openClaseQuickAction(cl.id, cl.nombre, action)
-                      }
-                    />
-                  ))
-                )}
-              </div>
-            ),
-          }}
-          panelB={{
-            label: `Seguimiento (${seguimientos.length})`,
-            content: (
-              <div className="pb-20">
-                <SeguimientoList items={seguimientos} />
-              </div>
-            ),
-          }}
-          panelC={{
-            label: `Conceptos (${conceptos.length})`,
-            content: (
-              <div className="pb-20">
-                <ConceptoList items={conceptos} />
-              </div>
-            ),
-          }}
-        />
-
-        <p className="text-center text-xs text-ink-muted">
-          <TextLink href={`/temas/${curso.tema_id}`}>Volver al tema</TextLink>
-        </p>
       </AppShell>
 
       <FabExpandMenu

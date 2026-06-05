@@ -1,17 +1,13 @@
 "use client";
 
-import { useClaseDetalle } from "@/app/hooks/useClaseDetalle";
+import { useClaseDetalleMetrics } from "@/app/hooks/useClaseDetalleMetrics";
 import { AppShell } from "@/components/study/app-shell";
-import { AlertText, LoadingText, TextLink } from "@/components/study/form-field";
-import { DualPanelTabs } from "@/components/study/dual-panel-tabs";
-import { EntityDetailHeader } from "@/components/study/entity-detail-header";
-import { ExternalLinkPreview } from "@/components/study/external-link-preview";
+import { AlertText, LoadingText } from "@/components/study/form-field";
 import { FabExpandMenu } from "@/components/study/fab-expand-menu";
-import { ConceptoList } from "@/components/study/concepto-list";
 import { ConceptoForm } from "@/components/study/forms/concepto-form";
 import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
-import { SeguimientoList } from "@/components/study/seguimiento-list";
 import { StudySheet } from "@/components/study/study-sheet";
+import { ClaseDetalleView } from "@/components/estudio-detalle/clase-detalle-view";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
@@ -21,8 +17,8 @@ type ClaseSheet = null | "seguimiento" | "concepto";
 export default function ClaseDetallePage() {
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { clase, seguimientos, conceptos, loading, error, reload } =
-    useClaseDetalle(id);
+  const { clase, seguimientos, conceptos, loading, error, reload, metrics } =
+    useClaseDetalleMetrics(id);
   const [sheet, setSheet] = useState<ClaseSheet>(null);
 
   function closeSheet() {
@@ -42,7 +38,7 @@ export default function ClaseDetallePage() {
     );
   }
 
-  if (error || !clase) {
+  if (error || !clase || !metrics) {
     return (
       <AppShell title="Clase" backHref="/temas">
         <AlertText>{error ?? "No encontrada"}</AlertText>
@@ -50,44 +46,19 @@ export default function ClaseDetallePage() {
     );
   }
 
-  const meta = [
-    clase.dificultad ? { label: "Dificultad", value: clase.dificultad } : null,
-  ].filter((m): m is { label: string; value: string } => m != null);
-
   return (
     <>
-      <AppShell title={clase.nombre} backHref={`/cursos/${clase.curso_id}`}>
-        <EntityDetailHeader
-          nombre={clase.nombre}
-          descripcion={clase.descripcion}
-          derivados={clase.derivados}
-          meta={meta}
+      <AppShell
+        breadcrumb={`Clase · ${clase.nombre}`}
+        backHref={`/cursos/${clase.curso_id}`}
+        contentClassName="estudio-detalle-shell tema-detalle-shell flex min-h-0 flex-1 flex-col gap-0 px-2 pt-4 pb-0"
+      >
+        <ClaseDetalleView
+          clase={clase}
+          seguimientos={seguimientos}
+          conceptos={conceptos}
+          metrics={metrics}
         />
-
-        {clase.link ? <ExternalLinkPreview link={clase.link} /> : null}
-
-        <DualPanelTabs
-          panelA={{
-            label: `Seguimiento (${seguimientos.length})`,
-            content: (
-              <div className="pb-20">
-                <SeguimientoList items={seguimientos} />
-              </div>
-            ),
-          }}
-          panelB={{
-            label: `Conceptos (${conceptos.length})`,
-            content: (
-              <div className="pb-20">
-                <ConceptoList items={conceptos} />
-              </div>
-            ),
-          }}
-        />
-
-        <p className="text-center text-xs text-ink-muted">
-          <TextLink href={`/cursos/${clase.curso_id}`}>Volver al curso</TextLink>
-        </p>
       </AppShell>
 
       <FabExpandMenu
