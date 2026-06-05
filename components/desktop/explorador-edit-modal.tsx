@@ -3,9 +3,9 @@
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import type { Clase, Curso, Tema } from "@/app/types/estudio";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
-import { ClaseForm } from "@/components/study/forms/clase-form";
-import { CursoForm } from "@/components/study/forms/curso-form";
-import { TemaForm } from "@/components/study/forms/tema-form";
+import { ClaseForm } from "@/components/shared/forms/clase-form";
+import { CursoForm } from "@/components/shared/forms/curso-form";
+import { TemaForm } from "@/components/shared/forms/tema-form";
 import {
   explorerEntityLabel,
   type ExplorerEntityKind,

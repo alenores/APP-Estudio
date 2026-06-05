@@ -2,25 +2,26 @@
 
 ## Estado
 
-Aceptado — 2026-06-04
+Aceptado — 2026-06-04 (fase 5 estructural — 2026-06-04)
 
 ## Contexto
 
-APP Estudio tiene una UX **móvil-first** (PWA, detalle en profundidad, sheets, gestos) que no debe deformarse con breakpoints. En **PC** se necesita otra experiencia: explorador **tres columnas** (temas → cursos → clases), modales con tablas (fases posteriores), mouse/teclado.
+APP Estudio tiene una UX **móvil-first** (PWA, detalle en profundidad, sheets, gestos) que no debe deformarse con breakpoints. En **PC** se necesita otra experiencia: explorador **tres columnas** (temas → cursos → clases), modales con tablas, mouse/teclado.
 
 Misma base: Supabase, paquete local (`useEstudioData`), `lib/estudio-queries.ts`, validaciones Zod, derivados en `lib/`. **No** dos backends ni dos snapshots.
 
 ## Decisión
 
-### 1. Tres etiquetas de alcance (no tres productos)
+### 1. Cuatro etiquetas de alcance (no cuatro productos)
 
 | Etiqueta | Qué incluye |
 |----------|-------------|
-| **shared** | `lib/`, hooks de datos, forms, tokens, tipos, sync |
+| **ui** | Primitivos presentacionales (`components/ui/`) — sin Supabase, sin hooks de negocio |
+| **shared** | Forms, sync, data root, link preview (`components/shared/`) |
 | **mobile** | Rutas `/temas`, `/cursos`, `/clases`, `AppShell`, PWA, ADR 006 |
-| **desktop** | Rutas `/explorador`, `components/desktop/`, layout escritorio |
+| **desktop** | Rutas `/explorador`, `components/desktop/` |
 
-Todo pedido de feature debe aclarar **shared | mobile | desktop**. Cambios en tokens/chips/cards base → **shared**; layout 3 columnas → **desktop**.
+Todo pedido de feature debe aclarar **ui | shared | mobile | desktop**. Tokens/chips base → **ui**; forms → **shared**; layout 3 columnas → **desktop**.
 
 ### 2. Detección automática — sin elección del usuario
 
@@ -38,31 +39,49 @@ Exentos de redirección por shell: `/login`, `/auth`, `/api`, `/offline`.
 | Shell | Entrada principal | Detalle |
 |-------|-------------------|---------|
 | Móvil | `/`, `/temas` | `/temas/[id]`, `/cursos/[id]`, `/clases/[id]` |
-| Escritorio | `/explorador` | Selección vía query; modales tabla (fase 2+) |
+| Escritorio | `/explorador` | Selección vía query; modales tabla |
 
 ### 4. Carpetas
 
 ```
-app/(desktop)/explorador/     → página explorador
-components/desktop/           → UI solo PC
-components/mobile/            → (futuro) mover shell móvil actual
-components/study/forms/       → shared (cuerpo formularios)
-lib/shell-detect.ts           → detección servidor
-lib/shell-routes.ts           → constantes y mapeo URLs
-app/hooks/useEstudioExplorer.ts → árbol temas/cursos/clases desde cache
+components/
+├── ui/                         → primitivos (form controls, page chrome, MiniCard, PlatformLinkIcon)
+├── shared/
+│   ├── data/estudio-data-root.tsx
+│   ├── sync/estudio-sync-banner.tsx
+│   ├── forms/                  → TemaForm, CursoForm, ClaseForm, SeguimientoForm, ConceptoForm
+│   └── links/external-link-preview.tsx
+├── mobile/
+│   ├── shell/app-shell.tsx
+│   ├── sheets/study-sheet.tsx
+│   ├── fab/
+│   ├── cards/
+│   ├── detalle/                → vistas + detalle-shared.tsx
+│   └── pwa/
+├── desktop/                    → explorador, modales, toolbar
+├── deploy-sha-footer.tsx       → global (ambos shells + home)
+└── prevent-viewport-zoom.tsx   → global (layout)
+
+lib/form-parent-types.ts        → ConceptoParent, SeguimientoParent (lib, no components)
+lib/shell-detect.ts             → detección servidor
+lib/shell-routes.ts             → constantes y mapeo URLs
+app/hooks/useEstudioExplorer.ts → árbol temas/cursos/clases (PC)
+app/hooks/useExploradorKeyboard.ts → atajos explorador
 ```
+
+**Dependencias entre capas:** `ui` → (solo `lib` puro) · `shared` → `ui` · `mobile`/`desktop` → `shared` + `ui` · **`lib` no importa `components/`**.
 
 ### 5. Design system
 
-Primitivos visuales (chip, card, tokens `--td-*`) son **shared**. Wrappers distintos: `StudySheet` (móvil, ADR 006) vs modales escritorio (fase 2).
+Primitivos visuales (chip, card, tokens `--td-*`) en **`components/ui/`** y `app/globals.css`. Wrappers distintos: `StudySheet` (móvil, ADR 006) vs `DesktopModal` (escritorio).
 
 ### 6. Fases
 
-1. **Hecho en v1:** ADR, middleware, `/explorador` 3 columnas, selección URL.
-2. **Hecho en v2:** modales seguimiento/conceptos en tabla; alta con forms compartidos; doble clic en card → seguimientos.
-3. **Hecho en v3:** toolbar + Tema/Curso/Clase desde PC; `TemaForm` shared; métricas compactas en cards.
-4. **Hecho en v4:** editar/eliminar tema, curso y clase desde explorador (`update*`/`delete*` en queries, forms en modo edición, `ExploradorEditModal`); atajos de teclado (`useExploradorKeyboard`: ↑↓, ←→, Enter, E, S, C).
-5. **Siguiente:** extraer `components/ui/`; mover móvil a `components/mobile/`.
+1. **Hecho v1:** ADR, middleware, `/explorador` 3 columnas, selección URL.
+2. **Hecho v2:** modales seguimiento/conceptos en tabla; alta con forms compartidos; doble clic → seguimientos.
+3. **Hecho v3:** toolbar + Tema/Curso/Clase desde PC; métricas en cards.
+4. **Hecho v4:** editar/eliminar entidades; atajos de teclado.
+5. **Hecho v5:** `components/ui/`, `components/shared/`, `components/mobile/`; eliminación de `components/study/` y carpetas legacy; tipos de form en `lib/form-parent-types.ts`.
 
 ## Consecuencias
 
@@ -70,6 +89,7 @@ Primitivos visuales (chip, card, tokens `--td-*`) son **shared**. Wrappers disti
 - Probar móvil: emulación UA móvil o teléfono → flujo actual.
 - IA: no mezclar shells; no añadir breakpoints de layout en pages compartidas.
 - Nuevas rutas móviles → añadir prefijo a `MOBILE_SHELL_PREFIXES` y redirección escritorio en `shell-routes.ts`.
+- Cada carpeta top-level en `components/` tiene `README.md` con reglas de import.
 
 ## Referencias
 

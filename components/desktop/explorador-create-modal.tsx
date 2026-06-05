@@ -2,9 +2,9 @@
 
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
-import { ClaseForm } from "@/components/study/forms/clase-form";
-import { CursoForm } from "@/components/study/forms/curso-form";
-import { TemaForm } from "@/components/study/forms/tema-form";
+import { ClaseForm } from "@/components/shared/forms/clase-form";
+import { CursoForm } from "@/components/shared/forms/curso-form";
+import { TemaForm } from "@/components/shared/forms/tema-form";
 
 export type ExploradorCreateKind = "tema" | "curso" | "clase";
 

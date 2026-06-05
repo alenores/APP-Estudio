@@ -41,4 +41,4 @@ Referencias de patrón (no copiar código literal de imágenes/SW de Vías): `li
 |-----|--------|
 | Snapshot + sync | `lib/estudio-offline-cache.ts` |
 | Lectura derivada | `lib/estudio-offline-read.ts` |
-| Contexto UI | `app/hooks/useEstudioData.tsx`, `components/study/estudio-data-provider.tsx` |
+| Contexto UI | `app/hooks/useEstudioData.tsx`, `components/shared/data/estudio-data-root.tsx` |

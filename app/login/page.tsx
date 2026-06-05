@@ -12,7 +12,7 @@ import {
   SecondaryButton,
   SurfaceCard,
   TextLink,
-} from "@/components/study/form-field";
+} from "@/components/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 

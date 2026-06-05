@@ -1,8 +1,8 @@
 "use client";
 
 import { useEstudioData } from "@/app/hooks/useEstudioData";
-import { AppShell } from "@/components/study/app-shell";
-import { TemaForm } from "@/components/study/forms/tema-form";
+import { AppShell } from "@/components/mobile/shell/app-shell";
+import { TemaForm } from "@/components/shared/forms/tema-form";
 import { useRouter } from "next/navigation";
 
 export default function NuevoTemaPage() {

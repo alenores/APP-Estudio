@@ -5,8 +5,7 @@ import {
   getCursoDetalleFromCache,
   getTemaDetalleFromCache,
 } from "@/lib/estudio-offline-read";
-import type { ConceptoParent } from "@/components/study/forms/concepto-form";
-import type { SeguimientoParent } from "@/components/study/forms/seguimiento-form";
+import type { ConceptoParent, SeguimientoParent } from "@/lib/form-parent-types";
 
 export type ExplorerEntityKind = "tema" | "curso" | "clase";
 

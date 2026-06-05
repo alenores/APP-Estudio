@@ -2,8 +2,8 @@
 
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
-import { ConceptoForm } from "@/components/study/forms/concepto-form";
-import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
+import { ConceptoForm } from "@/components/shared/forms/concepto-form";
+import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
 import { formatDuracionMinutos } from "@/lib/format-duracion";
 import {
   conceptoParentFromEntity,

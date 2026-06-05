@@ -10,11 +10,11 @@ Aceptado — 2026-06-03
 |------|-----------|-----------------|
 | **Paquete local** | `lib/estudio-offline-cache.ts`, `lib/estudio-offline-read.ts`, `useEstudioData` | Snapshot, MAX(id), Actualizar |
 | **Datos / API** | `lib/estudio-queries.ts`, hooks de detalle | Inserts y sync remoto; **lectura** desde cache en hooks |
-| **Instalación PWA** | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/*-install*`, `app/hooks/usePwaOnDeviceInBrowser.ts` | Standalone, banners install — **sin** Supabase |
+| **Instalación PWA** | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/mobile/pwa/*`, `app/hooks/usePwaOnDeviceInBrowser.ts` | Standalone, banners install — **sin** Supabase |
 | **Página** | `app/page.tsx` (y rutas futuras) | Componer UI; delgada |
-| **Presentación** | `components/` | JSX; sin fetch directo a Supabase (salvo helpers puros) |
-| **Formularios** | `components/study/forms/` + `lib/validations.ts` | UI + Zod; `insert*` vía `lib/estudio-queries.ts` |
-| **Alta de hijos** | `StudySheet` en página padre | Curso, clase, seguimiento **sin** ruta `/nuevo` dedicada |
+| **Presentación** | `components/ui/`, `components/shared/`, `components/mobile/`, `components/desktop/` | JSX; sin fetch directo a Supabase (salvo helpers puros) |
+| **Formularios** | `components/shared/forms/` + `lib/validations.ts` | UI + Zod; `insert*` vía `lib/estudio-queries.ts` |
+| **Alta de hijos** | `StudySheet` (`components/mobile/sheets/`) en página padre | Curso, clase, seguimiento **sin** ruta `/nuevo` dedicada |
 
 ### Reglas
 

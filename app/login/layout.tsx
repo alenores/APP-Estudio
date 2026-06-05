@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { LoadingText } from "@/components/study/form-field";
+import { LoadingText } from "@/components/ui";
 
 export default function LoginLayout({ children }: { children: ReactNode }) {
   return (

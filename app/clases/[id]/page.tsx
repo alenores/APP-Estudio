@@ -1,13 +1,13 @@
 "use client";
 
 import { useClaseDetalleMetrics } from "@/app/hooks/useClaseDetalleMetrics";
-import { AppShell } from "@/components/study/app-shell";
-import { AlertText, LoadingText } from "@/components/study/form-field";
-import { FabExpandMenu } from "@/components/study/fab-expand-menu";
-import { ConceptoForm } from "@/components/study/forms/concepto-form";
-import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
-import { StudySheet } from "@/components/study/study-sheet";
-import { ClaseDetalleView } from "@/components/estudio-detalle/clase-detalle-view";
+import { AppShell } from "@/components/mobile/shell/app-shell";
+import { AlertText, LoadingText } from "@/components/ui";
+import { FabExpandMenu } from "@/components/mobile/fab/fab-expand-menu";
+import { ConceptoForm } from "@/components/shared/forms/concepto-form";
+import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
+import { StudySheet } from "@/components/mobile/sheets/study-sheet";
+import { ClaseDetalleView } from "@/components/mobile/detalle/clase-detalle-view";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
-import { EstudioDataRoot } from "@/components/study/estudio-data-root";
+import { EstudioDataRoot } from "@/components/shared/data/estudio-data-root";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { ServiceWorkerRegister } from "./sw-register";
 import "./globals.css";

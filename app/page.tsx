@@ -3,15 +3,15 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { InstallPwaButton } from "@/app/install-pwa-button";
 import { usePwaOnDeviceInBrowser } from "@/app/hooks/usePwaOnDeviceInBrowser";
-import { AndroidOpenFromHomeHelp } from "@/components/android-open-from-home-help";
-import { IosPwaInstallHelp } from "@/components/ios-pwa-install-help";
+import { AndroidOpenFromHomeHelp } from "@/components/mobile/pwa/android-open-from-home-help";
+import { IosPwaInstallHelp } from "@/components/mobile/pwa/ios-pwa-install-help";
 import {
   PageLead,
   PageTitle,
   PrimaryButtonLink,
   SecondaryButtonLink,
   SurfaceCard,
-} from "@/components/study/form-field";
+} from "@/components/ui";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { createClient } from "@/lib/supabase/client";

@@ -1,16 +1,16 @@
 "use client";
 
 import { useTemasList } from "@/app/hooks/useTemasList";
-import { AppShell } from "@/components/study/app-shell";
-import { EstudioSyncBanner } from "@/components/study/estudio-sync-banner";
-import { EntityCard } from "@/components/study/entity-card";
-import { FabLink } from "@/components/study/fab-link";
+import { AppShell } from "@/components/mobile/shell/app-shell";
+import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner";
+import { EntityCard } from "@/components/mobile/cards/entity-card";
+import { FabLink } from "@/components/mobile/fab/fab-link";
 import {
   AlertText,
   EmptyState,
   LoadingText,
   TextLink,
-} from "@/components/study/form-field";
+} from "@/components/ui";
 import { clearEstudioOfflineCache } from "@/lib/estudio-offline-cache";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";

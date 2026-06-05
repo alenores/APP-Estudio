@@ -13,8 +13,8 @@ import {
 import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
 import { ExploradorToolbar } from "@/components/desktop/explorador-toolbar";
-import { EstudioSyncBanner } from "@/components/study/estudio-sync-banner";
-import { AlertText, LoadingText } from "@/components/study/form-field";
+import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner";
+import { AlertText, LoadingText } from "@/components/ui";
 import {
   ExploradorColumn,
   ExploradorColumnCard,

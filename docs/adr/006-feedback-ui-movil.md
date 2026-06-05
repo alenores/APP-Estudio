@@ -44,7 +44,7 @@ Animaciones de entrada en página (`rise`, timeline, velocímetro, `panelin` en 
 
 4. **FAB expandible**
    - Sin escalonado entre ítems; menú simple abrir/cerrar + rotación del `+`.
-   - Ver `components/study/fab-expand-menu.tsx`.
+   - Ver `components/mobile/fab/fab-expand-menu.tsx`.
 
 5. **Probar en dispositivo**
    - Confirmar con SHA del footer en el celular; la emulación PC **no alcanza** para animaciones.
@@ -56,7 +56,7 @@ Animaciones de entrada en página (`rise`, timeline, velocímetro, `panelin` en 
    - Mismos sheets y forms que el FAB; título del sheet puede incluir el nombre del hijo.
 
 7. **Entrar a un hijo (card con `forwardTransition`)**
-   - **Tap** o **swipe ←** en la fila (`EntityCard` / `entity-card-with-quick-actions`): la hoja `data-nav-panel` se corre a la izquierda (~92 % ancho, **210 ms**), `sessionStorage`, luego `router.push`. Cards curso/clase: **pointer** en el Link (no `touch` en el wrapper). Panel con **ganancia** ~1.45× el dedo; commit ~52 px o ~32 % de la salida (dedo al centro de la pantalla). **Swipe →** sobre una card no bloquea volver: el gesto burbujea al `AppShell` (`use-nav-item-forward-swipe` abandona y no hace `stopPropagation`).
+   - **Tap** o **swipe ←** en la fila (`EntityCard` en `components/mobile/cards/entity-card.tsx`): la hoja `data-nav-panel` se corre a la izquierda (~92 % ancho, **210 ms**), `sessionStorage`, luego `router.push`. Cards curso/clase: **pointer** en el Link (no `touch` en el wrapper). Panel con **ganancia** ~1.45× el dedo; commit ~52 px o ~32 % de la salida (dedo al centro de la pantalla). **Swipe →** sobre una card no bloquea volver: el gesto burbujea al `AppShell` (`use-nav-item-forward-swipe` abandona y no hace `stopPropagation`).
    - Long press en la misma card cancela el timer si arranca el swipe horizontal (`onForwardSwipeStart`).
    - Detalle hijo al montar: entrada desde la **derecha** (~92 % ancho, mismo orden que la salida), `scale` 0.992→1, doble `rAF` en Android (`lib/use-nav-detail-gestures.ts`). Salida adelante espera **210 ms** (transición CSS) antes de `push`; opcional `startViewTransition` si el navegador lo soporta.
 
@@ -69,12 +69,12 @@ Animaciones de entrada en página (`rise`, timeline, velocímetro, `panelin` en 
 
 | Qué | Dónde |
 |-----|--------|
-| Delay FAB → sheet | `lib/fab-open-delay.ts`, `fab-expand-menu.tsx`, `fab-action-button.tsx` |
-| Sheet simple | `components/study/study-sheet.tsx` |
-| Navegación adelante (tap + swipe ←) | `lib/nav-motion.ts`, `lib/nav-panel-context.tsx`, `lib/use-nav-item-forward-swipe.ts`, `lib/navigate-forward.ts`, `entity-card.tsx` |
-| Entrada detalle + swipe atrás | `lib/use-nav-detail-gestures.ts`, `lib/nav-transition.ts`, `components/study/app-shell.tsx` |
-| Menú contextual card hijo | `entity-card-with-quick-actions.tsx`, `child-context-menu.tsx` |
-| Preview link curso/clase | `components/study/external-link-preview.tsx`, `app/api/link-preview` |
+| Delay FAB → sheet | `lib/fab-open-delay.ts`, `components/mobile/fab/fab-expand-menu.tsx` |
+| Sheet simple | `components/mobile/sheets/study-sheet.tsx` |
+| Navegación adelante (tap + swipe ←) | `lib/nav-motion.ts`, `lib/nav-panel-context.tsx`, `lib/use-nav-item-forward-swipe.ts`, `lib/navigate-forward.ts`, `components/mobile/cards/entity-card.tsx` |
+| Entrada detalle + swipe atrás | `lib/use-nav-detail-gestures.ts`, `lib/nav-transition.ts`, `components/mobile/shell/app-shell.tsx` |
+| Menú contextual card hijo | `components/mobile/cards/child-context-menu.tsx` |
+| Preview link curso/clase | `components/shared/links/external-link-preview.tsx`, `app/api/link-preview` |
 | Fade velo | `app/globals.css` → `.sheet-backdrop-enter` |
 | Alta de hijos sin rutas `/nuevo` | ADR 003 reglas 4–7 |
 

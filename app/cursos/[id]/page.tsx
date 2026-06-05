@@ -1,17 +1,16 @@
 "use client";
 
 import { useCursoDetalleMetrics } from "@/app/hooks/useCursoDetalleMetrics";
-import { AppShell } from "@/components/study/app-shell";
-import { AlertText, LoadingText } from "@/components/study/form-field";
-import { FabExpandMenu } from "@/components/study/fab-expand-menu";
-import type { ChildQuickAction } from "@/components/study/child-context-menu";
-import { ClaseForm } from "@/components/study/forms/clase-form";
-import { ConceptoForm } from "@/components/study/forms/concepto-form";
-import type { ConceptoParent } from "@/components/study/forms/concepto-form";
-import { SeguimientoForm } from "@/components/study/forms/seguimiento-form";
-import type { SeguimientoParent } from "@/components/study/forms/seguimiento-form";
-import { StudySheet } from "@/components/study/study-sheet";
-import { CursoDetalleView } from "@/components/estudio-detalle/curso-detalle-view";
+import { AppShell } from "@/components/mobile/shell/app-shell";
+import { AlertText, LoadingText } from "@/components/ui";
+import { FabExpandMenu } from "@/components/mobile/fab/fab-expand-menu";
+import type { ChildQuickAction } from "@/components/mobile/cards/child-context-menu";
+import { ClaseForm } from "@/components/shared/forms/clase-form";
+import type { ConceptoParent, SeguimientoParent } from "@/lib/form-parent-types";
+import { ConceptoForm } from "@/components/shared/forms/concepto-form";
+import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
+import { StudySheet } from "@/components/mobile/sheets/study-sheet";
+import { CursoDetalleView } from "@/components/mobile/detalle/curso-detalle-view";
 import { useParams } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
