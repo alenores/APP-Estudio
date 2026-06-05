@@ -21,14 +21,18 @@ export const jakartaDetalle = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-export function formatFechaLarga(value: string | null): string {
+/** Fechas en card calendario: dd/mm/aaaa */
+export function formatFechaCalendario(value: string | null): string {
   if (!value?.trim()) return "—";
+  const iso = value.trim().slice(0, 10);
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
   try {
-    return new Date(value).toLocaleDateString("es-AR", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return value;
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    return `${dd}/${mm}/${d.getFullYear()}`;
   } catch {
     return value;
   }
@@ -181,15 +185,15 @@ export function DetalleCalendarioSection({
             Inicio
           </div>
           <div className="mt-0.5 text-sm font-bold">
-            {formatFechaLarga(fechaInicio)}
+            {formatFechaCalendario(fechaInicio)}
           </div>
         </div>
         <div className="text-right">
           <div className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-faint)]">
-            Fin estimado
+            Fin
           </div>
           <div className="mt-0.5 text-sm font-bold">
-            {formatFechaLarga(fechaFin)}
+            {formatFechaCalendario(fechaFin)}
           </div>
         </div>
       </div>
@@ -217,9 +221,6 @@ export function DetalleCalendarioSection({
           </span>
         ) : null}
       </div>
-      {metrics.nota ? (
-        <NotaCalendario nota={metrics.nota} delta={metrics.delta} />
-      ) : null}
     </section>
   );
 }
@@ -304,27 +305,35 @@ export function DetalleFiltroEstados<T extends string>({
             key={f.key}
             type="button"
             onClick={() => onSelect(f.key)}
-            className={`flex min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-[10px] border px-1 py-2 text-[9.5px] font-bold transition-[background,border-color] duration-150 ${
+            className={`flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-[10px] border px-1 py-1.5 text-[9.5px] font-bold leading-tight transition-[background,border-color] duration-150 ${
               active
                 ? "border-[var(--td-navy)] bg-[var(--td-navy)] text-white shadow-[0_4px_12px_-4px_rgba(39,72,103,.45)]"
                 : "border-[var(--td-line)] bg-[var(--td-card)] text-[var(--td-ink-soft)]"
             }`}
           >
-            {showDots && f.key !== "todos" ? (
-              <span
-                className={estadoFilterDotClass(
-                  f.key as "sin empezar" | "en curso" | "pausado" | "terminado",
-                )}
-                aria-hidden
-              />
-            ) : null}
-            <span className={active ? "text-white" : ""}>{f.label}</span>
+            <span className="flex h-2.5 shrink-0 items-center justify-center">
+              {showDots && f.key !== "todos" ? (
+                <span
+                  className={estadoFilterDotClass(
+                    f.key as
+                      | "sin empezar"
+                      | "en curso"
+                      | "pausado"
+                      | "terminado",
+                  )}
+                  aria-hidden
+                />
+              ) : null}
+            </span>
+            <span className={`text-center ${active ? "text-white" : ""}`}>
+              {f.label}
+            </span>
             <span
-              className={
+              className={`text-[10px] leading-none ${
                 active
                   ? "font-semibold text-white/70"
                   : "font-semibold text-[var(--td-faint)]"
-              }
+              }`}
             >
               {contadores[f.key]}
             </span>
@@ -421,30 +430,5 @@ function VeredictoChip({ veredicto }: { veredicto: VeredictoUi }) {
       {prefix}
       {veredicto.label}
     </span>
-  );
-}
-
-function NotaCalendario({
-  nota,
-  delta,
-}: {
-  nota: string;
-  delta: number | null;
-}) {
-  if (!nota.includes("puntos") || delta == null) {
-    return (
-      <p className="mt-3.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)] px-3.5 py-2.5 text-[13px] text-[var(--td-ink-soft)]">
-        {nota}
-      </p>
-    );
-  }
-  const puntos = Math.abs(Math.round(delta));
-  const [before, after] = nota.split(`${puntos} puntos`);
-  return (
-    <p className="mt-3.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)] px-3.5 py-2.5 text-[13px] text-[var(--td-ink-soft)]">
-      {before}
-      <b className="font-extrabold text-[var(--td-red)]">{puntos} puntos</b>
-      {after}
-    </p>
   );
 }
