@@ -4,11 +4,13 @@ import { estadoChipDetalleClass, estadoLabel } from "@/lib/estado-ui";
 import type { ReactNode } from "react";
 
 type ExploradorColumnCardProps = {
+  explorerId?: number;
   title: string;
   subtitle?: string | null;
   estado: string | null;
   selected: boolean;
   onSelect: () => void;
+  onEdit: () => void;
   onOpenSeguimientos: () => void;
   onOpenConceptos: () => void;
   metaLines?: string[];
@@ -16,11 +18,13 @@ type ExploradorColumnCardProps = {
 };
 
 export function ExploradorColumnCard({
+  explorerId,
   title,
   subtitle,
   estado,
   selected,
   onSelect,
+  onEdit,
   onOpenSeguimientos,
   onOpenConceptos,
   metaLines,
@@ -30,6 +34,7 @@ export function ExploradorColumnCard({
 
   return (
     <article
+      data-explorer-id={explorerId}
       className={`rounded-xl border transition-[border-color,box-shadow,background] duration-150 ${
         selected
           ? "border-[var(--td-navy)] bg-white shadow-[0_4px_16px_-6px_rgba(39,72,103,.28)] ring-1 ring-[var(--td-navy)]/25"
@@ -76,6 +81,11 @@ export function ExploradorColumnCard({
         ) : null}
       </div>
       <div className="flex gap-1 border-t border-[var(--td-line)]/80 px-2 py-1.5">
+        <ExploradorCardAction
+          label="Editar"
+          shortLabel="Edit."
+          onClick={onEdit}
+        />
         <ExploradorCardAction
           label="Seguimiento"
           shortLabel="Seg."

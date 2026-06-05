@@ -1,5 +1,6 @@
 "use client";
 
+import type { Clase } from "@/app/types/estudio";
 import {
   FormError,
   FormField,
@@ -7,23 +8,37 @@ import {
   FormSubmitButton,
   FormTextarea,
 } from "@/components/study/form-field";
-import { getSessionUserId, insertClase } from "@/lib/estudio-queries";
+import {
+  deleteClase,
+  getSessionUserId,
+  insertClase,
+  updateClase,
+} from "@/lib/estudio-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
+import { numberFieldInitial } from "@/lib/iso-date-input";
 import { claseFormSchema } from "@/lib/validations";
 import { useState } from "react";
 
 type ClaseFormProps = {
   cursoId: number;
+  clase?: Clase;
   onSuccess: (claseId: number) => void;
+  onDelete?: () => void;
 };
 
-export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [orden, setOrden] = useState("");
-  const [jerarquia, setJerarquia] = useState("");
-  const [dificultad, setDificultad] = useState("");
-  const [link, setLink] = useState("");
+export function ClaseForm({
+  cursoId,
+  clase,
+  onSuccess,
+  onDelete,
+}: ClaseFormProps) {
+  const isEdit = clase != null;
+  const [nombre, setNombre] = useState(clase?.nombre ?? "");
+  const [descripcion, setDescripcion] = useState(clase?.descripcion ?? "");
+  const [orden, setOrden] = useState(numberFieldInitial(clase?.orden));
+  const [jerarquia, setJerarquia] = useState(numberFieldInitial(clase?.jerarquia));
+  const [dificultad, setDificultad] = useState(clase?.dificultad ?? "");
+  const [link, setLink] = useState(clase?.link ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -55,7 +70,9 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
       return;
     }
 
-    const result = await insertClase(userId, cursoId, parsed.data);
+    const result = isEdit
+      ? await updateClase(clase.id, parsed.data)
+      : await insertClase(userId, cursoId, parsed.data);
     setLoading(false);
 
     if (result.error) {
@@ -66,6 +83,22 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
     if (result.data) {
       onSuccess(result.data.id);
     }
+  }
+
+  async function handleDelete() {
+    if (!clase || !onDelete) return;
+    const ok = window.confirm(
+      `¿Eliminar la clase «${clase.nombre}»? Se borran también sus seguimientos y conceptos.`,
+    );
+    if (!ok) return;
+    setLoading(true);
+    const { error: delError } = await deleteClase(clase.id);
+    setLoading(false);
+    if (delError) {
+      setError(delError);
+      return;
+    }
+    onDelete();
   }
 
   return (
@@ -99,16 +132,13 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
           placeholder="https://platzi.com/clases/..."
         />
       </FormField>
-      <p className="text-xs text-ink-muted">
-        En el detalle de la clase se muestra miniatura o ícono según el link.
-      </p>
       <FormField label="Orden" error={fieldErrors.orden}>
         <FormInput
           type="number"
           min={0}
           value={orden}
           onChange={(e) => setOrden(e.target.value)}
-          placeholder="Vacío = al final"
+          placeholder={isEdit ? undefined : "Vacío = al final"}
         />
       </FormField>
       <FormField label="Jerarquía" error={fieldErrors.jerarquia}>
@@ -120,7 +150,20 @@ export function ClaseForm({ cursoId, onSuccess }: ClaseFormProps) {
         />
       </FormField>
       <FormError message={error} />
-      <FormSubmitButton loading={loading} label="Crear clase" />
+      <FormSubmitButton
+        loading={loading}
+        label={isEdit ? "Guardar cambios" : "Crear clase"}
+      />
+      {isEdit && onDelete ? (
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void handleDelete()}
+          className="w-full rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+        >
+          Eliminar clase
+        </button>
+      ) : null}
     </form>
   );
 }

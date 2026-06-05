@@ -1,5 +1,6 @@
 "use client";
 
+import type { Tema } from "@/app/types/estudio";
 import {
   FormError,
   FormField,
@@ -7,22 +8,38 @@ import {
   FormSubmitButton,
   FormTextarea,
 } from "@/components/study/form-field";
-import { getSessionUserId, insertTema } from "@/lib/estudio-queries";
+import {
+  deleteTema,
+  getSessionUserId,
+  insertTema,
+  updateTema,
+} from "@/lib/estudio-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
+import {
+  isoToDateInputValue,
+  numberFieldInitial,
+} from "@/lib/iso-date-input";
 import { temaFormSchema } from "@/lib/validations";
 import { useState } from "react";
 
 type TemaFormProps = {
+  tema?: Tema;
   onSuccess: (temaId: number) => void;
+  onDelete?: () => void;
 };
 
-export function TemaForm({ onSuccess }: TemaFormProps) {
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [orden, setOrden] = useState("");
-  const [jerarquia, setJerarquia] = useState("");
-  const [fechaInicio, setFechaInicio] = useState("");
-  const [fechaFin, setFechaFin] = useState("");
+export function TemaForm({ tema, onSuccess, onDelete }: TemaFormProps) {
+  const isEdit = tema != null;
+  const [nombre, setNombre] = useState(tema?.nombre ?? "");
+  const [descripcion, setDescripcion] = useState(tema?.descripcion ?? "");
+  const [orden, setOrden] = useState(numberFieldInitial(tema?.orden));
+  const [jerarquia, setJerarquia] = useState(numberFieldInitial(tema?.jerarquia));
+  const [fechaInicio, setFechaInicio] = useState(
+    isoToDateInputValue(tema?.fecha_estimada_inicio),
+  );
+  const [fechaFin, setFechaFin] = useState(
+    isoToDateInputValue(tema?.fecha_estimada_fin),
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -54,7 +71,9 @@ export function TemaForm({ onSuccess }: TemaFormProps) {
       return;
     }
 
-    const result = await insertTema(userId, parsed.data);
+    const result = isEdit
+      ? await updateTema(tema.id, parsed.data)
+      : await insertTema(userId, parsed.data);
     setLoading(false);
 
     if (result.error) {
@@ -65,6 +84,22 @@ export function TemaForm({ onSuccess }: TemaFormProps) {
     if (result.data) {
       onSuccess(result.data.id);
     }
+  }
+
+  async function handleDelete() {
+    if (!tema || !onDelete) return;
+    const ok = window.confirm(
+      `¿Eliminar el tema «${tema.nombre}»? Se borran también sus cursos, clases y registros relacionados.`,
+    );
+    if (!ok) return;
+    setLoading(true);
+    const { error: delError } = await deleteTema(tema.id);
+    setLoading(false);
+    if (delError) {
+      setError(delError);
+      return;
+    }
+    onDelete();
   }
 
   return (
@@ -89,7 +124,7 @@ export function TemaForm({ onSuccess }: TemaFormProps) {
           min={0}
           value={orden}
           onChange={(e) => setOrden(e.target.value)}
-          placeholder="Vacío = al final"
+          placeholder={isEdit ? undefined : "Vacío = al final"}
         />
       </FormField>
       <FormField label="Jerarquía" error={fieldErrors.jerarquia}>
@@ -118,7 +153,20 @@ export function TemaForm({ onSuccess }: TemaFormProps) {
         />
       </FormField>
       <FormError message={error} />
-      <FormSubmitButton loading={loading} label="Crear tema" />
+      <FormSubmitButton
+        loading={loading}
+        label={isEdit ? "Guardar cambios" : "Crear tema"}
+      />
+      {isEdit && onDelete ? (
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void handleDelete()}
+          className="w-full rounded-xl border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+        >
+          Eliminar tema
+        </button>
+      ) : null}
     </form>
   );
 }

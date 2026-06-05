@@ -5,10 +5,12 @@ import {
   parseExplorerSelection,
   useEstudioExplorer,
 } from "@/app/hooks/useEstudioExplorer";
+import { useExploradorKeyboard } from "@/app/hooks/useExploradorKeyboard";
 import {
   ExploradorCreateModal,
   type ExploradorCreateKind,
 } from "@/components/desktop/explorador-create-modal";
+import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
 import { ExploradorToolbar } from "@/components/desktop/explorador-toolbar";
 import { EstudioSyncBanner } from "@/components/study/estudio-sync-banner";
@@ -51,6 +53,9 @@ export function ExploradorView() {
   const [createKind, setCreateKind] = useState<ExploradorCreateKind | null>(
     null,
   );
+  const [editEntity, setEditEntity] = useState<ExplorerEntityRef | null>(null);
+
+  const modalsOpen = panelModal != null || createKind != null || editEntity != null;
 
   function go(href: string) {
     router.replace(href);
@@ -74,10 +79,51 @@ export function ExploradorView() {
     );
   }
 
+  function onDeleted(cleared: {
+    temaId?: null;
+    cursoId?: null;
+    claseId?: null;
+  }) {
+    go(
+      explorerHref({
+        temaId: cleared.temaId !== undefined ? null : selection.temaId,
+        cursoId: cleared.cursoId !== undefined ? null : selection.cursoId,
+        claseId: cleared.claseId !== undefined ? null : selection.claseId,
+      }),
+    );
+  }
+
+  const editTema =
+    editEntity?.kind === "tema"
+      ? (temas.find((t) => t.id === editEntity.id) ?? null)
+      : null;
+  const editCurso =
+    editEntity?.kind === "curso"
+      ? (cursos.find((c) => c.id === editEntity.id) ?? null)
+      : null;
+  const editClase =
+    editEntity?.kind === "clase"
+      ? (clases.find((cl) => cl.id === editEntity.id) ?? null)
+      : null;
+
+  useExploradorKeyboard({
+    enabled: packReady && !modalsOpen,
+    temas,
+    cursos,
+    clases,
+    selection,
+    onNavigate: go,
+    onEdit: setEditEntity,
+    onOpenPanel: openPanel,
+  });
+
   return (
     <div className="desktop-explorador flex min-h-0 flex-1 flex-col">
       <div className="flex flex-col gap-3">
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[11px] text-[var(--td-faint)]">
+            ↑↓ navegar · ←→ columnas · Enter seleccionar · E editar · S seguimientos · C conceptos
+          </p>
           <ExploradorToolbar
             temaId={selection.temaId}
             cursoId={selection.cursoId}
@@ -100,6 +146,7 @@ export function ExploradorView() {
             {temas.map((t) => (
               <ExploradorColumnCard
                 key={t.id}
+                explorerId={t.id}
                 title={t.nombre}
                 subtitle={t.descripcion}
                 estado={t.derivados.etiqueta_estado}
@@ -107,6 +154,13 @@ export function ExploradorView() {
                 selected={selection.temaId === t.id}
                 onSelect={() =>
                   go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
+                }
+                onEdit={() =>
+                  setEditEntity({
+                    kind: "tema",
+                    id: t.id,
+                    nombre: t.nombre,
+                  })
                 }
                 onOpenSeguimientos={() =>
                   openPanel(
@@ -136,6 +190,7 @@ export function ExploradorView() {
             {cursos.map((c) => (
               <ExploradorColumnCard
                 key={c.id}
+                explorerId={c.id}
                 title={c.nombre}
                 subtitle={c.descripcion}
                 estado={c.derivados.etiqueta_estado}
@@ -152,6 +207,13 @@ export function ExploradorView() {
                       claseId: null,
                     }),
                   )
+                }
+                onEdit={() =>
+                  setEditEntity({
+                    kind: "curso",
+                    id: c.id,
+                    nombre: c.nombre,
+                  })
                 }
                 onOpenSeguimientos={() =>
                   openPanel(
@@ -181,6 +243,7 @@ export function ExploradorView() {
             {clases.map((cl) => (
               <ExploradorColumnCard
                 key={cl.id}
+                explorerId={cl.id}
                 title={cl.nombre}
                 subtitle={cl.descripcion}
                 estado={cl.derivados.etiqueta_estado}
@@ -194,6 +257,13 @@ export function ExploradorView() {
                       claseId: cl.id,
                     }),
                   )
+                }
+                onEdit={() =>
+                  setEditEntity({
+                    kind: "clase",
+                    id: cl.id,
+                    nombre: cl.nombre,
+                  })
                 }
                 onOpenSeguimientos={() =>
                   openPanel(
@@ -231,6 +301,18 @@ export function ExploradorView() {
           cursoId={selection.cursoId}
           onClose={() => setCreateKind(null)}
           onCreated={onCreated}
+        />
+      ) : null}
+
+      {editEntity ? (
+        <ExploradorEditModal
+          kind={editEntity.kind}
+          tema={editTema}
+          curso={editCurso}
+          clase={editClase}
+          onClose={() => setEditEntity(null)}
+          onSaved={() => {}}
+          onDeleted={onDeleted}
         />
       ) : null}
     </div>

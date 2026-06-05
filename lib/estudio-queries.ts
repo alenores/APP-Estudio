@@ -289,6 +289,98 @@ export async function insertClase(
   return { data: data as Clase | null, error: error?.message ?? null };
 }
 
+export async function updateTema(
+  temaId: number,
+  values: TemaFormValues,
+): Promise<{ data: Tema | null; error: string | null }> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("temas")
+    .update({
+      nombre: values.nombre,
+      descripcion: emptyToNull(values.descripcion),
+      orden: values.orden ?? 0,
+      jerarquia: values.jerarquia ?? 0,
+      fecha_estimada_inicio: emptyToNull(values.fecha_estimada_inicio),
+      fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
+    })
+    .eq("id", temaId)
+    .select()
+    .single();
+
+  return { data: data as Tema | null, error: error?.message ?? null };
+}
+
+export async function updateCurso(
+  cursoId: number,
+  values: CursoFormValues,
+): Promise<{ data: Curso | null; error: string | null }> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("cursos")
+    .update({
+      nombre: values.nombre,
+      descripcion: emptyToNull(values.descripcion),
+      orden: values.orden ?? 0,
+      jerarquia: values.jerarquia ?? 0,
+      fecha_estimada_inicio: emptyToNull(values.fecha_estimada_inicio),
+      fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
+      plataforma: emptyToNull(values.plataforma),
+      link: emptyToNull(values.link),
+    })
+    .eq("id", cursoId)
+    .select()
+    .single();
+
+  return { data: data as Curso | null, error: error?.message ?? null };
+}
+
+export async function updateClase(
+  claseId: number,
+  values: ClaseFormValues,
+): Promise<{ data: Clase | null; error: string | null }> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("clases")
+    .update({
+      nombre: values.nombre,
+      descripcion: emptyToNull(values.descripcion),
+      orden: values.orden ?? 0,
+      jerarquia: values.jerarquia ?? 0,
+      dificultad: emptyToNull(values.dificultad),
+      link: emptyToNull(values.link),
+    })
+    .eq("id", claseId)
+    .select()
+    .single();
+
+  return { data: data as Clase | null, error: error?.message ?? null };
+}
+
+export async function deleteTema(
+  temaId: number,
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase.from("temas").delete().eq("id", temaId);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteCurso(
+  cursoId: number,
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase.from("cursos").delete().eq("id", cursoId);
+  return { error: error?.message ?? null };
+}
+
+export async function deleteClase(
+  claseId: number,
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase.from("clases").delete().eq("id", claseId);
+  return { error: error?.message ?? null };
+}
+
 export async function getCursoById(id: number): Promise<{
   data: Curso | null;
   error: string | null;
