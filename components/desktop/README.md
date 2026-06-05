@@ -8,9 +8,8 @@ UI **exclusiva del shell escritorio**: ruta `/explorador`, detección automátic
 |---------|-----|
 | `desktop-shell.tsx` | Layout PC, sign-out, header |
 | `desktop-modal.tsx` | Modal portal genérico |
-| `explorador-view.tsx` | Orquestador 3 columnas + teclado |
-| `explorador-columns.tsx` | Columnas y cards |
-| `explorador-toolbar.tsx` | Alta tema/curso/clase |
+| `explorador-view.tsx` | Orquestador 3 columnas, cabeceras con acciones y teclado |
+| `explorador-columns.tsx` | Columnas, cards y botones de cabecera (+ / Editar / Seg. / Conc.) |
 | `explorador-*-modal.tsx` | Alta, edición, paneles seguimiento/conceptos |
 
 ## Reglas
