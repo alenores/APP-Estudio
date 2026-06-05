@@ -16,6 +16,7 @@ import type { VeredictoUi } from "@/lib/tema-detalle-metrics";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import type { CSSProperties, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export const jakartaDetalle = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -310,10 +311,46 @@ export function DetalleFiltroEstadosCompact<T extends string>({
   entityLabel: string;
 }) {
   const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>({});
 
   const activo = filtros.find((f) => f.key === filtro);
   const etiquetaActiva = activo?.label ?? "Todos";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    function updatePosition() {
+      const el = anchorRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const minW = 184;
+      const left = Math.min(
+        Math.max(8, rect.right - minW),
+        window.innerWidth - minW - 8,
+      );
+      setMenuStyle({
+        position: "fixed",
+        top: rect.top - 4,
+        left,
+        transform: "translateY(-100%)",
+        minWidth: minW,
+        zIndex: 70,
+      });
+    }
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -321,7 +358,10 @@ export function DetalleFiltroEstadosCompact<T extends string>({
       if (e.key === "Escape") setOpen(false);
     }
     function onPointerDown(e: PointerEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (anchorRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      setOpen(false);
     }
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointerDown);
@@ -336,9 +376,62 @@ export function DetalleFiltroEstadosCompact<T extends string>({
     setOpen(false);
   }
 
+  const menu =
+    open && mounted ? (
+      <div
+        ref={menuRef}
+        role="listbox"
+        aria-label={`Estados de ${entityLabel}`}
+        style={menuStyle}
+        className={`${jakartaDetalle.className} overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] py-1 shadow-[var(--td-shadow)]`}
+      >
+        {filtros.map((f) => {
+          const active = filtro === f.key;
+          return (
+            <button
+              key={f.key}
+              type="button"
+              role="option"
+              aria-selected={active}
+              onClick={() => elegir(f.key)}
+              className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition-colors duration-150 ${
+                active
+                  ? "bg-[var(--td-line-soft)] font-semibold text-[var(--td-ink)]"
+                  : "font-medium text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]/70"
+              }`}
+            >
+              <span className="flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+                {f.key !== "todos" ? (
+                  <span
+                    className={estadoFilterDotClass(
+                      f.key as
+                        | "sin empezar"
+                        | "en curso"
+                        | "pausado"
+                        | "terminado",
+                    )}
+                    aria-hidden
+                  />
+                ) : (
+                  <span
+                    className="h-1.5 w-1.5 rounded-full bg-[var(--td-faint)]/50"
+                    aria-hidden
+                  />
+                )}
+              </span>
+              <span className="min-w-0 flex-1 truncate">{f.label}</span>
+              <span className="shrink-0 text-[11px] tabular-nums text-[var(--td-faint)]">
+                {contadores[f.key]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    ) : null;
+
   return (
-    <div ref={rootRef} className="relative mb-3 flex items-center justify-end">
-      <div className="flex items-center gap-1.5">
+    <div className="relative mb-3 flex items-center justify-end">
+      <div ref={anchorRef} className="flex items-center gap-1.5">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -366,55 +459,7 @@ export function DetalleFiltroEstadosCompact<T extends string>({
           <FiltroIcono aria-hidden />
         </button>
       </div>
-      {open ? (
-        <div
-          role="listbox"
-          aria-label={`Estados de ${entityLabel}`}
-          className="absolute right-0 bottom-full z-30 mb-1 min-w-[11.5rem] overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] py-1 shadow-[var(--td-shadow)]"
-        >
-          {filtros.map((f) => {
-            const active = filtro === f.key;
-            return (
-              <button
-                key={f.key}
-                type="button"
-                role="option"
-                aria-selected={active}
-                onClick={() => elegir(f.key)}
-                className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[13px] transition-colors duration-150 ${
-                  active
-                    ? "bg-[var(--td-line-soft)] font-semibold text-[var(--td-ink)]"
-                    : "font-medium text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]/70"
-                }`}
-              >
-                <span className="flex h-2.5 w-2.5 shrink-0 items-center justify-center">
-                  {f.key !== "todos" ? (
-                    <span
-                      className={estadoFilterDotClass(
-                        f.key as
-                          | "sin empezar"
-                          | "en curso"
-                          | "pausado"
-                          | "terminado",
-                      )}
-                      aria-hidden
-                    />
-                  ) : (
-                    <span
-                      className="h-1.5 w-1.5 rounded-full bg-[var(--td-faint)]/50"
-                      aria-hidden
-                    />
-                  )}
-                </span>
-                <span className="min-w-0 flex-1 truncate">{f.label}</span>
-                <span className="shrink-0 text-[11px] tabular-nums text-[var(--td-faint)]">
-                  {contadores[f.key]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      ) : null}
+      {menu && createPortal(menu, document.body)}
     </div>
   );
 }
