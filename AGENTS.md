@@ -18,6 +18,7 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/004-pwa-install-standalone.md` | Instalación, standalone, APP Estudio |
 | `docs/adr/005-auth-rls.md` | Auth, `user_id`, RLS |
 | `docs/adr/006-feedback-ui-movil.md` | **Animaciones / feedback en Android** (delay FAB, sheet sin slide) |
+| `docs/adr/008-dual-shell-mobile-desktop.md` | **Dos shells** móvil vs PC (no responsive; middleware) |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **Patrón de datos:** inspirado en *Vías de Escalada Córdoba* (`offline-cache`, `useOfflineData`), adaptado a tablas Estudio — **no** copiar imágenes ni warm de sectores.
@@ -59,7 +60,8 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Derivados de seguimiento | `lib/seguimiento-derivados.ts` |
 | Auth | login + `lib/supabase/client.ts` |
 | Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx` |
-| Detalle tema / curso / clase | `components/tema-detalle/`, `components/estudio-detalle/`, hooks `use*DetalleMetrics` |
+| Detalle móvil tema/curso/clase | `components/tema-detalle/`, `components/estudio-detalle/` |
+| Shell escritorio + explorador | `app/(desktop)/`, `components/desktop/`, `lib/shell-*.ts`, `useEstudioExplorer` |
 
 ## Mapa de archivos clave
 
@@ -71,8 +73,12 @@ app/temas/page.tsx                   → listado + EstudioSyncBanner
 app/temas/nuevo/page.tsx             → alta tema
 app/temas/[id]/page.tsx              → detalle tema
 app/cursos/[id]/page.tsx             → detalle curso (UI estudio-detalle)
-app/clases/[id]/page.tsx             → detalle clase (2 tabs: seguimiento, conceptos)
-components/estudio-detalle/         → vistas compartidas curso/clase + detalle-shared
+app/clases/[id]/page.tsx             → detalle clase (móvil)
+app/(desktop)/explorador/page.tsx    → explorador 3 columnas (PC)
+lib/shell-detect.ts                  → detección shell en middleware
+lib/shell-routes.ts                  → rutas por shell
+app/hooks/useEstudioExplorer.ts      → árbol temas/cursos/clases (PC)
+components/desktop/                  → UI exclusiva escritorio
 lib/estudio-detalle-metrics.ts      → métricas gauge/timeline/tiempo compartidas
 lib/estudio-offline-cache.ts         → snapshot + firma remota + download
 lib/estudio-table-digest.ts          → digest por tabla (ediciones)

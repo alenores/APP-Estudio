@@ -591,3 +591,12 @@ html.pwa-standalone-zoom-lock body {
     transition: none;
   }
 }
+
+/* —— Shell escritorio (ADR 008) —— */
+.desktop-shell {
+  min-width: 1024px;
+}
+
+.desktop-explorador {
+  min-height: calc(100vh - 8rem);
+}
