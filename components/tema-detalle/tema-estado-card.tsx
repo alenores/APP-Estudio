@@ -18,10 +18,10 @@ export function TemaEstadoCard({
 
   return (
     <section
-      className={`td-card td-rise ${delayClass} ${estadoChipDetalleClass(estado)} !flex min-h-0 w-full flex-1 items-center justify-center gap-2 px-2 py-2 ${className}`}
+      className={`td-card td-rise ${delayClass} ${estadoChipDetalleClass(estado)} !flex w-full shrink-0 items-center justify-center gap-1.5 px-2.5 py-1.5 ${className}`}
     >
-      <span className="td-chip-dot shrink-0" aria-hidden />
-      <span className="truncate text-[13px] font-bold">{texto}</span>
+      <span className="td-chip-dot h-1.5 w-1.5 shrink-0" aria-hidden />
+      <span className="truncate text-[12px] font-bold leading-tight">{texto}</span>
     </section>
   );
 }

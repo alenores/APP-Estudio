@@ -109,13 +109,13 @@ export function DetalleMetricGrid({
   return (
     <div className="td-rise td-d2 mt-3 grid grid-cols-2 items-stretch gap-2">
       <TemaNivelGauge nivel={metrics.nivel} className="h-full" />
-      <div className="flex min-h-0 flex-col gap-2">
+      <div className="flex min-h-0 flex-col gap-1.5">
         <TemaTiempoPieCard
           invertidoMin={metrics.tiempoInvertidoMin}
           restanteMin={metrics.tiempoRestanteMin}
           className="min-h-0 flex-1"
         />
-        <TemaEstadoCard estado={estado} className="min-h-0 flex-1" />
+        <TemaEstadoCard estado={estado} className="shrink-0" />
       </div>
     </div>
   );
