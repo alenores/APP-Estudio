@@ -2,6 +2,7 @@
 
 import {
   explorerHref,
+  type ExplorerRootMode,
   type ExplorerSelection,
 } from "@/app/hooks/useEstudioExplorer";
 import type {
@@ -9,6 +10,7 @@ import type {
   CursoConDerivados,
   TemaConDerivados,
 } from "@/app/types/estudio";
+import type { MapaObjetivo } from "@/app/types/mapa";
 import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
@@ -20,12 +22,14 @@ export type ExplorerColumnKind = "temas" | "cursos" | "clases";
 type ColumnItem = {
   id: number;
   nombre: string;
-  kind: ExplorerEntityRef["kind"];
+  kind: ExplorerEntityRef["kind"] | "objetivo";
 };
 
 type UseExploradorKeyboardArgs = {
   enabled: boolean;
+  rootMode: ExplorerRootMode;
   temas: TemaConDerivados[];
+  objetivos: MapaObjetivo[];
   cursos: CursoConDerivados[];
   clases: ClaseConDerivados[];
   selection: ExplorerSelection;
@@ -47,12 +51,21 @@ function isTypingTarget(target: EventTarget | null): boolean {
 
 function columnItems(
   column: ExplorerColumnKind,
+  rootMode: ExplorerRootMode,
   temas: TemaConDerivados[],
+  objetivos: MapaObjetivo[],
   cursos: CursoConDerivados[],
   clases: ClaseConDerivados[],
 ): ColumnItem[] {
   switch (column) {
     case "temas":
+      if (rootMode === "objetivos") {
+        return objetivos.map((o) => ({
+          id: o.id,
+          nombre: o.nombre,
+          kind: "objetivo",
+        }));
+      }
       return temas.map((t) => ({ id: t.id, nombre: t.nombre, kind: "tema" }));
     case "cursos":
       return cursos.map((c) => ({ id: c.id, nombre: c.nombre, kind: "curso" }));
@@ -67,11 +80,12 @@ function columnItems(
 
 function selectedIdInColumn(
   column: ExplorerColumnKind,
+  rootMode: ExplorerRootMode,
   selection: ExplorerSelection,
 ): number | null {
   switch (column) {
     case "temas":
-      return selection.temaId;
+      return rootMode === "objetivos" ? selection.objetivoId : selection.temaId;
     case "cursos":
       return selection.cursoId;
     case "clases":
@@ -91,16 +105,34 @@ function hrefForItem(
 ): string {
   switch (item.kind) {
     case "tema":
-      return explorerHref({ temaId: item.id, cursoId: null, claseId: null });
+      return explorerHref({
+        rootMode: "temas",
+        temaId: item.id,
+        cursoId: null,
+        claseId: null,
+      });
+    case "objetivo":
+      return explorerHref({
+        rootMode: "objetivos",
+        objetivoId: item.id,
+        cursoId: null,
+        claseId: null,
+      });
     case "curso":
       return explorerHref({
-        temaId: selection.temaId,
+        rootMode: selection.rootMode,
+        temaId: selection.rootMode === "temas" ? selection.temaId : null,
+        objetivoId:
+          selection.rootMode === "objetivos" ? selection.objetivoId : null,
         cursoId: item.id,
         claseId: null,
       });
     case "clase":
       return explorerHref({
-        temaId: selection.temaId,
+        rootMode: selection.rootMode,
+        temaId: selection.rootMode === "temas" ? selection.temaId : null,
+        objetivoId:
+          selection.rootMode === "objetivos" ? selection.objetivoId : null,
         cursoId: selection.cursoId,
         claseId: item.id,
       });
@@ -114,7 +146,9 @@ function scrollCardIntoView(id: number) {
 
 export function useExploradorKeyboard({
   enabled,
+  rootMode,
   temas,
+  objetivos,
   cursos,
   clases,
   selection,
@@ -140,18 +174,26 @@ export function useExploradorKeyboard({
 
   const currentEntity = useCallback((): ExplorerEntityRef | null => {
     const column = focusColumnRef.current;
-    const items = columnItems(column, temas, cursos, clases);
+    const items = columnItems(
+      column,
+      rootMode,
+      temas,
+      objetivos,
+      cursos,
+      clases,
+    );
     if (items.length === 0) return null;
-    const selectedId = selectedIdInColumn(column, selection);
+    const selectedId = selectedIdInColumn(column, rootMode, selection);
     const idx =
       selectedId != null
         ? items.findIndex((i) => i.id === selectedId)
         : -1;
     const item = idx >= 0 ? items[idx] : items[0];
+    if (!item || item.kind === "objetivo") return null;
     return item
       ? { kind: item.kind, id: item.id, nombre: item.nombre }
       : null;
-  }, [temas, cursos, clases, selection]);
+  }, [rootMode, temas, objetivos, cursos, clases, selection]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -161,12 +203,19 @@ export function useExploradorKeyboard({
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       const column = focusColumnRef.current;
-      const items = columnItems(column, temas, cursos, clases);
+      const items = columnItems(
+        column,
+        rootMode,
+        temas,
+        objetivos,
+        cursos,
+        clases,
+      );
 
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         if (items.length === 0) return;
         e.preventDefault();
-        const selectedId = selectedIdInColumn(column, selection);
+        const selectedId = selectedIdInColumn(column, rootMode, selection);
         let idx =
           selectedId != null
             ? items.findIndex((i) => i.id === selectedId)
@@ -186,9 +235,16 @@ export function useExploradorKeyboard({
         else colIdx = Math.min(order.length - 1, colIdx + 1);
         const nextColumn = order[colIdx]!;
         focusColumnRef.current = nextColumn;
-        const nextItems = columnItems(nextColumn, temas, cursos, clases);
+        const nextItems = columnItems(
+          nextColumn,
+          rootMode,
+          temas,
+          objetivos,
+          cursos,
+          clases,
+        );
         if (nextItems.length === 0) return;
-        const selectedId = selectedIdInColumn(nextColumn, selection);
+        const selectedId = selectedIdInColumn(nextColumn, rootMode, selection);
         const item =
           selectedId != null
             ? (nextItems.find((i) => i.id === selectedId) ?? nextItems[0]!)
@@ -231,7 +287,9 @@ export function useExploradorKeyboard({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
     enabled,
+    rootMode,
     temas,
+    objetivos,
     cursos,
     clases,
     selection,

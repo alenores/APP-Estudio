@@ -3,6 +3,7 @@
 import {
   explorerHref,
   useEstudioExplorer,
+  type ExplorerRootMode,
 } from "@/app/hooks/useEstudioExplorer";
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { useExploradorKeyboard } from "@/app/hooks/useExploradorKeyboard";
@@ -33,6 +34,8 @@ import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
 } from "@/lib/explorer-entity-panel";
+import { parseObjetivoId } from "@/lib/objetivo-ui";
+import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import {
   EMPTY_EXPLORER_SELECTION,
@@ -70,10 +73,12 @@ export function ExploradorView() {
   const bootstrappedRef = useRef(false);
   const {
     temas,
+    objetivos,
     cursos,
     clases,
     clasesStatsPorCurso,
     cursosStatsPorTema,
+    cursosStatsPorObjetivo,
     selection,
     loading,
     error,
@@ -119,18 +124,40 @@ export function ExploradorView() {
     router.replace(href, { scroll: false });
   }
 
+  function switchRootMode(mode: ExplorerRootMode) {
+    if (mode === selection.rootMode) return;
+    go(
+      explorerHref({
+        rootMode: mode,
+        temaId: mode === "temas" ? selection.temaId : null,
+        objetivoId: mode === "objetivos" ? selection.objetivoId : null,
+        cursoId: null,
+        claseId: null,
+      }),
+    );
+  }
+
+  function selectionHref(
+    partial: Partial<typeof selection>,
+  ): string {
+    return explorerHref({ ...selection, ...partial });
+  }
+
   function openPanel(entity: ExplorerEntityRef, panel: ExplorerPanelKind) {
     setPanelModal({ entity, panel });
   }
 
   function onCreated(partial: {
     temaId?: number;
+    objetivoId?: number;
     cursoId?: number;
     claseId?: number;
   }) {
     go(
       explorerHref({
+        rootMode: selection.rootMode,
         temaId: partial.temaId ?? selection.temaId,
+        objetivoId: partial.objetivoId ?? selection.objetivoId,
         cursoId: partial.cursoId ?? null,
         claseId: partial.claseId ?? null,
       }),
@@ -144,7 +171,14 @@ export function ExploradorView() {
   }) {
     go(
       explorerHref({
+        rootMode: selection.rootMode,
         temaId: cleared.temaId !== undefined ? null : selection.temaId,
+        objetivoId:
+          cleared.temaId !== undefined && selection.rootMode === "objetivos"
+            ? selection.objetivoId
+            : cleared.temaId !== undefined
+              ? null
+              : selection.objetivoId,
         cursoId: cleared.cursoId !== undefined ? null : selection.cursoId,
         claseId: cleared.claseId !== undefined ? null : selection.claseId,
       }),
@@ -159,7 +193,9 @@ export function ExploradorView() {
     setSearchKind(null);
     go(
       explorerHref({
+        rootMode: "temas",
         temaId: curso.tema_id,
+        objetivoId: null,
         cursoId: curso.id,
         claseId: null,
       }),
@@ -171,7 +207,12 @@ export function ExploradorView() {
     setSearchKind(null);
     go(
       explorerHref({
-        temaId: curso?.tema_id ?? selection.temaId,
+        rootMode: selection.rootMode,
+        temaId: selection.rootMode === "temas" ? (curso?.tema_id ?? selection.temaId) : null,
+        objetivoId:
+          selection.rootMode === "objetivos"
+            ? (parseObjetivoId(curso?.objetivo_id ?? null) ?? selection.objetivoId)
+            : null,
         cursoId: clase.curso_id,
         claseId: clase.id,
       }),
@@ -190,6 +231,13 @@ export function ExploradorView() {
     selection.claseId != null
       ? (clases.find((cl) => cl.id === selection.claseId) ?? null)
       : null;
+
+  const rootParentSelected =
+    selection.rootMode === "objetivos"
+      ? selection.objetivoId != null
+      : selection.temaId != null;
+
+  const objetivoDerivados = derivarDesdeSeguimientos([]);
 
   function entityCounts(ref: ExplorerEntityRef | null) {
     if (!ref || !cacheData) return { seguimientos: 0, conceptos: 0 };
@@ -236,7 +284,9 @@ export function ExploradorView() {
 
   useExploradorKeyboard({
     enabled: packReady && !modalsOpen,
+    rootMode: selection.rootMode,
     temas,
+    objetivos,
     cursos,
     clases,
     selection,
@@ -256,55 +306,106 @@ export function ExploradorView() {
         <div className="explorer-columns-grid flex min-h-0 flex-1 gap-2 overflow-hidden bg-transparent">
           <ExploradorColumn
             columnKind="tema"
-            label="Temas"
-            count={temas.length}
-            emptyMessage="No hay temas. Usá el botón + en la cabecera."
-            actions={[
-              {
-                label: "Nuevo tema",
-                title: "Nuevo tema",
-                variant: "create",
-                onClick: () => setCreateKind("tema"),
-              },
-              editColumnAction(selectedTemaRef, actionHandlers.onEdit),
-            ]}
+            label={selection.rootMode === "objetivos" ? "Objetivos" : "Temas"}
+            count={
+              selection.rootMode === "objetivos" ? objetivos.length : temas.length
+            }
+            emptyMessage={
+              selection.rootMode === "objetivos"
+                ? "No hay objetivos en el catálogo."
+                : "No hay temas. Usá el botón + en la cabecera."
+            }
+            rootSwitch={{
+              value: selection.rootMode,
+              onChange: switchRootMode,
+            }}
+            actions={
+              selection.rootMode === "objetivos"
+                ? []
+                : [
+                    {
+                      label: "Nuevo tema",
+                      title: "Nuevo tema",
+                      variant: "create",
+                      onClick: () => setCreateKind("tema"),
+                    },
+                    editColumnAction(selectedTemaRef, actionHandlers.onEdit),
+                  ]
+            }
           >
-            {temas.map((t) => {
-              const ref: ExplorerEntityRef = {
-                kind: "tema",
-                id: t.id,
-                nombre: t.nombre,
-              };
-              const counts = entityCounts(ref);
-              return (
-              <ExploradorColumnCard
-                key={t.id}
-                kind="tema"
-                explorerId={t.id}
-                nombre={t.nombre}
-                derivados={t.derivados}
-                descripcion={t.descripcion}
-                fechaInicio={t.fecha_estimada_inicio}
-                fechaFin={t.fecha_estimada_fin}
-                fechaParen={fechaParentesisTema(t)}
-                hijosStats={cursosStatsPorTema.get(t.id)}
-                hijosLabel="cursos"
-                seguimientosCount={counts.seguimientos}
-                conceptosCount={counts.conceptos}
-                selected={selection.temaId === t.id}
-                expanded={
-                  selection.temaId === t.id &&
-                  selection.cursoId == null &&
-                  selection.claseId == null
-                }
-                onSelect={() =>
-                  go(explorerHref({ temaId: t.id, cursoId: null, claseId: null }))
-                }
-                onDoubleClick={() => openPanel(ref, "seguimientos")}
-                {...cardHandlers(ref)}
-              />
-            );
-            })}
+            {selection.rootMode === "objetivos"
+              ? objetivos.map((o) => (
+                  <ExploradorColumnCard
+                    key={o.id}
+                    kind="objetivo"
+                    explorerId={o.id}
+                    nombre={o.nombre}
+                    derivados={objetivoDerivados}
+                    descripcion={o.descripcion}
+                    hijosStats={cursosStatsPorObjetivo.get(o.id)}
+                    hijosLabel="cursos"
+                    objetivoId={o.id}
+                    selected={selection.objetivoId === o.id}
+                    expanded={
+                      selection.objetivoId === o.id &&
+                      selection.cursoId == null &&
+                      selection.claseId == null
+                    }
+                    onSelect={() =>
+                      go(
+                        explorerHref({
+                          rootMode: "objetivos",
+                          objetivoId: o.id,
+                          cursoId: null,
+                          claseId: null,
+                        }),
+                      )
+                    }
+                  />
+                ))
+              : temas.map((t) => {
+                  const ref: ExplorerEntityRef = {
+                    kind: "tema",
+                    id: t.id,
+                    nombre: t.nombre,
+                  };
+                  const counts = entityCounts(ref);
+                  return (
+                    <ExploradorColumnCard
+                      key={t.id}
+                      kind="tema"
+                      explorerId={t.id}
+                      nombre={t.nombre}
+                      derivados={t.derivados}
+                      descripcion={t.descripcion}
+                      fechaInicio={t.fecha_estimada_inicio}
+                      fechaFin={t.fecha_estimada_fin}
+                      fechaParen={fechaParentesisTema(t)}
+                      hijosStats={cursosStatsPorTema.get(t.id)}
+                      hijosLabel="cursos"
+                      seguimientosCount={counts.seguimientos}
+                      conceptosCount={counts.conceptos}
+                      selected={selection.temaId === t.id}
+                      expanded={
+                        selection.temaId === t.id &&
+                        selection.cursoId == null &&
+                        selection.claseId == null
+                      }
+                      onSelect={() =>
+                        go(
+                          explorerHref({
+                            rootMode: "temas",
+                            temaId: t.id,
+                            cursoId: null,
+                            claseId: null,
+                          }),
+                        )
+                      }
+                      onDoubleClick={() => openPanel(ref, "seguimientos")}
+                      {...cardHandlers(ref)}
+                    />
+                  );
+                })}
           </ExploradorColumn>
 
           <ExploradorColumn
@@ -312,9 +413,13 @@ export function ExploradorView() {
             label="Cursos"
             count={cursos.length}
             emptyMessage={
-              selection.temaId == null
-                ? "Elegí un tema para ver sus cursos."
-                : "Este tema no tiene cursos. Usá el botón + en la cabecera."
+              !rootParentSelected
+                ? selection.rootMode === "objetivos"
+                  ? "Elegí un objetivo para ver sus cursos."
+                  : "Elegí un tema para ver sus cursos."
+                : selection.rootMode === "objetivos"
+                  ? "Este objetivo no tiene cursos."
+                  : "Este tema no tiene cursos. Usá el botón + en la cabecera."
             }
             actions={[
               {
@@ -326,11 +431,12 @@ export function ExploradorView() {
               {
                 label: "Nuevo curso",
                 title:
-                  selection.temaId == null
-                    ? "Elegí un tema para crear un curso"
+                  selection.rootMode !== "temas" || selection.temaId == null
+                    ? "Elegí un tema (vista Temas) para crear un curso"
                     : "Nuevo curso en el tema seleccionado",
                 variant: "create",
-                disabled: selection.temaId == null,
+                disabled:
+                  selection.rootMode !== "temas" || selection.temaId == null,
                 onClick: () => setCreateKind("curso"),
               },
               editColumnAction(selectedCursoRef, actionHandlers.onEdit),
@@ -366,8 +472,7 @@ export function ExploradorView() {
                 }
                 onSelect={() =>
                   go(
-                    explorerHref({
-                      temaId: selection.temaId,
+                    selectionHref({
                       cursoId: c.id,
                       claseId: null,
                     }),
@@ -434,9 +539,7 @@ export function ExploradorView() {
                 expanded={selection.claseId === cl.id}
                 onSelect={() =>
                   go(
-                    explorerHref({
-                      temaId: selection.temaId,
-                      cursoId: selection.cursoId,
+                    selectionHref({
                       claseId: cl.id,
                     }),
                   )

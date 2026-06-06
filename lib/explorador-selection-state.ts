@@ -4,7 +4,9 @@ import {
 } from "@/app/hooks/useEstudioExplorer";
 
 export const EMPTY_EXPLORER_SELECTION: ExplorerSelection = {
+  rootMode: "temas",
   temaId: null,
+  objetivoId: null,
   cursoId: null,
   claseId: null,
 };
@@ -47,7 +49,9 @@ export function selectionsEqual(
   b: ExplorerSelection,
 ): boolean {
   return (
+    a.rootMode === b.rootMode &&
     a.temaId === b.temaId &&
+    a.objetivoId === b.objetivoId &&
     a.cursoId === b.cursoId &&
     a.claseId === b.claseId
   );

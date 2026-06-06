@@ -17,7 +17,7 @@ import { HighlightMatch } from "@/components/shared/text/highlight-match";
 const DONUT_R = 11;
 const DONUT_C = 2 * Math.PI * DONUT_R;
 
-export type EstudioProgressCardKind = "tema" | "curso" | "clase";
+export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "objetivo";
 
 export type EstudioProgressCardProps = {
   kind: EstudioProgressCardKind;
@@ -94,7 +94,8 @@ export function EstudioProgressCard({
       : DONUT_C;
 
   const showDonut =
-    (kind === "tema" || kind === "curso") && hijosStats != null;
+    (kind === "tema" || kind === "curso" || kind === "objetivo") &&
+    hijosStats != null;
 
   const showSearchDescripcion =
     searchShowDescripcion &&
@@ -222,6 +223,12 @@ export function EstudioProgressCard({
           <ObjetivoDot
             objetivoId={objetivoId}
             nombre={objetivoNombre}
+            className="right-3 top-3"
+          />
+        ) : kind === "objetivo" && objetivoId != null ? (
+          <ObjetivoDot
+            objetivoId={objetivoId}
+            nombre={objetivoNombre ?? nombre}
             className="right-3 top-3"
           />
         ) : null}

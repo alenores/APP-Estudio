@@ -17,7 +17,7 @@ export type ExploradorColumnAction = {
 };
 
 type ExploradorColumnCardProps = {
-  kind: "tema" | "curso" | "clase";
+  kind: "tema" | "curso" | "clase" | "objetivo";
   explorerId: number;
   nombre: string;
   derivados: SeguimientoDerivados;
@@ -74,7 +74,19 @@ export function ExploradorColumnCard({
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
   const expandedSlot =
-    expanded && onOpenSeguimientos && onOpenConceptos ? (
+    expanded && kind === "objetivo" ? (
+      <ExploradorCardExpanded
+        kind="objetivo"
+        descripcion={descripcion ?? null}
+        fechaInicio={null}
+        fechaFin={null}
+        seguimientosCount={0}
+        conceptosCount={0}
+        derivados={derivados}
+        onOpenSeguimientos={() => {}}
+        onOpenConceptos={() => {}}
+      />
+    ) : expanded && onOpenSeguimientos && onOpenConceptos ? (
       <ExploradorCardExpanded
         kind={kind}
         descripcion={descripcion ?? null}
@@ -113,12 +125,18 @@ export function ExploradorColumnCard({
   );
 }
 
+type ExploradorRootSwitch = {
+  value: "temas" | "objetivos";
+  onChange: (value: "temas" | "objetivos") => void;
+};
+
 type ExploradorColumnProps = {
   columnKind: "tema" | "curso" | "clase";
   label: string;
   count: number;
   emptyMessage: string;
   actions: ExploradorColumnAction[];
+  rootSwitch?: ExploradorRootSwitch;
   children: ReactNode;
 };
 
@@ -128,6 +146,7 @@ export function ExploradorColumn({
   count,
   emptyMessage,
   actions,
+  rootSwitch,
   children,
 }: ExploradorColumnProps) {
   return (
@@ -135,15 +154,20 @@ export function ExploradorColumn({
       <header
         className={`${explorerColumnHeaderClass(columnKind)} shrink-0 border-b border-[var(--td-line)]/80 px-3 py-2.5`}
       >
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
-            {label}{" "}
-            <span className="font-semibold text-[var(--td-faint)]">{count}</span>
-          </h2>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {actions.map((action) => (
-              <ColumnHeaderButton key={action.label} {...action} />
-            ))}
+        <div className="flex flex-col gap-2">
+          {rootSwitch ? (
+            <ExploradorRootSwitchControl {...rootSwitch} />
+          ) : null}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
+              {label}{" "}
+              <span className="font-semibold text-[var(--td-faint)]">{count}</span>
+            </h2>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {actions.map((action) => (
+                <ColumnHeaderButton key={action.label} {...action} />
+              ))}
+            </div>
           </div>
         </div>
       </header>
@@ -160,6 +184,40 @@ export function ExploradorColumn({
         )}
       </div>
     </section>
+  );
+}
+
+function ExploradorRootSwitchControl({
+  value,
+  onChange,
+}: ExploradorRootSwitch) {
+  return (
+    <div
+      className="flex rounded-lg border border-[var(--td-line)] bg-white p-0.5 shadow-sm"
+      role="group"
+      aria-label="Vista de la primera columna"
+    >
+      {(
+        [
+          { id: "temas" as const, label: "Temas" },
+          { id: "objetivos" as const, label: "Objetivos" },
+        ] as const
+      ).map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          aria-pressed={value === opt.id}
+          onClick={() => onChange(opt.id)}
+          className={`min-w-0 flex-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-[transform,background-color,color,box-shadow] duration-150 active:scale-95 ${
+            value === opt.id
+              ? "bg-[var(--td-navy)] text-white shadow-sm"
+              : "text-[var(--td-filter-text-muted)] hover:text-[var(--td-navy)]"
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
