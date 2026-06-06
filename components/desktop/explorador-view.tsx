@@ -4,6 +4,7 @@ import {
   explorerHref,
   parseExplorerSelection,
   useEstudioExplorer,
+  type ExplorerSelection,
 } from "@/app/hooks/useEstudioExplorer";
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { useExploradorKeyboard } from "@/app/hooks/useExploradorKeyboard";
@@ -28,12 +29,30 @@ import type {
 } from "@/lib/explorer-entity-panel";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type PanelModalState = {
   entity: ExplorerEntityRef;
   panel: ExplorerPanelKind;
 };
+
+function isBrowserReload(): boolean {
+  if (typeof window === "undefined") return false;
+  const entry = performance.getEntriesByType("navigation")[0];
+  return (
+    entry != null &&
+    "type" in entry &&
+    (entry as PerformanceNavigationTiming).type === "reload"
+  );
+}
+
+function selectionsEqual(a: ExplorerSelection, b: ExplorerSelection): boolean {
+  return (
+    a.temaId === b.temaId &&
+    a.cursoId === b.cursoId &&
+    a.claseId === b.claseId
+  );
+}
 
 function editColumnAction(
   entity: ExplorerEntityRef | null,
@@ -51,10 +70,12 @@ function editColumnAction(
 export function ExploradorView() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchQuery = searchParams.toString();
   const rawSelection = useMemo(
-    () => parseExplorerSelection(searchParams),
-    [searchParams],
+    () => parseExplorerSelection(new URLSearchParams(searchQuery)),
+    [searchQuery],
   );
+  const handledReloadRef = useRef(false);
   const {
     temas,
     cursos,
@@ -75,8 +96,24 @@ export function ExploradorView() {
 
   const modalsOpen = panelModal != null || createKind != null || editEntity != null;
 
+  /** F5: explorador sin selección previa en la URL. */
+  useEffect(() => {
+    if (handledReloadRef.current) return;
+    handledReloadRef.current = true;
+    if (!isBrowserReload() || !searchQuery) return;
+    router.replace("/explorador", { scroll: false });
+  }, [router, searchQuery]);
+
+  /** URL alineada a la selección normalizada (ids inválidos o hijos huérfanos). */
+  useEffect(() => {
+    if (!packReady) return;
+    if (!selectionsEqual(rawSelection, selection)) {
+      router.replace(explorerHref(selection), { scroll: false });
+    }
+  }, [packReady, rawSelection, selection, router]);
+
   function go(href: string) {
-    router.replace(href);
+    router.replace(href, { scroll: false });
   }
 
   function openPanel(entity: ExplorerEntityRef, panel: ExplorerPanelKind) {
