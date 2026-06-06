@@ -14,17 +14,26 @@ import type { ReactNode } from "react";
 type DesktopShellProps = {
   title: string;
   children: ReactNode;
+  /** Clases del `<main>`; mapa usa ancho completo sin márgenes laterales. */
+  mainClassName?: string;
 };
 
-const NAV = [
-  { href: DESKTOP_SHELL_PREFIX, label: "Explorador" },
-  { href: DESKTOP_MAPA_PREFIX, label: "Mapa" },
-] as const;
+const MAIN_DEFAULT =
+  "mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col px-6 pt-1 pb-0";
 
 /** Layout exclusivo escritorio (ADR 008). Sin PWA ni gestos móviles. */
-export function DesktopShell({ title, children }: DesktopShellProps) {
+export function DesktopShell({
+  title,
+  children,
+  mainClassName = MAIN_DEFAULT,
+}: DesktopShellProps) {
   const router = useRouter();
   const pathname = usePathname();
+
+  const NAV = [
+    { href: DESKTOP_SHELL_PREFIX, label: "Explorador" },
+    { href: DESKTOP_MAPA_PREFIX, label: "Mapa" },
+  ] as const;
 
   async function signOut() {
     const supabase = createClient();
@@ -76,9 +85,7 @@ export function DesktopShell({ title, children }: DesktopShellProps) {
           </button>
         </div>
       </header>
-      <main className="mx-auto flex w-full max-w-[1600px] min-h-0 flex-1 flex-col px-6 pt-1 pb-0">
-        {children}
-      </main>
+      <main className={mainClassName}>{children}</main>
       <DeployShaFooter />
     </div>
   );

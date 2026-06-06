@@ -20,7 +20,7 @@ const MapaCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[min(calc(100vh-14rem),720px)] w-full items-center justify-center rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/20 text-sm text-[var(--td-faint)]">
+      <div className="flex h-full min-h-[280px] w-full items-center justify-center bg-[#f1f5f9] text-sm text-[var(--td-faint)]">
         Cargando lienzo…
       </div>
     ),
@@ -94,61 +94,53 @@ export function MapaNodosView() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-2xl text-sm text-[var(--td-ink-soft)]">
-          <strong className="font-semibold text-[var(--td-ink)]">Nodos</strong> y{" "}
-          <strong className="font-semibold text-[var(--td-ink)]">enlaces</strong> del
-          mapa — arrastrá nodos en el lienzo; conectá desde el punto derecho al
-          izquierdo de otro nodo. Delete sobre una flecha para quitarla.
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          {vista === "lienzo" ? (
-            <MapaObjetivoFiltroBar
-              objetivos={objetivos}
-              value={filtroObjetivo}
-              onChange={setFiltroObjetivo}
-            />
-          ) : null}
-          <div
-            className="flex rounded-lg border border-[var(--td-line)] p-0.5"
-            role="tablist"
-            aria-label="Vista del mapa"
-          >
-            {(
-              [
-                { id: "lienzo" as const, label: "Lienzo" },
-                { id: "lista" as const, label: "Lista" },
-              ] as const
-            ).map(({ id, label }) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={vista === id}
-                onClick={() => setVista(id)}
-                className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
-                  vista === id
-                    ? "bg-[var(--td-navy)] text-white"
-                    : "text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="shrink-0 rounded-lg bg-[var(--td-navy)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--td-navy-2)]"
-          >
-            + Nuevo nodo
-          </button>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mapa-toolbar flex shrink-0 flex-wrap items-center justify-end gap-2 border-b border-white/15 px-3 py-2">
+        {vista === "lienzo" ? (
+          <MapaObjetivoFiltroBar
+            objetivos={objetivos}
+            value={filtroObjetivo}
+            onChange={setFiltroObjetivo}
+          />
+        ) : null}
+        <div
+          className="flex rounded-lg border border-white/25 bg-[var(--td-navy)]/90 p-0.5"
+          role="tablist"
+          aria-label="Vista del mapa"
+        >
+          {(
+            [
+              { id: "lienzo" as const, label: "Lienzo" },
+              { id: "lista" as const, label: "Lista" },
+            ] as const
+          ).map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={vista === id}
+              onClick={() => setVista(id)}
+              className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
+                vista === id
+                  ? "bg-[var(--td-navy)] text-white shadow-sm"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
+          className="shrink-0 rounded-lg bg-[var(--td-navy)] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[var(--td-navy-2)]"
+        >
+          + Nuevo nodo
+        </button>
       </div>
 
       <div
-        className={vista === "lienzo" ? "min-h-0 flex-1" : "hidden"}
+        className={vista === "lienzo" ? "flex min-h-0 flex-1 flex-col" : "hidden"}
         role="tabpanel"
         aria-label="Lienzo"
         aria-hidden={vista !== "lienzo"}
@@ -166,7 +158,7 @@ export function MapaNodosView() {
       </div>
 
       <div
-        className={vista === "lista" ? "" : "hidden"}
+        className={vista === "lista" ? "min-h-0 flex-1 overflow-y-auto px-4 py-3" : "hidden"}
         role="tabpanel"
         aria-label="Lista"
         aria-hidden={vista !== "lista"}
