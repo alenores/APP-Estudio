@@ -913,6 +913,10 @@ html.pwa-standalone-zoom-lock body {
   padding-bottom: 0.25rem;
 }
 
+.desktop-explorador .explorer-column-body > div {
+  isolation: isolate;
+}
+
 /* —— Explorador PC: motion (solo escritorio; ADR 006 aplica a móvil) —— */
 .desktop-explorador .explorer-column-panel:hover {
   box-shadow:

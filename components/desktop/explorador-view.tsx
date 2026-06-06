@@ -2,9 +2,7 @@
 
 import {
   explorerHref,
-  parseExplorerSelection,
   useEstudioExplorer,
-  type ExplorerSelection,
 } from "@/app/hooks/useEstudioExplorer";
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { useExploradorKeyboard } from "@/app/hooks/useExploradorKeyboard";
@@ -28,31 +26,20 @@ import type {
   ExplorerPanelKind,
 } from "@/lib/explorer-entity-panel";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  EMPTY_EXPLORER_SELECTION,
+  initExplorerSelectionFromLocation,
+  parseExplorerHref,
+  selectionsEqual,
+  writeExplorerHref,
+} from "@/lib/explorador-selection-state";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 type PanelModalState = {
   entity: ExplorerEntityRef;
   panel: ExplorerPanelKind;
 };
-
-function isBrowserReload(): boolean {
-  if (typeof window === "undefined") return false;
-  const entry = performance.getEntriesByType("navigation")[0];
-  return (
-    entry != null &&
-    "type" in entry &&
-    (entry as PerformanceNavigationTiming).type === "reload"
-  );
-}
-
-function selectionsEqual(a: ExplorerSelection, b: ExplorerSelection): boolean {
-  return (
-    a.temaId === b.temaId &&
-    a.cursoId === b.cursoId &&
-    a.claseId === b.claseId
-  );
-}
 
 function editColumnAction(
   entity: ExplorerEntityRef | null,
@@ -69,13 +56,10 @@ function editColumnAction(
 
 export function ExploradorView() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.toString();
-  const rawSelection = useMemo(
-    () => parseExplorerSelection(new URLSearchParams(searchQuery)),
-    [searchQuery],
+  const [activeSelection, setActiveSelection] = useState(
+    EMPTY_EXPLORER_SELECTION,
   );
-  const handledReloadRef = useRef(false);
+  const bootstrappedRef = useRef(false);
   const {
     temas,
     cursos,
@@ -86,7 +70,7 @@ export function ExploradorView() {
     loading,
     error,
     packReady,
-  } = useEstudioExplorer(rawSelection);
+  } = useEstudioExplorer(activeSelection);
   const { cacheData } = useEstudioData();
   const [panelModal, setPanelModal] = useState<PanelModalState | null>(null);
   const [createKind, setCreateKind] = useState<ExploradorCreateKind | null>(
@@ -96,23 +80,27 @@ export function ExploradorView() {
 
   const modalsOpen = panelModal != null || createKind != null || editEntity != null;
 
-  /** F5: explorador sin selección previa en la URL. */
+  /** Montaje cliente: F5 limpia URL; entrada con ?tema= restaura selección. */
   useEffect(() => {
-    if (handledReloadRef.current) return;
-    handledReloadRef.current = true;
-    if (!isBrowserReload() || !searchQuery) return;
-    router.replace("/explorador", { scroll: false });
-  }, [router, searchQuery]);
+    if (bootstrappedRef.current) return;
+    bootstrappedRef.current = true;
+    setActiveSelection(initExplorerSelectionFromLocation());
+  }, []);
 
-  /** URL alineada a la selección normalizada (ids inválidos o hijos huérfanos). */
+  /** Tras cargar cache, alinear estado si la URL tenía ids inválidos. */
   useEffect(() => {
     if (!packReady) return;
-    if (!selectionsEqual(rawSelection, selection)) {
-      router.replace(explorerHref(selection), { scroll: false });
-    }
-  }, [packReady, rawSelection, selection, router]);
+    if (selectionsEqual(activeSelection, selection)) return;
+    setActiveSelection(selection);
+    const href = explorerHref(selection);
+    writeExplorerHref(href);
+    router.replace(href, { scroll: false });
+  }, [packReady, activeSelection, selection, router]);
 
   function go(href: string) {
+    const next = parseExplorerHref(href);
+    setActiveSelection(next);
+    writeExplorerHref(href);
     router.replace(href, { scroll: false });
   }
 

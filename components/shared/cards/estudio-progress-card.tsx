@@ -153,7 +153,9 @@ export function EstudioProgressCard({
       data-expanded={expandedSlot ? "true" : undefined}
       className={`td-ccard explorer-progress-card relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] ${interactive ? "cursor-pointer" : ""} ${
         selected
-          ? "z-[1] border-[var(--td-navy)] shadow-[0_8px_24px_-10px_rgba(39,72,103,.4)] ring-2 ring-[var(--td-navy)]/30"
+          ? explorerId != null
+            ? "border-[var(--td-navy)] shadow-[0_8px_24px_-10px_rgba(39,72,103,.4)] ring-2 ring-[var(--td-navy)]/30"
+            : "z-[1] border-[var(--td-navy)] shadow-[0_8px_24px_-10px_rgba(39,72,103,.4)] ring-2 ring-[var(--td-navy)]/30"
           : ""
       } ${className}`}
       onClick={interactive ? onSelect : undefined}
