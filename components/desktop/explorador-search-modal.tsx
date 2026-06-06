@@ -6,6 +6,7 @@ import type {
 } from "@/app/types/estudio";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
+import { parseObjetivoId } from "@/lib/objetivo-ui";
 import type { EstudioOfflineCacheData } from "@/lib/estudio-offline-cache";
 import {
   listAllClasesConDerivadosFromCache,
@@ -135,6 +136,7 @@ export function ExploradorSearchModal({
                         searchContextLine={`Tema · ${temaNombreById.get(c.tema_id) ?? "—"}`}
                         searchShowDescripcion
                         linkIconOnly
+                        objetivoId={parseObjetivoId(c.objetivo_id)}
                         onSelect={() => onSelectCurso(c)}
                       />
                     </li>

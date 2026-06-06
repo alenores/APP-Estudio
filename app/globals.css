@@ -1307,27 +1307,27 @@ html.pwa-standalone-zoom-lock body {
   background: #faf3d4;
 }
 
-/* Objetivos roadmap (etapa → color). Ver lib/mapa-objetivo.ts */
+/* Objetivos roadmap. Ver lib/objetivo-ui.ts */
 .mapa-flow-node--objetivo-1 .mapa-flow-node-title {
-  color: #1e3a5f;
+  color: #115e59;
 }
 .mapa-flow-node--objetivo-2 .mapa-flow-node-title {
-  color: #7c2d12;
+  color: #78350f;
 }
 .mapa-flow-node--objetivo-3 .mapa-flow-node-title {
-  color: #4c1d95;
+  color: #701a75;
 }
 .mapa-flow-node--objetivo-1 .mapa-flow-node-etapa,
 .mapa-flow-node--objetivo-1 .mapa-flow-node-carril {
-  color: #3b82f6;
+  color: #0f766e;
 }
 .mapa-flow-node--objetivo-2 .mapa-flow-node-etapa,
 .mapa-flow-node--objetivo-2 .mapa-flow-node-carril {
-  color: #f97316;
+  color: #b45309;
 }
 .mapa-flow-node--objetivo-3 .mapa-flow-node-etapa,
 .mapa-flow-node--objetivo-3 .mapa-flow-node-carril {
-  color: #8b5cf6;
+  color: #a21caf;
 }
 .mapa-flow-node--neutral .mapa-flow-node-title {
   color: #1b222b;

@@ -5,23 +5,19 @@
  */
 
 import type { MapaObjetivo, MapaObjetivoId } from "@/app/types/mapa";
+import {
+  OBJETIVO_COLOR,
+  OBJETIVO_SHORT,
+} from "@/lib/objetivo-ui";
 
 /** Id de objetivo en BD (objetivos.id). */
 export type { MapaObjetivoId };
 
-/** Colores de borde/badge por objetivo (contrato visual). */
-export const MAPA_OBJETIVO_COLOR: Record<MapaObjetivoId, string> = {
-  1: "#3B82F6",
-  2: "#F97316",
-  3: "#8B5CF6",
-};
+/** @deprecated Usar OBJETIVO_COLOR en lib/objetivo-ui.ts */
+export const MAPA_OBJETIVO_COLOR: Record<MapaObjetivoId, string> = OBJETIVO_COLOR;
 
-/** Etiqueta corta para filtros (nombre completo en tooltip / leyenda). */
-export const MAPA_OBJETIVO_SHORT: Record<MapaObjetivoId, string> = {
-  1: "BaaS",
-  2: "Infra propia",
-  3: "SaaS",
-};
+/** @deprecated Usar OBJETIVO_SHORT en lib/objetivo-ui.ts */
+export const MAPA_OBJETIVO_SHORT: Record<MapaObjetivoId, string> = OBJETIVO_SHORT;
 
 /** Rango inclusivo de etapa → objetivo_id. Mantener sincronizado con seed SQL. */
 const ETAPA_RANGES: { id: MapaObjetivoId; min: number; max: number }[] = [
@@ -40,7 +36,7 @@ export function mapaObjetivoIdFromEtapa(etapa: number): MapaObjetivoId | null {
 }
 
 export function mapaObjetivoColor(id: MapaObjetivoId): string {
-  return MAPA_OBJETIVO_COLOR[id];
+  return OBJETIVO_COLOR[id];
 }
 
 export function mapaObjetivoToneClass(id: MapaObjetivoId): string {

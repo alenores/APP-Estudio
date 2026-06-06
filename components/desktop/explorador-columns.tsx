@@ -3,6 +3,7 @@
 import { ExploradorCardExpanded } from "@/components/desktop/explorador-card-expanded";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
 import type { SeguimientoDerivados } from "@/app/types/estudio";
+import { parseObjetivoId } from "@/lib/objetivo-ui";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import { explorerColumnHeaderClass } from "@/lib/estudio-shell-tone";
 import type { ReactNode, WheelEvent } from "react";
@@ -41,6 +42,7 @@ type ExploradorColumnCardProps = {
   highlightQuery?: string;
   searchContextLine?: string | null;
   searchShowDescripcion?: boolean;
+  objetivoId?: number | null;
 };
 
 export function ExploradorColumnCard({
@@ -68,7 +70,9 @@ export function ExploradorColumnCard({
   highlightQuery,
   searchContextLine,
   searchShowDescripcion,
+  objetivoId: objetivoIdRaw,
 }: ExploradorColumnCardProps) {
+  const objetivoId = parseObjetivoId(objetivoIdRaw);
   const expandedSlot =
     expanded && onOpenSeguimientos && onOpenConceptos ? (
       <ExploradorCardExpanded
@@ -104,6 +108,7 @@ export function ExploradorColumnCard({
       highlightQuery={highlightQuery}
       searchContextLine={searchContextLine}
       searchShowDescripcion={searchShowDescripcion}
+      objetivoId={objetivoId}
     />
   );
 }

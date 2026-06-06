@@ -359,6 +359,7 @@ export function ExploradorView() {
                 link={c.link}
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
+                objetivoId={c.objetivo_id}
                 selected={selection.cursoId === c.id}
                 expanded={
                   selection.cursoId === c.id && selection.claseId == null

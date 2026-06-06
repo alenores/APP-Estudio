@@ -1,6 +1,8 @@
 "use client";
 
 import type { SeguimientoDerivados } from "@/app/types/estudio";
+import type { ObjetivoId } from "@/app/types/objetivo";
+import { ObjetivoDot } from "@/components/shared/objetivo-dot";
 import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
 import { ExternalLinkPreview } from "@/components/shared/links/external-link-preview";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
@@ -46,6 +48,9 @@ export type EstudioProgressCardProps = {
   searchShowDescripcion?: boolean;
   /** Solo ícono de link tocable, sin miniatura (buscador PC). */
   linkIconOnly?: boolean;
+  /** Objetivo roadmap (solo cards de curso). */
+  objetivoId?: ObjetivoId | null;
+  objetivoNombre?: string | null;
 };
 
 export function EstudioProgressCard({
@@ -70,6 +75,8 @@ export function EstudioProgressCard({
   searchContextLine,
   searchShowDescripcion = false,
   linkIconOnly = false,
+  objetivoId = null,
+  objetivoNombre = null,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
@@ -211,6 +218,13 @@ export function EstudioProgressCard({
         <span>{estadoTexto}</span>
       </div>
       <div className="relative min-w-0 flex-1 flex flex-col">
+        {kind === "curso" && objetivoId != null ? (
+          <ObjetivoDot
+            objetivoId={objetivoId}
+            nombre={objetivoNombre}
+            className="right-3 top-3"
+          />
+        ) : null}
         <div className="relative px-4 py-3.5">
           {pct > 0 ? (
             <div
