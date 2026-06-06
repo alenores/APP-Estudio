@@ -87,6 +87,20 @@ export function listTemasConDerivadosFromCache(
   );
 }
 
+/** Todos los cursos del paquete local (explorador PC — buscador). */
+export function listAllCursosConDerivadosFromCache(
+  cache: EstudioOfflineCacheData,
+): CursoConDerivados[] {
+  return attachDerivadosToCursosFromCache(cache, sortCursos(cache.cursos));
+}
+
+/** Todas las clases del paquete local (explorador PC — buscador). */
+export function listAllClasesConDerivadosFromCache(
+  cache: EstudioOfflineCacheData,
+): ClaseConDerivados[] {
+  return attachDerivadosToClasesFromCache(cache, sortClases(cache.clases));
+}
+
 export function getTemaDetalleFromCache(
   cache: EstudioOfflineCacheData,
   temaId: number,

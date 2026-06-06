@@ -14,6 +14,10 @@ import type { ExploradorColumnAction } from "@/components/desktop/explorador-col
 import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
 import {
+  ExploradorSearchModal,
+  type ExploradorSearchKind,
+} from "@/components/desktop/explorador-search-modal";
+import {
   ExploradorColumn,
   ExploradorColumnCard,
 } from "@/components/desktop/explorador-columns";
@@ -21,6 +25,10 @@ import { EstudioSyncBanner } from "@/components/shared/sync/estudio-sync-banner"
 import { AlertText, LoadingText } from "@/components/ui";
 import { fechaParentesisCurso } from "@/lib/curso-card-fecha";
 import { fechaParentesisTema } from "@/lib/tema-card-fecha";
+import type {
+  ClaseConDerivados,
+  CursoConDerivados,
+} from "@/app/types/estudio";
 import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
@@ -77,8 +85,15 @@ export function ExploradorView() {
     null,
   );
   const [editEntity, setEditEntity] = useState<ExplorerEntityRef | null>(null);
+  const [searchKind, setSearchKind] = useState<ExploradorSearchKind | null>(
+    null,
+  );
 
-  const modalsOpen = panelModal != null || createKind != null || editEntity != null;
+  const modalsOpen =
+    panelModal != null ||
+    createKind != null ||
+    editEntity != null ||
+    searchKind != null;
 
   /** Montaje cliente: F5 limpia URL; entrada con ?tema= restaura selección. */
   useEffect(() => {
@@ -132,6 +147,33 @@ export function ExploradorView() {
         temaId: cleared.temaId !== undefined ? null : selection.temaId,
         cursoId: cleared.cursoId !== undefined ? null : selection.cursoId,
         claseId: cleared.claseId !== undefined ? null : selection.claseId,
+      }),
+    );
+  }
+
+  function openSearch(kind: ExploradorSearchKind) {
+    setSearchKind(kind);
+  }
+
+  function onSearchCurso(curso: CursoConDerivados) {
+    setSearchKind(null);
+    go(
+      explorerHref({
+        temaId: curso.tema_id,
+        cursoId: curso.id,
+        claseId: null,
+      }),
+    );
+  }
+
+  function onSearchClase(clase: ClaseConDerivados) {
+    const curso = cacheData?.cursos.find((c) => c.id === clase.curso_id);
+    setSearchKind(null);
+    go(
+      explorerHref({
+        temaId: curso?.tema_id ?? selection.temaId,
+        cursoId: clase.curso_id,
+        claseId: clase.id,
       }),
     );
   }
@@ -276,6 +318,12 @@ export function ExploradorView() {
             }
             actions={[
               {
+                label: "Buscar cursos",
+                title: "Buscar en todos los cursos",
+                variant: "search",
+                onClick: () => openSearch("curso"),
+              },
+              {
                 label: "Nuevo curso",
                 title:
                   selection.temaId == null
@@ -341,6 +389,12 @@ export function ExploradorView() {
                 : "Este curso no tiene clases. Usá el botón + en la cabecera."
             }
             actions={[
+              {
+                label: "Buscar clases",
+                title: "Buscar en todas las clases",
+                variant: "search",
+                onClick: () => openSearch("clase"),
+              },
               {
                 label: "Nueva clase",
                 title:
@@ -424,6 +478,16 @@ export function ExploradorView() {
           onClose={() => setEditEntity(null)}
           onSaved={() => {}}
           onDeleted={onDeleted}
+        />
+      ) : null}
+
+      {searchKind && cacheData ? (
+        <ExploradorSearchModal
+          kind={searchKind}
+          cacheData={cacheData}
+          onClose={() => setSearchKind(null)}
+          onSelectCurso={onSearchCurso}
+          onSelectClase={onSearchClase}
         />
       ) : null}
     </div>

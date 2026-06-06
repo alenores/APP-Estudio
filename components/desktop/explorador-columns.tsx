@@ -12,7 +12,7 @@ export type ExploradorColumnAction = {
   title?: string;
   onClick: () => void;
   disabled?: boolean;
-  variant?: "create" | "edit" | "text";
+  variant?: "create" | "edit" | "search" | "text";
 };
 
 type ExploradorColumnCardProps = {
@@ -38,6 +38,9 @@ type ExploradorColumnCardProps = {
   conceptosCount?: number;
   onOpenSeguimientos?: () => void;
   onOpenConceptos?: () => void;
+  highlightQuery?: string;
+  searchContextLine?: string | null;
+  searchShowDescripcion?: boolean;
 };
 
 export function ExploradorColumnCard({
@@ -62,6 +65,9 @@ export function ExploradorColumnCard({
   conceptosCount = 0,
   onOpenSeguimientos,
   onOpenConceptos,
+  highlightQuery,
+  searchContextLine,
+  searchShowDescripcion,
 }: ExploradorColumnCardProps) {
   const expandedSlot =
     expanded && onOpenSeguimientos && onOpenConceptos ? (
@@ -95,6 +101,9 @@ export function ExploradorColumnCard({
       dificultad={dificultad}
       orden={orden}
       expandedSlot={expandedSlot}
+      highlightQuery={highlightQuery}
+      searchContextLine={searchContextLine}
+      searchShowDescripcion={searchShowDescripcion}
     />
   );
 }
@@ -173,7 +182,7 @@ function ColumnHeaderButton({
 }: ExploradorColumnAction) {
   const aria = title ?? label;
 
-  if (variant === "create" || variant === "edit") {
+  if (variant === "create" || variant === "edit" || variant === "search") {
     return (
       <button
         type="button"
@@ -187,7 +196,13 @@ function ColumnHeaderButton({
             : "border border-[var(--td-line)] bg-white text-[var(--td-navy)] shadow-sm hover:border-[var(--td-navy)]/35 hover:bg-[var(--td-line-soft)]"
         }`}
       >
-        {variant === "create" ? <IconPlus /> : <IconPencil />}
+        {variant === "create" ? (
+          <IconPlus />
+        ) : variant === "edit" ? (
+          <IconPencil />
+        ) : (
+          <IconSearch />
+        )}
       </button>
     );
   }
@@ -227,6 +242,20 @@ function IconPencil() {
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function IconSearch() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <circle cx="8.75" cy="8.75" r="5.25" stroke="currentColor" strokeWidth="1.75" />
+      <path
+        d="M13.5 13.5L17.25 17.25"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
       />
     </svg>
   );

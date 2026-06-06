@@ -10,6 +10,7 @@ import {
   estadoStripDetalleClass,
 } from "@/lib/estado-ui";
 import type { CSSProperties, ReactNode } from "react";
+import { HighlightMatch } from "@/components/shared/text/highlight-match";
 
 const DONUT_R = 11;
 const DONUT_C = 2 * Math.PI * DONUT_R;
@@ -37,6 +38,12 @@ export type EstudioProgressCardProps = {
   orden?: number;
   /** Panel extra al seleccionar (explorador PC). */
   expandedSlot?: ReactNode;
+  /** Resalta coincidencias en nombre (modal buscador PC). */
+  highlightQuery?: string;
+  /** Línea de contexto bajo el título (ej. tema padre). */
+  searchContextLine?: string | null;
+  /** Muestra descripción con resaltado bajo el título (buscador). */
+  searchShowDescripcion?: boolean;
 };
 
 export function EstudioProgressCard({
@@ -57,6 +64,9 @@ export function EstudioProgressCard({
   dificultad,
   orden,
   expandedSlot,
+  highlightQuery,
+  searchContextLine,
+  searchShowDescripcion = false,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
@@ -76,16 +86,35 @@ export function EstudioProgressCard({
   const showDonut =
     (kind === "tema" || kind === "curso") && hijosStats != null;
 
+  const showSearchDescripcion =
+    searchShowDescripcion &&
+    highlightQuery &&
+    Boolean(descripcion?.trim());
+
   const body = (
     <>
       <div className="text-[15px] font-bold leading-snug text-[var(--td-ink)]">
-        {nombre}
+        {highlightQuery ? (
+          <HighlightMatch text={nombre} query={highlightQuery} />
+        ) : (
+          nombre
+        )}
         {(kind === "tema" || kind === "curso") && fechaParen && !expandedSlot ? (
           <span className="ml-1 text-[13px] font-semibold text-[var(--td-fecha-muted)]">
             {fechaParen}
           </span>
         ) : null}
       </div>
+      {searchContextLine ? (
+        <p className="mt-1 truncate text-[11px] font-semibold text-[var(--td-faint)]">
+          {searchContextLine}
+        </p>
+      ) : null}
+      {showSearchDescripcion ? (
+        <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-[var(--td-ink-soft)]">
+          <HighlightMatch text={descripcion!.trim()} query={highlightQuery!} />
+        </p>
+      ) : null}
       <div className="mt-2.5 flex items-center gap-3">
         {showDonut ? (
           <span className="flex min-w-0 items-center gap-1.5 text-xs font-semibold text-[var(--td-donut-text)]">
@@ -117,7 +146,7 @@ export function EstudioProgressCard({
             </span>
           </span>
         ) : null}
-        {kind === "clase" ? (
+        {kind === "clase" && !showSearchDescripcion ? (
           dificultad || descripcion ? (
             <span className="truncate text-xs font-semibold text-[var(--td-donut-text)]">
               {dificultad ?? descripcion}
