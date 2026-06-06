@@ -911,6 +911,16 @@ html.pwa-standalone-zoom-lock body {
   color: rgba(226, 232, 240, 0.55);
 }
 
+.desktop-main-inset {
+  padding: 0.375rem 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .desktop-main-inset {
+    padding: 0.375rem 0.625rem;
+  }
+}
+
 .desktop-explorador {
   min-height: 0;
 }
@@ -1117,7 +1127,7 @@ html.pwa-standalone-zoom-lock body {
 /* —— Mapa de conocimiento (React Flow, solo PC — ADR 009) —— */
 .mapa-canvas-host {
   flex: 1 1 0;
-  min-height: calc(100dvh - 8.25rem);
+  min-height: 0;
 }
 .mapa-canvas-wrap {
   flex: 1 1 0;

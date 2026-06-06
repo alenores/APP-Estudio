@@ -227,7 +227,7 @@ function MapaCanvasInner({
   }
 
   return (
-    <div className="mapa-canvas-wrap relative min-h-0 w-full flex-1 overflow-hidden bg-[#f1f5f9]">
+    <div className="mapa-canvas-wrap relative min-h-0 w-full flex-1 overflow-hidden rounded-md bg-[#f1f5f9]">
       {status ? (
         <p className="pointer-events-none absolute right-3 top-3 z-10 rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[var(--td-ink-soft)] shadow-sm">
           {status}

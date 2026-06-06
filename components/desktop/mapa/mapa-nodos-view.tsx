@@ -4,8 +4,9 @@ import dynamic from "next/dynamic";
 import { useMapaNodos } from "@/app/hooks/useMapaNodos";
 import type { MapaNodo } from "@/app/types/mapa";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
+import { DesktopShellToolbar } from "@/components/desktop/desktop-shell-toolbar";
 import { MapaNodoForm } from "@/components/desktop/mapa/mapa-nodo-form";
-import { MapaObjetivoFiltroBar } from "@/components/desktop/mapa/mapa-objetivo-ui";
+import { MapaToolbar } from "@/components/desktop/mapa/mapa-toolbar";
 import { AlertText, LoadingText } from "@/components/ui";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
@@ -94,53 +95,21 @@ export function MapaNodosView() {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <div className="mapa-toolbar flex shrink-0 flex-wrap items-center justify-end gap-2 border-b border-white/15 px-3 py-2">
-        {vista === "lienzo" ? (
-          <MapaObjetivoFiltroBar
-            objetivos={objetivos}
-            value={filtroObjetivo}
-            onChange={setFiltroObjetivo}
-          />
-        ) : null}
-        <div
-          className="flex rounded-lg border border-white/25 bg-[var(--td-navy)]/90 p-0.5"
-          role="tablist"
-          aria-label="Vista del mapa"
-        >
-          {(
-            [
-              { id: "lienzo" as const, label: "Lienzo" },
-              { id: "lista" as const, label: "Lista" },
-            ] as const
-          ).map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={vista === id}
-              onClick={() => setVista(id)}
-              className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
-                vista === id
-                  ? "bg-[var(--td-navy)] text-white shadow-sm"
-                  : "text-slate-300 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="shrink-0 rounded-lg bg-[var(--td-navy)] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[var(--td-navy-2)]"
-        >
-          + Nuevo nodo
-        </button>
-      </div>
+    <>
+      <DesktopShellToolbar>
+        <MapaToolbar
+          objetivos={objetivos}
+          vista={vista}
+          filtroObjetivo={filtroObjetivo}
+          onVistaChange={setVista}
+          onFiltroChange={setFiltroObjetivo}
+          onNuevoNodo={() => setCreating(true)}
+        />
+      </DesktopShellToolbar>
 
-      <div
-        className={vista === "lienzo" ? "flex min-h-0 flex-1 flex-col" : "hidden"}
+      <div className="mapa-content-panel flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-[var(--td-line)]/40 bg-[#f1f5f9] shadow-sm">
+        <div
+          className={vista === "lienzo" ? "flex min-h-0 flex-1 flex-col" : "hidden"}
         role="tabpanel"
         aria-label="Lienzo"
         aria-hidden={vista !== "lienzo"}
@@ -158,7 +127,11 @@ export function MapaNodosView() {
       </div>
 
       <div
-        className={vista === "lista" ? "min-h-0 flex-1 overflow-y-auto px-4 py-3" : "hidden"}
+        className={
+          vista === "lista"
+            ? "min-h-0 flex-1 overflow-y-auto bg-white p-3"
+            : "hidden"
+        }
         role="tabpanel"
         aria-label="Lista"
         aria-hidden={vista !== "lista"}
@@ -260,6 +233,7 @@ export function MapaNodosView() {
           </div>
         )}
       </div>
+      </div>
 
       <DesktopModal
         open={creating}
@@ -288,6 +262,6 @@ export function MapaNodosView() {
           </div>
         ) : null}
       </DesktopModal>
-    </div>
+    </>
   );
 }

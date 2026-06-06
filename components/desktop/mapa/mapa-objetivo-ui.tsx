@@ -56,19 +56,23 @@ type MapaObjetivoFiltroProps = {
   objetivos: MapaObjetivo[];
   value: MapaObjetivoFiltro;
   onChange: (value: MapaObjetivoFiltro) => void;
+  compact?: boolean;
 };
 
-/** Botones de filtro por objetivo (barra superior del mapa). */
+/** Botones de filtro por objetivo (header shell PC). */
 export function MapaObjetivoFiltroBar({
   objetivos,
   value,
   onChange,
+  compact = false,
 }: MapaObjetivoFiltroProps) {
   const ids = mapaObjetivoIdsDisponibles(objetivos);
 
   return (
     <div
-      className="flex flex-wrap items-center gap-1 rounded-lg border border-[var(--td-line)] bg-white p-0.5"
+      className={`flex flex-wrap items-center gap-0.5 border border-[var(--td-line)] bg-white p-0.5 ${
+        compact ? "rounded-md" : "rounded-lg"
+      }`}
       role="group"
       aria-label="Filtrar por objetivo"
     >
@@ -76,6 +80,7 @@ export function MapaObjetivoFiltroBar({
         active={value === "todos"}
         onClick={() => onChange("todos")}
         label="Todos"
+        compact={compact}
       />
       {ids.map((id) => (
         <FiltroBtn
@@ -85,6 +90,7 @@ export function MapaObjetivoFiltroBar({
           label={`Obj. ${id}`}
           title={mapaObjetivoNombre(objetivos, id)}
           accent={mapaObjetivoColor(id)}
+          compact={compact}
         />
       ))}
     </div>
@@ -97,12 +103,14 @@ function FiltroBtn({
   label,
   title,
   accent,
+  compact = false,
 }: {
   active: boolean;
   onClick: () => void;
   label: string;
   title?: string;
   accent?: string;
+  compact?: boolean;
 }) {
   return (
     <button
@@ -110,7 +118,9 @@ function FiltroBtn({
       title={title ?? label}
       aria-pressed={active}
       onClick={onClick}
-      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
+      className={`font-semibold transition-colors ${
+        compact ? "rounded px-2 py-0.5 text-[11px]" : "rounded-md px-2.5 py-1 text-xs"
+      } ${
         active
           ? "text-white shadow-sm"
           : "text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]"

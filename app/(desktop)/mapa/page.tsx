@@ -6,7 +6,7 @@ export default function MapaPage() {
   return (
     <DesktopShell
       title="Mapa de conocimiento"
-      mainClassName="flex min-h-0 w-full flex-1 flex-col max-w-none px-0 pt-0 pb-0"
+      mainClassName="desktop-main-inset flex min-h-0 w-full max-w-none flex-1 flex-col"
     >
       <MapaNodosView />
     </DesktopShell>
