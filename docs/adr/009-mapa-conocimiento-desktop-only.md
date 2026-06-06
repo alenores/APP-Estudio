@@ -77,6 +77,7 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | Tipos | `app/types/mapa.ts` |
 | CRUD Supabase | `lib/mapa-queries.ts` |
 | Validación Zod | `lib/validations.ts` (`mapaNodoFormSchema`) |
+| Objetivos / color mapa | `lib/mapa-objetivo.ts` |
 | Hook datos | `app/hooks/useMapaNodos.ts` |
 | Página | `app/(desktop)/mapa/page.tsx` |
 | UI | `components/desktop/mapa/*` |
@@ -95,6 +96,20 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | **4** (hecho) | Guías timeline / carriles, minimapa |
 | **5** (hecho) | Estética nodos custom |
 | **6** (futuro) | FK opcional nodo ↔ tema/curso |
+| **7** (hecho) | Objetivos: catálogo `objetivos`, color/filtro/leyenda por etapa |
+
+### 7. Objetivos (fase 7)
+
+- Catálogo global: tabla `objetivos` (`docs/sql/003-schema-objetivos.sql`).
+- Color y filtro del lienzo por rango de `mapa_nodos.etapa` → `objetivos.id` (ver `lib/mapa-objetivo.ts`).
+- Seed roadmap ERP: `docs/sql/004-seed-roadmap-erp.sql` (borra nodos/enlaces previos).
+- Opcional estudio: `cursos.objetivo_id` FK → `objetivos` (explorador futuro).
+
+| Qué | Dónde |
+|-----|-------|
+| Reglas etapa → objetivo | `lib/mapa-objetivo.ts` |
+| Filtro + leyenda UI | `components/desktop/mapa/mapa-objetivo-ui.tsx` |
+| Nodos flow + hidden | `lib/mapa-flow-nodes.ts`, `mapa-canvas.tsx` |
 
 ### 6. React Flow (fase 2+)
 
@@ -105,6 +120,8 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 ## Consecuencias
 
 - Ejecutar `docs/sql/002-schema-mapa-conocimiento.sql` en Supabase antes de usar la UI del mapa.
+- Objetivos: `docs/sql/003-schema-objetivos.sql` (RLS + `cursos.objetivo_id` opcional).
+- Seed roadmap ERP: `docs/sql/004-seed-roadmap-erp.sql` (**borra** `mapa_nodos` / `mapa_enlaces`).
 - Probar mapa: navegador de escritorio → `/mapa`. Emulación móvil debe redirigir a `/temas`.
 - Nuevas features del mapa → revisar este ADR; ampliar schema solo con migración SQL documentada.
 

@@ -56,8 +56,19 @@ En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `n
 | `fecha_estimada_fin` | date | |
 | `plataforma` | text | libre (ej. Platzi) |
 | `link` | text | URL del curso |
+| `objetivo_id` | bigint | nullable, FK → `objetivos.id` (roadmap; ver ADR 009 fase 7) |
 
 No hay columna `estado` en `cursos`: ver campos derivados.
+
+#### `objetivos` (catálogo roadmap — mapa PC)
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `nombre` | text | not null |
+| `descripcion` | text | |
+| `orden` | integer | not null, default 0 |
+
+Sin `user_id` (referencia global). Script: `docs/sql/003-schema-objetivos.sql`. Color en mapa por rango de `mapa_nodos.etapa` → id 1–3.
 
 #### `clases` (catálogo — sin progreso persistido)
 

@@ -1,5 +1,16 @@
 /** Nodo del mapa de conocimiento (grafo PC). No confundir con `conceptos` de estudio. */
 
+export type MapaObjetivoId = 1 | 2 | 3;
+
+/** Catálogo global de objetivos (tabla `objetivos`). */
+export type MapaObjetivo = {
+  id: MapaObjetivoId;
+  nombre: string;
+  descripcion: string | null;
+  orden: number;
+  created_at: string;
+};
+
 export type MapaNodo = {
   id: number;
   user_id: string;

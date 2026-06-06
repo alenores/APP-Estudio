@@ -1,4 +1,4 @@
-import type { MapaEnlace, MapaEnlaceTipo, MapaNodo } from "@/app/types/mapa";
+import type { MapaEnlace, MapaEnlaceTipo, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
 import { getSessionUserId } from "@/lib/estudio-queries";
 import { posicionDesdeEtapaCarril } from "@/lib/mapa-layout";
 import { createClient } from "@/lib/supabase/client";
@@ -25,6 +25,23 @@ export async function listMapaNodos(): Promise<{
 
   return {
     data: data as MapaNodo[] | null,
+    error: error?.message ?? null,
+  };
+}
+
+export async function listMapaObjetivos(): Promise<{
+  data: MapaObjetivo[] | null;
+  error: string | null;
+}> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("objetivos")
+    .select("*")
+    .order("orden", ORDEN_ETAPA)
+    .order("id", ORDEN_ETAPA);
+
+  return {
+    data: data as MapaObjetivo[] | null,
     error: error?.message ?? null,
   };
 }

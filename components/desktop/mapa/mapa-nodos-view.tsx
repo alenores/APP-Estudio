@@ -5,8 +5,10 @@ import { useMapaNodos } from "@/app/hooks/useMapaNodos";
 import type { MapaNodo } from "@/app/types/mapa";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { MapaNodoForm } from "@/components/desktop/mapa/mapa-nodo-form";
+import { MapaObjetivoFiltroBar } from "@/components/desktop/mapa/mapa-objetivo-ui";
 import { AlertText, LoadingText } from "@/components/ui";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
+import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
 import { posicionNodoEnLienzo } from "@/lib/mapa-layout";
 import { useCallback, useState } from "react";
 
@@ -32,6 +34,7 @@ export function MapaNodosView() {
   const {
     nodos,
     enlaces,
+    objetivos,
     loading,
     error,
     reload,
@@ -40,6 +43,8 @@ export function MapaNodosView() {
     removeEnlace,
   } = useMapaNodos();
   const [vista, setVista] = useState<VistaMapa>("lienzo");
+  const [filtroObjetivo, setFiltroObjetivo] =
+    useState<MapaObjetivoFiltro>("todos");
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<MapaNodo | null>(null);
 
@@ -81,7 +86,9 @@ export function MapaNodosView() {
       <AlertText>
         {error.includes("mapa_nodos") || error.includes("mapa_enlaces")
           ? "Las tablas del mapa aún no existen en Supabase. Ejecutá docs/sql/002-schema-mapa-conocimiento.sql en el SQL Editor."
-          : error}
+          : error.includes("objetivos")
+            ? "La tabla objetivos no existe o no tiene permisos. Ejecutá docs/sql/003-schema-objetivos.sql."
+            : error}
       </AlertText>
     );
   }
@@ -96,6 +103,13 @@ export function MapaNodosView() {
           izquierdo de otro nodo. Delete sobre una flecha para quitarla.
         </p>
         <div className="flex flex-wrap items-center gap-2">
+          {vista === "lienzo" ? (
+            <MapaObjetivoFiltroBar
+              objetivos={objetivos}
+              value={filtroObjetivo}
+              onChange={setFiltroObjetivo}
+            />
+          ) : null}
           <div
             className="flex rounded-lg border border-[var(--td-line)] p-0.5"
             role="tablist"
@@ -142,6 +156,8 @@ export function MapaNodosView() {
         <MapaCanvas
           nodos={nodos}
           enlaces={enlaces}
+          objetivos={objetivos}
+          filtroObjetivo={filtroObjetivo}
           onEditNodo={handleEditNodo}
           onPositionSaved={handlePositionSaved}
           onEnlaceCreated={addEnlace}

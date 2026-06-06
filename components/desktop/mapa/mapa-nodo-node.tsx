@@ -1,19 +1,13 @@
 "use client";
 
-import type { MapaNodo } from "@/app/types/mapa";
+import type { MapaObjetivoId } from "@/app/types/mapa";
 import {
-  mapaNodoToneClass,
-  mapaNodoToneFromCarril,
-} from "@/lib/mapa-nodo-ui";
+  mapaObjetivoColor,
+  mapaObjetivoToneClass,
+} from "@/lib/mapa-objetivo";
 import type { NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
-
-export type MapaNodoNodeData = {
-  nodo: MapaNodo;
-  onEdit: (id: number) => void;
-  enlacesEntrada?: number;
-  enlacesSalida?: number;
-};
+import type { MapaNodoNodeData } from "@/components/desktop/mapa/mapa-nodo-node-types";
 
 function EnlaceBadge({ label, count }: { label: string; count: number }) {
   if (count <= 0) return null;
@@ -24,18 +18,34 @@ function EnlaceBadge({ label, count }: { label: string; count: number }) {
   );
 }
 
-/** Card de nodo en el lienzo (ADR 009). */
+/** Card de nodo en el lienzo (ADR 009). Color por objetivo (etapa). */
 export function MapaNodoNode({ data, selected }: NodeProps) {
-  const { nodo, onEdit, enlacesEntrada = 0, enlacesSalida = 0 } =
-    data as MapaNodoNodeData;
-  const tone = mapaNodoToneFromCarril(nodo.carril);
-  const toneClass = mapaNodoToneClass(tone);
+  const {
+    nodo,
+    onEdit,
+    enlacesEntrada = 0,
+    enlacesSalida = 0,
+    objetivoId,
+    objetivoNombre,
+  } = data as MapaNodoNodeData;
+
+  const toneClass =
+    objetivoId != null
+      ? mapaObjetivoToneClass(objetivoId)
+      : "mapa-flow-node--neutral";
+  const accent =
+    objetivoId != null ? mapaObjetivoColor(objetivoId) : "#94a3b8";
 
   return (
     <div
-      className={`${toneClass} group max-w-[240px] rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] transition-[box-shadow,transform] duration-150 ${
+      className={`${toneClass} mapa-flow-node group max-w-[240px] rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] transition-[box-shadow,transform] duration-150 ${
         selected ? "mapa-flow-node--selected" : ""
       }`}
+      style={
+        objetivoId != null
+          ? { borderLeftWidth: 4, borderLeftColor: accent }
+          : undefined
+      }
     >
       <Handle
         type="target"
@@ -45,9 +55,21 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
         title="Recibe enlaces (entrada)"
       />
 
-      <div className="mapa-flow-node-strip" aria-hidden />
-
       <div className="px-3 pb-2.5 pt-2">
+        {objetivoId != null && objetivoNombre ? (
+          <span
+            className="mapa-flow-node-objetivo-badge mb-1.5 inline-block max-w-full truncate rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide"
+            style={{
+              color: accent,
+              backgroundColor: `${accent}18`,
+              border: `1px solid ${accent}40`,
+            }}
+            title={objetivoNombre}
+          >
+            {objetivoNombre}
+          </span>
+        ) : null}
+
         <div className="flex items-start justify-between gap-2">
           <div className="mapa-flow-node-meta min-w-0">
             <span className="mapa-flow-node-etapa">Etapa {nodo.etapa}</span>

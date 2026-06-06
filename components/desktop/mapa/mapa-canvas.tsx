@@ -1,11 +1,18 @@
 "use client";
 
-import type { MapaEnlace, MapaNodo } from "@/app/types/mapa";
+import type { MapaEnlace, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
 import { mapaFlowNodeTypes } from "@/components/desktop/mapa/mapa-nodo-node";
+import { MapaObjetivoLeyenda } from "@/components/desktop/mapa/mapa-objetivo-ui";
 import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
-import { posicionNodoEnLienzo } from "@/lib/mapa-layout";
-import { mapaNodoEnlaceCounts } from "@/lib/mapa-nodo-ui";
+import {
+  buildMapaFlowNodes,
+} from "@/lib/mapa-flow-nodes";
+import {
+  mapaObjetivoColor,
+  mapaObjetivoIdFromEtapa,
+  type MapaObjetivoFiltro,
+} from "@/lib/mapa-objetivo";
 import {
   deleteMapaEnlace,
   getSessionUserId,
@@ -27,39 +34,18 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type MapaCanvasProps = {
   nodos: MapaNodo[];
   enlaces: MapaEnlace[];
+  objetivos: MapaObjetivo[];
+  filtroObjetivo: MapaObjetivoFiltro;
   onEditNodo: (id: number) => void;
   onPositionSaved?: (id: number, pos_x: number, pos_y: number) => void;
   onEnlaceCreated?: (enlace: MapaEnlace) => void;
   onEnlaceRemoved?: (id: number) => void;
 };
-
-function toFlowNodes(
-  nodos: MapaNodo[],
-  enlaces: MapaEnlace[],
-  onEditNodo: (id: number) => void,
-): Node[] {
-  return nodos.map((nodo) => {
-    const pos = posicionNodoEnLienzo(nodo);
-    const { entrada, salida } = mapaNodoEnlaceCounts(nodo.id, enlaces);
-    return {
-      id: String(nodo.id),
-      type: "mapaNodo",
-      position: pos,
-      data: {
-        nodo,
-        onEdit: onEditNodo,
-        enlacesEntrada: entrada,
-        enlacesSalida: salida,
-      },
-      draggable: true,
-    };
-  });
-}
 
 function MapaFitView({ count }: { count: number }) {
   const { fitView } = useReactFlow();
@@ -84,29 +70,57 @@ function MapaFitView({ count }: { count: number }) {
 function MapaCanvasInner({
   nodos,
   enlaces,
+  objetivos,
+  filtroObjetivo,
   onEditNodo,
   onPositionSaved,
   onEnlaceCreated,
   onEnlaceRemoved,
 }: MapaCanvasProps) {
-  const [nodes, setNodes] = useState<Node[]>(() =>
-    toFlowNodes(nodos, enlaces, onEditNodo),
-  );
-  const [edges, setEdges] = useState<Edge[]>(() => toFlowEdges(enlaces));
-  const [status, setStatus] = useState<string | null>(null);
-
   const onEditStable = useCallback(
     (id: number) => onEditNodo(id),
     [onEditNodo],
   );
 
-  useEffect(() => {
-    setNodes(toFlowNodes(nodos, enlaces, onEditStable));
-  }, [nodos, enlaces, onEditStable]);
+  const nodosById = useMemo(
+    () => new Map(nodos.map((n) => [n.id, n])),
+    [nodos],
+  );
+
+  const flowOptions = useMemo(
+    () => ({ nodosById, filtroObjetivo }),
+    [nodosById, filtroObjetivo],
+  );
+
+  const [nodes, setNodes] = useState<Node[]>(() =>
+    buildMapaFlowNodes({
+      nodos,
+      enlaces,
+      objetivos,
+      filtroObjetivo,
+      onEditNodo: onEditStable,
+    }),
+  );
+  const [edges, setEdges] = useState<Edge[]>(() =>
+    toFlowEdges(enlaces, flowOptions),
+  );
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
-    setEdges(toFlowEdges(enlaces));
-  }, [enlaces]);
+    setNodes(
+      buildMapaFlowNodes({
+        nodos,
+        enlaces,
+        objetivos,
+        filtroObjetivo,
+        onEditNodo: onEditStable,
+      }),
+    );
+  }, [nodos, enlaces, objetivos, filtroObjetivo, onEditStable]);
+
+  useEffect(() => {
+    setEdges(toFlowEdges(enlaces, flowOptions));
+  }, [enlaces, flowOptions]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     setNodes((current) => applyNodeChanges(changes, current));
@@ -126,12 +140,20 @@ function MapaCanvasInner({
       );
       setStatus(null);
       if (error) {
-        setNodes(toFlowNodes(nodos, enlaces, onEditStable));
+        setNodes(
+          buildMapaFlowNodes({
+            nodos,
+            enlaces,
+            objetivos,
+            filtroObjetivo,
+            onEditNodo: onEditStable,
+          }),
+        );
         return;
       }
       onPositionSaved?.(Number(node.id), node.position.x, node.position.y);
     },
-    [nodos, onEditStable, onPositionSaved],
+    [nodos, enlaces, objetivos, filtroObjetivo, onEditStable, onPositionSaved],
   );
 
   const onConnect = useCallback(
@@ -221,17 +243,18 @@ function MapaCanvasInner({
         proOptions={{ hideAttribution: true }}
       >
         <MapaTimelineGuides nodos={nodos} />
+        <MapaObjetivoLeyenda objetivos={objetivos} />
         <MapaFitView count={nodos.length} />
         <Background gap={28} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
         <MiniMap
           className="mapa-minimap"
           nodeColor={(node) => {
-            const carril = Number(
-              (node.data as { nodo?: { carril?: number } })?.nodo?.carril ?? 0,
+            const etapa = Number(
+              (node.data as { nodo?: { etapa?: number } })?.nodo?.etapa ?? 0,
             );
-            const tones = ["#9fd9cc", "#9ec5ef", "#f0b8ae", "#e6c86e"];
-            return tones[Math.abs(carril) % tones.length] ?? "#94a3b8";
+            const objId = mapaObjetivoIdFromEtapa(etapa);
+            return objId != null ? mapaObjetivoColor(objId) : "#94a3b8";
           }}
           nodeStrokeColor="#264a6e"
           maskColor="rgba(241, 245, 249, 0.82)"

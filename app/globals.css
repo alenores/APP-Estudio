@@ -1289,6 +1289,32 @@ html.pwa-standalone-zoom-lock body {
   background: #faf3d4;
 }
 
+/* Objetivos roadmap (etapa → color). Ver lib/mapa-objetivo.ts */
+.mapa-flow-node--objetivo-1 .mapa-flow-node-title {
+  color: #1e3a5f;
+}
+.mapa-flow-node--objetivo-2 .mapa-flow-node-title {
+  color: #7c2d12;
+}
+.mapa-flow-node--objetivo-3 .mapa-flow-node-title {
+  color: #4c1d95;
+}
+.mapa-flow-node--objetivo-1 .mapa-flow-node-etapa,
+.mapa-flow-node--objetivo-1 .mapa-flow-node-carril {
+  color: #3b82f6;
+}
+.mapa-flow-node--objetivo-2 .mapa-flow-node-etapa,
+.mapa-flow-node--objetivo-2 .mapa-flow-node-carril {
+  color: #f97316;
+}
+.mapa-flow-node--objetivo-3 .mapa-flow-node-etapa,
+.mapa-flow-node--objetivo-3 .mapa-flow-node-carril {
+  color: #8b5cf6;
+}
+.mapa-flow-node--neutral .mapa-flow-node-title {
+  color: #1b222b;
+}
+
 .mapa-canvas-wrap .react-flow__node.selected {
   z-index: 3 !important;
 }

@@ -1,25 +1,27 @@
 "use client";
 
-import type { MapaEnlace, MapaNodo } from "@/app/types/mapa";
-import { listMapaEnlaces, listMapaNodos } from "@/lib/mapa-queries";
+import type { MapaEnlace, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
+import { listMapaEnlaces, listMapaNodos, listMapaObjetivos } from "@/lib/mapa-queries";
 import { useCallback, useEffect, useState } from "react";
 
 /** Datos del mapa — separado de useEstudioData (ADR 009). Solo shell escritorio. */
 export function useMapaNodos() {
   const [nodos, setNodos] = useState<MapaNodo[]>([]);
   const [enlaces, setEnlaces] = useState<MapaEnlace[]>([]);
+  const [objetivos, setObjetivos] = useState<MapaObjetivo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const reload = useCallback(async () => {
     setLoading(true);
-    const [nodosRes, enlacesRes] = await Promise.all([
+    const [nodosRes, enlacesRes, objetivosRes] = await Promise.all([
       listMapaNodos(),
       listMapaEnlaces(),
+      listMapaObjetivos(),
     ]);
     setLoading(false);
 
-    const err = nodosRes.error ?? enlacesRes.error;
+    const err = nodosRes.error ?? enlacesRes.error ?? objetivosRes.error;
     if (err) {
       setError(err);
       return;
@@ -27,6 +29,7 @@ export function useMapaNodos() {
     setError(null);
     setNodos(nodosRes.data ?? []);
     setEnlaces(enlacesRes.data ?? []);
+    setObjetivos(objetivosRes.data ?? []);
   }, []);
 
   const patchPosicion = useCallback(
@@ -56,6 +59,7 @@ export function useMapaNodos() {
   return {
     nodos,
     enlaces,
+    objetivos,
     loading,
     error,
     reload,
