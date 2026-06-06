@@ -56,12 +56,17 @@ function MapaFitView({ count }: { count: number }) {
       didFitRef.current = false;
       return;
     }
+    const runFit = () => {
+      void fitView({ padding: 0.25, maxZoom: 1, duration: 150 });
+    };
     if (didFitRef.current) return;
     didFitRef.current = true;
-    const t = window.setTimeout(() => {
-      void fitView({ padding: 0.25, maxZoom: 1, duration: 150 });
-    }, 50);
-    return () => window.clearTimeout(t);
+    const t = window.setTimeout(runFit, 50);
+    const t2 = window.setTimeout(runFit, 280);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(t2);
+    };
   }, [count, fitView]);
 
   return null;
@@ -214,7 +219,7 @@ function MapaCanvasInner({
 
   if (nodos.length === 0) {
     return (
-      <div className="mapa-canvas-empty flex h-full min-h-[280px] w-full items-center justify-center bg-[#f1f5f9] px-6 py-16 text-center text-sm text-[var(--td-faint)]">
+      <div className="mapa-canvas-empty flex min-h-0 flex-1 items-center justify-center bg-[#f1f5f9] px-6 py-16 text-center text-sm text-[var(--td-faint)]">
         Creá un nodo para verlo en el lienzo. Arrastrá para ubicarlo en la línea
         de tiempo.
       </div>
@@ -222,7 +227,7 @@ function MapaCanvasInner({
   }
 
   return (
-    <div className="mapa-canvas-wrap relative h-full min-h-0 w-full flex-1 overflow-hidden bg-[#f1f5f9]">
+    <div className="mapa-canvas-wrap relative min-h-0 w-full flex-1 overflow-hidden bg-[#f1f5f9]">
       {status ? (
         <p className="pointer-events-none absolute right-3 top-3 z-10 rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[var(--td-ink-soft)] shadow-sm">
           {status}
@@ -269,8 +274,10 @@ function MapaCanvasInner({
 /** Lienzo React Flow — solo shell escritorio (ADR 009). */
 export function MapaCanvas(props: MapaCanvasProps) {
   return (
-    <ReactFlowProvider>
-      <MapaCanvasInner {...props} />
-    </ReactFlowProvider>
+    <div className="mapa-canvas-host flex min-h-0 flex-1 flex-col">
+      <ReactFlowProvider>
+        <MapaCanvasInner {...props} />
+      </ReactFlowProvider>
+    </div>
   );
 }
