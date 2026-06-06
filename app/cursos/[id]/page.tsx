@@ -6,7 +6,13 @@ import { AlertText, LoadingText } from "@/components/ui";
 import { FabExpandMenu } from "@/components/mobile/fab/fab-expand-menu";
 import type { ChildQuickAction } from "@/components/mobile/cards/child-context-menu";
 import { ClaseForm } from "@/components/shared/forms/clase-form";
+import { FormParentBanner } from "@/components/shared/forms/form-parent-banner";
 import type { ConceptoParent, SeguimientoParent } from "@/lib/form-parent-types";
+import {
+  conceptoParentKind,
+  formatFormParentSubtitle,
+  seguimientoParentKind,
+} from "@/lib/form-parent-context";
 import { ConceptoForm } from "@/components/shared/forms/concepto-form";
 import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
@@ -73,14 +79,20 @@ export default function CursoDetallePage() {
     );
   }
 
-  const seguimientoSubtitle =
+  const seguimientoParent =
     sheet?.mode === "seguimiento"
-      ? (sheet.contextLabel ?? curso.nombre)
-      : undefined;
-  const conceptoSubtitle =
+      ? {
+          kind: seguimientoParentKind(sheet.parent),
+          name: sheet.contextLabel ?? curso.nombre,
+        }
+      : null;
+  const conceptoParent =
     sheet?.mode === "concepto"
-      ? (sheet.contextLabel ?? curso.nombre)
-      : undefined;
+      ? {
+          kind: conceptoParentKind(sheet.parent),
+          name: sheet.contextLabel ?? curso.nombre,
+        }
+      : null;
 
   return (
     <>
@@ -122,9 +134,10 @@ export default function CursoDetallePage() {
         open={sheet?.mode === "clase"}
         onClose={closeSheet}
         title="Nueva clase"
-        subtitle={curso.nombre}
+        subtitle={formatFormParentSubtitle("curso", curso.nombre)}
         tone="clase"
       >
+        <FormParentBanner parentKind="curso" parentName={curso.nombre} className="mb-4" />
         <ClaseForm cursoId={curso.id} onSuccess={onChildCreated} />
       </StudySheet>
 
@@ -132,14 +145,28 @@ export default function CursoDetallePage() {
         open={sheet?.mode === "seguimiento"}
         onClose={closeSheet}
         title="Nuevo seguimiento"
-        subtitle={seguimientoSubtitle}
+        subtitle={
+          seguimientoParent
+            ? formatFormParentSubtitle(
+                seguimientoParent.kind,
+                seguimientoParent.name,
+              )
+            : undefined
+        }
         tone="seguimiento"
       >
-        {sheet?.mode === "seguimiento" ? (
-          <SeguimientoForm
-            parent={sheet.parent}
-            onSuccess={onChildCreated}
-          />
+        {sheet?.mode === "seguimiento" && seguimientoParent ? (
+          <>
+            <FormParentBanner
+              parentKind={seguimientoParent.kind}
+              parentName={seguimientoParent.name}
+              className="mb-4"
+            />
+            <SeguimientoForm
+              parent={sheet.parent}
+              onSuccess={onChildCreated}
+            />
+          </>
         ) : null}
       </StudySheet>
 
@@ -147,10 +174,21 @@ export default function CursoDetallePage() {
         open={sheet?.mode === "concepto"}
         onClose={closeSheet}
         title="Nuevo concepto"
-        subtitle={conceptoSubtitle}
+        subtitle={
+          conceptoParent
+            ? formatFormParentSubtitle(conceptoParent.kind, conceptoParent.name)
+            : undefined
+        }
       >
-        {sheet?.mode === "concepto" ? (
-          <ConceptoForm parent={sheet.parent} onSuccess={onChildCreated} />
+        {sheet?.mode === "concepto" && conceptoParent ? (
+          <>
+            <FormParentBanner
+              parentKind={conceptoParent.kind}
+              parentName={conceptoParent.name}
+              className="mb-4"
+            />
+            <ConceptoForm parent={sheet.parent} onSuccess={onChildCreated} />
+          </>
         ) : null}
       </StudySheet>
     </>

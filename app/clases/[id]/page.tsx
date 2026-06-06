@@ -5,7 +5,9 @@ import { AppShell } from "@/components/mobile/shell/app-shell";
 import { AlertText, LoadingText } from "@/components/ui";
 import { FabExpandMenu } from "@/components/mobile/fab/fab-expand-menu";
 import { ConceptoForm } from "@/components/shared/forms/concepto-form";
+import { FormParentBanner } from "@/components/shared/forms/form-parent-banner";
 import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
+import { formatFormParentSubtitle } from "@/lib/form-parent-context";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { ClaseDetalleView } from "@/components/mobile/detalle/clase-detalle-view";
 import { useParams } from "next/navigation";
@@ -75,9 +77,10 @@ export default function ClaseDetallePage() {
         open={sheet === "seguimiento"}
         onClose={closeSheet}
         title="Nuevo seguimiento"
-        subtitle={clase.nombre}
+        subtitle={formatFormParentSubtitle("clase", clase.nombre)}
         tone="seguimiento"
       >
+        <FormParentBanner parentKind="clase" parentName={clase.nombre} className="mb-4" />
         <SeguimientoForm
           parent={{ claseId: clase.id }}
           onSuccess={onChildCreated}
@@ -88,8 +91,9 @@ export default function ClaseDetallePage() {
         open={sheet === "concepto"}
         onClose={closeSheet}
         title="Nuevo concepto"
-        subtitle={clase.nombre}
+        subtitle={formatFormParentSubtitle("clase", clase.nombre)}
       >
+        <FormParentBanner parentKind="clase" parentName={clase.nombre} className="mb-4" />
         <ConceptoForm parent={{ claseId: clase.id }} onSuccess={onChildCreated} />
       </StudySheet>
     </>

@@ -383,6 +383,8 @@ export function ExploradorView() {
           kind={createKind}
           temaId={selection.temaId}
           cursoId={selection.cursoId}
+          temaNombre={selectedTema?.nombre ?? null}
+          cursoNombre={selectedCurso?.nombre ?? null}
           onClose={() => setCreateKind(null)}
           onCreated={onCreated}
         />

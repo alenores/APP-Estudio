@@ -3,7 +3,9 @@
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { ConceptoForm } from "@/components/shared/forms/concepto-form";
+import { FormParentBanner } from "@/components/shared/forms/form-parent-banner";
 import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
+import { formatFormParentSubtitle } from "@/lib/form-parent-context";
 import { formatDuracionMinutos } from "@/lib/format-duracion";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import {
@@ -59,7 +61,10 @@ export function ExploradorPanelModal({
 
   const title =
     panel === "seguimientos" ? "Seguimientos" : "Conceptos";
-  const subtitle = `${explorerEntityLabel(entity.kind)} · ${entity.nombre}`;
+  const parentSubtitle = formatFormParentSubtitle(entity.kind, entity.nombre);
+  const subtitle = adding
+    ? parentSubtitle
+    : `${explorerEntityLabel(entity.kind)} · ${entity.nombre}`;
   const modalTone = panel === "seguimientos" ? "seguimiento" : undefined;
 
   return (
@@ -94,9 +99,11 @@ export function ExploradorPanelModal({
               : "rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/30 p-4"
           }
         >
-          <p className="mb-3 text-sm font-semibold text-[var(--td-ink)]">
-            Nuevo registro
-          </p>
+          <FormParentBanner
+            parentKind={entity.kind}
+            parentName={entity.nombre}
+            className="mb-4"
+          />
           {panel === "seguimientos" ? (
             <SeguimientoForm
               parent={seguimientoParentFromEntity(entity)}
