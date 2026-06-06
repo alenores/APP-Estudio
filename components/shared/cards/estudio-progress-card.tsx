@@ -169,9 +169,11 @@ export function EstudioProgressCard({
           )
         ) : null}
         <span className="ml-auto flex items-center gap-3">
-          <span className="text-base font-extrabold text-[var(--td-ink)]">
-            {pct}%
-          </span>
+          {kind !== "objetivo" ? (
+            <span className="text-base font-extrabold text-[var(--td-ink)]">
+              {pct}%
+            </span>
+          ) : null}
           {showLinkIcon ? (
             <PlatformLinkIcon
               link={link!}
@@ -213,11 +215,13 @@ export function EstudioProgressCard({
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
     >
-      <div
-        className={`${estadoStripDetalleClass(derivados.etiqueta_estado)} self-stretch`}
-      >
-        <span>{estadoTexto}</span>
-      </div>
+      {kind !== "objetivo" ? (
+        <div
+          className={`${estadoStripDetalleClass(derivados.etiqueta_estado)} self-stretch`}
+        >
+          <span>{estadoTexto}</span>
+        </div>
+      ) : null}
       <div className="relative min-w-0 flex-1 flex flex-col">
         {kind === "curso" && objetivoId != null ? (
           <ObjetivoDot
