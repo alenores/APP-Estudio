@@ -12,6 +12,8 @@ type DesktopModalProps = {
   onClose: () => void;
   title: string;
   subtitle?: string;
+  /** Clases extra para el subtítulo (ej. cursiva en buscador). */
+  subtitleClassName?: string;
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
@@ -25,6 +27,7 @@ export function DesktopModal({
   onClose,
   title,
   subtitle,
+  subtitleClassName = "",
   children,
   footer,
   wide = false,
@@ -79,7 +82,9 @@ export function DesktopModal({
                 {title}
               </p>
               {subtitle ? (
-                <p className="mt-0.5 truncate text-sm text-[var(--td-ink-soft)]">
+                <p
+                  className={`mt-0.5 truncate text-sm text-[var(--td-ink-soft)] ${subtitleClassName}`}
+                >
                   {subtitle}
                 </p>
               ) : null}

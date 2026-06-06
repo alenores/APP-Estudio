@@ -691,7 +691,9 @@ html.pwa-standalone-zoom-lock body {
 }
 
 .tema-detalle-page .td-estrip,
-.estudio-progress-cards .td-estrip {
+.estudio-progress-cards .td-estrip,
+.desktop-explorador .td-estrip,
+.desktop-modal-theme .estudio-progress-cards .td-estrip {
   flex: none;
   width: 30px;
   display: flex;
@@ -699,7 +701,9 @@ html.pwa-standalone-zoom-lock body {
   justify-content: center;
 }
 .tema-detalle-page .td-estrip span,
-.estudio-progress-cards .td-estrip span {
+.estudio-progress-cards .td-estrip span,
+.desktop-explorador .td-estrip span,
+.desktop-modal-theme .estudio-progress-cards .td-estrip span {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
   font-size: 10px;
@@ -709,40 +713,58 @@ html.pwa-standalone-zoom-lock body {
   white-space: nowrap;
 }
 .tema-detalle-page .td-estrip-curso,
-.estudio-progress-cards .td-estrip-curso {
+.estudio-progress-cards .td-estrip-curso,
+.desktop-explorador .td-estrip-curso,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-curso {
   background: var(--td-e-azul);
 }
 .tema-detalle-page .td-estrip-curso span,
-.estudio-progress-cards .td-estrip-curso span {
+.estudio-progress-cards .td-estrip-curso span,
+.desktop-explorador .td-estrip-curso span,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-curso span {
   color: #fff;
 }
 .tema-detalle-page .td-estrip-fin,
-.estudio-progress-cards .td-estrip-fin {
+.estudio-progress-cards .td-estrip-fin,
+.desktop-explorador .td-estrip-fin,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-fin {
   background: var(--td-e-salvia);
 }
 .tema-detalle-page .td-estrip-fin span,
-.estudio-progress-cards .td-estrip-fin span {
+.estudio-progress-cards .td-estrip-fin span,
+.desktop-explorador .td-estrip-fin span,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-fin span {
   color: #fff;
 }
 .tema-detalle-page .td-estrip-pausa,
-.estudio-progress-cards .td-estrip-pausa {
+.estudio-progress-cards .td-estrip-pausa,
+.desktop-explorador .td-estrip-pausa,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-pausa {
   background: var(--td-e-gris);
 }
 .tema-detalle-page .td-estrip-pausa span,
-.estudio-progress-cards .td-estrip-pausa span {
+.estudio-progress-cards .td-estrip-pausa span,
+.desktop-explorador .td-estrip-pausa span,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-pausa span {
   color: var(--td-e-gris-tx);
 }
 .tema-detalle-page .td-estrip-sin,
-.estudio-progress-cards .td-estrip-sin {
+.estudio-progress-cards .td-estrip-sin,
+.desktop-explorador .td-estrip-sin,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-sin {
   background: var(--td-e-azul-pale);
 }
 .tema-detalle-page .td-estrip-sin span,
-.estudio-progress-cards .td-estrip-sin span {
+.estudio-progress-cards .td-estrip-sin span,
+.desktop-explorador .td-estrip-sin span,
+.desktop-modal-theme .estudio-progress-cards .td-estrip-sin span {
   color: var(--td-e-azul);
 }
 
 .tema-detalle-page .td-cfill,
-.estudio-progress-cards .td-cfill {
+.estudio-progress-cards .td-cfill,
+.desktop-explorador .td-cfill,
+.desktop-modal-theme .estudio-progress-cards .td-cfill {
   position: absolute;
   left: 0;
   top: 0;
@@ -751,15 +773,21 @@ html.pwa-standalone-zoom-lock body {
   border-right: 1px dashed rgba(27, 34, 43, 0.13);
 }
 .tema-detalle-page .td-cfill-curso,
-.estudio-progress-cards .td-cfill-curso {
+.estudio-progress-cards .td-cfill-curso,
+.desktop-explorador .td-cfill-curso,
+.desktop-modal-theme .estudio-progress-cards .td-cfill-curso {
   background: rgba(44, 92, 138, 0.15);
 }
 .tema-detalle-page .td-cfill-fin,
-.estudio-progress-cards .td-cfill-fin {
+.estudio-progress-cards .td-cfill-fin,
+.desktop-explorador .td-cfill-fin,
+.desktop-modal-theme .estudio-progress-cards .td-cfill-fin {
   background: rgba(84, 115, 79, 0.16);
 }
 .tema-detalle-page .td-cfill-pausa,
-.estudio-progress-cards .td-cfill-pausa {
+.estudio-progress-cards .td-cfill-pausa,
+.desktop-explorador .td-cfill-pausa,
+.desktop-modal-theme .estudio-progress-cards .td-cfill-pausa {
   background: rgba(150, 148, 140, 0.18);
 }
 
@@ -1042,6 +1070,48 @@ html.pwa-standalone-zoom-lock body {
   --td-shadow: 0 8px 40px -8px rgba(27, 34, 43, 0.28),
     0 4px 16px -4px rgba(27, 34, 43, 0.12);
   background-color: #ffffff;
+}
+
+/** Cards del buscador PC: mismas variables que listados de estudio. */
+.desktop-modal-theme .estudio-progress-cards {
+  --td-card: #fcfaf5;
+  --td-ink: #1b222b;
+  --td-ink-soft: #586271;
+  --td-faint: #9a958c;
+  --td-line: #e7decd;
+  --td-line-soft: #f0e9da;
+  --td-e-azul: #2c5c8a;
+  --td-e-azul-pale: #dce6f0;
+  --td-e-gris: #c7c3ba;
+  --td-e-gris-tx: #6b675f;
+  --td-e-salvia: #54734f;
+  --td-fecha-muted: #bdb7ac;
+  --td-donut-track: #e5ddcd;
+  --td-donut-val: #a49d90;
+  --td-donut-text: #8b847a;
+  --td-donut-num: #5c6573;
+  --td-shadow: 0 1px 2px rgba(27, 34, 43, 0.04),
+    0 10px 30px -14px rgba(27, 34, 43, 0.16);
+}
+
+.desktop-modal-theme .estudio-progress-cards .explorer-progress-card {
+  box-shadow: var(--td-shadow);
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.desktop-modal-theme
+  .estudio-progress-cards
+  .explorer-progress-card:not([data-selected="true"]):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -8px rgba(39, 72, 103, 0.18);
+  border-color: color-mix(in srgb, var(--td-navy) 28%, var(--td-line));
+}
+
+.desktop-modal-theme .estudio-progress-cards .explorer-progress-card .td-cfill {
+  pointer-events: none;
 }
 
 /* —— Mapa de conocimiento (React Flow, solo PC — ADR 009) —— */

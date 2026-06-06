@@ -83,6 +83,7 @@ export function ExploradorSearchModal({
       onClose={onClose}
       title={title}
       subtitle={subtitle}
+      subtitleClassName="text-xs font-normal italic text-[var(--td-ink-soft)]/75"
       tone={kind}
       wide
     >
@@ -118,7 +119,7 @@ export function ExploradorSearchModal({
               Sin coincidencias para «{trimmed}».
             </p>
           ) : (
-            <ul className="flex flex-col gap-2 pb-1">
+            <ul className="estudio-progress-cards flex flex-col gap-2.5 pb-1">
               {kind === "curso"
                 ? cursoResults.map(({ item: c }) => (
                     <li key={c.id}>

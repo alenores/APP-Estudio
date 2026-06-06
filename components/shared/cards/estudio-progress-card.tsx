@@ -106,7 +106,7 @@ export function EstudioProgressCard({
         ) : null}
       </div>
       {searchContextLine ? (
-        <p className="mt-1 truncate text-[11px] font-semibold text-[var(--td-faint)]">
+        <p className="mt-1 truncate text-[11px] font-normal italic text-[var(--td-fecha-muted)]">
           {searchContextLine}
         </p>
       ) : null}
