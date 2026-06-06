@@ -129,10 +129,12 @@ export function ExploradorSearchModal({
                         derivados={c.derivados}
                         selected={false}
                         descripcion={c.descripcion}
+                        link={c.link}
                         fechaParen={fechaParentesisCurso(c)}
                         highlightQuery={query}
                         searchContextLine={`Tema · ${temaNombreById.get(c.tema_id) ?? "—"}`}
                         searchShowDescripcion
+                        linkIconOnly
                         onSelect={() => onSelectCurso(c)}
                       />
                     </li>
@@ -161,6 +163,7 @@ export function ExploradorSearchModal({
                           highlightQuery={query}
                           searchContextLine={context}
                           searchShowDescripcion
+                          linkIconOnly
                           onSelect={() => onSelectClase(cl)}
                         />
                       </li>

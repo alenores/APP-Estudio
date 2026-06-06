@@ -44,6 +44,8 @@ export type EstudioProgressCardProps = {
   searchContextLine?: string | null;
   /** Muestra descripción con resaltado bajo el título (buscador). */
   searchShowDescripcion?: boolean;
+  /** Solo ícono de link tocable, sin miniatura (buscador PC). */
+  linkIconOnly?: boolean;
 };
 
 export function EstudioProgressCard({
@@ -67,13 +69,14 @@ export function EstudioProgressCard({
   highlightQuery,
   searchContextLine,
   searchShowDescripcion = false,
+  linkIconOnly = false,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
   const hasLink = Boolean(link?.trim());
   const interactive = onSelect != null;
-  const showLinkIcon = hasLink && !expandedSlot;
-  const showLinkPreview = hasLink && expandedSlot;
+  const showLinkPreview = hasLink && expandedSlot != null && !linkIconOnly;
+  const showLinkIcon = hasLink && (linkIconOnly || expandedSlot == null);
 
   const fillStyle: CSSProperties =
     pct > 0 ? { width: `${Math.min(100, pct)}%` } : { display: "none" };
