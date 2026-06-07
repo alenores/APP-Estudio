@@ -100,6 +100,7 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | **8** (hecho) | Renombre `nodos_objetivos` / `enlaces_nodos`; `cursos.nodo_id` |
 | **9a** (hecho) | Tabla `enlaces_temas` — grafo entre temas (SQL 006) |
 | **9b** (hecho) | Lienzo dual: vista **Nodos objetivo** \| **Temas** (React Flow) |
+| **10** (hecho, v1) | Capa 1 detalle: overlay con hijos (cursos / logros) — ADR 010 |
 
 ### 8. Lienzo dual (fase 9b — implementado)
 

@@ -20,6 +20,7 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/006-feedback-ui-movil.md` | **Animaciones / feedback en Android** (delay FAB, sheet sin slide) |
 | `docs/adr/008-dual-shell-mobile-desktop.md` | **Dos shells** móvil vs PC (no responsive; middleware) |
 | `docs/adr/009-mapa-conocimiento-desktop-only.md` | **Mapa de conocimiento** — solo PC; nodos ≠ conceptos |
+| `docs/adr/010-mapa-detalle-lienzo-cap1.md` | **Mapa capa 1** — overlay hijos (cursos / logros) |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **Patrón de datos:** inspirado en *Vías de Escalada Córdoba* (`offline-cache`, `useOfflineData`), adaptado a tablas Estudio — **no** copiar imágenes ni warm de sectores.

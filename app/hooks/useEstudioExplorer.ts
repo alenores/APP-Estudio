@@ -254,7 +254,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
   );
 
   const loading =
-    loadingPack || (!packReady && !cacheData) || loadingNodos || loadingLogros;
+    loadingPack || (!packReady && !cacheData) || loadingNodos;
 
   const resolvedSelection = useMemo((): ExplorerSelection => {
     if (normalized.logroId == null) return normalized;
@@ -282,7 +282,9 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     logrosStatsPorNodo,
     selection: resolvedSelection,
     loading,
-    error: error ?? nodosError ?? logrosError,
+    loadingLogros,
+    error: error ?? nodosError,
+    logrosError,
     packReady,
     reloadNodos,
     reloadLogros,

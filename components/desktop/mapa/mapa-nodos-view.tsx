@@ -16,6 +16,8 @@ import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
 import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
 import { posicionEnLienzo } from "@/lib/mapa-layout";
+import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
+import { MapaDetalleOverlay } from "@/components/desktop/mapa/mapa-detalle-overlay";
 import { nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
 import { useCallback, useState } from "react";
 
@@ -87,8 +89,36 @@ export function MapaNodosView() {
   const [creating, setCreating] = useState(false);
   const [editingNodo, setEditingNodo] = useState<MapaNodo | null>(null);
   const [editingTema, setEditingTema] = useState<Tema | null>(null);
+  const [detalleScope, setDetalleScope] = useState<MapaDetalleScope | null>(
+    null,
+  );
 
   const items = grafoModo === "nodos" ? nodos : temas;
+
+  const handleOpenDetalle = useCallback(
+    (id: number) => {
+      if (grafoModo === "temas") {
+        const tema = temas.find((t) => t.id === id);
+        if (!tema) return;
+        setDetalleScope({
+          kind: "tema",
+          temaId: tema.id,
+          parentLabel: tema.nombre,
+          childKind: "curso",
+        });
+        return;
+      }
+      const nodo = nodos.find((n) => n.id === id);
+      if (!nodo) return;
+      setDetalleScope({
+        kind: "nodo",
+        nodoId: nodo.id,
+        parentLabel: nodo.titulo,
+        childKind: nodo.tipo === "logro" ? "logro" : "curso",
+      });
+    },
+    [grafoModo, nodos, temas],
+  );
 
   const handleEditItem = useCallback(
     (id: number) => {
@@ -179,6 +209,7 @@ export function MapaNodosView() {
               if (grafoModo === "nodos") removeEnlaceNodo(id);
               else removeEnlaceTema(id);
             }}
+            onOpenDetalle={handleOpenDetalle}
           />
         </div>
 
@@ -400,6 +431,13 @@ export function MapaNodosView() {
           </div>
         ) : null}
       </DesktopModal>
+
+      {detalleScope ? (
+        <MapaDetalleOverlay
+          scope={detalleScope}
+          onClose={() => setDetalleScope(null)}
+        />
+      ) : null}
     </>
   );
 }

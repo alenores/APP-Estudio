@@ -88,6 +88,8 @@ export function ExploradorView() {
     selection,
     loading,
     error,
+    logrosError,
+    loadingLogros,
     packReady,
     reloadNodos,
     reloadLogros,
@@ -391,6 +393,7 @@ export function ExploradorView() {
         <LoadingText>Cargando datos del estudio…</LoadingText>
       ) : null}
       {error ? <AlertText>{error}</AlertText> : null}
+      {logrosError ? <AlertText>{logrosError}</AlertText> : null}
       {!loading && packReady ? (
         <div className="explorer-columns-grid flex min-h-0 flex-1 gap-2 overflow-hidden bg-transparent">
           <ExploradorColumn
@@ -554,8 +557,11 @@ export function ExploradorView() {
               ),
             ]}
           >
-            {middleColumnShowsLogros
-              ? logros.map((l) => (
+            {middleColumnShowsLogros ? (
+              loadingLogros ? (
+                <LoadingText>Cargando logros…</LoadingText>
+              ) : (
+                logros.map((l) => (
                   <ExploradorColumnCard
                     key={l.id}
                     kind="logro"
@@ -576,7 +582,9 @@ export function ExploradorView() {
                     }
                   />
                 ))
-              : cursos.map((c) => {
+              )
+            ) : (
+              cursos.map((c) => {
               const ref: ExplorerEntityRef = {
                 kind: "curso",
                 id: c.id,
@@ -615,8 +623,9 @@ export function ExploradorView() {
                 onDoubleClick={() => openPanel(ref, "seguimientos")}
                 {...cardHandlers(ref)}
               />
-            );
-            })}
+              );
+              })
+            )}
           </ExploradorColumn>
 
           <ExploradorColumn

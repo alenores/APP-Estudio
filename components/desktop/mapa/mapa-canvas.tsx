@@ -52,6 +52,8 @@ type MapaCanvasProps = {
   onPositionSaved?: (id: number, pos_x: number, pos_y: number) => void;
   onEnlaceCreated?: (enlace: MapaEnlace | EnlaceTema) => void;
   onEnlaceRemoved?: (id: number) => void;
+  /** Click en card (no en Editar) — abre lienzo detalle capa 1 (ADR 010). */
+  onOpenDetalle?: (id: number) => void;
 };
 
 function MapaFitView({ count }: { count: number }) {
@@ -90,6 +92,7 @@ function MapaCanvasInner({
   onPositionSaved,
   onEnlaceCreated,
   onEnlaceRemoved,
+  onOpenDetalle,
 }: MapaCanvasProps) {
   const onEditStable = useCallback(
     (id: number) => onEditItem(id),
@@ -272,6 +275,7 @@ function MapaCanvasInner({
         onConnect={(c) => void onConnect(c)}
         onEdgesDelete={(eds) => void onEdgesDelete(eds)}
         onNodeDragStop={(e, node) => void onNodeDragStop(e, node)}
+        onNodeClick={(_e, node) => onOpenDetalle?.(Number(node.id))}
         deleteKeyCode={["Backspace", "Delete"]}
         minZoom={0.2}
         maxZoom={1.75}
