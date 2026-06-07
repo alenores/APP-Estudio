@@ -1542,6 +1542,9 @@ html.pwa-standalone-zoom-lock body {
   text-transform: uppercase;
   opacity: 0.55;
 }
+.mapa-guide-etapa-label--bottom {
+  opacity: 0.62;
+}
 .mapa-guide-carril-label {
   fill: #64748b;
   font-size: 15px;

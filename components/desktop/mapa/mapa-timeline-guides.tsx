@@ -60,7 +60,11 @@ export function MapaTimelineGuides({
                   y2={bounds.height}
                   className="mapa-guide-vline"
                 />
-                <text x={x + 10} y={32} className="mapa-guide-etapa-label">
+                <text
+                  x={x + 10}
+                  y={bounds.height - 14}
+                  className="mapa-guide-etapa-label mapa-guide-etapa-label--bottom"
+                >
                   Etapa {etapa}
                 </text>
               </g>
