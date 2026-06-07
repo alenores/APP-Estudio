@@ -26,8 +26,6 @@ export type MapaDetalleHijo = {
   kind: MapaDetalleHijoKind;
 };
 
-export type EnlaceHijoNodoScopeKind = "tema" | "nodo";
-
 /** Fila en `enlaces_hijos_nodos` — flechas en lienzo detalle (ADR 010 v2). */
 export type EnlaceHijoNodo = {
   id: number;
@@ -40,6 +38,16 @@ export type EnlaceHijoNodo = {
   destino_id: number;
   tipo: string | null;
   created_at: string;
+};
+
+export type EnlaceHijoNodoScopeKind = "tema" | "nodo";
+
+/** Fila en `lienzo_hijos_posiciones` — posición en overlay detalle (ADR 010 fase B). */
+export type LienzoHijoPosicion = {
+  hijo_kind: MapaDetalleHijoKind;
+  hijo_id: number;
+  pos_x: number;
+  pos_y: number;
 };
 
 export function mapaDetalleScopeKey(

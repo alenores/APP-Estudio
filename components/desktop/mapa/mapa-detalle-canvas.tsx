@@ -1,14 +1,19 @@
 "use client";
 
-import type { EnlaceHijoNodo } from "@/lib/mapa-detalle-types";
+import type {
+  EnlaceHijoNodo,
+  LienzoHijoPosicion,
+} from "@/lib/mapa-detalle-types";
 import type { MapaDetalleHijo, MapaDetalleScope } from "@/lib/mapa-detalle-types";
 import { mapaDetalleEnlaceCounts } from "@/lib/mapa-detalle-enlace-counts";
 import { insertEnlaceHijoNodo, deleteEnlaceHijoNodo } from "@/lib/mapa-detalle-enlace-queries";
+import { upsertLienzoHijoPosicion } from "@/lib/mapa-detalle-posicion-queries";
 import { toMapaDetalleFlowEdges } from "@/lib/mapa-detalle-flow-edges";
 import {
+  buildMapaDetallePosicionesMap,
   mapaDetalleFlowNodeId,
-  mapaDetalleGridPosition,
   parseMapaDetalleFlowNodeId,
+  resolveMapaDetallePosition,
 } from "@/lib/mapa-detalle-layout";
 import { mapaDetalleFlowNodeTypes } from "@/components/desktop/mapa/mapa-hijo-node";
 import { getSessionUserId } from "@/lib/mapa-queries";
@@ -33,8 +38,15 @@ type MapaDetalleCanvasProps = {
   scope: MapaDetalleScope;
   hijos: MapaDetalleHijo[];
   enlaces: EnlaceHijoNodo[];
+  posiciones: LienzoHijoPosicion[];
   onEnlaceCreated?: (enlace: EnlaceHijoNodo) => void;
   onEnlaceRemoved?: (id: number) => void;
+  onPositionSaved?: (
+    kind: "curso" | "logro",
+    id: number,
+    pos_x: number,
+    pos_y: number,
+  ) => void;
 };
 
 function MapaDetalleFitView({ count }: { count: number }) {
@@ -61,9 +73,16 @@ function MapaDetalleCanvasInner({
   scope,
   hijos,
   enlaces,
+  posiciones,
   onEnlaceCreated,
   onEnlaceRemoved,
+  onPositionSaved,
 }: MapaDetalleCanvasProps) {
+  const posicionesMap = useMemo(
+    () => buildMapaDetallePosicionesMap(posiciones),
+    [posiciones],
+  );
+
   const buildNodes = useCallback(
     (): Node[] =>
       hijos.map((h, index) => {
@@ -71,7 +90,12 @@ function MapaDetalleCanvasInner({
         return {
           id: mapaDetalleFlowNodeId(h.kind, h.id),
           type: "mapaHijo",
-          position: mapaDetalleGridPosition(index),
+          position: resolveMapaDetallePosition(
+            h.kind,
+            h.id,
+            index,
+            posicionesMap,
+          ),
           data: {
             nombre: h.nombre,
             descripcion: h.descripcion,
@@ -79,12 +103,12 @@ function MapaDetalleCanvasInner({
             enlacesEntrada: entrada,
             enlacesSalida: salida,
           },
-          draggable: false,
+          draggable: true,
           selectable: true,
           connectable: true,
         };
       }),
-    [hijos, enlaces],
+    [hijos, enlaces, posicionesMap],
   );
 
   const [nodes, setNodes] = useState<Node[]>(() => buildNodes());
@@ -106,6 +130,42 @@ function MapaDetalleCanvasInner({
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
     setEdges((current) => applyEdgeChanges(changes, current));
   }, []);
+
+  const onNodeDragStop = useCallback(
+    async (_event: unknown, node: Node) => {
+      const parsed = parseMapaDetalleFlowNodeId(node.id);
+      if (!parsed) return;
+
+      setStatus("Guardando posición…");
+      const userId = await getSessionUserId();
+      if (!userId) {
+        setStatus(null);
+        return;
+      }
+
+      const { error } = await upsertLienzoHijoPosicion(
+        userId,
+        scope,
+        parsed,
+        node.position.x,
+        node.position.y,
+      );
+      setStatus(null);
+      if (error) {
+        setNodes(buildNodes());
+        setStatus(error);
+        window.setTimeout(() => setStatus(null), 2500);
+        return;
+      }
+      onPositionSaved?.(
+        parsed.kind,
+        parsed.id,
+        node.position.x,
+        node.position.y,
+      );
+    },
+    [scope, buildNodes, onPositionSaved],
+  );
 
   const onConnect = useCallback(
     async (connection: Connection) => {
@@ -172,7 +232,7 @@ function MapaDetalleCanvasInner({
   const hint = useMemo(
     () =>
       hijos.length > 0
-        ? "Arrastrá entre los puntos de las cards para crear enlaces. Delete para borrar."
+        ? "Arrastrá las cards para ubicarlas. Entre los puntos laterales, creá enlaces. Delete borra la flecha seleccionada."
         : null,
     [hijos.length],
   );
@@ -193,7 +253,7 @@ function MapaDetalleCanvasInner({
         </p>
       ) : null}
       {hint ? (
-        <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[min(420px,70%)] rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-medium text-[var(--td-faint)] shadow-sm">
+        <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[min(480px,72%)] rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-medium text-[var(--td-faint)] shadow-sm">
           {hint}
         </p>
       ) : null}
@@ -205,6 +265,7 @@ function MapaDetalleCanvasInner({
         onEdgesChange={onEdgesChange}
         onConnect={(c) => void onConnect(c)}
         onEdgesDelete={(eds) => void onEdgesDelete(eds)}
+        onNodeDragStop={(e, node) => void onNodeDragStop(e, node)}
         deleteKeyCode={["Backspace", "Delete"]}
         nodesConnectable
         elementsSelectable

@@ -26,6 +26,7 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Concepto | `conceptos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Enlace entre temas | `enlaces_temas` | `origen_id` / `destino_id` → `temas.id` (lienzo PC) |
 | Enlace entre hijos (detalle mapa) | `enlaces_hijos_nodos` | scope `tema`/`nodo` + origen/destino polimórfico `curso`/`logro` — script `011` |
+| Posición hijo (detalle mapa) | `lienzo_hijos_posiciones` | scope + `hijo_kind`/`hijo_id` + `pos_x`/`pos_y` — script `012` |
 
 Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
 
@@ -131,7 +132,19 @@ Script: `docs/sql/011-schema-enlaces-hijos-nodos.sql`. ADR 010 v2.
 
 **Reglas (trigger):** scope `tema` → solo curso→curso del mismo `tema_id`; scope `nodo` formacion → curso/logro del mismo `nodo_id`; scope `nodo` produccion → solo logro→logro.
 
-**Fuera de v2a:** posiciones persistidas de hijos en lienzo (fase B).
+#### `lienzo_hijos_posiciones` (layout hijos en lienzo detalle)
+
+Script: `docs/sql/012-schema-lienzo-hijos-posiciones.sql`. ADR 010 fase B.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `scope_kind` | text | not null; `tema` \| `nodo` |
+| `scope_id` | bigint | not null |
+| `hijo_kind` | text | not null; `curso` \| `logro` |
+| `hijo_id` | bigint | not null |
+| `pos_x`, `pos_y` | double precision | not null default 0 |
+
+PK `(user_id, scope_kind, scope_id, hijo_kind, hijo_id)`. Sin fila guardada → grilla automática en UI.
 
 #### `objetivos` (catálogo roadmap — mapa PC)
 

@@ -33,6 +33,9 @@ function hijosLabel(scope: MapaDetalleScope): string {
 }
 
 function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string {
+  if (error.includes("lienzo_hijos_posiciones")) {
+    return "La tabla lienzo_hijos_posiciones no existe o no tiene permisos. Ejecutá docs/sql/012-schema-lienzo-hijos-posiciones.sql.";
+  }
   if (error.includes("enlaces_hijos_nodos")) {
     return "La tabla enlaces_hijos_nodos no existe o no tiene permisos. Ejecutá docs/sql/011-schema-enlaces-hijos-nodos.sql.";
   }
@@ -44,7 +47,7 @@ function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string
 
 /** Capa 1 sobre el lienzo macro — hijos de tema o nodo (ADR 010). */
 export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) {
-  const { hijos, enlaces, loading, error, addEnlace, removeEnlace } =
+  const { hijos, enlaces, posiciones, loading, error, addEnlace, removeEnlace, savePosicion } =
     useMapaDetalleHijos(scope);
 
   useEffect(() => {
@@ -113,8 +116,10 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
               scope={scope}
               hijos={hijos}
               enlaces={enlaces}
+              posiciones={posiciones}
               onEnlaceCreated={addEnlace}
               onEnlaceRemoved={removeEnlace}
+              onPositionSaved={savePosicion}
             />
           ) : null}
         </div>
