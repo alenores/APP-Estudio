@@ -5,8 +5,11 @@
 -- produccion: solo hijos logros (tabla logros)
 
 -- ---------------------------------------------------------------------------
--- Migrar valores
+-- Migrar valores (primero quitar CHECK viejo: solo permitía nodo | logro)
 -- ---------------------------------------------------------------------------
+
+alter table public.nodos_objetivos
+  drop constraint if exists nodos_objetivos_tipo_chk;
 
 update public.nodos_objetivos
 set tipo = 'formacion'
@@ -18,9 +21,6 @@ where tipo = 'logro';
 
 alter table public.nodos_objetivos
   alter column tipo set default 'formacion';
-
-alter table public.nodos_objetivos
-  drop constraint if exists nodos_objetivos_tipo_chk;
 
 alter table public.nodos_objetivos
   add constraint nodos_objetivos_tipo_chk
