@@ -54,6 +54,8 @@ type MapaCanvasProps = {
   onEnlaceRemoved?: (id: number) => void;
   /** Click en card (no en Editar) — abre lienzo detalle capa 1 (ADR 010). */
   onOpenDetalle?: (id: number) => void;
+  /** Botón + en card — alta con enlace desde ese ítem. */
+  onAddLinkedItem?: (id: number) => void;
 };
 
 function MapaFitView({ count }: { count: number }) {
@@ -93,10 +95,15 @@ function MapaCanvasInner({
   onEnlaceCreated,
   onEnlaceRemoved,
   onOpenDetalle,
+  onAddLinkedItem,
 }: MapaCanvasProps) {
   const onEditStable = useCallback(
     (id: number) => onEditItem(id),
     [onEditItem],
+  );
+  const onAddLinkedStable = useCallback(
+    (id: number) => onAddLinkedItem?.(id),
+    [onAddLinkedItem],
   );
 
   const lienzoItems = grafoModo === "nodos" ? nodos : temas;
@@ -125,8 +132,19 @@ function MapaCanvasInner({
         objetivos,
         filtroObjetivo,
         onEditItem: onEditStable,
+        onAddLinkedItem: onAddLinkedItem ? onAddLinkedStable : undefined,
       }),
-    [grafoModo, nodos, temas, enlaces, objetivos, filtroObjetivo, onEditStable],
+    [
+      grafoModo,
+      nodos,
+      temas,
+      enlaces,
+      objetivos,
+      filtroObjetivo,
+      onEditStable,
+      onAddLinkedStable,
+      onAddLinkedItem,
+    ],
   );
 
   const [nodes, setNodes] = useState<Node[]>(() => buildNodes());

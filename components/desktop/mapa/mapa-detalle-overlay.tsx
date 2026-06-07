@@ -5,7 +5,18 @@ import { useMapaDetalleHijos } from "@/app/hooks/useMapaDetalleHijos";
 import { MapaDetalleCreateModal } from "@/components/desktop/mapa/mapa-detalle-create-modal";
 import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
 import { AlertText, LoadingText } from "@/components/ui";
+import type { MapaDetalleHijoKind } from "@/lib/mapa-detalle-types";
+import { formLienzoColocacionDesdePadreDetalle } from "@/lib/form-lienzo-colocacion-types";
 import { useEffect, useState } from "react";
+
+type DetalleCreateState =
+  | { source: "header" }
+  | {
+      source: "card";
+      kind: MapaDetalleHijoKind;
+      id: number;
+      label: string;
+    };
 
 const MapaDetalleCanvas = dynamic(
   () =>
@@ -50,7 +61,7 @@ function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string
 export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) {
   const { hijos, enlaces, posiciones, loading, error, addEnlace, removeEnlace, savePosicion, reload } =
     useMapaDetalleHijos(scope);
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState<DetalleCreateState | null>(null);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -93,7 +104,7 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
           </div>
           <button
             type="button"
-            onClick={() => setCreating(true)}
+            onClick={() => setCreating({ source: "header" })}
             className="rounded-lg border border-[var(--td-line)] bg-white px-3 py-1.5 text-sm font-bold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
             title="Agregar curso o logro"
           >
@@ -130,6 +141,9 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
               onEnlaceCreated={addEnlace}
               onEnlaceRemoved={removeEnlace}
               onPositionSaved={savePosicion}
+              onAddFromHijo={(kind, id, label) =>
+                setCreating({ source: "card", kind, id, label })
+              }
             />
           ) : null}
         </div>
@@ -139,8 +153,26 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
         <MapaDetalleCreateModal
           scope={scope}
           hijos={hijos}
-          onClose={() => setCreating(false)}
+          onClose={() => setCreating(null)}
           onCreated={() => void reload()}
+          initialKind={
+            creating.source === "card"
+              ? creating.kind
+              : undefined
+          }
+          initialLienzoColocacion={
+            creating.source === "card"
+              ? formLienzoColocacionDesdePadreDetalle({
+                  kind: creating.kind,
+                  id: creating.id,
+                })
+              : undefined
+          }
+          lockEnlacePadre={creating.source === "card"}
+          enlacePadreLabel={
+            creating.source === "card" ? creating.label : undefined
+          }
+          lockKind={creating.source === "card"}
         />
       ) : null}
     </div>

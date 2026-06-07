@@ -1,6 +1,7 @@
 "use client";
 
 import type { MapaTemaNodeData } from "@/components/desktop/mapa/mapa-tema-node-types";
+import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
 import type { NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
 
@@ -18,6 +19,7 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
   const {
     tema,
     onEdit,
+    onAddLinked,
     enlacesEntrada = 0,
     enlacesSalida = 0,
   } = data as MapaTemaNodeData;
@@ -49,21 +51,15 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
             </span>
             <span className="mapa-flow-node-carril">Carril {tema.carril}</span>
           </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(tema.id);
-            }}
-            className={`mapa-flow-node-edit shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-opacity ${
-              selected
-                ? "opacity-100"
-                : "opacity-0 group-hover:opacity-100"
-            }`}
-            title="Editar tema"
-          >
-            Editar
-          </button>
+          <MapaFlowNodeCardActions
+            selected={selected}
+            onEdit={() => onEdit(tema.id)}
+            editLabel="Editar"
+            onAdd={
+              onAddLinked ? () => onAddLinked(tema.id) : undefined
+            }
+            addTitle="Nuevo tema enlazado desde aquí"
+          />
         </div>
 
         <p className="mapa-flow-node-title mt-1.5 text-[15px] font-bold leading-snug">

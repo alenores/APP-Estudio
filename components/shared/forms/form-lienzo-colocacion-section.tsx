@@ -17,6 +17,9 @@ type FormLienzoColocacionSectionProps = {
   onChange: (value: FormLienzoColocacionState) => void;
   /** Ocultar en edición si no aplica */
   show?: boolean;
+  /** Padre del enlace fijado (p. ej. botón + en card del lienzo). */
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
 };
 
 type PadreOption = { id: number; label: string };
@@ -30,6 +33,8 @@ export function FormLienzoColocacionSection({
   value,
   onChange,
   show = true,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
 }: FormLienzoColocacionSectionProps) {
   const [padresMacro, setPadresMacro] = useState<PadreOption[]>([]);
   const [detalleHijos, setDetalleHijos] = useState<MapaDetalleHijo[]>([]);
@@ -74,6 +79,7 @@ export function FormLienzoColocacionSection({
     config.mode === "detalle" ? detallePadreOptions : padresMacro;
 
   const showPadreKindSwitch =
+    !lockEnlacePadre &&
     config.mode === "detalle" &&
     config.scope.kind === "nodo" &&
     config.scope.childKind === "mixto";
@@ -160,21 +166,29 @@ export function FormLienzoColocacionSection({
       ) : null}
 
       <FormField label={padreLabel}>
-        <select
-          value={value.enlacePadreId}
-          onChange={(e) =>
-            onChange({ ...value, enlacePadreId: e.target.value })
-          }
-          className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
-        >
-          <option value="">Sin enlace automático</option>
-          {padreOptions.map((p) => (
-            <option key={p.id} value={String(p.id)}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-        {config.mode === "detalle" && padreOptions.length === 0 ? (
+        {lockEnlacePadre && value.enlacePadreId ? (
+          <p className="rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm font-semibold text-[var(--td-navy)]">
+            {enlacePadreLabel?.trim() || `#${value.enlacePadreId}`}
+          </p>
+        ) : (
+          <select
+            value={value.enlacePadreId}
+            onChange={(e) =>
+              onChange({ ...value, enlacePadreId: e.target.value })
+            }
+            className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
+          >
+            <option value="">Sin enlace automático</option>
+            {padreOptions.map((p) => (
+              <option key={p.id} value={String(p.id)}>
+                {p.label}
+              </option>
+            ))}
+          </select>
+        )}
+        {!lockEnlacePadre &&
+        config.mode === "detalle" &&
+        padreOptions.length === 0 ? (
           <p className="mt-1 text-[11px] text-[var(--td-faint)]">
             Todavía no hay {value.enlacePadreKind === "logro" ? "logros" : "cursos"}{" "}
             en este lienzo para enlazar.

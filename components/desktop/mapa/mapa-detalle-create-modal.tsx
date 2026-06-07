@@ -4,10 +4,14 @@ import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { CursoForm } from "@/components/shared/forms/curso-form";
 import { LogroRegistroForm } from "@/components/shared/forms/logro-registro-form";
 import type { MapaDetalleHijo, MapaDetalleScope } from "@/lib/mapa-detalle-types";
-import type { FormLienzoColocacionConfig } from "@/lib/form-lienzo-colocacion-types";
+import type {
+  FormLienzoColocacionConfig,
+  FormLienzoColocacionState,
+} from "@/lib/form-lienzo-colocacion-types";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { useState } from "react";
+import type { MapaDetalleHijoKind } from "@/lib/mapa-detalle-types";
 
 type MapaDetalleCreateKind = "curso" | "logro";
 
@@ -16,6 +20,12 @@ type MapaDetalleCreateModalProps = {
   hijos: MapaDetalleHijo[];
   onClose: () => void;
   onCreated: () => void;
+  initialKind?: MapaDetalleCreateKind;
+  initialLienzoColocacion?: FormLienzoColocacionState;
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
+  /** Oculta selector curso/logro cuando el alta viene de una card concreta. */
+  lockKind?: boolean;
 };
 
 function defaultCreateKind(scope: MapaDetalleScope): MapaDetalleCreateKind {
@@ -33,16 +43,27 @@ export function MapaDetalleCreateModal({
   hijos,
   onClose,
   onCreated,
+  initialKind,
+  initialLienzoColocacion,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
+  lockKind = false,
 }: MapaDetalleCreateModalProps) {
   const { refreshSnapshot } = useEstudioData();
-  const [kind, setKind] = useState<MapaDetalleCreateKind>(() =>
-    defaultCreateKind(scope),
+  const [kind, setKind] = useState<MapaDetalleCreateKind>(
+    () => initialKind ?? defaultCreateKind(scope),
   );
 
   const lienzoConfig: FormLienzoColocacionConfig = {
     mode: "detalle",
     scope,
     hijos,
+  };
+
+  const lienzoProps = {
+    initialLienzoColocacion,
+    lockEnlacePadre,
+    enlacePadreLabel,
   };
 
   async function afterCreate() {
@@ -54,16 +75,20 @@ export function MapaDetalleCreateModal({
   const title =
     kind === "curso" ? "Nuevo curso" : "Nuevo registro logro";
 
+  const subtitle = lockEnlacePadre && enlacePadreLabel
+    ? `Enlace desde: ${enlacePadreLabel} · ${scope.parentLabel}`
+    : scope.parentLabel;
+
   return (
     <DesktopModal
       open
       onClose={onClose}
       title={title}
-      subtitle={scope.parentLabel}
+      subtitle={subtitle}
       tone="curso"
     >
       <div className={estudioFormWellClass("curso")}>
-        {canPickKind(scope) ? (
+        {canPickKind(scope) && !lockKind ? (
           <div className="mb-4 flex flex-wrap gap-2">
             {(
               [
@@ -89,25 +114,43 @@ export function MapaDetalleCreateModal({
 
         {kind === "curso" && scope.kind === "tema" ? (
           <CursoForm
+            key={
+              initialLienzoColocacion?.enlacePadreId
+                ? `curso-link-${initialLienzoColocacion.enlacePadreId}`
+                : "curso-new"
+            }
             temaId={scope.temaId}
             lienzoConfig={lienzoConfig}
+            {...lienzoProps}
             onSuccess={() => void afterCreate()}
           />
         ) : null}
 
         {kind === "curso" && scope.kind === "nodo" ? (
           <CursoForm
+            key={
+              initialLienzoColocacion?.enlacePadreId
+                ? `curso-link-${initialLienzoColocacion.enlacePadreId}`
+                : "curso-new"
+            }
             defaultNodoId={scope.nodoId}
             lockNodoId
             lienzoConfig={lienzoConfig}
+            {...lienzoProps}
             onSuccess={() => void afterCreate()}
           />
         ) : null}
 
         {kind === "logro" && scope.kind === "nodo" ? (
           <LogroRegistroForm
+            key={
+              initialLienzoColocacion?.enlacePadreId
+                ? `logro-link-${initialLienzoColocacion.enlacePadreId}`
+                : "logro-new"
+            }
             nodoId={scope.nodoId}
             lienzoConfig={lienzoConfig}
+            {...lienzoProps}
             onSuccess={() => void afterCreate()}
           />
         ) : null}
@@ -115,3 +158,5 @@ export function MapaDetalleCreateModal({
     </DesktopModal>
   );
 }
+
+export type { MapaDetalleCreateKind, MapaDetalleHijoKind };

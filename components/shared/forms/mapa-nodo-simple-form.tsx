@@ -29,6 +29,9 @@ type MapaNodoSimpleFormProps = {
   titulo?: string;
   descripcion?: string | null;
   lienzoConfig?: FormLienzoColocacionConfig | null;
+  initialLienzoColocacion?: FormLienzoColocacionState;
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
   onSuccess: (nodoId?: number) => void;
 };
 
@@ -38,13 +41,18 @@ export function MapaNodoSimpleForm({
   titulo: tituloInitial = "",
   descripcion: descripcionInitial = "",
   lienzoConfig,
+  initialLienzoColocacion,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
   onSuccess,
 }: MapaNodoSimpleFormProps) {
   const isEdit = nodoId != null;
   const [titulo, setTitulo] = useState(tituloInitial);
   const [descripcion, setDescripcion] = useState(descripcionInitial ?? "");
   const [lienzoColocacion, setLienzoColocacion] =
-    useState<FormLienzoColocacionState>(EMPTY_FORM_LIENZO_COLOCACION);
+    useState<FormLienzoColocacionState>(
+      () => initialLienzoColocacion ?? EMPTY_FORM_LIENZO_COLOCACION,
+    );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -133,6 +141,8 @@ export function MapaNodoSimpleForm({
           config={lienzoConfig}
           value={lienzoColocacion}
           onChange={setLienzoColocacion}
+          lockEnlacePadre={lockEnlacePadre}
+          enlacePadreLabel={enlacePadreLabel}
         />
       ) : null}
 

@@ -44,6 +44,9 @@ type CursoFormProps = {
   /** Nodo fijado (vista Nodos del explorador). Oculta el selector de nodo. */
   lockNodoId?: boolean;
   lienzoConfig?: FormLienzoColocacionConfig | null;
+  initialLienzoColocacion?: FormLienzoColocacionState;
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
   onSuccess: (cursoId: number, meta: CursoFormSuccessMeta) => void;
   onDelete?: () => void;
 };
@@ -54,6 +57,9 @@ export function CursoForm({
   defaultNodoId = null,
   lockNodoId = false,
   lienzoConfig,
+  initialLienzoColocacion,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
   onSuccess,
   onDelete,
 }: CursoFormProps) {
@@ -85,7 +91,9 @@ export function CursoForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [lienzoColocacion, setLienzoColocacion] =
-    useState<FormLienzoColocacionState>(EMPTY_FORM_LIENZO_COLOCACION);
+    useState<FormLienzoColocacionState>(
+      () => initialLienzoColocacion ?? EMPTY_FORM_LIENZO_COLOCACION,
+    );
 
   const showTemaSelect = temaIdFixed == null && !isEdit;
 
@@ -292,6 +300,8 @@ export function CursoForm({
           config={lienzoConfig}
           value={lienzoColocacion}
           onChange={setLienzoColocacion}
+          lockEnlacePadre={lockEnlacePadre}
+          enlacePadreLabel={enlacePadreLabel}
         />
       ) : null}
       <FormError message={error} />

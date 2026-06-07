@@ -4,6 +4,7 @@ import type { MapaObjetivoId } from "@/app/types/mapa";
 export type MapaNodoNodeData = {
   nodo: MapaNodo;
   onEdit: (id: number) => void;
+  onAddLinked?: (id: number) => void;
   enlacesEntrada?: number;
   enlacesSalida?: number;
   objetivoId?: MapaObjetivoId | null;

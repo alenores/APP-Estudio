@@ -19,6 +19,7 @@ import { posicionEnLienzo } from "@/lib/mapa-layout";
 import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
 import { MapaDetalleOverlay } from "@/components/desktop/mapa/mapa-detalle-overlay";
 import { nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
+import { formLienzoColocacionDesdePadreMacro } from "@/lib/form-lienzo-colocacion-types";
 import { useCallback, useState } from "react";
 
 const MapaCanvas = dynamic(
@@ -37,6 +38,8 @@ const MapaCanvas = dynamic(
 );
 
 type VistaMapa = "lienzo" | "lista";
+
+type EnlacePadreDesdeCard = { id: number; label: string };
 
 function formatPosicion(item: { pos_x: number; pos_y: number; etapa: number; carril: number }) {
   const p = posicionEnLienzo(item);
@@ -87,6 +90,8 @@ export function MapaNodosView() {
   const [filtroObjetivo, setFiltroObjetivo] =
     useState<MapaObjetivoFiltro>("todos");
   const [creating, setCreating] = useState(false);
+  const [enlacePadreCard, setEnlacePadreCard] =
+    useState<EnlacePadreDesdeCard | null>(null);
   const [editingNodo, setEditingNodo] = useState<MapaNodo | null>(null);
   const [editingTema, setEditingTema] = useState<Tema | null>(null);
   const [detalleScope, setDetalleScope] = useState<MapaDetalleScope | null>(
@@ -120,6 +125,18 @@ export function MapaNodosView() {
     [grafoModo, nodos, temas],
   );
 
+  const handleAddLinked = useCallback(
+    (id: number) => {
+      const label =
+        grafoModo === "nodos"
+          ? nodos.find((n) => n.id === id)?.titulo ?? `#${id}`
+          : temas.find((t) => t.id === id)?.nombre ?? `#${id}`;
+      setEnlacePadreCard({ id, label });
+      setCreating(true);
+    },
+    [grafoModo, nodos, temas],
+  );
+
   const handleEditItem = useCallback(
     (id: number) => {
       if (grafoModo === "nodos") {
@@ -149,8 +166,14 @@ export function MapaNodosView() {
 
   function closeModals() {
     setCreating(false);
+    setEnlacePadreCard(null);
     setEditingNodo(null);
     setEditingTema(null);
+  }
+
+  function openCreateModal() {
+    setEnlacePadreCard(null);
+    setCreating(true);
   }
 
   async function onSaved() {
@@ -181,7 +204,7 @@ export function MapaNodosView() {
           onGrafoModoChange={setGrafoModo}
           onVistaChange={setVista}
           onFiltroChange={setFiltroObjetivo}
-          onNuevo={() => setCreating(true)}
+          onNuevo={openCreateModal}
           nuevoDisabled={detalleScope != null}
         />
       </DesktopShellToolbar>
@@ -211,6 +234,7 @@ export function MapaNodosView() {
               else removeEnlaceTema(id);
             }}
             onOpenDetalle={handleOpenDetalle}
+            onAddLinkedItem={handleAddLinked}
           />
         </div>
 
@@ -368,12 +392,24 @@ export function MapaNodosView() {
       <DesktopModal
         open={creating && grafoModo === "nodos"}
         onClose={closeModals}
-        title="Nuevo ítem"
-        subtitle="Elegí tipo y completá el formulario"
+        title={enlacePadreCard ? "Nuevo nodo enlazado" : "Nuevo ítem"}
+        subtitle={
+          enlacePadreCard
+            ? `Enlace desde: ${enlacePadreCard.label}`
+            : "Elegí tipo y completá el formulario"
+        }
       >
         <div className={estudioFormWellClass("tema")}>
           <MapaNodoCreateFlow
+            key={enlacePadreCard ? `nodo-link-${enlacePadreCard.id}` : "nodo-new"}
             lienzoConfig={{ mode: "macro-nodos" }}
+            initialLienzoColocacion={
+              enlacePadreCard
+                ? formLienzoColocacionDesdePadreMacro(enlacePadreCard.id)
+                : undefined
+            }
+            lockEnlacePadre={enlacePadreCard != null}
+            enlacePadreLabel={enlacePadreCard?.label}
             onSuccess={() => void onSaved()}
           />
         </div>
@@ -382,12 +418,24 @@ export function MapaNodosView() {
       <DesktopModal
         open={creating && grafoModo === "temas"}
         onClose={closeModals}
-        title="Nuevo tema"
-        subtitle="Mapa de conocimiento"
+        title={enlacePadreCard ? "Nuevo tema enlazado" : "Nuevo tema"}
+        subtitle={
+          enlacePadreCard
+            ? `Enlace desde: ${enlacePadreCard.label}`
+            : "Mapa de conocimiento"
+        }
       >
         <div className={estudioFormWellClass("tema")}>
           <TemaForm
+            key={enlacePadreCard ? `tema-link-${enlacePadreCard.id}` : "tema-new"}
             lienzoConfig={{ mode: "macro-temas" }}
+            initialLienzoColocacion={
+              enlacePadreCard
+                ? formLienzoColocacionDesdePadreMacro(enlacePadreCard.id)
+                : undefined
+            }
+            lockEnlacePadre={enlacePadreCard != null}
+            enlacePadreLabel={enlacePadreCard?.label}
             onSuccess={() => void onSaved()}
           />
         </div>

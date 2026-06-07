@@ -30,6 +30,9 @@ type MapaLogroFormProps = {
   titulo?: string;
   descripcion?: string | null;
   lienzoConfig?: FormLienzoColocacionConfig | null;
+  initialLienzoColocacion?: FormLienzoColocacionState;
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
   onSuccess: (nodoId?: number) => void;
   onDelete?: () => void;
 };
@@ -40,6 +43,9 @@ export function MapaLogroForm({
   titulo: tituloInitial = "",
   descripcion: descripcionInitial = "",
   lienzoConfig,
+  initialLienzoColocacion,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
   onSuccess,
   onDelete,
 }: MapaLogroFormProps) {
@@ -47,10 +53,12 @@ export function MapaLogroForm({
   const [titulo, setTitulo] = useState(tituloInitial);
   const [descripcion, setDescripcion] = useState(descripcionInitial ?? "");
   const [lienzoColocacion, setLienzoColocacion] =
-    useState<FormLienzoColocacionState>({
-      ...EMPTY_FORM_LIENZO_COLOCACION,
-      enlacePadreKind: "logro",
-    });
+    useState<FormLienzoColocacionState>(() =>
+      initialLienzoColocacion ?? {
+        ...EMPTY_FORM_LIENZO_COLOCACION,
+        enlacePadreKind: "logro",
+      },
+    );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -156,6 +164,8 @@ export function MapaLogroForm({
           config={lienzoConfig}
           value={lienzoColocacion}
           onChange={setLienzoColocacion}
+          lockEnlacePadre={lockEnlacePadre}
+          enlacePadreLabel={enlacePadreLabel}
         />
       ) : null}
 

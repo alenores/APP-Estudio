@@ -29,6 +29,9 @@ type LogroRegistroFormProps = {
   nodoId: number;
   logro?: Logro;
   lienzoConfig?: FormLienzoColocacionConfig | null;
+  initialLienzoColocacion?: FormLienzoColocacionState;
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
   onSuccess: (logroId: number) => void;
   onDelete?: () => void;
 };
@@ -38,6 +41,9 @@ export function LogroRegistroForm({
   nodoId,
   logro,
   lienzoConfig,
+  initialLienzoColocacion,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
   onSuccess,
   onDelete,
 }: LogroRegistroFormProps) {
@@ -48,10 +54,12 @@ export function LogroRegistroForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [lienzoColocacion, setLienzoColocacion] =
-    useState<FormLienzoColocacionState>({
-      ...EMPTY_FORM_LIENZO_COLOCACION,
-      enlacePadreKind: "logro",
-    });
+    useState<FormLienzoColocacionState>(() =>
+      initialLienzoColocacion ?? {
+        ...EMPTY_FORM_LIENZO_COLOCACION,
+        enlacePadreKind: "logro",
+      },
+    );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -151,6 +159,8 @@ export function LogroRegistroForm({
           config={lienzoConfig}
           value={lienzoColocacion}
           onChange={setLienzoColocacion}
+          lockEnlacePadre={lockEnlacePadre}
+          enlacePadreLabel={enlacePadreLabel}
         />
       ) : null}
       <FormError message={error} />

@@ -1,6 +1,7 @@
 "use client";
 
 import type { MapaNodoNodeData } from "@/components/desktop/mapa/mapa-nodo-node-types";
+import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
 import { MapaTemaNode } from "@/components/desktop/mapa/mapa-tema-node";
 import {
   mapaObjetivoColor,
@@ -27,6 +28,7 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
   const {
     nodo,
     onEdit,
+    onAddLinked,
     enlacesEntrada = 0,
     enlacesSalida = 0,
     objetivoId,
@@ -95,21 +97,14 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
             </span>
             <span className="mapa-flow-node-carril">Carril {nodo.carril}</span>
           </div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(nodo.id);
-            }}
-            className={`mapa-flow-node-edit shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-semibold transition-opacity ${
-              selected
-                ? "opacity-100"
-                : "opacity-0 group-hover:opacity-100"
-            }`}
-            title="Editar"
-          >
-            Editar
-          </button>
+          <MapaFlowNodeCardActions
+            selected={selected}
+            onEdit={() => onEdit(nodo.id)}
+            onAdd={
+              onAddLinked ? () => onAddLinked(nodo.id) : undefined
+            }
+            addTitle="Nuevo nodo enlazado desde aquí"
+          />
         </div>
 
         <p className="mapa-flow-node-title mt-1.5 text-[15px] font-bold leading-snug">

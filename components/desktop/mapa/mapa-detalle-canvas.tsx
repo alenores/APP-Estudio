@@ -5,6 +5,7 @@ import type {
   LienzoHijoPosicion,
 } from "@/lib/mapa-detalle-types";
 import type { MapaDetalleHijo, MapaDetalleScope } from "@/lib/mapa-detalle-types";
+import type { MapaDetalleHijoKind } from "@/lib/mapa-detalle-types";
 import { mapaDetalleEnlaceCounts } from "@/lib/mapa-detalle-enlace-counts";
 import { insertEnlaceHijoNodo, deleteEnlaceHijoNodo } from "@/lib/mapa-detalle-enlace-queries";
 import { upsertLienzoHijoPosicion } from "@/lib/mapa-detalle-posicion-queries";
@@ -47,6 +48,12 @@ type MapaDetalleCanvasProps = {
     pos_x: number,
     pos_y: number,
   ) => void;
+  /** Botón + en card hijo — alta con enlace desde ese ítem. */
+  onAddFromHijo?: (
+    kind: MapaDetalleHijoKind,
+    id: number,
+    label: string,
+  ) => void;
 };
 
 function MapaDetalleFitView({ count }: { count: number }) {
@@ -77,10 +84,19 @@ function MapaDetalleCanvasInner({
   onEnlaceCreated,
   onEnlaceRemoved,
   onPositionSaved,
+  onAddFromHijo,
 }: MapaDetalleCanvasProps) {
   const posicionesMap = useMemo(
     () => buildMapaDetallePosicionesMap(posiciones),
     [posiciones],
+  );
+
+  const onAddLinkedStable = useCallback(
+    (kind: MapaDetalleHijoKind, id: number) => {
+      const hijo = hijos.find((h) => h.kind === kind && h.id === id);
+      onAddFromHijo?.(kind, id, hijo?.nombre ?? `#${id}`);
+    },
+    [hijos, onAddFromHijo],
   );
 
   const buildNodes = useCallback(
@@ -97,9 +113,11 @@ function MapaDetalleCanvasInner({
             posicionesMap,
           ),
           data: {
+            hijoId: h.id,
             nombre: h.nombre,
             descripcion: h.descripcion,
             kind: h.kind,
+            onAddLinked: onAddFromHijo ? onAddLinkedStable : undefined,
             enlacesEntrada: entrada,
             enlacesSalida: salida,
           },
@@ -108,7 +126,7 @@ function MapaDetalleCanvasInner({
           connectable: true,
         };
       }),
-    [hijos, enlaces, posicionesMap],
+    [hijos, enlaces, posicionesMap, onAddFromHijo, onAddLinkedStable],
   );
 
   const [nodes, setNodes] = useState<Node[]>(() => buildNodes());
@@ -240,7 +258,7 @@ function MapaDetalleCanvasInner({
   if (hijos.length === 0) {
     return (
       <div className="mapa-detalle-canvas-empty flex min-h-0 flex-1 items-center justify-center px-6 py-16 text-center text-sm text-[var(--td-faint)]">
-        Todavía no hay ítems. Creálos desde el explorador.
+        Todavía no hay ítems. Usá el botón + del encabezado o en cada card para crear uno.
       </div>
     );
   }

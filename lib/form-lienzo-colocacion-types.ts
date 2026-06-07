@@ -27,6 +27,25 @@ export const EMPTY_FORM_LIENZO_COLOCACION: FormLienzoColocacionState = {
   enlacePadreKind: "curso",
 };
 
+export function formLienzoColocacionDesdePadreMacro(
+  padreId: number,
+): FormLienzoColocacionState {
+  return {
+    ...EMPTY_FORM_LIENZO_COLOCACION,
+    enlacePadreId: String(padreId),
+  };
+}
+
+export function formLienzoColocacionDesdePadreDetalle(
+  padre: { kind: MapaDetalleHijoKind; id: number },
+): FormLienzoColocacionState {
+  return {
+    ...EMPTY_FORM_LIENZO_COLOCACION,
+    enlacePadreId: String(padre.id),
+    enlacePadreKind: padre.kind,
+  };
+}
+
 export type FormLienzoCreatedEntity =
   | { layer: "macro-nodo"; id: number }
   | { layer: "macro-tema"; id: number }

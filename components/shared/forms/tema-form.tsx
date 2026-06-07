@@ -33,11 +33,22 @@ type TemaFormProps = {
   tema?: Tema;
   /** Sección lienzo al crear (explorador / mapa). */
   lienzoConfig?: FormLienzoColocacionConfig | null;
+  initialLienzoColocacion?: FormLienzoColocacionState;
+  lockEnlacePadre?: boolean;
+  enlacePadreLabel?: string;
   onSuccess: (temaId: number) => void;
   onDelete?: () => void;
 };
 
-export function TemaForm({ tema, lienzoConfig, onSuccess, onDelete }: TemaFormProps) {
+export function TemaForm({
+  tema,
+  lienzoConfig,
+  initialLienzoColocacion,
+  lockEnlacePadre = false,
+  enlacePadreLabel,
+  onSuccess,
+  onDelete,
+}: TemaFormProps) {
   const isEdit = tema != null;
   const [nombre, setNombre] = useState(tema?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(tema?.descripcion ?? "");
@@ -53,7 +64,9 @@ export function TemaForm({ tema, lienzoConfig, onSuccess, onDelete }: TemaFormPr
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [lienzoColocacion, setLienzoColocacion] =
-    useState<FormLienzoColocacionState>(EMPTY_FORM_LIENZO_COLOCACION);
+    useState<FormLienzoColocacionState>(
+      () => initialLienzoColocacion ?? EMPTY_FORM_LIENZO_COLOCACION,
+    );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -181,6 +194,8 @@ export function TemaForm({ tema, lienzoConfig, onSuccess, onDelete }: TemaFormPr
           config={lienzoConfig}
           value={lienzoColocacion}
           onChange={setLienzoColocacion}
+          lockEnlacePadre={lockEnlacePadre}
+          enlacePadreLabel={enlacePadreLabel}
         />
       ) : null}
       <FormError message={error} />

@@ -18,6 +18,7 @@ export type MapaFlowNodeBuildOptions = {
   objetivos: MapaObjetivo[];
   filtroObjetivo: MapaObjetivoFiltro;
   onEditNodo: (id: number) => void;
+  onAddLinkedNodo?: (id: number) => void;
 };
 
 /** Nodos React Flow con visibilidad por filtro de objetivo (hidden, no borrado). */
@@ -27,6 +28,7 @@ export function buildMapaFlowNodes({
   objetivos,
   filtroObjetivo,
   onEditNodo,
+  onAddLinkedNodo,
 }: MapaFlowNodeBuildOptions): Node[] {
   return nodos.map((nodo) => {
     const pos = posicionNodoEnLienzo(nodo);
@@ -42,6 +44,7 @@ export function buildMapaFlowNodes({
       data: {
         nodo,
         onEdit: onEditNodo,
+        onAddLinked: onAddLinkedNodo,
         enlacesEntrada: entrada,
         enlacesSalida: salida,
         objetivoId,
@@ -69,6 +72,7 @@ export type MapaFlowTemaBuildOptions = {
   temas: Tema[];
   enlaces: MapaGrafoEnlace[];
   onEditTema: (id: number) => void;
+  onAddLinkedTema?: (id: number) => void;
 };
 
 /** Nodos React Flow para vista Temas (tono shell tema, sin filtro objetivo). */
@@ -76,6 +80,7 @@ export function buildMapaFlowNodesTemas({
   temas,
   enlaces,
   onEditTema,
+  onAddLinkedTema,
 }: MapaFlowTemaBuildOptions): Node[] {
   return temas.map((tema) => {
     const pos = posicionEnLienzo(tema);
@@ -88,6 +93,7 @@ export function buildMapaFlowNodesTemas({
       data: {
         tema,
         onEdit: onEditTema,
+        onAddLinked: onAddLinkedTema,
         enlacesEntrada: entrada,
         enlacesSalida: salida,
       },
@@ -104,6 +110,7 @@ export type MapaFlowGrafoBuildOptions = {
   objetivos: MapaObjetivo[];
   filtroObjetivo: MapaObjetivoFiltro;
   onEditItem: (id: number) => void;
+  onAddLinkedItem?: (id: number) => void;
 };
 
 /** Dispatcher lienzo dual — misma firma para nodos y temas. */
@@ -115,12 +122,14 @@ export function buildMapaFlowNodesForGrafo({
   objetivos,
   filtroObjetivo,
   onEditItem,
+  onAddLinkedItem,
 }: MapaFlowGrafoBuildOptions): Node[] {
   if (modo === "temas") {
     return buildMapaFlowNodesTemas({
       temas,
       enlaces,
       onEditTema: onEditItem,
+      onAddLinkedTema: onAddLinkedItem,
     });
   }
   return buildMapaFlowNodes({
@@ -129,6 +138,7 @@ export function buildMapaFlowNodesForGrafo({
     objetivos,
     filtroObjetivo,
     onEditNodo: onEditItem,
+    onAddLinkedNodo: onAddLinkedItem,
   });
 }
 
