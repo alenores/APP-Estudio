@@ -22,12 +22,6 @@ export function isEstudioEntityTone(
   return tone === "tema" || tone === "curso" || tone === "clase";
 }
 
-export function isProgressCardEntityKind(
-  kind: string,
-): kind is EstudioEntityTone {
-  return kind === "tema" || kind === "curso" || kind === "clase";
-}
-
 /** Tono del panel móvil según ruta (/temas, /cursos, /clases). */
 export function shellToneFromPath(pathname: string): EstudioShellTone {
   if (pathname.startsWith("/clases")) return "clase";
@@ -46,11 +40,6 @@ export function estudioEntityShellBgHex(tone: EstudioEntityTone): string {
 
 export function mobileShellToneClass(tone: EstudioShellTone): string {
   return `mobile-shell-tone-${tone}`;
-}
-
-/** Fondo de card de listado móvil según entidad (tema / curso / clase). */
-export function progressCardToneClass(kind: EstudioEntityTone): string {
-  return `progress-card-tone-${kind}`;
 }
 
 export function explorerColumnHeaderClass(kind: EstudioEntityTone): string {

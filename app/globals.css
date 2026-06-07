@@ -218,55 +218,8 @@ html.pwa-standalone-zoom-lock body {
 }
 
 [data-nav-panel] .mobile-shell-header {
-  background-color: var(--mobile-shell-bg);
-  border-bottom-color: #cbd5e1;
-}
-
-/* Detalle móvil: cards de resumen con tinte de la pantalla actual. */
-[data-nav-panel][data-shell-tone="tema"] .estudio-detalle-page,
-[data-nav-panel][data-shell-tone="tema"] .tema-detalle-page {
-  --td-card: #e8f7f3;
-  --td-line: #b8e0d6;
-}
-[data-nav-panel][data-shell-tone="curso"] .estudio-detalle-page,
-[data-nav-panel][data-shell-tone="curso"] .tema-detalle-page {
-  --td-card: #eaf4fc;
-  --td-line: #b8d4f0;
-}
-[data-nav-panel][data-shell-tone="clase"] .estudio-detalle-page,
-[data-nav-panel][data-shell-tone="clase"] .tema-detalle-page {
-  --td-card: #fef0ec;
-  --td-line: #f0c8be;
-}
-
-/* Listados móvil: cada card usa el color de SU entidad (no el del shell padre). */
-[data-nav-panel] .progress-card-tone-tema.explorer-progress-card {
-  --td-card: var(--estudio-shell-tema);
-  --td-line: #b8e0d6;
-  background-color: var(--estudio-shell-tema) !important;
-}
-[data-nav-panel] .progress-card-tone-curso.explorer-progress-card {
-  --td-card: var(--estudio-shell-curso);
-  --td-line: #b8d4f0;
-  background-color: var(--estudio-shell-curso) !important;
-}
-[data-nav-panel] .progress-card-tone-clase.explorer-progress-card {
-  --td-card: var(--estudio-shell-clase);
-  --td-line: #f0c8be;
-  background-color: var(--estudio-shell-clase) !important;
-}
-
-[data-nav-panel][data-shell-tone="tema"] .td-zone {
-  --td-zone: #e8f7f3;
-  --td-zone-line: #b8e0d6;
-}
-[data-nav-panel][data-shell-tone="curso"] .td-zone {
-  --td-zone: #eaf4fc;
-  --td-zone-line: #b8d4f0;
-}
-[data-nav-panel][data-shell-tone="clase"] .td-zone {
-  --td-zone: #fef0ec;
-  --td-zone-line: #f0c8be;
+  background-color: color-mix(in srgb, var(--mobile-shell-bg) 88%, white);
+  border-bottom-color: color-mix(in srgb, var(--mobile-shell-bg) 55%, #cbd5e1);
 }
 
 .explorer-column-header--tema {

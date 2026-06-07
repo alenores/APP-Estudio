@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-const PWA_CACHE_BUST = "app-estudio-v2";
+const PWA_CACHE_BUST = "app-estudio-v3";
 
 export function ServiceWorkerRegister() {
   useEffect(() => {
