@@ -1307,6 +1307,34 @@ html.pwa-standalone-zoom-lock body {
   background: #faf3d4;
 }
 
+/* Vista Temas — tono shell tema (ADR 009 fase 9b) */
+.mapa-flow-node--tema {
+  border-color: color-mix(in srgb, var(--estudio-shell-tema) 65%, #cbd5e1);
+  background: color-mix(in srgb, var(--estudio-shell-tema) 28%, white);
+}
+.mapa-flow-node--tema .mapa-flow-node-tema-badge {
+  color: #0f766e;
+  background: color-mix(in srgb, var(--estudio-shell-tema) 55%, white);
+  border: 1px solid color-mix(in srgb, var(--estudio-shell-tema) 75%, #94a3b8);
+}
+.mapa-flow-node--tema .mapa-flow-node-etapa,
+.mapa-flow-node--tema .mapa-flow-node-carril {
+  color: #0d9488;
+}
+.mapa-flow-node--tema .mapa-flow-node-title {
+  color: #134e4a;
+}
+.mapa-flow-node--tema .mapa-flow-node-desc {
+  color: #475569;
+}
+.mapa-flow-node--tema .mapa-flow-node-edit {
+  border-color: color-mix(in srgb, var(--estudio-shell-tema) 70%, #94a3b8);
+  color: #115e59;
+}
+.mapa-flow-node--tema .mapa-flow-node-edit:hover {
+  background: color-mix(in srgb, var(--estudio-shell-tema) 45%, white);
+}
+
 /* Objetivos roadmap. Ver lib/objetivo-ui.ts */
 .mapa-flow-node--objetivo-1 .mapa-flow-node-title {
   color: #115e59;

@@ -2,31 +2,64 @@
 
 import type { MapaObjetivo } from "@/app/types/mapa";
 import { MapaObjetivoFiltroBar } from "@/components/desktop/mapa/mapa-objetivo-ui";
+import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
 import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
 
 export type MapaVista = "lienzo" | "lista";
 
 type MapaToolbarProps = {
+  grafoModo: MapaGrafoModo;
   objetivos: MapaObjetivo[];
   vista: MapaVista;
   filtroObjetivo: MapaObjetivoFiltro;
+  onGrafoModoChange: (modo: MapaGrafoModo) => void;
   onVistaChange: (vista: MapaVista) => void;
   onFiltroChange: (filtro: MapaObjetivoFiltro) => void;
-  onNuevoNodo: () => void;
+  onNuevo: () => void;
 };
 
 /** Controles compactos del mapa (header compartido PC). */
 export function MapaToolbar({
+  grafoModo,
   objetivos,
   vista,
   filtroObjetivo,
+  onGrafoModoChange,
   onVistaChange,
   onFiltroChange,
-  onNuevoNodo,
+  onNuevo,
 }: MapaToolbarProps) {
   return (
     <div className="mapa-shell-toolbar flex flex-wrap items-center justify-end gap-1.5">
-      {vista === "lienzo" ? (
+      <div
+        className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
+        role="tablist"
+        aria-label="Grafo del mapa"
+      >
+        {(
+          [
+            { id: "nodos" as const, label: "Nodos objetivo" },
+            { id: "temas" as const, label: "Temas" },
+          ] as const
+        ).map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={grafoModo === id}
+            onClick={() => onGrafoModoChange(id)}
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+              grafoModo === id
+                ? "bg-[var(--td-navy)] text-white shadow-sm"
+                : "text-[var(--td-ink-soft)] hover:bg-white/80"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {vista === "lienzo" && grafoModo === "nodos" ? (
         <MapaObjetivoFiltroBar
           objetivos={objetivos}
           value={filtroObjetivo}
@@ -34,6 +67,7 @@ export function MapaToolbar({
           compact
         />
       ) : null}
+
       <div
         className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
         role="tablist"
@@ -61,12 +95,13 @@ export function MapaToolbar({
           </button>
         ))}
       </div>
+
       <button
         type="button"
-        onClick={onNuevoNodo}
+        onClick={onNuevo}
         className="shrink-0 rounded-md bg-[var(--td-navy)] px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-[var(--td-navy-2)]"
       >
-        + Nodo
+        {grafoModo === "nodos" ? "+ Nodo" : "+ Tema"}
       </button>
     </div>
   );

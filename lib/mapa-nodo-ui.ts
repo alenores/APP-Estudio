@@ -1,5 +1,7 @@
 /** Paleta visual de nodos del mapa (por carril paralelo). ADR 009 fase 5. */
 
+import { mapaGrafoEnlaceCounts } from "@/lib/mapa-grafo-enlaces";
+
 export type MapaNodoTone = "mint" | "sky" | "peach" | "gold";
 
 const TONES_BY_CARRIL: MapaNodoTone[] = ["mint", "sky", "peach", "gold"];
@@ -18,11 +20,5 @@ export function mapaNodoEnlaceCounts(
   nodoId: number,
   enlaces: { origen_id: number; destino_id: number }[],
 ): { entrada: number; salida: number } {
-  let entrada = 0;
-  let salida = 0;
-  for (const e of enlaces) {
-    if (e.destino_id === nodoId) entrada += 1;
-    if (e.origen_id === nodoId) salida += 1;
-  }
-  return { entrada, salida };
+  return mapaGrafoEnlaceCounts(nodoId, enlaces);
 }

@@ -23,7 +23,7 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Clase | `clases` | `curso_id` → `cursos.id` |
 | Seguimiento | `seguimientos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Concepto | `conceptos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
-| Enlace entre temas | `enlaces_temas` | `origen_id` / `destino_id` → `temas.id` (lienzo PC futuro) |
+| Enlace entre temas | `enlaces_temas` | `origen_id` / `destino_id` → `temas.id` (lienzo PC) |
 
 Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
 
@@ -43,8 +43,10 @@ En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `n
 | `jerarquia` | integer | not null, default 0 — desempate / agrupación visual |
 | `fecha_estimada_inicio` | date | |
 | `fecha_estimada_fin` | date | |
+| `pos_x`, `pos_y` | double precision | not null default 0 — lienzo React Flow (`/mapa` vista Temas); script `007` |
+| `etapa`, `carril` | integer | not null default 0 — guías timeline en lienzo temas |
 
-#### `enlaces_temas` (grafo entre temas — lienzo PC futuro)
+#### `enlaces_temas` (grafo entre temas — lienzo PC)
 
 Script: `docs/sql/006-schema-enlaces-temas.sql`. Misma semántica de `tipo` que `enlaces_nodos`.
 
@@ -56,7 +58,7 @@ Script: `docs/sql/006-schema-enlaces-temas.sql`. Misma semántica de `tipo` que 
 
 Constraints: `origen_id <> destino_id`; `unique (origen_id, destino_id)`. RLS own-row (`user_id = auth.uid()`).
 
-**Nota:** posición en lienzo (`pos_x` / `pos_y` o `etapa` / `carril`) para temas no está en esta tabla; se añadirá en la fase de visualización (ADR 009 fase 9).
+**Nota:** posición en lienzo para temas: columnas en `temas` (script `docs/sql/007-schema-temas-lienzo.sql`). UI: ADR 009 fase 9b.
 
 #### `cursos` (solo almacenadas)
 

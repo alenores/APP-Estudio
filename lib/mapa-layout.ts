@@ -1,4 +1,5 @@
 import type { MapaNodo } from "@/app/types/mapa";
+import type { LienzoPosicionable } from "@/lib/mapa-lienzo-types";
 
 /** Ancho entre columnas de etapa en el lienzo (eje X / timeline). */
 export const MAPA_ETAPA_WIDTH = 280;
@@ -23,12 +24,12 @@ export function posicionDesdeEtapaCarril(
 }
 
 /** Posición en React Flow: guardada en BD o derivada de etapa/carril si aún está en origen. */
-export function posicionNodoEnLienzo(nodo: MapaNodo): { x: number; y: number } {
-  const px = Number(nodo.pos_x);
-  const py = Number(nodo.pos_y);
+export function posicionEnLienzo(item: LienzoPosicionable): { x: number; y: number } {
+  const px = Number(item.pos_x ?? 0);
+  const py = Number(item.pos_y ?? 0);
   const enOrigen = px === 0 && py === 0;
-  const etapa = Number(nodo.etapa);
-  const carril = Number(nodo.carril);
+  const etapa = Number(item.etapa ?? 0);
+  const carril = Number(item.carril ?? 0);
   const tieneSemantica = etapa !== 0 || carril !== 0;
   if (enOrigen && tieneSemantica) {
     return posicionDesdeEtapaCarril(etapa, carril);
@@ -37,4 +38,9 @@ export function posicionNodoEnLienzo(nodo: MapaNodo): { x: number; y: number } {
     return posicionDesdeEtapaCarril(0, 0);
   }
   return { x: px, y: py };
+}
+
+/** Alias para nodos_objetivos (misma lógica que temas en lienzo). */
+export function posicionNodoEnLienzo(nodo: MapaNodo): { x: number; y: number } {
+  return posicionEnLienzo(nodo);
 }

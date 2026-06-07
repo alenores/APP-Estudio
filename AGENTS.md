@@ -64,7 +64,7 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/mobile/pwa/` |
 | Detalle móvil tema/curso/clase | `components/mobile/detalle/` |
 | Shell escritorio + explorador | `app/(desktop)/`, `components/desktop/`, `lib/shell-*.ts`, `useEstudioExplorer` |
-| Mapa conocimiento (solo PC) | `app/(desktop)/mapa/`, `components/desktop/mapa/`, `lib/mapa-queries.ts`, `useMapaNodos` |
+| Mapa conocimiento (solo PC) | `app/(desktop)/mapa/`, `components/desktop/mapa/`, `lib/mapa-queries.ts`, `lib/temas-lienzo-queries.ts`, `useMapaGrafo` |
 | Primitivos UI | `components/ui/` |
 | Forms compartidos | `components/shared/forms/` |
 
@@ -84,10 +84,14 @@ app/(desktop)/mapa/page.tsx          → mapa conocimiento (solo PC, ADR 009)
 lib/shell-detect.ts                  → detección shell en middleware
 lib/shell-routes.ts                  → rutas por shell (+ DESKTOP_MAPA_PREFIX)
 lib/mapa-queries.ts                  → CRUD nodos_objetivos / enlaces_nodos
+lib/temas-lienzo-queries.ts          → CRUD enlaces_temas + posición temas (lienzo)
+lib/mapa-lienzo-types.ts             → MapaGrafoModo, LienzoPosicionable
+lib/mapa-grafo-enlaces.ts            → conteo enlaces compartido
 lib/mapa-objetivo.ts                 → color/filtro por nodos_objetivos.objetivo_id
 lib/nodo-cursos-stats.ts             → donut cursos por nodo (explorador)
 app/hooks/useNodosObjetivos.ts       → catálogo nodos para explorador PC
-app/hooks/useMapaNodos.ts            → datos mapa (separado de useEstudioData)
+app/hooks/useMapaGrafo.ts            → datos mapa dual (separado de useEstudioData)
+app/hooks/useMapaNodos.ts            → wrapper nodos (compat)
 lib/form-parent-types.ts             → ConceptoParent, SeguimientoParent
 app/hooks/useEstudioExplorer.ts      → árbol temas/cursos/clases (PC)
 app/hooks/useExploradorKeyboard.ts   → atajos teclado explorador

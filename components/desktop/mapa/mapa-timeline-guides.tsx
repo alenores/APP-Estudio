@@ -1,6 +1,6 @@
 "use client";
 
-import type { MapaNodo } from "@/app/types/mapa";
+import type { LienzoPosicionable } from "@/lib/mapa-lienzo-types";
 import { computeMapaGridBounds } from "@/lib/mapa-grid-bounds";
 import {
   MAPA_CARRIL_HEIGHT,
@@ -12,8 +12,8 @@ import { ViewportPortal } from "@xyflow/react";
 import { useMemo } from "react";
 
 /** Columnas de etapa + carriles horizontales (ADR 009 fase 4). */
-export function MapaTimelineGuides({ nodos }: { nodos: MapaNodo[] }) {
-  const bounds = useMemo(() => computeMapaGridBounds(nodos), [nodos]);
+export function MapaTimelineGuides({ items }: { items: LienzoPosicionable[] }) {
+  const bounds = useMemo(() => computeMapaGridBounds(items), [items]);
 
   return (
     <ViewportPortal>

@@ -1,19 +1,24 @@
-import type { MapaEnlace, MapaEnlaceTipo, MapaNodo } from "@/app/types/mapa";
+import type { MapaNodo } from "@/app/types/mapa";
+import type { MapaGrafoEnlace } from "@/lib/mapa-lienzo-types";
 import {
   enlaceCoincideFiltroObjetivo,
   type MapaObjetivoFiltro,
 } from "@/lib/mapa-objetivo";
 import { MarkerType, type Edge } from "@xyflow/react";
 
-const ENLACE_STROKE: Record<NonNullable<MapaEnlaceTipo>, string> = {
+const ENLACE_STROKE: Record<
+  "prerequisito" | "continuacion" | "refuerzo" | "paralelo",
+  string
+> = {
   prerequisito: "#264a6e",
   continuacion: "#35618f",
   refuerzo: "#b8860b",
   paralelo: "#54734f",
 };
 
-function strokeForTipo(tipo: MapaEnlaceTipo | null): string {
-  return ENLACE_STROKE[tipo ?? "prerequisito"];
+function strokeForTipo(tipo: string | null): string {
+  const key = (tipo ?? "prerequisito") as keyof typeof ENLACE_STROKE;
+  return ENLACE_STROKE[key] ?? ENLACE_STROKE.prerequisito;
 }
 
 export type ToFlowEdgesOptions = {
@@ -21,9 +26,9 @@ export type ToFlowEdgesOptions = {
   filtroObjetivo?: MapaObjetivoFiltro;
 };
 
-/** Convierte enlaces del mapa a edges de React Flow. */
+/** Convierte enlaces del grafo (nodos o temas) a edges de React Flow. */
 export function toFlowEdges(
-  enlaces: MapaEnlace[],
+  enlaces: MapaGrafoEnlace[],
   options?: ToFlowEdgesOptions,
 ): Edge[] {
   const filtro = options?.filtroObjetivo ?? "todos";

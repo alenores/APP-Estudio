@@ -2,7 +2,7 @@
 -- Ver docs/adr/002-supabase-schema-contract.md y ADR 009 fase 9.
 --
 -- Espejo de enlaces_nodos, pero origen/destino → temas.id.
--- No incluye posiciones en lienzo (pos_x/pos_y en temas: fase posterior).
+-- No incluye posiciones en lienzo (pos_x/pos_y en temas: ver 007).
 
 -- ---------------------------------------------------------------------------
 -- Tabla enlaces_temas

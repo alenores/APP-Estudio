@@ -1,10 +1,10 @@
-import type { MapaNodo } from "@/app/types/mapa";
+import type { LienzoPosicionable } from "@/lib/mapa-lienzo-types";
 import {
   MAPA_CARRIL_HEIGHT,
   MAPA_ETAPA_WIDTH,
   MAPA_ORIGIN_X,
   MAPA_ORIGIN_Y,
-  posicionNodoEnLienzo,
+  posicionEnLienzo,
 } from "@/lib/mapa-layout";
 
 export type MapaGridBounds = {
@@ -26,8 +26,8 @@ function rangeInclusive(min: number, max: number): number[] {
 }
 
 /** Extensión del grid de guías según etapas/c carriles y posiciones libres en el lienzo. */
-export function computeMapaGridBounds(nodos: MapaNodo[]): MapaGridBounds {
-  if (nodos.length === 0) {
+export function computeMapaGridBounds(items: LienzoPosicionable[]): MapaGridBounds {
+  if (items.length === 0) {
     return {
       etapas: [0, 1, 2, 3],
       carriles: [0, 1, 2],
@@ -43,15 +43,15 @@ export function computeMapaGridBounds(nodos: MapaNodo[]): MapaGridBounds {
   let maxX = MAPA_ORIGIN_X;
   let maxY = MAPA_ORIGIN_Y;
 
-  for (const nodo of nodos) {
-    const etapa = Number(nodo.etapa);
-    const carril = Number(nodo.carril);
+  for (const item of items) {
+    const etapa = Number(item.etapa);
+    const carril = Number(item.carril);
     minEtapa = Math.min(minEtapa, etapa);
     maxEtapa = Math.max(maxEtapa, etapa);
     minCarril = Math.min(minCarril, carril);
     maxCarril = Math.max(maxCarril, carril);
 
-    const pos = posicionNodoEnLienzo(nodo);
+    const pos = posicionEnLienzo(item);
     const etapaDesdeX = Math.floor(
       (pos.x - MAPA_ORIGIN_X + MAPA_ETAPA_WIDTH / 2) / MAPA_ETAPA_WIDTH,
     );

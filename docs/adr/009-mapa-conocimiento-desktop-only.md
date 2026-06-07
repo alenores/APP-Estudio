@@ -19,7 +19,7 @@ Esto **no** es el seguimiento de estudio (`temas` / `cursos` / `clases` / `segui
 | Rutas bajo shell móvil | Ruta `/mapa` bajo `app/(desktop)/` |
 | Links desde `AppShell`, FAB, detalle móvil | Middleware: UA móvil → redirect lejos de `/mapa` |
 | `responsive` / breakpoints para el mapa | Detección shell igual que ADR 008 |
-| Incluir nodos/enlaces en `useEstudioData` ni snapshot offline | Datos propios: `useMapaNodos` + `lib/mapa-queries.ts` |
+| Incluir nodos/enlaces en `useEstudioData` ni snapshot offline | Datos propios: `useMapaGrafo` + `lib/mapa-queries.ts` / `lib/temas-lienzo-queries.ts` |
 | Importar React Flow (fase 2+) fuera de `components/desktop/mapa/` | `next/dynamic(..., { ssr: false })` en la página del mapa |
 | Componentes en `components/mobile/` o `components/shared/forms/` para el mapa | UI en `components/desktop/mapa/` |
 | FK a `temas` / `cursos` / `clases` en v1 | Tablas aisladas; enlace opcional en fase futura (ADR aparte) |
@@ -78,7 +78,7 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | CRUD Supabase | `lib/mapa-queries.ts` |
 | Validación Zod | `lib/validations.ts` (`mapaNodoFormSchema`) |
 | Objetivos / color mapa | `lib/mapa-objetivo.ts` |
-| Hook datos | `app/hooks/useMapaNodos.ts` |
+| Hook datos | `app/hooks/useMapaGrafo.ts` |
 | Página | `app/(desktop)/mapa/page.tsx` |
 | UI | `components/desktop/mapa/*` |
 | Rutas shell | `lib/shell-routes.ts` (`DESKTOP_MAPA_PREFIX`) |
@@ -99,26 +99,37 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | **7** (hecho) | Objetivos + `nodos_objetivos.objetivo_id`; explorador por nodos |
 | **8** (hecho) | Renombre `nodos_objetivos` / `enlaces_nodos`; `cursos.nodo_id` |
 | **9a** (hecho) | Tabla `enlaces_temas` — grafo entre temas (SQL 006) |
-| **9b** (futuro) | Lienzo dual: vista **Nodos objetivo** \| **Temas** (React Flow) |
+| **9b** (hecho) | Lienzo dual: vista **Nodos objetivo** \| **Temas** (React Flow) |
 
-### 8. Lienzo dual (fase 9b — diseño, sin implementar aún)
+### 8. Lienzo dual (fase 9b — implementado)
 
-Objetivo: en `/mapa`, conmutar el mismo lienzo React Flow entre dos grafos:
+En `/mapa`, el mismo lienzo React Flow conmuta entre dos grafos:
 
 | Vista | Nodos | Enlaces | Color / filtro |
 |-------|-------|---------|----------------|
-| **Nodos objetivo** (actual) | `nodos_objetivos` | `enlaces_nodos` | `objetivo_id` + leyenda |
-| **Temas** (futuro) | filas `temas` | `enlaces_temas` | tono shell tema (ADR 002) |
+| **Nodos objetivo** | `nodos_objetivos` | `enlaces_nodos` | `objetivo_id` + leyenda + filtro toolbar |
+| **Temas** | filas `temas` | `enlaces_temas` | tono shell tema (`mapa-flow-node--tema`) |
 
-**Prerrequisito ya cubierto:** `enlaces_temas` (006). **Falta cuando se pida la UI:**
+**SQL:** `006` (`enlaces_temas`), `007` (`temas.pos_x` / `pos_y` / `etapa` / `carril`).
 
-1. **Posición en lienzo para temas** — columnas `pos_x`, `pos_y` (y opcional `etapa`/`carril`) en `temas` o tabla auxiliar; hoy los temas solo tienen `orden`/`jerarquia` para listas.
-2. **Capa datos** — `lib/temas-lienzo-queries.ts` (list/insert/delete `enlaces_temas`; update posición tema), hook `useMapaTemas` o `useMapaGrafo(mode)`.
-3. **Canvas compartido** — extraer de `mapa-canvas.tsx` un adaptador: `buildFlowNodes` / `toFlowEdges` parametrizados por tipo de nodo (`mapaNodo` vs `mapaTema`); node component distinto (card tema vs card nodo objetivo).
-4. **Toolbar** — switch «Nodos \| Temas» junto al filtro por objetivo (solo en vista nodos); en vista temas, filtro distinto o ninguno.
-5. **Sin offline pack** — igual que mapa actual (ADR 009): queries directas, no `useEstudioData`.
+**Capa compartida (sin duplicar lógica React Flow):**
 
-Reutilizar: drag → guardar posición, crear enlace al conectar handles, borrar con Delete, guías timeline si hay `etapa`.
+| Qué | Dónde |
+|-----|-------|
+| Modo grafo | `lib/mapa-lienzo-types.ts` — `MapaGrafoModo` |
+| Posición lienzo | `lib/mapa-layout.ts` — `posicionEnLienzo` (nodos y temas) |
+| Build nodos Flow | `lib/mapa-flow-nodes.ts` — `buildMapaFlowNodesForGrafo` |
+| Edges | `lib/mapa-flow-edges.ts` — `toFlowEdges` (genérico) |
+| Conteo enlaces | `lib/mapa-grafo-enlaces.ts` |
+| Queries temas | `lib/temas-lienzo-queries.ts` |
+| Hook datos | `app/hooks/useMapaGrafo.ts` (`useMapaNodos` = wrapper nodos) |
+| Canvas | `components/desktop/mapa/mapa-canvas.tsx` — persistencia por modo |
+| Node UI | `mapa-nodo-node.tsx`, `mapa-tema-node.tsx` |
+| Toolbar | `mapa-toolbar.tsx` — switch Nodos \| Temas; filtro objetivo solo en nodos |
+
+Reutiliza: drag → guardar posición, conectar handles → insert enlace, Delete → borrar enlace, guías timeline (`MapaTimelineGuides` + `computeMapaGridBounds` sobre `LienzoPosicionable[]`).
+
+Sin offline pack — queries directas, no `useEstudioData`.
 
 ### 7. Objetivos (fase 7–8)
 

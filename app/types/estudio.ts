@@ -7,6 +7,11 @@ export type Tema = {
   descripcion: string | null;
   orden: number;
   jerarquia: number;
+  /** Lienzo `/mapa` vista Temas — SQL 007. */
+  pos_x: number;
+  pos_y: number;
+  etapa: number;
+  carril: number;
   fecha_estimada_inicio: string | null;
   fecha_estimada_fin: string | null;
   created_at: string;

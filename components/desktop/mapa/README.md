@@ -1,6 +1,6 @@
 # Mapa de conocimiento (solo PC)
 
-Módulo **desktop-only** (ADR 009). Nodos y enlaces del grafo — **no** la tabla `conceptos` de estudio.
+Módulo **desktop-only** (ADR 009). Nodos objetivo, temas y enlaces del grafo — **no** la tabla `conceptos` de estudio.
 
 | Fase | Archivos |
 |------|----------|
@@ -10,7 +10,8 @@ Módulo **desktop-only** (ADR 009). Nodos y enlaces del grafo — **no** la tabl
 | 4 | `mapa-timeline-guides.tsx`, `lib/mapa-grid-bounds.ts`, MiniMap |
 | 5 | `lib/mapa-nodo-ui.ts` — badges enlaces, selección |
 | 7 | `lib/mapa-objetivo.ts`, `mapa-objetivo-ui.tsx` — color/filtro/leyenda por objetivo |
+| 9b | Lienzo dual: `mapa-tema-node.tsx`, `useMapaGrafo`, `lib/temas-lienzo-queries.ts` |
 
-Datos: `useMapaNodos` (`nodos`, `enlaces`, `objetivos`), `lib/mapa-queries.ts`.
+Datos: `useMapaGrafo(modo)` — `nodos`/`temas`, `enlaces`, `objetivos` (solo modo nodos).
 
-SQL: `002` mapa, `003` objetivos, `004` seed roadmap ERP.
+SQL: `002` mapa, `003` objetivos, `005` nodos_objetivos, `006` enlaces_temas, `007` posición temas.

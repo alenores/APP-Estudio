@@ -1,4 +1,6 @@
+import type { Tema } from "@/app/types/estudio";
 import type { MapaEnlace, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
+import type { MapaGrafoEnlace, MapaGrafoModo } from "@/lib/mapa-lienzo-types";
 import {
   enlaceCoincideFiltroObjetivo,
   mapaObjetivoIdFromNodo,
@@ -6,8 +8,8 @@ import {
   nodoCoincideFiltroObjetivo,
   type MapaObjetivoFiltro,
 } from "@/lib/mapa-objetivo";
-import { posicionNodoEnLienzo } from "@/lib/mapa-layout";
-import { mapaNodoEnlaceCounts } from "@/lib/mapa-nodo-ui";
+import { posicionEnLienzo, posicionNodoEnLienzo } from "@/lib/mapa-layout";
+import { mapaGrafoEnlaceCounts } from "@/lib/mapa-grafo-enlaces";
 import type { Node } from "@xyflow/react";
 
 export type MapaFlowNodeBuildOptions = {
@@ -28,7 +30,7 @@ export function buildMapaFlowNodes({
 }: MapaFlowNodeBuildOptions): Node[] {
   return nodos.map((nodo) => {
     const pos = posicionNodoEnLienzo(nodo);
-    const { entrada, salida } = mapaNodoEnlaceCounts(nodo.id, enlaces);
+    const { entrada, salida } = mapaGrafoEnlaceCounts(nodo.id, enlaces);
     const objetivoId = mapaObjetivoIdFromNodo(nodo);
     const visible = nodoCoincideFiltroObjetivo(nodo, filtroObjetivo);
 
@@ -61,6 +63,73 @@ export function buildMapaFlowNodeVisibilityPatch(
     id: String(nodo.id),
     hidden: !nodoCoincideFiltroObjetivo(nodo, filtroObjetivo),
   }));
+}
+
+export type MapaFlowTemaBuildOptions = {
+  temas: Tema[];
+  enlaces: MapaGrafoEnlace[];
+  onEditTema: (id: number) => void;
+};
+
+/** Nodos React Flow para vista Temas (tono shell tema, sin filtro objetivo). */
+export function buildMapaFlowNodesTemas({
+  temas,
+  enlaces,
+  onEditTema,
+}: MapaFlowTemaBuildOptions): Node[] {
+  return temas.map((tema) => {
+    const pos = posicionEnLienzo(tema);
+    const { entrada, salida } = mapaGrafoEnlaceCounts(tema.id, enlaces);
+
+    return {
+      id: String(tema.id),
+      type: "mapaTema",
+      position: pos,
+      data: {
+        tema,
+        onEdit: onEditTema,
+        enlacesEntrada: entrada,
+        enlacesSalida: salida,
+      },
+      draggable: true,
+    };
+  });
+}
+
+export type MapaFlowGrafoBuildOptions = {
+  modo: MapaGrafoModo;
+  nodos: MapaNodo[];
+  temas: Tema[];
+  enlaces: MapaGrafoEnlace[];
+  objetivos: MapaObjetivo[];
+  filtroObjetivo: MapaObjetivoFiltro;
+  onEditItem: (id: number) => void;
+};
+
+/** Dispatcher lienzo dual — misma firma para nodos y temas. */
+export function buildMapaFlowNodesForGrafo({
+  modo,
+  nodos,
+  temas,
+  enlaces,
+  objetivos,
+  filtroObjetivo,
+  onEditItem,
+}: MapaFlowGrafoBuildOptions): Node[] {
+  if (modo === "temas") {
+    return buildMapaFlowNodesTemas({
+      temas,
+      enlaces,
+      onEditTema: onEditItem,
+    });
+  }
+  return buildMapaFlowNodes({
+    nodos,
+    enlaces: enlaces as MapaEnlace[],
+    objetivos,
+    filtroObjetivo,
+    onEditNodo: onEditItem,
+  });
 }
 
 export function buildMapaFlowEdgeVisibilityPatch(
