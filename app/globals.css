@@ -177,76 +177,96 @@ html.pwa-standalone-zoom-lock body {
   background-color: var(--td-paper);
 }
 
-/* Móvil: el tono vive en AppShell; el contenido interno no repinta gris. */
-.mobile-shell-tone-tema .estudio-detalle-page,
-.mobile-shell-tone-curso .estudio-detalle-page,
-.mobile-shell-tone-clase .estudio-detalle-page,
-.mobile-shell-tone-neutral .estudio-detalle-page,
-[data-shell-tone] .estudio-detalle-page {
+/*
+ * Móvil únicamente: panel AppShell (`data-nav-panel` en components/mobile/shell).
+ * Escritorio usa /explorador y no monta este árbol.
+ */
+[data-nav-panel] .estudio-detalle-page,
+[data-nav-panel] .estudio-progress-cards,
+[data-nav-panel] .estudio-detalle-shell,
+[data-nav-panel] .tema-detalle-shell {
   background-color: transparent;
 }
 
-.mobile-shell-tone-tema .estudio-progress-cards,
-.mobile-shell-tone-curso .estudio-progress-cards,
-.mobile-shell-tone-clase .estudio-progress-cards,
-.mobile-shell-tone-neutral .estudio-progress-cards,
-[data-shell-tone] .estudio-progress-cards {
-  background-color: transparent;
+[data-nav-panel] .mobile-shell-content {
+  background-color: var(--mobile-shell-bg);
 }
 
-.mobile-shell-tone-tema {
+.mobile-shell-tone-tema,
+[data-nav-panel][data-shell-tone="tema"] {
   --mobile-shell-bg: var(--estudio-shell-tema);
 }
-.mobile-shell-tone-curso {
+.mobile-shell-tone-curso,
+[data-nav-panel][data-shell-tone="curso"] {
   --mobile-shell-bg: var(--estudio-shell-curso);
 }
-.mobile-shell-tone-clase {
+.mobile-shell-tone-clase,
+[data-nav-panel][data-shell-tone="clase"] {
   --mobile-shell-bg: var(--estudio-shell-clase);
 }
-.mobile-shell-tone-neutral {
+.mobile-shell-tone-neutral,
+[data-nav-panel][data-shell-tone="neutral"] {
   --mobile-shell-bg: var(--estudio-shell-neutral);
 }
 
 .mobile-shell-tone-tema,
 .mobile-shell-tone-curso,
 .mobile-shell-tone-clase,
-.mobile-shell-tone-neutral {
+.mobile-shell-tone-neutral,
+[data-nav-panel][data-shell-tone] {
   background-color: var(--mobile-shell-bg);
 }
 
-.mobile-shell-header {
-  background-color: color-mix(in srgb, var(--mobile-shell-bg) 88%, white);
-  border-bottom-color: color-mix(in srgb, var(--mobile-shell-bg) 55%, #cbd5e1);
+[data-nav-panel] .mobile-shell-header {
+  background-color: var(--mobile-shell-bg);
+  border-bottom-color: #cbd5e1;
 }
 
-/* Móvil: cards de listado con tono por entidad (tema / curso / clase). */
-[data-shell-tone] .progress-card-tone-tema {
-  --td-card: color-mix(in srgb, var(--estudio-shell-tema) 44%, white);
-  --td-line: color-mix(in srgb, var(--estudio-shell-tema) 58%, #e7decd);
+/* Detalle móvil: cards de resumen con tinte de la pantalla actual. */
+[data-nav-panel][data-shell-tone="tema"] .estudio-detalle-page,
+[data-nav-panel][data-shell-tone="tema"] .tema-detalle-page {
+  --td-card: #e8f7f3;
+  --td-line: #b8e0d6;
 }
-[data-shell-tone] .progress-card-tone-curso {
-  --td-card: color-mix(in srgb, var(--estudio-shell-curso) 44%, white);
-  --td-line: color-mix(in srgb, var(--estudio-shell-curso) 58%, #e7decd);
+[data-nav-panel][data-shell-tone="curso"] .estudio-detalle-page,
+[data-nav-panel][data-shell-tone="curso"] .tema-detalle-page {
+  --td-card: #eaf4fc;
+  --td-line: #b8d4f0;
 }
-[data-shell-tone] .progress-card-tone-clase {
-  --td-card: color-mix(in srgb, var(--estudio-shell-clase) 44%, white);
-  --td-line: color-mix(in srgb, var(--estudio-shell-clase) 58%, #e7decd);
+[data-nav-panel][data-shell-tone="clase"] .estudio-detalle-page,
+[data-nav-panel][data-shell-tone="clase"] .tema-detalle-page {
+  --td-card: #fef0ec;
+  --td-line: #f0c8be;
 }
 
-[data-shell-tone="tema"] .td-zone,
-.mobile-shell-tone-tema .td-zone {
-  --td-zone: color-mix(in srgb, var(--estudio-shell-tema) 32%, white);
-  --td-zone-line: color-mix(in srgb, var(--estudio-shell-tema) 45%, #cbd5e1);
+/* Listados móvil: cada card usa el color de SU entidad (no el del shell padre). */
+[data-nav-panel] .progress-card-tone-tema.explorer-progress-card {
+  --td-card: var(--estudio-shell-tema);
+  --td-line: #b8e0d6;
+  background-color: var(--estudio-shell-tema) !important;
 }
-[data-shell-tone="curso"] .td-zone,
-.mobile-shell-tone-curso .td-zone {
-  --td-zone: color-mix(in srgb, var(--estudio-shell-curso) 32%, white);
-  --td-zone-line: color-mix(in srgb, var(--estudio-shell-curso) 45%, #cbd5e1);
+[data-nav-panel] .progress-card-tone-curso.explorer-progress-card {
+  --td-card: var(--estudio-shell-curso);
+  --td-line: #b8d4f0;
+  background-color: var(--estudio-shell-curso) !important;
 }
-[data-shell-tone="clase"] .td-zone,
-.mobile-shell-tone-clase .td-zone {
-  --td-zone: color-mix(in srgb, var(--estudio-shell-clase) 32%, white);
-  --td-zone-line: color-mix(in srgb, var(--estudio-shell-clase) 45%, #cbd5e1);
+[data-nav-panel] .progress-card-tone-clase.explorer-progress-card {
+  --td-card: var(--estudio-shell-clase);
+  --td-line: #f0c8be;
+  background-color: var(--estudio-shell-clase) !important;
+}
+
+[data-nav-panel][data-shell-tone="tema"] .td-zone {
+  --td-zone: #e8f7f3;
+  --td-zone-line: #b8e0d6;
+}
+[data-nav-panel][data-shell-tone="curso"] .td-zone {
+  --td-zone: #eaf4fc;
+  --td-zone-line: #b8d4f0;
+}
+[data-nav-panel][data-shell-tone="clase"] .td-zone {
+  --td-zone: #fef0ec;
+  --td-zone-line: #f0c8be;
 }
 
 .explorer-column-header--tema {

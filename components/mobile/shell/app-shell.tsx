@@ -9,6 +9,7 @@ import { buildNavPanelStyle } from "@/lib/nav-transition";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import {
+  estudioEntityShellBgHex,
   estudioEntityShellBgVar,
   isEstudioEntityTone,
   mobileShellToneClass,
@@ -38,10 +39,11 @@ function mobileShellSurfaceStyle(tone: EstudioShellTone): CSSProperties {
     } as CSSProperties;
   }
   if (isEstudioEntityTone(tone)) {
-    const bg = estudioEntityShellBgVar(tone);
+    const bgVar = estudioEntityShellBgVar(tone);
+    const bgHex = estudioEntityShellBgHex(tone);
     return {
-      "--mobile-shell-bg": bg,
-      backgroundColor: bg,
+      "--mobile-shell-bg": bgVar,
+      backgroundColor: bgHex,
     } as CSSProperties;
   }
   return {
@@ -135,10 +137,10 @@ function AppShellInner({
           </div>
         </header>
         <div
-          className={
+          className={`mobile-shell-content min-h-0 flex-1 ${
             contentClassName ??
-            "flex flex-1 flex-col gap-6 px-4 py-6"
-          }
+            "flex flex-col gap-6 px-4 py-6"
+          }`}
         >
           {children}
         </div>

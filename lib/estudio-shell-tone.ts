@@ -1,6 +1,13 @@
 /** Tono del contenedor móvil (AppShell) y cabecera de columna PC. */
 export type EstudioEntityTone = "tema" | "curso" | "clase";
 
+/** Colores pastel del panel móvil (mismos que --estudio-shell-* en globals.css). */
+export const ESTUDIO_ENTITY_SHELL_BG: Record<EstudioEntityTone, string> = {
+  tema: "#d4f0eb",
+  curso: "#dceefb",
+  clase: "#fde8e4",
+};
+
 /** Tono de registros hijos (seguimientos, etc.). */
 export type EstudioRecordTone = "seguimiento";
 
@@ -31,6 +38,10 @@ export function shellToneFromPath(pathname: string): EstudioShellTone {
 
 export function estudioEntityShellBgVar(tone: EstudioEntityTone): string {
   return `var(--estudio-shell-${tone})`;
+}
+
+export function estudioEntityShellBgHex(tone: EstudioEntityTone): string {
+  return ESTUDIO_ENTITY_SHELL_BG[tone];
 }
 
 export function mobileShellToneClass(tone: EstudioShellTone): string {
