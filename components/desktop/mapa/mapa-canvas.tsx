@@ -117,10 +117,10 @@ function MapaCanvasInner({
     [lienzoItems, orientacionLienzo],
   );
 
-  const fitKey = useMemo(() => {
-    const bounds = computeMapaGridBounds(lienzoItems, orientacionLienzo);
-    return `${itemCount}:${orientacionLienzo}:${bounds.etapas.join(",")}:${bounds.carriles.join(",")}`;
-  }, [itemCount, lienzoItems, orientacionLienzo]);
+  const fitKey = useMemo(
+    () => `${grafoModo}:${itemCount}:${orientacionLienzo}`,
+    [grafoModo, itemCount, orientacionLienzo],
+  );
 
   const nodosById = useMemo(
     () => new Map(nodos.map((n) => [n.id, n])),

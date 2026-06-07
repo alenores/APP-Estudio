@@ -105,14 +105,15 @@ function MapaDetalleCanvasInner({
     [posiciones, hijos.length, orientacionLienzo],
   );
 
-  const fitKey = useMemo(() => {
-    const bounds = computeMapaDetalleGridBounds(
-      posiciones,
-      hijos.length,
-      orientacionLienzo,
-    );
-    return `${hijos.length}:${orientacionLienzo}:${bounds.etapas.join(",")}:${bounds.carriles.join(",")}`;
-  }, [hijos.length, posiciones, orientacionLienzo]);
+  const detalleScopeKey =
+    scope.kind === "tema"
+      ? `tema:${scope.temaId}`
+      : `nodo:${scope.nodoId}:${scope.childKind}`;
+
+  const fitKey = useMemo(
+    () => `${detalleScopeKey}:${hijos.length}:${orientacionLienzo}`,
+    [detalleScopeKey, hijos.length, orientacionLienzo],
+  );
 
   const onAddLinkedStable = useCallback(
     (kind: MapaDetalleHijoKind, id: number) => {
