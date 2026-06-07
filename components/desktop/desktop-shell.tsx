@@ -1,17 +1,16 @@
 "use client";
 
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
+import { DesktopUserMenu } from "@/components/desktop/desktop-user-menu";
 import {
   DesktopShellToolbarSlotProvider,
 } from "@/components/desktop/desktop-shell-toolbar";
-import { clearEstudioOfflineCache } from "@/lib/estudio-offline-cache";
-import { createClient } from "@/lib/supabase/client";
 import {
   DESKTOP_MAPA_PREFIX,
   DESKTOP_SHELL_PREFIX,
 } from "@/lib/shell-routes";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useCallback, useState, type ReactNode } from "react";
 
 type DesktopShellProps = {
@@ -30,7 +29,6 @@ export function DesktopShell({
   children,
   mainClassName = MAIN_DEFAULT,
 }: DesktopShellProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const [toolbarSlot, setToolbarSlot] = useState<HTMLElement | null>(null);
   const toolbarRef = useCallback((node: HTMLDivElement | null) => {
@@ -41,14 +39,6 @@ export function DesktopShell({
     { href: DESKTOP_SHELL_PREFIX, label: "Explorador" },
     { href: DESKTOP_MAPA_PREFIX, label: "Mapa" },
   ] as const;
-
-  async function signOut() {
-    const supabase = createClient();
-    clearEstudioOfflineCache();
-    await supabase.auth.signOut();
-    router.replace("/login");
-    router.refresh();
-  }
 
   return (
     <div className="desktop-shell flex min-h-dvh flex-col text-[var(--td-ink)]">
@@ -91,13 +81,7 @@ export function DesktopShell({
               id="desktop-shell-toolbar"
               className="desktop-shell-toolbar-slot flex flex-wrap items-center justify-end gap-1.5 empty:hidden"
             />
-            <button
-              type="button"
-              onClick={() => void signOut()}
-              className="rounded-lg border border-[var(--td-line)] px-2.5 py-1 text-sm font-medium text-[var(--td-ink-soft)] transition-colors hover:bg-[var(--td-line-soft)] sm:px-3 sm:py-1.5"
-            >
-              Salir
-            </button>
+            <DesktopUserMenu />
           </div>
         </div>
       </header>
