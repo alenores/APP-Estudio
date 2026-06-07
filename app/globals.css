@@ -1319,21 +1319,15 @@ html.pwa-standalone-zoom-lock body {
   background: #faf3d4;
 }
 
-/* Vista Temas — tono shell tema (ADR 009 fase 9b) */
-.mapa-flow-tema-node-shell {
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
-}
-.mapa-flow-tema-node--selected .mapa-flow-tema-node-shell {
+/* Vista Temas — card progreso en lienzo (ADR 009 fase 9b) */
+.mapa-flow-tema-node--selected .mapa-flow-tema-progress-card {
   box-shadow: 0 8px 24px -10px rgba(39, 72, 103, 0.4);
-  outline: 2px solid color-mix(in srgb, var(--td-navy) 30%, transparent);
-  outline-offset: 0;
-}
-.mapa-flow-tema-progress-card.explorer-progress-card[data-selected="true"] {
-  box-shadow: none;
-  outline: none;
 }
 .mapa-flow-tema-lienzo-meta {
-  background: color-mix(in srgb, var(--estudio-shell-tema) 8%, var(--td-card));
+  background: var(--td-line-soft);
+}
+.mapa-flow-tema-lienzo-pos {
+  color: var(--td-ink-soft);
 }
 .mapa-flow-node--tema {
   border-color: color-mix(in srgb, var(--estudio-shell-tema) 65%, #cbd5e1);

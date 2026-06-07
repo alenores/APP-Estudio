@@ -42,6 +42,8 @@ export type EstudioProgressCardProps = {
   orden?: number;
   /** Panel extra al seleccionar (explorador PC). */
   expandedSlot?: ReactNode;
+  /** Pie de card (p. ej. meta lienzo en /mapa) — la franja de estado cubre también esto. */
+  footerSlot?: ReactNode;
   /** Resalta coincidencias en nombre (modal buscador PC). */
   highlightQuery?: string;
   /** Línea de contexto bajo el título (ej. tema padre). */
@@ -75,6 +77,7 @@ export function EstudioProgressCard({
   dificultad,
   orden,
   expandedSlot,
+  footerSlot,
   highlightQuery,
   searchContextLine,
   searchShowDescripcion = false,
@@ -276,6 +279,9 @@ export function EstudioProgressCard({
         ) : null}
         {expandedSlot ? (
           <div className="relative z-[1] px-4 pb-3.5 pt-0">{expandedSlot}</div>
+        ) : null}
+        {footerSlot ? (
+          <div className="relative z-[1] mt-auto">{footerSlot}</div>
         ) : null}
       </div>
     </article>

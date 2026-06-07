@@ -26,6 +26,24 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
     cardData,
   } = data as MapaTemaNodeData;
 
+  const lienzoMeta = (
+    <div className="mapa-flow-tema-lienzo-meta flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-[var(--td-line)]/80 px-3 py-2">
+      <div className="mapa-flow-tema-lienzo-pos flex min-w-0 flex-wrap items-center gap-x-1 text-[10px] font-semibold">
+        <span>Etapa {tema.etapa}</span>
+        <span className="text-[var(--td-faint)]" aria-hidden>
+          ·
+        </span>
+        <span>Carril {tema.carril}</span>
+      </div>
+      {enlacesEntrada > 0 || enlacesSalida > 0 ? (
+        <div className="flex flex-wrap gap-1">
+          <EnlaceBadge label="←" count={enlacesEntrada} />
+          <EnlaceBadge label="→" count={enlacesSalida} />
+        </div>
+      ) : null}
+    </div>
+  );
+
   return (
     <div
       className={`mapa-flow-tema-node group relative w-[min(280px,90vw)] ${
@@ -40,52 +58,31 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
         title="Recibe enlaces (entrada)"
       />
 
-      <div className="mapa-flow-tema-node-shell overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)]">
-        <div className="relative">
-          <EstudioProgressCard
-            kind="tema"
-            nombre={tema.nombre}
-            derivados={cardData.derivados}
-            fechaParen={cardData.fechaParen}
-            hijosStats={cardData.hijosStats}
-            hijosLabel="cursos"
-            explorerId={tema.id}
-            selected={selected}
-            className="mapa-flow-tema-progress-card !rounded-none !border-0 !shadow-none"
-          />
-          <div className="pointer-events-none absolute right-2 top-2 z-[2]">
-            <div className="pointer-events-auto">
-              <MapaFlowNodeCardActions
-                selected={selected}
-                onEdit={() => onEdit(tema.id)}
-                editLabel="Editar"
-                onAdd={
-                  onAddLinked ? () => onAddLinked(tema.id) : undefined
-                }
-                addTitle="Nuevo tema enlazado desde aquí"
-              />
-            </div>
+      <div className="relative">
+        <EstudioProgressCard
+          kind="tema"
+          nombre={tema.nombre}
+          derivados={cardData.derivados}
+          fechaParen={cardData.fechaParen}
+          hijosStats={cardData.hijosStats}
+          hijosLabel="cursos"
+          explorerId={tema.id}
+          selected={selected}
+          footerSlot={lienzoMeta}
+          className="mapa-flow-tema-progress-card shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)]"
+        />
+        <div className="pointer-events-none absolute right-2 top-2 z-[2]">
+          <div className="pointer-events-auto">
+            <MapaFlowNodeCardActions
+              selected={selected}
+              onEdit={() => onEdit(tema.id)}
+              editLabel="Editar"
+              onAdd={
+                onAddLinked ? () => onAddLinked(tema.id) : undefined
+              }
+              addTitle="Nuevo tema enlazado desde aquí"
+            />
           </div>
-        </div>
-
-        <div className="mapa-flow-tema-lienzo-meta flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-[var(--td-line)]/80 px-3 py-2">
-          <div className="mapa-flow-node-meta flex min-w-0 flex-wrap items-center gap-x-1 text-[10px] font-semibold">
-            <span className="mapa-flow-node-etapa text-[var(--estudio-shell-tema)]">
-              Etapa {tema.etapa}
-            </span>
-            <span className="mapa-flow-node-dot text-[var(--td-faint)]" aria-hidden>
-              ·
-            </span>
-            <span className="mapa-flow-node-carril text-[var(--estudio-shell-tema)]">
-              Carril {tema.carril}
-            </span>
-          </div>
-          {enlacesEntrada > 0 || enlacesSalida > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              <EnlaceBadge label="←" count={enlacesEntrada} />
-              <EnlaceBadge label="→" count={enlacesSalida} />
-            </div>
-          ) : null}
         </div>
       </div>
 
