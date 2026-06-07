@@ -44,6 +44,7 @@ type ExploradorColumnCardProps = {
   searchShowDescripcion?: boolean;
   objetivoId?: number | null;
   nodoClasificacion?: import("@/lib/mapa-nodo-tipo").NodoObjetivoClasificacion;
+  expandedLayout?: "compact" | "comfortable";
 };
 
 export function ExploradorColumnCard({
@@ -73,6 +74,7 @@ export function ExploradorColumnCard({
   searchShowDescripcion,
   objetivoId: objetivoIdRaw,
   nodoClasificacion,
+  expandedLayout = "compact",
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
   const expandedSlot =
@@ -87,6 +89,7 @@ export function ExploradorColumnCard({
         derivados={derivados}
         onOpenSeguimientos={() => {}}
         onOpenConceptos={() => {}}
+        layout={expandedLayout}
       />
     ) : expanded && onOpenSeguimientos && onOpenConceptos ? (
       <ExploradorCardExpanded
@@ -99,6 +102,7 @@ export function ExploradorColumnCard({
         derivados={derivados}
         onOpenSeguimientos={onOpenSeguimientos}
         onOpenConceptos={onOpenConceptos}
+        layout={expandedLayout}
       />
     ) : null;
 

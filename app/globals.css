@@ -1515,6 +1515,12 @@ html.pwa-standalone-zoom-lock body {
   height: 100%;
   min-height: 0;
 }
+.mapa-detalle-parent-scroll {
+  scrollbar-gutter: stable;
+}
+.mapa-detalle-close {
+  font-family: system-ui, sans-serif;
+}
 .mapa-detalle-canvas-column {
   min-height: 240px;
 }

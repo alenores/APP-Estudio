@@ -7,11 +7,7 @@ import {
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
-import {
-  ExploradorColumn,
-  ExploradorColumnCard,
-  type ExploradorColumnAction,
-} from "@/components/desktop/explorador-columns";
+import { ExploradorColumnCard } from "@/components/desktop/explorador-columns";
 import { AlertText, LoadingText } from "@/components/ui";
 import { combinarHijosStats } from "@/lib/combinar-hijos-stats";
 import {
@@ -27,13 +23,22 @@ import { useMemo, useState } from "react";
 
 type MapaDetalleParentPanelProps = {
   scope: MapaDetalleScope;
+  onCreateHijo: () => void;
   /** Si se elimina el registro padre desde Editar. */
   onParentDeleted?: () => void;
 };
 
-/** Columna izquierda del overlay detalle — misma card expandida que en explorador. */
+function nuevoHijoButtonLabel(scope: MapaDetalleScope): string {
+  if (scope.kind === "tema") return "Nuevo curso";
+  if (scope.childKind === "logro") return "Nuevo logro";
+  if (scope.childKind === "mixto") return "Nuevo curso o logro";
+  return "Nuevo curso";
+}
+
+/** Panel izquierdo del overlay detalle — card expandida sin contenedor de columna. */
 export function MapaDetalleParentPanel({
   scope,
+  onCreateHijo,
   onParentDeleted,
 }: MapaDetalleParentPanelProps) {
   const selection = useMemo((): ExplorerSelection => {
@@ -110,16 +115,6 @@ export function MapaDetalleParentPanel({
     setPanelModal({ entity: entityRef, panel });
   }
 
-  const editAction: ExploradorColumnAction = {
-    label: "Editar",
-    title: entityRef ? `Editar ${entityRef.nombre}` : "Editar",
-    variant: "edit",
-    disabled: entityRef == null,
-    onClick: () => setEditing(true),
-  };
-
-  const columnLabel = scope.kind === "tema" ? "Tema" : "Nodo objetivo";
-
   if (loading) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center p-4">
@@ -154,13 +149,7 @@ export function MapaDetalleParentPanel({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <ExploradorColumn
-        columnKind="tema"
-        label={columnLabel}
-        count={1}
-        emptyMessage=""
-        actions={[editAction]}
-      >
+      <div className="mapa-detalle-parent-scroll min-h-0 flex-1 overflow-y-auto px-1 pb-2 pt-1">
         {tema ? (
           <ExploradorColumnCard
             kind="tema"
@@ -177,6 +166,7 @@ export function MapaDetalleParentPanel({
             conceptosCount={counts.conceptos}
             selected
             expanded
+            expandedLayout="comfortable"
             onSelect={() => {}}
             onOpenSeguimientos={() => openPanel("seguimientos")}
             onOpenConceptos={() => openPanel("conceptos")}
@@ -208,10 +198,31 @@ export function MapaDetalleParentPanel({
             objetivoId={parseObjetivoId(nodo.objetivo_id)}
             selected
             expanded
+            expandedLayout="comfortable"
             onSelect={() => {}}
           />
         ) : null}
-      </ExploradorColumn>
+      </div>
+
+      <footer className="mapa-detalle-parent-footer shrink-0 border-t border-[var(--td-line)] bg-[var(--td-line-soft)]/35 px-2 py-2.5">
+        <div className="flex flex-col gap-2">
+          <button
+            type="button"
+            onClick={onCreateHijo}
+            className="w-full rounded-xl bg-[var(--td-navy)] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-[transform,background-color] duration-150 hover:bg-[var(--td-navy-2)] active:scale-[0.98]"
+          >
+            {nuevoHijoButtonLabel(scope)}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            disabled={entityRef == null}
+            className="w-full rounded-xl border border-[var(--td-line)] bg-white px-4 py-2 text-sm font-semibold text-[var(--td-navy)] transition-[transform,background-color] duration-150 hover:bg-[var(--td-line-soft)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Editar {scope.kind === "tema" ? "tema" : "nodo"}
+          </button>
+        </div>
+      </footer>
 
       {panelModal ? (
         <ExploradorPanelModal

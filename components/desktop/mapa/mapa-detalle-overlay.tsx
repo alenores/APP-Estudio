@@ -11,7 +11,7 @@ import { formLienzoColocacionDesdePadreDetalle } from "@/lib/form-lienzo-colocac
 import { useEffect, useState } from "react";
 
 type DetalleCreateState =
-  | { source: "header" }
+  | { source: "footer" }
   | {
       source: "card";
       kind: MapaDetalleHijoKind;
@@ -86,56 +86,27 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
         onClick={onClose}
       />
       <div className="mapa-detalle-panel relative z-10 flex min-h-0 w-full max-w-[min(1680px,98vw)] flex-col overflow-hidden rounded-xl border border-[var(--td-line)] bg-white shadow-[0_24px_80px_-12px_rgba(15,23,42,0.45)]">
-        <header className="flex shrink-0 flex-wrap items-center gap-3 border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/40 px-4 py-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg border border-[var(--td-line)] bg-white px-3 py-1.5 text-sm font-semibold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
-          >
-            ← Volver al mapa
-          </button>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--td-faint)]">
-              {scope.kind === "tema" ? "Tema" : "Nodo objetivo"} ·{" "}
-              {hijosLabel(scope)}
-            </p>
-            <h2 className="truncate text-lg font-bold text-[var(--td-ink)]">
-              {scope.parentLabel}
-            </h2>
-          </div>
-          <button
-            type="button"
-            onClick={() => setCreating({ source: "header" })}
-            className="rounded-lg border border-[var(--td-line)] bg-white px-3 py-1.5 text-sm font-bold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
-            title="Agregar curso o logro"
-          >
-            +
-          </button>
-          <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--td-ink-soft)] ring-1 ring-[var(--td-line)]">
-            {loading ? "…" : hijos.length}{" "}
-            {scope.kind === "tema"
-              ? "cursos"
-              : scope.childKind === "mixto"
-                ? "hijos"
-                : scope.childKind === "logro"
-                  ? "logros"
-                  : "cursos"}
-            {!loading && enlaces.length > 0 ? (
-              <span className="text-[var(--td-faint)]"> · {enlaces.length} enlaces</span>
-            ) : null}
-          </span>
-        </header>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mapa-detalle-close absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--td-line)] bg-white/95 text-xl font-light leading-none text-[var(--td-ink-soft)] shadow-sm backdrop-blur-sm transition-[transform,background-color,border-color,color] duration-150 hover:border-[var(--td-navy)]/30 hover:bg-white hover:text-[var(--td-navy)] active:scale-95"
+          aria-label="Cerrar detalle"
+          title="Cerrar"
+        >
+          ×
+        </button>
 
-        <div className="mapa-detalle-body flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+        <div className="mapa-detalle-body flex min-h-0 flex-1 flex-col overflow-hidden p-3 pt-12">
           <div className="mapa-detalle-split flex min-h-0 flex-1 gap-3 overflow-hidden">
             <aside
-              className="mapa-detalle-parent-column flex min-h-0 w-[min(400px,34%)] shrink-0 flex-col overflow-hidden"
+              className="mapa-detalle-parent-column flex min-h-0 w-[min(440px,38%)] shrink-0 flex-col overflow-hidden rounded-xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]"
               aria-label={
                 scope.kind === "tema" ? "Detalle del tema" : "Detalle del nodo"
               }
             >
               <MapaDetalleParentPanel
                 scope={scope}
+                onCreateHijo={() => setCreating({ source: "footer" })}
                 onParentDeleted={onClose}
               />
             </aside>

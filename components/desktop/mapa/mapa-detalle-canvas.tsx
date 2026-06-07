@@ -247,18 +247,10 @@ function MapaDetalleCanvasInner({
     [onEnlaceRemoved],
   );
 
-  const hint = useMemo(
-    () =>
-      hijos.length > 0
-        ? "Arrastrá las cards para ubicarlas. Entre los puntos laterales, creá enlaces. Delete borra la flecha seleccionada."
-        : null,
-    [hijos.length],
-  );
-
   if (hijos.length === 0) {
     return (
       <div className="mapa-detalle-canvas-empty flex min-h-0 flex-1 items-center justify-center rounded-xl border border-[var(--td-line)] bg-[#f8fafc] px-6 py-16 text-center text-sm text-[var(--td-faint)]">
-        Todavía no hay ítems. Usá el botón + del encabezado o en cada card para crear uno.
+        Todavía no hay ítems. Usá el botón al pie del detalle o el + en cada card.
       </div>
     );
   }
@@ -268,11 +260,6 @@ function MapaDetalleCanvasInner({
       {status ? (
         <p className="pointer-events-none absolute right-3 top-3 z-10 rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[var(--td-ink-soft)] shadow-sm">
           {status}
-        </p>
-      ) : null}
-      {hint ? (
-        <p className="pointer-events-none absolute left-3 top-3 z-10 max-w-[min(480px,72%)] rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-medium text-[var(--td-faint)] shadow-sm">
-          {hint}
         </p>
       ) : null}
       <ReactFlow
