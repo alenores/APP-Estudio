@@ -6,6 +6,10 @@ import {
   mapaObjetivoColor,
   mapaObjetivoToneClass,
 } from "@/lib/mapa-objetivo";
+import {
+  mapaNodoClasificacionClass,
+  nodoClasificacionLabel,
+} from "@/lib/mapa-nodo-tipo";
 import type { NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
 
@@ -29,8 +33,11 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
     objetivoNombre,
   } = data as MapaNodoNodeData;
 
-  const toneClass =
-    objetivoId != null
+  const esLogro = nodo.tipo === "logro";
+  const clasificacionClass = mapaNodoClasificacionClass(nodo.tipo);
+  const toneClass = esLogro
+    ? clasificacionClass
+    : objetivoId != null
       ? mapaObjetivoToneClass(objetivoId)
       : "mapa-flow-node--neutral";
   const accent =
@@ -42,7 +49,7 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
         selected ? "mapa-flow-node--selected" : ""
       }`}
       style={
-        objetivoId != null
+        !esLogro && objetivoId != null
           ? { borderLeftWidth: 4, borderLeftColor: accent }
           : undefined
       }
@@ -56,7 +63,15 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
       />
 
       <div className="px-3 pb-2.5 pt-2">
-        {objetivoId != null && objetivoNombre ? (
+        <span
+          className={`mapa-flow-node-clasificacion-badge mb-1.5 inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
+            esLogro ? "mapa-flow-node-clasificacion-badge--logro" : "mapa-flow-node-clasificacion-badge--nodo"
+          }`}
+        >
+          {nodoClasificacionLabel(nodo.tipo)}
+        </span>
+
+        {!esLogro && objetivoId != null && objetivoNombre ? (
           <span
             className="mapa-flow-node-objetivo-badge mb-1.5 inline-block max-w-full truncate rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide"
             style={{
@@ -89,7 +104,7 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
                 ? "opacity-100"
                 : "opacity-0 group-hover:opacity-100"
             }`}
-            title="Editar nodo"
+            title="Editar"
           >
             Editar
           </button>

@@ -1,5 +1,7 @@
 /** Nodo del mapa de conocimiento (grafo PC). Tabla `nodos_objetivos`. */
 
+import type { NodoObjetivoClasificacion } from "@/lib/mapa-nodo-tipo";
+
 export type MapaObjetivoId = 1 | 2 | 3;
 
 /** Catálogo global de objetivos (tabla `objetivos`). */
@@ -10,8 +12,6 @@ export type MapaObjetivo = {
   orden: number;
   created_at: string;
 };
-
-export type NodoObjetivoTipo = "dominio" | string;
 
 /** Fila en `nodos_objetivos` (antes `mapa_nodos`). */
 export type MapaNodo = {
@@ -25,7 +25,8 @@ export type MapaNodo = {
   etapa: number;
   /** Orden en listados (explorador PC). Fallback UI: `etapa`. */
   orden: number;
-  tipo: NodoObjetivoTipo | null;
+  /** Clasificación: `nodo` (con cursos) | `logro` (sin cursos). SQL 008. */
+  tipo: NodoObjetivoClasificacion;
   objetivo_id: number;
   created_at: string;
 };

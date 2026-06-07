@@ -7,7 +7,7 @@ import {
 } from "@/lib/estudio-offline-read";
 import type { ConceptoParent, SeguimientoParent } from "@/lib/form-parent-types";
 
-export type ExplorerEntityKind = "tema" | "curso" | "clase";
+export type ExplorerEntityKind = "tema" | "curso" | "clase" | "nodo";
 
 export type ExplorerEntityRef = {
   kind: ExplorerEntityKind;
@@ -25,6 +25,8 @@ export function explorerEntityLabel(kind: ExplorerEntityKind): string {
       return "Curso";
     case "clase":
       return "Clase";
+    case "nodo":
+      return "Nodo";
   }
 }
 
@@ -38,6 +40,8 @@ export function seguimientoParentFromEntity(
       return { cursoId: ref.id };
     case "clase":
       return { claseId: ref.id };
+    case "nodo":
+      throw new Error("Seguimiento no aplica a nodos objetivo");
   }
 }
 
@@ -51,6 +55,8 @@ export function conceptoParentFromEntity(
       return { cursoId: ref.id };
     case "clase":
       return { claseId: ref.id };
+    case "nodo":
+      throw new Error("Concepto no aplica a nodos objetivo");
   }
 }
 
@@ -71,5 +77,7 @@ export function getExplorerEntityRecords(
       const d = getClaseDetalleFromCache(cache, ref.id);
       return { seguimientos: d.seguimientos, conceptos: d.conceptos };
     }
+    case "nodo":
+      return { seguimientos: [], conceptos: [] };
   }
 }

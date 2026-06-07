@@ -11,6 +11,7 @@ import {
   ExploradorCreateModal,
   type ExploradorCreateKind,
 } from "@/components/desktop/explorador-create-modal";
+import { ExploradorNodoCreateModal } from "@/components/desktop/explorador-nodo-create-modal";
 import type { ExploradorColumnAction } from "@/components/desktop/explorador-columns";
 import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
@@ -85,12 +86,14 @@ export function ExploradorView() {
     loading,
     error,
     packReady,
+    reloadNodos,
   } = useEstudioExplorer(activeSelection);
   const { cacheData } = useEstudioData();
   const [panelModal, setPanelModal] = useState<PanelModalState | null>(null);
   const [createKind, setCreateKind] = useState<ExploradorCreateKind | null>(
     null,
   );
+  const [creatingNodo, setCreatingNodo] = useState(false);
   const [editEntity, setEditEntity] = useState<ExplorerEntityRef | null>(null);
   const [searchKind, setSearchKind] = useState<ExploradorSearchKind | null>(
     null,
@@ -99,6 +102,7 @@ export function ExploradorView() {
   const modalsOpen =
     panelModal != null ||
     createKind != null ||
+    creatingNodo ||
     editEntity != null ||
     searchKind != null;
 
@@ -168,6 +172,7 @@ export function ExploradorView() {
 
   function onDeleted(cleared: {
     temaId?: null;
+    nodoId?: null;
     cursoId?: null;
     claseId?: null;
   }) {
@@ -175,7 +180,7 @@ export function ExploradorView() {
       explorerHref({
         rootMode: selection.rootMode,
         temaId: cleared.temaId !== undefined ? null : selection.temaId,
-        nodoId: cleared.temaId !== undefined ? null : selection.nodoId,
+        nodoId: cleared.nodoId !== undefined ? null : selection.nodoId,
         cursoId: cleared.cursoId !== undefined ? null : selection.cursoId,
         claseId: cleared.claseId !== undefined ? null : selection.claseId,
       }),
@@ -252,8 +257,16 @@ export function ExploradorView() {
     };
   }
 
+  const selectedNodo =
+    selection.nodoId != null
+      ? (nodos.find((n) => n.id === selection.nodoId) ?? null)
+      : null;
+
   const selectedTemaRef: ExplorerEntityRef | null = selectedTema
     ? { kind: "tema", id: selectedTema.id, nombre: selectedTema.nombre }
+    : null;
+  const selectedNodoRef: ExplorerEntityRef | null = selectedNodo
+    ? { kind: "nodo", id: selectedNodo.id, nombre: selectedNodo.titulo }
     : null;
   const selectedCursoRef: ExplorerEntityRef | null = selectedCurso
     ? { kind: "curso", id: selectedCurso.id, nombre: selectedCurso.nombre }
@@ -265,6 +278,11 @@ export function ExploradorView() {
   const actionHandlers = {
     onEdit: setEditEntity,
   };
+
+  const editNodo =
+    editEntity?.kind === "nodo"
+      ? (nodos.find((n) => n.id === editEntity.id) ?? null)
+      : null;
 
   const editTema =
     editEntity?.kind === "tema"
@@ -318,7 +336,15 @@ export function ExploradorView() {
             }}
             actions={
               selection.rootMode === "nodos"
-                ? []
+                ? [
+                    {
+                      label: "Nuevo nodo o logro",
+                      title: "Nuevo nodo o logro",
+                      variant: "create",
+                      onClick: () => setCreatingNodo(true),
+                    },
+                    editColumnAction(selectedNodoRef, actionHandlers.onEdit),
+                  ]
                 : [
                     {
                       label: "Nuevo tema",
@@ -339,8 +365,13 @@ export function ExploradorView() {
                     nombre={n.titulo}
                     derivados={nodoDerivados}
                     descripcion={n.descripcion}
-                    hijosStats={cursosStatsPorNodo.get(n.id)}
+                    hijosStats={
+                      n.tipo === "nodo"
+                        ? cursosStatsPorNodo.get(n.id)
+                        : undefined
+                    }
                     hijosLabel="cursos"
+                    nodoClasificacion={n.tipo}
                     objetivoId={parseObjetivoId(n.objetivo_id)}
                     selected={selection.nodoId === n.id}
                     expanded={
@@ -415,7 +446,9 @@ export function ExploradorView() {
                   ? "Elegí un nodo para ver sus cursos."
                   : "Elegí un tema para ver sus cursos."
                 : selection.rootMode === "nodos"
-                  ? "Este nodo no tiene cursos."
+                  ? selectedNodo?.tipo === "logro"
+                    ? "Los logros no tienen cursos asociados."
+                    : "Este nodo no tiene cursos."
                   : "Este tema no tiene cursos. Usá el botón + en la cabecera."
             }
             actions={[
@@ -571,14 +604,27 @@ export function ExploradorView() {
         />
       ) : null}
 
+      {creatingNodo ? (
+        <ExploradorNodoCreateModal
+          onClose={() => setCreatingNodo(false)}
+          onCreated={(nodoId) => {
+            void reloadNodos();
+            if (nodoId != null) {
+              onCreated({ nodoId });
+            }
+          }}
+        />
+      ) : null}
+
       {editEntity ? (
         <ExploradorEditModal
           kind={editEntity.kind}
           tema={editTema}
           curso={editCurso}
           clase={editClase}
+          nodo={editNodo}
           onClose={() => setEditEntity(null)}
-          onSaved={() => {}}
+          onSaved={() => void reloadNodos()}
           onDeleted={onDeleted}
         />
       ) : null}

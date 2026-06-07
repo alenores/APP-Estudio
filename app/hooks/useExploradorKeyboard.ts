@@ -187,10 +187,11 @@ export function useExploradorKeyboard({
         ? items.findIndex((i) => i.id === selectedId)
         : -1;
     const item = idx >= 0 ? items[idx] : items[0];
-    if (!item || item.kind === "nodo") return null;
-    return item
-      ? { kind: item.kind, id: item.id, nombre: item.nombre }
-      : null;
+    if (!item) return null;
+    if (item.kind === "nodo") {
+      return { kind: "nodo", id: item.id, nombre: item.nombre };
+    }
+    return { kind: item.kind, id: item.id, nombre: item.nombre };
   }, [rootMode, temas, nodos, cursos, clases, selection]);
 
   useEffect(() => {

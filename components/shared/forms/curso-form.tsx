@@ -14,7 +14,7 @@ import {
   insertCurso,
   updateCurso,
 } from "@/lib/estudio-queries";
-import { listMapaNodos } from "@/lib/mapa-queries";
+import { listMapaNodosParaCursos } from "@/lib/mapa-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
 import {
   isoToDateInputValue,
@@ -61,7 +61,7 @@ export function CursoForm({
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    void listMapaNodos().then(({ data }) => {
+    void listMapaNodosParaCursos().then(({ data }) => {
       if (data) {
         setNodosOptions(data.map((n) => ({ id: n.id, titulo: n.titulo })));
       }

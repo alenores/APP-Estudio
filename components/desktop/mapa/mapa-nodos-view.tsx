@@ -6,14 +6,17 @@ import type { EnlaceTema, Tema } from "@/app/types/estudio";
 import type { MapaEnlace, MapaNodo } from "@/app/types/mapa";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { DesktopShellToolbar } from "@/components/desktop/desktop-shell-toolbar";
+import { MapaNodoCreateFlow } from "@/components/desktop/mapa/mapa-nodo-create-flow";
 import { MapaNodoForm } from "@/components/desktop/mapa/mapa-nodo-form";
 import { MapaToolbar } from "@/components/desktop/mapa/mapa-toolbar";
+import { MapaLogroForm } from "@/components/shared/forms/mapa-logro-form";
 import { TemaForm } from "@/components/shared/forms/tema-form";
 import { AlertText, LoadingText } from "@/components/ui";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
 import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
 import { posicionEnLienzo } from "@/lib/mapa-layout";
+import { nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
 import { useCallback, useState } from "react";
 
 const MapaCanvas = dynamic(
@@ -204,6 +207,9 @@ export function MapaNodosView() {
                       <th className="px-3 py-2.5">
                         {grafoModo === "nodos" ? "Título" : "Nombre"}
                       </th>
+                      {grafoModo === "nodos" ? (
+                        <th className="px-3 py-2.5">Tipo</th>
+                      ) : null}
                       <th className="px-3 py-2.5">Etapa</th>
                       <th className="px-3 py-2.5">Carril</th>
                       <th className="px-3 py-2.5">Posición</th>
@@ -226,6 +232,9 @@ export function MapaNodosView() {
                                   {n.descripcion}
                                 </p>
                               ) : null}
+                            </td>
+                            <td className="px-3 py-2.5 text-[var(--td-ink-soft)]">
+                              {nodoClasificacionLabel(n.tipo)}
                             </td>
                             <td className="px-3 py-2.5 tabular-nums">{n.etapa}</td>
                             <td className="px-3 py-2.5 tabular-nums">{n.carril}</td>
@@ -327,11 +336,11 @@ export function MapaNodosView() {
       <DesktopModal
         open={creating && grafoModo === "nodos"}
         onClose={closeModals}
-        title="Nuevo nodo"
-        subtitle="Mapa de conocimiento"
+        title="Nuevo ítem"
+        subtitle="Elegí tipo y completá el formulario"
       >
         <div className={estudioFormWellClass("tema")}>
-          <MapaNodoForm onSuccess={() => void onSaved()} />
+          <MapaNodoCreateFlow onSuccess={() => void onSaved()} />
         </div>
       </DesktopModal>
 
@@ -349,16 +358,28 @@ export function MapaNodosView() {
       <DesktopModal
         open={editingNodo != null}
         onClose={closeModals}
-        title="Editar nodo"
+        title={
+          editingNodo?.tipo === "logro" ? "Editar logro" : "Editar nodo"
+        }
         subtitle={editingNodo?.titulo}
       >
         {editingNodo ? (
           <div className={estudioFormWellClass("tema")}>
-            <MapaNodoForm
-              nodo={editingNodo}
-              onSuccess={() => void onSaved()}
-              onDelete={() => void onSaved()}
-            />
+            {editingNodo.tipo === "logro" ? (
+              <MapaLogroForm
+                logroId={editingNodo.id}
+                titulo={editingNodo.titulo}
+                descripcion={editingNodo.descripcion}
+                onSuccess={() => void onSaved()}
+                onDelete={() => void onSaved()}
+              />
+            ) : (
+              <MapaNodoForm
+                nodo={editingNodo}
+                onSuccess={() => void onSaved()}
+                onDelete={() => void onSaved()}
+              />
+            )}
           </div>
         ) : null}
       </DesktopModal>

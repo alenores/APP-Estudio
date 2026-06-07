@@ -11,30 +11,29 @@ import {
 import {
   deleteMapaNodo,
   getSessionUserId,
-  insertMapaNodo,
   updateMapaNodo,
 } from "@/lib/mapa-queries";
+import { nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
 import { zodFieldErrors } from "@/lib/form-errors";
 import { numberFieldInitial } from "@/lib/iso-date-input";
 import { mapaNodoFormSchema } from "@/lib/validations";
 import { useState } from "react";
 
 type MapaNodoFormProps = {
-  nodo?: MapaNodo;
+  nodo: MapaNodo;
   onSuccess: () => void;
   onDelete?: () => void;
 };
 
+/** Edición completa en /mapa (layout + objetivo). */
 export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
-  const isEdit = nodo != null;
-  const [titulo, setTitulo] = useState(nodo?.titulo ?? "");
-  const [descripcion, setDescripcion] = useState(nodo?.descripcion ?? "");
-  const [etapa, setEtapa] = useState(numberFieldInitial(nodo?.etapa));
-  const [carril, setCarril] = useState(numberFieldInitial(nodo?.carril));
-  const [orden, setOrden] = useState(numberFieldInitial(nodo?.orden ?? nodo?.etapa));
-  const [objetivoId, setObjetivoId] = useState(
-    String(nodo?.objetivo_id ?? 1),
-  );
+  const [titulo, setTitulo] = useState(nodo.titulo);
+  const [descripcion, setDescripcion] = useState(nodo.descripcion ?? "");
+  const [tipo, setTipo] = useState(nodo.tipo);
+  const [etapa, setEtapa] = useState(numberFieldInitial(nodo.etapa));
+  const [carril, setCarril] = useState(numberFieldInitial(nodo.carril));
+  const [orden, setOrden] = useState(numberFieldInitial(nodo.orden ?? nodo.etapa));
+  const [objetivoId, setObjetivoId] = useState(String(nodo.objetivo_id ?? 1));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -47,12 +46,13 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
     const parsed = mapaNodoFormSchema.safeParse({
       titulo,
       descripcion,
+      tipo,
       etapa,
       carril,
       orden,
       objetivo_id: objetivoId,
-      pos_x: nodo ? String(nodo.pos_x) : "0",
-      pos_y: nodo ? String(nodo.pos_y) : "0",
+      pos_x: String(nodo.pos_x),
+      pos_y: String(nodo.pos_y),
     });
 
     if (!parsed.success) {
@@ -61,17 +61,7 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
     }
 
     setLoading(true);
-    const userId = await getSessionUserId();
-    if (!userId) {
-      setLoading(false);
-      setError("Sesión expirada. Volvé a iniciar sesión.");
-      return;
-    }
-
-    const result = isEdit
-      ? await updateMapaNodo(nodo.id, parsed.data)
-      : await insertMapaNodo(userId, parsed.data);
-
+    const result = await updateMapaNodo(nodo.id, parsed.data);
     setLoading(false);
     if (result.error) {
       setError(result.error);
@@ -81,8 +71,8 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
   }
 
   async function handleDelete() {
-    if (!nodo || !onDelete) return;
-    if (!window.confirm(`¿Eliminar el nodo «${nodo.titulo}»?`)) return;
+    if (!onDelete) return;
+    if (!window.confirm(`¿Eliminar «${nodo.titulo}»?`)) return;
     setLoading(true);
     const { error: delErr } = await deleteMapaNodo(nodo.id);
     setLoading(false);
@@ -95,7 +85,18 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
 
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-      <FormField label="Título" error={fieldErrors.titulo}>
+      <FormField label="Tipo" error={fieldErrors.tipo}>
+        <select
+          value={tipo}
+          onChange={(e) => setTipo(e.target.value as MapaNodo["tipo"])}
+          className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm"
+        >
+          <option value="nodo">{nodoClasificacionLabel("nodo")}</option>
+          <option value="logro">{nodoClasificacionLabel("logro")}</option>
+        </select>
+      </FormField>
+
+      <FormField label="Nombre" error={fieldErrors.titulo}>
         <FormInput
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
@@ -154,11 +155,8 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
       <FormError message={error} />
 
       <div className="flex flex-wrap items-center gap-3 pt-1">
-        <FormSubmitButton
-          loading={loading}
-          label={isEdit ? "Guardar nodo" : "Crear nodo"}
-        />
-        {isEdit && onDelete ? (
+        <FormSubmitButton loading={loading} label="Guardar" />
+        {onDelete ? (
           <button
             type="button"
             disabled={loading}

@@ -132,6 +132,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     nodos,
     loading: loadingNodos,
     error: nodosError,
+    reload: reloadNodos,
   } = useNodosObjetivos();
 
   const normalized = useMemo(
@@ -213,6 +214,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     loading,
     error: error ?? nodosError,
     packReady,
+    reloadNodos,
   };
 }
 

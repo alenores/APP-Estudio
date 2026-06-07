@@ -2,7 +2,7 @@
 
 import type { MapaNodo } from "@/app/types/mapa";
 import { listMapaNodos } from "@/lib/mapa-queries";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /** Catálogo de nodos objetivo para explorador PC (ADR 009 + estudio). */
 export function useNodosObjetivos() {
@@ -10,27 +10,22 @@ export function useNodosObjetivos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      setLoading(true);
-      const { data, error: err } = await listMapaNodos();
-      if (cancelled) return;
-      if (err) {
-        setError(err);
-        setNodos([]);
-      } else {
-        setError(null);
-        setNodos(data ?? []);
-      }
-      setLoading(false);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+  const reload = useCallback(async () => {
+    setLoading(true);
+    const { data, error: err } = await listMapaNodos();
+    if (err) {
+      setError(err);
+      setNodos([]);
+    } else {
+      setError(null);
+      setNodos(data ?? []);
+    }
+    setLoading(false);
   }, []);
 
-  return { nodos, loading, error };
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  return { nodos, loading, error, reload };
 }

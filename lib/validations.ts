@@ -201,14 +201,30 @@ const optionalFloat = z
   .transform((v) => (v === "" ? undefined : Number(v)))
   .refine((v) => v === undefined || Number.isFinite(v), "Número inválido");
 
-/** Nodo del mapa de conocimiento (ADR 009) — no es `conceptos` de estudio. */
+/** Clasificación nodos_objetivos — SQL 008. */
+export const nodoObjetivoClasificacionSchema = z.enum(["nodo", "logro"]);
+
+/** Alta/edición mínima (título + descripción). */
+export const mapaNodoSimpleFormSchema = z.object({
+  titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
+  descripcion: optionalText,
+});
+
+export type MapaNodoSimpleFormValues = z.infer<typeof mapaNodoSimpleFormSchema>;
+
+/** Logro — mismos campos por ahora; formulario aparte para evolución futura. */
+export const mapaLogroFormSchema = mapaNodoSimpleFormSchema;
+
+export type MapaLogroFormValues = z.infer<typeof mapaLogroFormSchema>;
+
+/** Nodo del mapa de conocimiento (ADR 009) — edición completa en /mapa. */
 export const mapaNodoFormSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
   descripcion: optionalText,
   etapa: optionalInt,
   carril: optionalInt,
   orden: optionalInt,
-  tipo: optionalText,
+  tipo: nodoObjetivoClasificacionSchema,
   objetivo_id: z.coerce
     .number({ invalid_type_error: "Elegí un objetivo" })
     .int()

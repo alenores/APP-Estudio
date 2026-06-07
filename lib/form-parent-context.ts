@@ -7,6 +7,7 @@ const KIND_LABEL: Record<FormParentKind, string> = {
   tema: "Tema",
   curso: "Curso",
   clase: "Clase",
+  nodo: "Nodo",
 };
 
 export function formParentKindLabel(kind: FormParentKind): string {

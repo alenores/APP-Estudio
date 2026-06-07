@@ -13,6 +13,7 @@ import {
 } from "@/lib/estado-ui";
 import type { CSSProperties, ReactNode } from "react";
 import { HighlightMatch } from "@/components/shared/text/highlight-match";
+import { exploradorNodoClasificacionClass, nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
 
 const DONUT_R = 11;
 const DONUT_C = 2 * Math.PI * DONUT_R;
@@ -51,6 +52,8 @@ export type EstudioProgressCardProps = {
   /** Objetivo roadmap (solo cards de curso). */
   objetivoId?: ObjetivoId | null;
   objetivoNombre?: string | null;
+  /** Clasificación nodos_objetivos (solo kind=nodo). */
+  nodoClasificacion?: "nodo" | "logro";
 };
 
 export function EstudioProgressCard({
@@ -77,6 +80,7 @@ export function EstudioProgressCard({
   linkIconOnly = false,
   objetivoId = null,
   objetivoNombre = null,
+  nodoClasificacion,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
@@ -95,7 +99,13 @@ export function EstudioProgressCard({
 
   const showDonut =
     (kind === "tema" || kind === "curso" || kind === "nodo") &&
-    hijosStats != null;
+    hijosStats != null &&
+    !(kind === "nodo" && nodoClasificacion === "logro");
+
+  const nodoKindClass =
+    kind === "nodo" && nodoClasificacion
+      ? exploradorNodoClasificacionClass(nodoClasificacion)
+      : "";
 
   const showSearchDescripcion =
     searchShowDescripcion &&
@@ -104,6 +114,17 @@ export function EstudioProgressCard({
 
   const body = (
     <>
+      {kind === "nodo" && nodoClasificacion ? (
+        <span
+          className={`explorer-nodo-clasificacion-badge mb-1 inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
+            nodoClasificacion === "logro"
+              ? "explorer-nodo-clasificacion-badge--logro"
+              : "explorer-nodo-clasificacion-badge--nodo"
+          }`}
+        >
+          {nodoClasificacionLabel(nodoClasificacion)}
+        </span>
+      ) : null}
       <div className="text-[15px] font-bold leading-snug text-[var(--td-ink)]">
         {highlightQuery ? (
           <HighlightMatch text={nombre} query={highlightQuery} />
@@ -193,7 +214,7 @@ export function EstudioProgressCard({
       data-explorer-id={explorerId}
       data-selected={selected ? "true" : undefined}
       data-expanded={expandedSlot ? "true" : undefined}
-      className={`td-ccard explorer-progress-card relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] ${interactive ? "cursor-pointer" : ""} ${
+      className={`td-ccard explorer-progress-card relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] ${nodoKindClass} ${interactive ? "cursor-pointer" : ""} ${
         selected
           ? explorerId != null
             ? "border-[var(--td-navy)] shadow-[0_8px_24px_-10px_rgba(39,72,103,.4)] ring-2 ring-[var(--td-navy)]/30"

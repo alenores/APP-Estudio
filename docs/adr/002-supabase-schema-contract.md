@@ -88,13 +88,15 @@ Tabla `nodos_objetivos` (antes `mapa_nodos`). Script: `docs/sql/005-schema-nodos
 | `pos_x`, `pos_y` | float | lienzo React Flow |
 | `carril`, `etapa` | integer | layout timeline |
 | `orden` | integer | orden en explorador PC |
-| `tipo` | text | ej. `dominio` |
+| `tipo` | text | not null; `nodo` \| `logro` — script `008`; `nodo` admite cursos, `logro` no |
 | `objetivo_id` | bigint | FK → `objetivos.id` |
 | `user_id` | uuid | RLS |
 
 #### `enlaces_nodos` (antes `mapa_enlaces`)
 
 FK `origen_id` / `destino_id` → `nodos_objetivos.id`.
+
+**Regla de negocio:** `cursos.nodo_id` solo puede apuntar a filas con `tipo = 'nodo'`. Trigger `cursos_solo_nodo_tipo` (SQL 008).
 
 #### `objetivos` (catálogo roadmap — mapa PC)
 

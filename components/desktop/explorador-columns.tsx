@@ -43,6 +43,7 @@ type ExploradorColumnCardProps = {
   searchContextLine?: string | null;
   searchShowDescripcion?: boolean;
   objetivoId?: number | null;
+  nodoClasificacion?: "nodo" | "logro";
 };
 
 export function ExploradorColumnCard({
@@ -71,6 +72,7 @@ export function ExploradorColumnCard({
   searchContextLine,
   searchShowDescripcion,
   objetivoId: objetivoIdRaw,
+  nodoClasificacion,
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
   const expandedSlot =
@@ -121,6 +123,7 @@ export function ExploradorColumnCard({
       searchContextLine={searchContextLine}
       searchShowDescripcion={searchShowDescripcion}
       objetivoId={objetivoId}
+      nodoClasificacion={nodoClasificacion}
     />
   );
 }
