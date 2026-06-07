@@ -7,9 +7,15 @@ alwaysApply: true
 
 El dueño del proyecto es ingeniero con apps hermanas que comparten la misma arquitectura PWA e install.
 
+## Antes de tocar código (PORTÓN OBLIGATORIO)
+
+**Plan primero.** Antes de editar cualquier archivo, escribí en el chat: (a) qué archivos vas a tocar y (b) en una línea qué vas a cambiar en cada uno. Si el pedido implica modificar un archivo que el usuario NO nombró, FRENÁ y pedí OK explícito antes de escribir nada. Solo podés saltar este paso si el cambio es trivial y vive en un único archivo ya nombrado en el pedido.
+
+**Lista blanca, no negra.** En alcance están SOLO los archivos que el usuario nombra (o el único archivo que obviamente contiene lo pedido). Todo lo demás está fuera de alcance por defecto, aunque te parezca que conviene tocarlo.
+
 ## Reglas
 
-1. **Solo lo pedido:** si el pedido es «arreglar íconos» o «diagnosticar install», no cambiar `InstallPwaButton`, textos de home, manifest extra (`id`, `display_override`, etc.) ni UX sin que lo pidan literalmente.
+1. **Solo lo pedido:** si el pedido es «arreglar íconos» o «diagnosticar install», tocás ÚNICAMENTE los archivos de íconos. NO cambiás `InstallPwaButton`, su UI, textos de home, manifest extra (`id`, `display_override`, etc.) ni UX. Si creés que algo de eso hay que cambiarlo, lo decís y esperás OK — no lo hacés.
 2. **Diagnosticar antes de refactor:** informar causa (manifest, SW, `beforeinstallprompt`, atajo vs PWA, **401 Vercel Deployment Protection**) y proponer diff acotado; seguir `docs/pwa-arranque-checklist.md`; esperar OK para tocar código congelado (ADR 004).
 3. **Sin “mejoras” proactivas:** no sustituir botones, no ocultar UI, no añadir guías largas en componentes compartidos.
 4. **Violación:** revertir y documentar en ADR si hace falta.

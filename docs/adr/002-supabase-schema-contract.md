@@ -21,7 +21,7 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Tema | `temas` | — |
 | Curso | `cursos` | `tema_id` → `temas.id` |
 | Clase | `clases` | `curso_id` → `cursos.id` |
-| Logro (registro) | `logros` | `nodo_id` → `nodos_objetivos.id` (solo padre `tipo = logro`) |
+| Logro (registro) | `logros` | `nodo_id` → `nodos_objetivos.id` (padre `formacion` o `produccion`) |
 | Seguimiento | `seguimientos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Concepto | `conceptos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Enlace entre temas | `enlaces_temas` | `origen_id` / `destino_id` → `temas.id` (lienzo PC) |
@@ -89,7 +89,7 @@ Tabla `nodos_objetivos` (antes `mapa_nodos`). Script: `docs/sql/005-schema-nodos
 | `pos_x`, `pos_y` | float | lienzo React Flow |
 | `carril`, `etapa` | integer | layout timeline |
 | `orden` | integer | orden en explorador PC |
-| `tipo` | text | not null; `nodo` \| `logro` — script `008`; `nodo` admite cursos, `logro` no |
+| `tipo` | text | not null; `formacion` \| `produccion` — script `010`; `formacion` → cursos + logros hijos; `produccion` → solo logros hijos |
 | `objetivo_id` | bigint | FK → `objetivos.id` |
 | `user_id` | uuid | RLS |
 
@@ -97,11 +97,11 @@ Tabla `nodos_objetivos` (antes `mapa_nodos`). Script: `docs/sql/005-schema-nodos
 
 FK `origen_id` / `destino_id` → `nodos_objetivos.id`.
 
-**Regla de negocio:** `cursos.nodo_id` solo puede apuntar a filas con `tipo = 'nodo'`. Trigger `cursos_solo_nodo_tipo` (SQL 008).
+**Regla de negocio:** `cursos.nodo_id` solo puede apuntar a filas con `tipo = 'formacion'`. Trigger `cursos_solo_nodo_formacion` (SQL 010).
 
-#### `logros` (registros hijos de nodo tipo logro)
+#### `logros` (registros hijos de nodos formacion o produccion)
 
-Script: `docs/sql/009-schema-logros.sql`. Distinto de `nodos_objetivos.tipo = 'logro'` (nodo padre en el grafo).
+Script: `docs/sql/009-schema-logros.sql`, trigger ampliado en `010`. Distinto de la clasificación macro `produccion` en `nodos_objetivos`.
 
 | Columna | Tipo | Notas |
 |---------|------|-------|
@@ -112,7 +112,7 @@ Script: `docs/sql/009-schema-logros.sql`. Distinto de `nodos_objetivos.tipo = 'l
 | `descripcion` | text | |
 | `created_at` | timestamptz | default now() |
 
-**Regla de negocio:** `logros.nodo_id` solo puede apuntar a filas con `tipo = 'logro'`. Trigger `logros_solo_nodo_tipo_logro` (SQL 009). Se listan en la columna central del explorador (vista nodos), como los cursos de un nodo tipo `nodo`.
+**Regla de negocio:** `logros.nodo_id` puede apuntar a `tipo = 'formacion'` o `'produccion'`. Trigger `logros_nodo_formacion_o_produccion` (SQL 010).
 
 #### `objetivos` (catálogo roadmap — mapa PC)
 

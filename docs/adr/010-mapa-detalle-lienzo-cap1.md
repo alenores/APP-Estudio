@@ -15,8 +15,8 @@ El mapa macro (capa 0) muestra `nodos_objetivos` o `temas` con enlaces. Se neces
 | Entrada (capa 0) | Hijos en capa 1 |
 |------------------|-----------------|
 | Tema | Cursos (`cursos.tema_id`) |
-| Nodo tipo `nodo` | Cursos (`cursos.nodo_id`) |
-| Nodo tipo `logro` | Registros `logros` (`logros.nodo_id`) |
+| Nodo tipo `formacion` | Cursos + registros `logros` |
+| Nodo tipo `produccion` | Registros `logros` (`logros.nodo_id`) |
 
 - **Click** en card del lienzo → abre overlay detalle.
 - **Editar** (botón) → modal existente; no abre detalle.
@@ -48,7 +48,7 @@ El mapa macro (capa 0) muestra `nodos_objetivos` o `temas` con enlaces. Se neces
 ## Consecuencias
 
 - Capa 0 sin cambios de schema.
-- Logros en detalle requieren SQL 009 ejecutado en Supabase.
+- Logros en detalle requieren SQL 009 + 010 ejecutados en Supabase.
 
 ## Referencias
 

@@ -1,6 +1,7 @@
 import type { MapaEnlace, MapaEnlaceTipo, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
 import { sortNodosObjetivos } from "@/lib/mapa-objetivo";
 import type { NodoObjetivoClasificacion } from "@/lib/mapa-nodo-tipo";
+import { nodoAceptaCursos, normalizeNodoObjetivoClasificacion } from "@/lib/mapa-nodo-tipo";
 import { getSessionUserId } from "@/lib/estudio-queries";
 import { posicionDesdeEtapaCarril } from "@/lib/mapa-layout";
 import { createClient } from "@/lib/supabase/client";
@@ -18,7 +19,7 @@ function emptyToNull(value: string | undefined): string | null {
 }
 
 function normalizeNodoTipo(raw: unknown): NodoObjetivoClasificacion {
-  return raw === "logro" ? "logro" : "nodo";
+  return normalizeNodoObjetivoClasificacion(raw);
 }
 
 function mapNodoRow(row: Record<string, unknown>): MapaNodo {
@@ -68,7 +69,7 @@ export async function listMapaNodos(): Promise<{
   };
 }
 
-/** Solo nodos tipo `nodo` — elegibles como padre de cursos. */
+/** Solo nodos tipo `formacion` — elegibles como padre de cursos. */
 export async function listMapaNodosParaCursos(): Promise<{
   data: MapaNodo[] | null;
   error: string | null;
@@ -76,7 +77,7 @@ export async function listMapaNodosParaCursos(): Promise<{
   const { data, error } = await listMapaNodos();
   if (error) return { data: null, error };
   return {
-    data: data?.filter((n) => n.tipo === "nodo") ?? [],
+    data: data?.filter((n) => nodoAceptaCursos(n.tipo)) ?? [],
     error: null,
   };
 }
@@ -197,7 +198,7 @@ export async function updateMapaNodo(
   id: number,
   values: MapaNodoFormValues,
 ): Promise<{ data: MapaNodo | null; error: string | null }> {
-  if (values.tipo === "logro") {
+  if (values.tipo === "produccion") {
     const supabaseCheck = createClient();
     const { count, error: countErr } = await supabaseCheck
       .from("cursos")
@@ -209,7 +210,7 @@ export async function updateMapaNodo(
     if ((count ?? 0) > 0) {
       return {
         data: null,
-        error: "No se puede marcar como logro: tiene cursos asociados.",
+        error: "No se puede marcar como producción: tiene cursos asociados.",
       };
     }
   }

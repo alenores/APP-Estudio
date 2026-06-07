@@ -27,6 +27,8 @@ type MapaDetalleOverlayProps = {
 };
 
 function hijosLabel(scope: MapaDetalleScope): string {
+  if (scope.kind === "tema") return "Cursos";
+  if (scope.childKind === "mixto") return "Cursos y logros";
   return scope.childKind === "logro" ? "Logros" : "Cursos";
 }
 
@@ -82,7 +84,13 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
           </div>
           <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--td-ink-soft)] ring-1 ring-[var(--td-line)]">
             {loading ? "…" : hijos.length}{" "}
-            {scope.childKind === "logro" ? "logros" : "cursos"}
+            {scope.kind === "tema"
+              ? "cursos"
+              : scope.childKind === "mixto"
+                ? "hijos"
+                : scope.childKind === "logro"
+                  ? "logros"
+                  : "cursos"}
           </span>
         </header>
 

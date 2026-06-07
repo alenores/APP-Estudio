@@ -1,6 +1,9 @@
 /** Capa 1 del lienzo `/mapa` — hijos de tema o nodo objetivo (ADR 010). */
 
-export type MapaDetalleChildKind = "curso" | "logro";
+export type MapaDetalleHijoKind = "curso" | "logro";
+
+/** Qué hijos cargar para un nodo macro (`mixto` = cursos + logros). */
+export type MapaDetalleChildKind = MapaDetalleHijoKind | "mixto";
 
 export type MapaDetalleScope =
   | {
@@ -20,5 +23,5 @@ export type MapaDetalleHijo = {
   id: number;
   nombre: string;
   descripcion: string | null;
-  kind: MapaDetalleChildKind;
+  kind: MapaDetalleHijoKind;
 };

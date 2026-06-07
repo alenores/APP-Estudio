@@ -31,7 +31,7 @@ type ExploradorColumnCardProps = {
   fechaFin?: string | null;
   fechaParen?: string | null;
   hijosStats?: HijosProgressStats;
-  hijosLabel?: "cursos" | "clases" | "logros";
+  hijosLabel?: "cursos" | "clases" | "logros" | "hijos";
   link?: string | null;
   dificultad?: string | null;
   orden?: number;
@@ -43,7 +43,7 @@ type ExploradorColumnCardProps = {
   searchContextLine?: string | null;
   searchShowDescripcion?: boolean;
   objetivoId?: number | null;
-  nodoClasificacion?: "nodo" | "logro";
+  nodoClasificacion?: import("@/lib/mapa-nodo-tipo").NodoObjetivoClasificacion;
 };
 
 export function ExploradorColumnCard({

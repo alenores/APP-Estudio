@@ -38,6 +38,11 @@ import type {
 import { objetivoIdForCurso } from "@/lib/curso-nodo-objetivo";
 import { parseObjetivoId } from "@/lib/objetivo-ui";
 import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
+import { combinarHijosStats } from "@/lib/combinar-hijos-stats";
+import {
+  nodoAceptaCursos,
+  nodoAceptaLogrosRegistro,
+} from "@/lib/mapa-nodo-tipo";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import {
   EMPTY_EXPLORER_SELECTION,
@@ -84,7 +89,7 @@ export function ExploradorView() {
     cursosStatsPorTema,
     cursosStatsPorNodo,
     logrosStatsPorNodo,
-    middleColumnShowsLogros,
+    middleColumnMode,
     selection,
     loading,
     error,
@@ -281,33 +286,34 @@ export function ExploradorView() {
       : selection.temaId != null;
 
   const canCreateCurso =
-    !middleColumnShowsLogros &&
-    ((selection.rootMode === "temas" && selection.temaId != null) ||
-      (selection.rootMode === "nodos" &&
-        selection.nodoId != null &&
-        selectedNodo?.tipo === "nodo"));
+    (selection.rootMode === "temas" && selection.temaId != null) ||
+    (selection.rootMode === "nodos" &&
+      selection.nodoId != null &&
+      selectedNodo != null &&
+      nodoAceptaCursos(selectedNodo.tipo));
 
   const canCreateLogro =
-    middleColumnShowsLogros && selection.nodoId != null;
+    selection.rootMode === "nodos" &&
+    selection.nodoId != null &&
+    selectedNodo != null &&
+    nodoAceptaLogrosRegistro(selectedNodo.tipo);
 
-  const canCreateMiddle = canCreateCurso || canCreateLogro;
+  const noClasesColumn =
+    middleColumnMode === "logros" || selection.logroId != null;
 
-  const createMiddleHint = middleColumnShowsLogros
-    ? selection.nodoId == null
-      ? "Elegí un nodo logro para crear un registro"
-      : "Nuevo logro en el nodo seleccionado"
-    : selection.rootMode === "nodos"
-      ? selection.nodoId == null
-        ? "Elegí un nodo objetivo para crear un curso"
-        : "Nuevo curso en el nodo seleccionado"
-      : selection.temaId == null
-        ? "Elegí un tema para crear un curso"
-        : "Nuevo curso en el tema seleccionado";
+  const middleColumnLabel =
+    middleColumnMode === "mixto"
+      ? "Cursos y logros"
+      : middleColumnMode === "logros"
+        ? "Logros"
+        : "Cursos";
 
-  const middleColumnLabel = middleColumnShowsLogros ? "Logros" : "Cursos";
-  const middleColumnCount = middleColumnShowsLogros
-    ? logros.length
-    : cursos.length;
+  const middleColumnCount =
+    middleColumnMode === "mixto"
+      ? cursos.length + logros.length
+      : middleColumnMode === "logros"
+        ? logros.length
+        : cursos.length;
 
   const nodoDerivados = derivarDesdeSeguimientos([]);
 
@@ -374,7 +380,7 @@ export function ExploradorView() {
   useExploradorKeyboard({
     enabled: packReady && !modalsOpen,
     rootMode: selection.rootMode,
-    middleColumnShowsLogros,
+    middleColumnMode,
     temas,
     nodos,
     cursos,
@@ -415,8 +421,8 @@ export function ExploradorView() {
               selection.rootMode === "nodos"
                 ? [
                     {
-                      label: "Nuevo nodo o logro",
-                      title: "Nuevo nodo o logro",
+                      label: "Nuevo nodo objetivo",
+                      title: "Nuevo nodo de formación o producción",
                       variant: "create",
                       onClick: () => setCreatingNodo(true),
                     },
@@ -443,11 +449,20 @@ export function ExploradorView() {
                     derivados={nodoDerivados}
                     descripcion={n.descripcion}
                     hijosStats={
-                      n.tipo === "nodo"
-                        ? cursosStatsPorNodo.get(n.id)
+                      n.tipo === "formacion"
+                        ? combinarHijosStats(
+                            cursosStatsPorNodo.get(n.id),
+                            logrosStatsPorNodo.get(n.id),
+                          )
                         : logrosStatsPorNodo.get(n.id)
                     }
-                    hijosLabel={n.tipo === "nodo" ? "cursos" : "logros"}
+                    hijosLabel={
+                      n.tipo === "formacion"
+                        ? "hijos"
+                        : n.tipo === "produccion"
+                          ? "logros"
+                          : "cursos"
+                    }
                     nodoClasificacion={n.tipo}
                     objetivoId={parseObjetivoId(n.objetivo_id)}
                     selected={selection.nodoId === n.id}
@@ -522,48 +537,70 @@ export function ExploradorView() {
             emptyMessage={
               !rootParentSelected
                 ? selection.rootMode === "nodos"
-                  ? middleColumnShowsLogros
-                    ? "Elegí un nodo logro para ver sus registros."
-                    : "Elegí un nodo para ver sus cursos."
+                  ? middleColumnMode === "logros"
+                    ? "Elegí un nodo de producción para ver sus logros."
+                    : "Elegí un nodo para ver sus hijos."
                   : "Elegí un tema para ver sus cursos."
-                : middleColumnShowsLogros
-                  ? "Este nodo no tiene logros. Usá el botón + en la cabecera."
-                  : selection.rootMode === "nodos"
-                    ? "Este nodo no tiene cursos. Usá el botón + en la cabecera."
-                    : "Este tema no tiene cursos. Usá el botón + en la cabecera."
+                : middleColumnMode === "mixto"
+                  ? "Este nodo no tiene cursos ni logros. Usá + en la cabecera."
+                  : middleColumnMode === "logros"
+                    ? "Este nodo no tiene logros. Usá el botón + en la cabecera."
+                    : selection.rootMode === "nodos"
+                      ? "Este nodo no tiene cursos. Usá el botón + en la cabecera."
+                      : "Este tema no tiene cursos. Usá el botón + en la cabecera."
             }
             actions={[
-              ...(middleColumnShowsLogros
-                ? []
-                : [
+              ...(middleColumnMode === "cursos"
+                ? [
                     {
                       label: "Buscar cursos",
                       title: "Buscar en todos los cursos",
                       variant: "search" as const,
                       onClick: () => openSearch("curso"),
                     },
-                  ]),
-              {
-                label: middleColumnShowsLogros ? "Nuevo logro" : "Nuevo curso",
-                title: createMiddleHint,
-                variant: "create",
-                disabled: !canCreateMiddle,
-                onClick: () =>
-                  setCreateKind(middleColumnShowsLogros ? "logro" : "curso"),
-              },
+                  ]
+                : []),
+              ...(canCreateCurso
+                ? [
+                    {
+                      label: "Nuevo curso",
+                      title:
+                        selection.nodoId == null && selection.temaId == null
+                          ? "Elegí un tema o nodo de formación"
+                          : "Nuevo curso",
+                      variant: "create" as const,
+                      onClick: () => setCreateKind("curso"),
+                    },
+                  ]
+                : []),
+              ...(canCreateLogro
+                ? [
+                    {
+                      label: "Nuevo logro",
+                      title:
+                        selection.nodoId == null
+                          ? "Elegí un nodo objetivo"
+                          : "Nuevo registro logro",
+                      variant: "create" as const,
+                      onClick: () => setCreateKind("logro"),
+                    },
+                  ]
+                : []),
               editColumnAction(
-                middleColumnShowsLogros ? selectedLogroRef : selectedCursoRef,
+                selection.logroId != null
+                  ? selectedLogroRef
+                  : selectedCursoRef,
                 actionHandlers.onEdit,
               ),
             ]}
           >
-            {middleColumnShowsLogros ? (
+            {middleColumnMode === "logros" ? (
               loadingLogros ? (
                 <LoadingText>Cargando logros…</LoadingText>
               ) : (
                 logros.map((l) => (
                   <ExploradorColumnCard
-                    key={l.id}
+                    key={`logro-${l.id}`}
                     kind="logro"
                     explorerId={l.id}
                     nombre={l.nombre}
@@ -582,6 +619,77 @@ export function ExploradorView() {
                     }
                   />
                 ))
+              )
+            ) : middleColumnMode === "mixto" ? (
+              loadingLogros ? (
+                <LoadingText>Cargando hijos…</LoadingText>
+              ) : (
+                <>
+                  {cursos.map((c) => {
+                    const ref: ExplorerEntityRef = {
+                      kind: "curso",
+                      id: c.id,
+                      nombre: c.nombre,
+                    };
+                    const counts = entityCounts(ref);
+                    return (
+                      <ExploradorColumnCard
+                        key={`curso-${c.id}`}
+                        kind="curso"
+                        explorerId={c.id}
+                        nombre={c.nombre}
+                        derivados={c.derivados}
+                        descripcion={c.descripcion}
+                        fechaInicio={c.fecha_estimada_inicio}
+                        fechaFin={c.fecha_estimada_fin}
+                        fechaParen={fechaParentesisCurso(c)}
+                        hijosStats={clasesStatsPorCurso.get(c.id)}
+                        hijosLabel="clases"
+                        link={c.link}
+                        seguimientosCount={counts.seguimientos}
+                        conceptosCount={counts.conceptos}
+                        objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
+                        selected={selection.cursoId === c.id}
+                        expanded={
+                          selection.cursoId === c.id &&
+                          selection.claseId == null
+                        }
+                        onSelect={() =>
+                          go(
+                            selectionHref({
+                              cursoId: c.id,
+                              logroId: null,
+                              claseId: null,
+                            }),
+                          )
+                        }
+                        onDoubleClick={() => openPanel(ref, "seguimientos")}
+                        {...cardHandlers(ref)}
+                      />
+                    );
+                  })}
+                  {logros.map((l) => (
+                    <ExploradorColumnCard
+                      key={`logro-${l.id}`}
+                      kind="logro"
+                      explorerId={l.id}
+                      nombre={l.nombre}
+                      derivados={nodoDerivados}
+                      descripcion={l.descripcion}
+                      selected={selection.logroId === l.id}
+                      expanded={selection.logroId === l.id}
+                      onSelect={() =>
+                        go(
+                          selectionHref({
+                            cursoId: null,
+                            logroId: l.id,
+                            claseId: null,
+                          }),
+                        )
+                      }
+                    />
+                  ))}
+                </>
               )
             ) : (
               cursos.map((c) => {
@@ -631,16 +739,16 @@ export function ExploradorView() {
           <ExploradorColumn
             columnKind="clase"
             label="Clases"
-            count={middleColumnShowsLogros ? 0 : clases.length}
+            count={noClasesColumn ? 0 : clases.length}
             emptyMessage={
-              middleColumnShowsLogros
+              noClasesColumn
                 ? "Los registros logro no tienen clases."
                 : selection.cursoId == null
                   ? "Elegí un curso para ver sus clases."
                   : "Este curso no tiene clases. Usá el botón + en la cabecera."
             }
             actions={[
-              ...(middleColumnShowsLogros
+              ...(noClasesColumn
                 ? []
                 : [
                     {
@@ -652,23 +760,22 @@ export function ExploradorView() {
                   ]),
               {
                 label: "Nueva clase",
-                title:
-                  middleColumnShowsLogros
-                    ? "Los registros logro no admiten clases"
-                    : selection.cursoId == null
-                      ? "Elegí un curso para crear una clase"
-                      : "Nueva clase en el curso seleccionado",
+                title: noClasesColumn
+                  ? "Elegí un curso para crear una clase"
+                  : selection.cursoId == null
+                    ? "Elegí un curso para crear una clase"
+                    : "Nueva clase en el curso seleccionado",
                 variant: "create",
-                disabled: middleColumnShowsLogros || selection.cursoId == null,
+                disabled: noClasesColumn || selection.cursoId == null,
                 onClick: () => setCreateKind("clase"),
               },
               editColumnAction(
-                middleColumnShowsLogros ? null : selectedClaseRef,
+                noClasesColumn ? null : selectedClaseRef,
                 actionHandlers.onEdit,
               ),
             ]}
           >
-            {middleColumnShowsLogros
+            {noClasesColumn
               ? null
               : clases.map((cl) => {
               const ref: ExplorerEntityRef = {

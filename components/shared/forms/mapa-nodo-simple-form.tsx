@@ -69,7 +69,7 @@ export function MapaNodoSimpleForm({
 
     const { data, error: insErr } = await insertMapaNodoClasificado(
       userId,
-      "nodo",
+      "formacion",
       parsed.data,
     );
     setLoading(false);

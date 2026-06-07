@@ -72,7 +72,7 @@ export function MapaLogroForm({
 
     const { data, error: insErr } = await insertMapaNodoClasificado(
       userId,
-      "logro",
+      "produccion",
       parsed.data,
     );
     setLoading(false);

@@ -18,7 +18,7 @@ export function MapaNodoCreateFlow({ onSuccess }: MapaNodoCreateFlowProps) {
     return <MapaNodoTipoPicker onSelect={setTipo} />;
   }
 
-  if (tipo === "logro") {
+  if (tipo === "produccion") {
     return <MapaLogroForm onSuccess={onSuccess} />;
   }
 

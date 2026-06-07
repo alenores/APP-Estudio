@@ -210,7 +210,7 @@ const optionalFloat = z
   .refine((v) => v === undefined || Number.isFinite(v), "Número inválido");
 
 /** Clasificación nodos_objetivos — SQL 008. */
-export const nodoObjetivoClasificacionSchema = z.enum(["nodo", "logro"]);
+export const nodoObjetivoClasificacionSchema = z.enum(["formacion", "produccion"]);
 
 /** Alta/edición mínima (título + descripción). */
 export const mapaNodoSimpleFormSchema = z.object({

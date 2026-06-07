@@ -114,7 +114,7 @@ export function MapaNodosView() {
         kind: "nodo",
         nodoId: nodo.id,
         parentLabel: nodo.titulo,
-        childKind: nodo.tipo === "logro" ? "logro" : "curso",
+        childKind: nodo.tipo === "produccion" ? "logro" : "mixto",
       });
     },
     [grafoModo, nodos, temas],
@@ -390,13 +390,15 @@ export function MapaNodosView() {
         open={editingNodo != null}
         onClose={closeModals}
         title={
-          editingNodo?.tipo === "logro" ? "Editar logro" : "Editar nodo"
+          editingNodo?.tipo === "produccion"
+            ? "Editar nodo de producción"
+            : "Editar nodo de formación"
         }
         subtitle={editingNodo?.titulo}
       >
         {editingNodo ? (
           <div className={estudioFormWellClass("tema")}>
-            {editingNodo.tipo === "logro" ? (
+            {editingNodo.tipo === "produccion" ? (
               <MapaLogroForm
                 logroId={editingNodo.id}
                 titulo={editingNodo.titulo}

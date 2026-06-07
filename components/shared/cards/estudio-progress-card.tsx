@@ -14,6 +14,7 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 import { HighlightMatch } from "@/components/shared/text/highlight-match";
 import { exploradorNodoClasificacionClass, nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
+import type { NodoObjetivoClasificacion } from "@/lib/mapa-nodo-tipo";
 
 const DONUT_R = 11;
 const DONUT_C = 2 * Math.PI * DONUT_R;
@@ -34,7 +35,7 @@ export type EstudioProgressCardProps = {
   fechaParen?: string | null;
   /** Progreso de hijos (cursos en tema, clases en curso) desde seguimientos. */
   hijosStats?: HijosProgressStats;
-  hijosLabel?: "cursos" | "clases" | "logros";
+  hijosLabel?: "cursos" | "clases" | "logros" | "hijos";
   link?: string | null;
   descripcion?: string | null;
   dificultad?: string | null;
@@ -53,7 +54,7 @@ export type EstudioProgressCardProps = {
   objetivoId?: ObjetivoId | null;
   objetivoNombre?: string | null;
   /** Clasificación nodos_objetivos (solo kind=nodo). */
-  nodoClasificacion?: "nodo" | "logro";
+  nodoClasificacion?: NodoObjetivoClasificacion;
 };
 
 export function EstudioProgressCard({
@@ -105,7 +106,7 @@ export function EstudioProgressCard({
     kind === "nodo" && nodoClasificacion
       ? exploradorNodoClasificacionClass(nodoClasificacion)
       : kind === "logro"
-        ? exploradorNodoClasificacionClass("logro")
+        ? exploradorNodoClasificacionClass("produccion")
         : "";
 
   const showSearchDescripcion =
@@ -118,9 +119,9 @@ export function EstudioProgressCard({
       {kind === "nodo" && nodoClasificacion ? (
         <span
           className={`explorer-nodo-clasificacion-badge mb-1 inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
-            nodoClasificacion === "logro"
-              ? "explorer-nodo-clasificacion-badge--logro"
-              : "explorer-nodo-clasificacion-badge--nodo"
+            nodoClasificacion === "produccion"
+              ? "explorer-nodo-clasificacion-badge--produccion"
+              : "explorer-nodo-clasificacion-badge--formacion"
           }`}
         >
           {nodoClasificacionLabel(nodoClasificacion)}

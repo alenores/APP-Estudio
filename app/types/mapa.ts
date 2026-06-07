@@ -25,7 +25,7 @@ export type MapaNodo = {
   etapa: number;
   /** Orden en listados (explorador PC). Fallback UI: `etapa`. */
   orden: number;
-  /** Clasificación: `nodo` (con cursos) | `logro` (sin cursos). SQL 008. */
+  /** Clasificación macro: `formacion` (cursos + logros hijos) | `produccion` (solo logros). SQL 010. */
   tipo: NodoObjetivoClasificacion;
   objetivo_id: number;
   created_at: string;

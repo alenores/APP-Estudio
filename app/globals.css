@@ -1335,11 +1335,12 @@ html.pwa-standalone-zoom-lock body {
   background: color-mix(in srgb, var(--estudio-shell-tema) 45%, white);
 }
 
-/* Clasificación nodos_objetivos — nodo vs logro (SQL 008) */
-.mapa-flow-node--tipo-nodo {
+/* Clasificación nodos_objetivos — formacion vs produccion (SQL 010) */
+.mapa-flow-node--formacion {
   /* Color de objetivo prevalece vía mapa-flow-node--mint/sky/… */
 }
-.mapa-flow-node--logro {
+.mapa-flow-node--logro,
+.mapa-flow-node--produccion {
   border-color: color-mix(in srgb, #d97706 45%, #fcd34d);
   background: linear-gradient(
     145deg,
@@ -1348,46 +1349,54 @@ html.pwa-standalone-zoom-lock body {
   );
   box-shadow: 0 4px 18px -6px rgba(180, 83, 9, 0.22);
 }
-.mapa-flow-node--logro .mapa-flow-node-title {
+.mapa-flow-node--logro .mapa-flow-node-title,
+.mapa-flow-node--produccion .mapa-flow-node-title {
   color: #92400e;
 }
 .mapa-flow-node--logro .mapa-flow-node-etapa,
-.mapa-flow-node--logro .mapa-flow-node-carril {
+.mapa-flow-node--logro .mapa-flow-node-carril,
+.mapa-flow-node--produccion .mapa-flow-node-etapa,
+.mapa-flow-node--produccion .mapa-flow-node-carril {
   color: #b45309;
 }
-.mapa-flow-node--logro .mapa-flow-node-desc {
+.mapa-flow-node--logro .mapa-flow-node-desc,
+.mapa-flow-node--produccion .mapa-flow-node-desc {
   color: #78350f;
 }
-.mapa-flow-node--logro .mapa-flow-node-edit {
+.mapa-flow-node--logro .mapa-flow-node-edit,
+.mapa-flow-node--produccion .mapa-flow-node-edit {
   border-color: color-mix(in srgb, #d97706 40%, #fcd34d);
   color: #92400e;
 }
+.mapa-flow-node-clasificacion-badge--formacion {
+  color: #0f766e;
+  background: #ecfdf5;
+  border: 1px solid #99f6e4;
+}
+.mapa-flow-node-clasificacion-badge--produccion,
 .mapa-flow-node-clasificacion-badge--logro {
   color: #92400e;
   background: #fef3c7;
   border: 1px solid #fcd34d;
 }
-.mapa-flow-node-clasificacion-badge--nodo {
-  color: #0f766e;
-  background: #ecfdf5;
-  border: 1px solid #99f6e4;
-}
 
+.explorer-card--formacion {
+  border-left-width: 3px;
+  border-left-color: color-mix(in srgb, #14b8a6 55%, var(--td-line));
+}
+.explorer-card--produccion,
 .explorer-card--logro {
   border-color: color-mix(in srgb, #f59e0b 35%, var(--td-line));
   background: color-mix(in srgb, #fffbeb 55%, var(--td-card));
 }
-.explorer-card--tipo-nodo {
-  border-left-width: 3px;
-  border-left-color: color-mix(in srgb, #14b8a6 55%, var(--td-line));
+.explorer-nodo-clasificacion-badge--formacion {
+  color: #0f766e;
+  background: #ecfdf5;
 }
+.explorer-nodo-clasificacion-badge--produccion,
 .explorer-nodo-clasificacion-badge--logro {
   color: #92400e;
   background: #fef3c7;
-}
-.explorer-nodo-clasificacion-badge--nodo {
-  color: #0f766e;
-  background: #ecfdf5;
 }
 
 /* Objetivos roadmap. Ver lib/objetivo-ui.ts */

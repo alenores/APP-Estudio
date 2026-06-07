@@ -20,6 +20,11 @@ import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import { logrosStatsMapPorNodos } from "@/lib/nodo-logros-stats";
 import { cursosStatsMapPorNodos } from "@/lib/nodo-cursos-stats";
 import { cursosStatsMapPorTemas } from "@/lib/tema-cursos-stats";
+import {
+  middleColumnModeForNodo,
+  nodoAceptaLogrosRegistro,
+  type ExplorerMiddleColumnMode,
+} from "@/lib/mapa-nodo-tipo";
 import { useMemo } from "react";
 
 export type ExplorerRootMode = "temas" | "nodos";
@@ -178,21 +183,28 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
       ? (nodos.find((n) => n.id === normalized.nodoId) ?? null)
       : null;
 
-  const middleColumnShowsLogros =
-    normalized.rootMode === "nodos" && selectedNodoRow?.tipo === "logro";
+  const middleColumnMode: ExplorerMiddleColumnMode = useMemo(() => {
+    if (normalized.rootMode === "nodos" && selectedNodoRow) {
+      return middleColumnModeForNodo(selectedNodoRow.tipo);
+    }
+    return "cursos";
+  }, [normalized.rootMode, selectedNodoRow]);
+
+  const loadLogrosForSelectedNodo =
+    normalized.rootMode === "nodos" &&
+    normalized.nodoId != null &&
+    selectedNodoRow != null &&
+    nodoAceptaLogrosRegistro(selectedNodoRow.tipo);
 
   const {
     logros,
     loading: loadingLogros,
     error: logrosError,
     reload: reloadLogros,
-  } = useLogrosPorNodo(
-    normalized.nodoId,
-    middleColumnShowsLogros && normalized.nodoId != null,
-  );
+  } = useLogrosPorNodo(normalized.nodoId, loadLogrosForSelectedNodo);
 
   const logroNodoIds = useMemo(
-    () => nodos.filter((n) => n.tipo === "logro").map((n) => n.id),
+    () => nodos.filter((n) => nodoAceptaLogrosRegistro(n.tipo)).map((n) => n.id),
     [nodos],
   );
 
@@ -200,7 +212,8 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     useLogrosCatalog(logroNodoIds);
 
   const cursos: CursoConDerivados[] = useMemo(() => {
-    if (!cacheData || middleColumnShowsLogros) return [];
+    if (!cacheData) return [];
+    if (middleColumnMode === "logros") return [];
     if (normalized.rootMode === "nodos") {
       if (normalized.nodoId == null) return [];
       return getCursosPorNodoFromCache(cacheData, normalized.nodoId);
@@ -209,7 +222,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     return getTemaDetalleFromCache(cacheData, normalized.temaId).cursos;
   }, [
     cacheData,
-    middleColumnShowsLogros,
+    middleColumnMode,
     normalized.rootMode,
     normalized.temaId,
     normalized.nodoId,
@@ -238,7 +251,9 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
 
   const cursosStatsPorNodo = useMemo((): Map<number, HijosProgressStats> => {
     if (!cacheData || nodos.length === 0) return new Map();
-    const nodoIds = nodos.filter((n) => n.tipo === "nodo").map((n) => n.id);
+    const nodoIds = nodos
+      .filter((n) => n.tipo === "formacion")
+      .map((n) => n.id);
     if (nodoIds.length === 0) return new Map();
     return cursosStatsMapPorNodos(cacheData, nodoIds);
   }, [cacheData, nodos]);
@@ -258,7 +273,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
 
   const resolvedSelection = useMemo((): ExplorerSelection => {
     if (normalized.logroId == null) return normalized;
-    if (!middleColumnShowsLogros) {
+    if (middleColumnMode === "cursos") {
       return { ...normalized, logroId: null };
     }
     const valid = logros.some(
@@ -266,7 +281,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     );
     if (valid) return normalized;
     return { ...normalized, logroId: null };
-  }, [normalized, logros, middleColumnShowsLogros]);
+  }, [normalized, logros, middleColumnMode]);
 
   return {
     temas,
@@ -274,7 +289,7 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     nodosById,
     cursos,
     logros,
-    middleColumnShowsLogros,
+    middleColumnMode,
     clases,
     clasesStatsPorCurso,
     cursosStatsPorTema,

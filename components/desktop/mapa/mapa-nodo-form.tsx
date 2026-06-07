@@ -91,8 +91,8 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
           onChange={(e) => setTipo(e.target.value as MapaNodo["tipo"])}
           className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm"
         >
-          <option value="nodo">{nodoClasificacionLabel("nodo")}</option>
-          <option value="logro">{nodoClasificacionLabel("logro")}</option>
+          <option value="formacion">{nodoClasificacionLabel("formacion")}</option>
+          <option value="produccion">{nodoClasificacionLabel("produccion")}</option>
         </select>
       </FormField>
 

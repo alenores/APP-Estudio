@@ -88,7 +88,7 @@ export function ExploradorEditModal({
           />
         ) : null}
         {kind === "nodo" && nodo ? (
-          nodo.tipo === "logro" ? (
+          nodo.tipo === "produccion" ? (
             <MapaLogroForm
               logroId={nodo.id}
               titulo={nodo.titulo}

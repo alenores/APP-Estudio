@@ -48,6 +48,25 @@ export async function listMapaDetalleHijos(
     };
   }
 
+  if (scope.childKind === "mixto") {
+    const [cursosRes, logrosRes] = await Promise.all([
+      listCursosDetalle({ nodoId: scope.nodoId }),
+      listLogrosPorNodo(scope.nodoId),
+    ]);
+    if (cursosRes.error) return { data: null, error: cursosRes.error };
+    if (logrosRes.error) return { data: null, error: logrosRes.error };
+    const hijos: MapaDetalleHijo[] = [
+      ...(cursosRes.data ?? []).map((c) => ({ ...c, kind: "curso" as const })),
+      ...(logrosRes.data ?? []).map((l) => ({
+        id: l.id,
+        nombre: l.nombre,
+        descripcion: l.descripcion,
+        kind: "logro" as const,
+      })),
+    ];
+    return { data: hijos, error: null };
+  }
+
   if (scope.childKind === "logro") {
     const { data, error } = await listLogrosPorNodo(scope.nodoId);
     if (error) return { data: null, error };

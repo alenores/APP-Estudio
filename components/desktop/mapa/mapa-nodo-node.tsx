@@ -33,9 +33,9 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
     objetivoNombre,
   } = data as MapaNodoNodeData;
 
-  const esLogro = nodo.tipo === "logro";
+  const esProduccion = nodo.tipo === "produccion";
   const clasificacionClass = mapaNodoClasificacionClass(nodo.tipo);
-  const toneClass = esLogro
+  const toneClass = esProduccion
     ? clasificacionClass
     : objetivoId != null
       ? mapaObjetivoToneClass(objetivoId)
@@ -49,7 +49,7 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
         selected ? "mapa-flow-node--selected" : ""
       }`}
       style={
-        !esLogro && objetivoId != null
+        !esProduccion && objetivoId != null
           ? { borderLeftWidth: 4, borderLeftColor: accent }
           : undefined
       }
@@ -65,13 +65,15 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
       <div className="px-3 pb-2.5 pt-2">
         <span
           className={`mapa-flow-node-clasificacion-badge mb-1.5 inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
-            esLogro ? "mapa-flow-node-clasificacion-badge--logro" : "mapa-flow-node-clasificacion-badge--nodo"
+            esProduccion
+              ? "mapa-flow-node-clasificacion-badge--produccion"
+              : "mapa-flow-node-clasificacion-badge--formacion"
           }`}
         >
           {nodoClasificacionLabel(nodo.tipo)}
         </span>
 
-        {!esLogro && objetivoId != null && objetivoNombre ? (
+        {!esProduccion && objetivoId != null && objetivoNombre ? (
           <span
             className="mapa-flow-node-objetivo-badge mb-1.5 inline-block max-w-full truncate rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide"
             style={{

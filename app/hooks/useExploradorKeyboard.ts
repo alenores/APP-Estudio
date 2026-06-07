@@ -16,6 +16,7 @@ import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
 } from "@/lib/explorer-entity-panel";
+import type { ExplorerMiddleColumnMode } from "@/lib/mapa-nodo-tipo";
 import { useCallback, useEffect, useRef } from "react";
 
 export type ExplorerColumnKind = "temas" | "cursos" | "clases";
@@ -29,7 +30,7 @@ type ColumnItem = {
 type UseExploradorKeyboardArgs = {
   enabled: boolean;
   rootMode: ExplorerRootMode;
-  middleColumnShowsLogros: boolean;
+  middleColumnMode: ExplorerMiddleColumnMode;
   temas: TemaConDerivados[];
   nodos: MapaNodo[];
   cursos: CursoConDerivados[];
@@ -55,7 +56,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 function columnItems(
   column: ExplorerColumnKind,
   rootMode: ExplorerRootMode,
-  middleColumnShowsLogros: boolean,
+  middleColumnMode: ExplorerMiddleColumnMode,
   temas: TemaConDerivados[],
   nodos: MapaNodo[],
   cursos: CursoConDerivados[],
@@ -73,12 +74,26 @@ function columnItems(
       }
       return temas.map((t) => ({ id: t.id, nombre: t.nombre, kind: "tema" }));
     case "cursos":
-      if (middleColumnShowsLogros) {
+      if (middleColumnMode === "logros") {
         return logros.map((l) => ({
           id: l.id,
           nombre: l.nombre,
           kind: "logro",
         }));
+      }
+      if (middleColumnMode === "mixto") {
+        return [
+          ...cursos.map((c) => ({
+            id: c.id,
+            nombre: c.nombre,
+            kind: "curso" as const,
+          })),
+          ...logros.map((l) => ({
+            id: l.id,
+            nombre: l.nombre,
+            kind: "logro" as const,
+          })),
+        ];
       }
       return cursos.map((c) => ({ id: c.id, nombre: c.nombre, kind: "curso" }));
     case "clases":
@@ -93,14 +108,16 @@ function columnItems(
 function selectedIdInColumn(
   column: ExplorerColumnKind,
   rootMode: ExplorerRootMode,
-  middleColumnShowsLogros: boolean,
+  middleColumnMode: ExplorerMiddleColumnMode,
   selection: ExplorerSelection,
 ): number | null {
   switch (column) {
     case "temas":
       return rootMode === "nodos" ? selection.nodoId : selection.temaId;
     case "cursos":
-      return middleColumnShowsLogros ? selection.logroId : selection.cursoId;
+      if (middleColumnMode === "logros") return selection.logroId;
+      if (selection.logroId != null) return selection.logroId;
+      return selection.cursoId;
     case "clases":
       return selection.claseId;
   }
@@ -170,7 +187,7 @@ function scrollCardIntoView(id: number) {
 export function useExploradorKeyboard({
   enabled,
   rootMode,
-  middleColumnShowsLogros,
+  middleColumnMode,
   temas,
   nodos,
   cursos,
@@ -202,7 +219,7 @@ export function useExploradorKeyboard({
     const items = columnItems(
       column,
       rootMode,
-      middleColumnShowsLogros,
+      middleColumnMode,
       temas,
       nodos,
       cursos,
@@ -213,7 +230,7 @@ export function useExploradorKeyboard({
     const selectedId = selectedIdInColumn(
       column,
       rootMode,
-      middleColumnShowsLogros,
+      middleColumnMode,
       selection,
     );
     const idx =
@@ -228,7 +245,7 @@ export function useExploradorKeyboard({
     return { kind: item.kind, id: item.id, nombre: item.nombre };
   }, [
     rootMode,
-    middleColumnShowsLogros,
+    middleColumnMode,
     temas,
     nodos,
     cursos,
@@ -248,7 +265,7 @@ export function useExploradorKeyboard({
       const items = columnItems(
         column,
         rootMode,
-        middleColumnShowsLogros,
+        middleColumnMode,
         temas,
         nodos,
         cursos,
@@ -262,7 +279,7 @@ export function useExploradorKeyboard({
         const selectedId = selectedIdInColumn(
           column,
           rootMode,
-          middleColumnShowsLogros,
+          middleColumnMode,
           selection,
         );
         let idx =
@@ -287,7 +304,7 @@ export function useExploradorKeyboard({
         const nextItems = columnItems(
           nextColumn,
           rootMode,
-          middleColumnShowsLogros,
+          middleColumnMode,
           temas,
           nodos,
           cursos,
@@ -298,7 +315,7 @@ export function useExploradorKeyboard({
         const selectedId = selectedIdInColumn(
           nextColumn,
           rootMode,
-          middleColumnShowsLogros,
+          middleColumnMode,
           selection,
         );
         const item =
@@ -345,7 +362,7 @@ export function useExploradorKeyboard({
   }, [
     enabled,
     rootMode,
-    middleColumnShowsLogros,
+    middleColumnMode,
     temas,
     nodos,
     cursos,
