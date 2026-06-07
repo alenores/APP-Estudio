@@ -20,15 +20,24 @@ import {
   numberFieldInitial,
 } from "@/lib/iso-date-input";
 import { temaFormSchema } from "@/lib/validations";
+import { applyFormLienzoColocacion } from "@/lib/apply-form-lienzo-colocacion";
+import {
+  EMPTY_FORM_LIENZO_COLOCACION,
+  type FormLienzoColocacionConfig,
+  type FormLienzoColocacionState,
+} from "@/lib/form-lienzo-colocacion-types";
+import { FormLienzoColocacionSection } from "@/components/shared/forms/form-lienzo-colocacion-section";
 import { useState } from "react";
 
 type TemaFormProps = {
   tema?: Tema;
+  /** Sección lienzo al crear (explorador / mapa). */
+  lienzoConfig?: FormLienzoColocacionConfig | null;
   onSuccess: (temaId: number) => void;
   onDelete?: () => void;
 };
 
-export function TemaForm({ tema, onSuccess, onDelete }: TemaFormProps) {
+export function TemaForm({ tema, lienzoConfig, onSuccess, onDelete }: TemaFormProps) {
   const isEdit = tema != null;
   const [nombre, setNombre] = useState(tema?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(tema?.descripcion ?? "");
@@ -43,6 +52,8 @@ export function TemaForm({ tema, onSuccess, onDelete }: TemaFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [lienzoColocacion, setLienzoColocacion] =
+    useState<FormLienzoColocacionState>(EMPTY_FORM_LIENZO_COLOCACION);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -79,6 +90,19 @@ export function TemaForm({ tema, onSuccess, onDelete }: TemaFormProps) {
     if (result.error) {
       setError(result.error);
       return;
+    }
+
+    if (result.data && !isEdit && lienzoConfig) {
+      const { error: lienzoErr } = await applyFormLienzoColocacion(
+        userId,
+        lienzoConfig,
+        lienzoColocacion,
+        { layer: "macro-tema", id: result.data.id },
+      );
+      if (lienzoErr) {
+        setError(lienzoErr);
+        return;
+      }
     }
 
     if (result.data) {
@@ -152,6 +176,13 @@ export function TemaForm({ tema, onSuccess, onDelete }: TemaFormProps) {
           onChange={(e) => setFechaFin(e.target.value)}
         />
       </FormField>
+      {!isEdit && lienzoConfig ? (
+        <FormLienzoColocacionSection
+          config={lienzoConfig}
+          value={lienzoColocacion}
+          onChange={setLienzoColocacion}
+        />
+      ) : null}
       <FormError message={error} />
       <FormSubmitButton
         loading={loading}

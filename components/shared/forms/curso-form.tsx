@@ -22,6 +22,13 @@ import {
   numberFieldInitial,
 } from "@/lib/iso-date-input";
 import { cursoFormSchema } from "@/lib/validations";
+import { applyFormLienzoColocacion } from "@/lib/apply-form-lienzo-colocacion";
+import {
+  EMPTY_FORM_LIENZO_COLOCACION,
+  type FormLienzoColocacionConfig,
+  type FormLienzoColocacionState,
+} from "@/lib/form-lienzo-colocacion-types";
+import { FormLienzoColocacionSection } from "@/components/shared/forms/form-lienzo-colocacion-section";
 import { useEffect, useState } from "react";
 
 export type CursoFormSuccessMeta = {
@@ -36,6 +43,7 @@ type CursoFormProps = {
   defaultNodoId?: number | null;
   /** Nodo fijado (vista Nodos del explorador). Oculta el selector de nodo. */
   lockNodoId?: boolean;
+  lienzoConfig?: FormLienzoColocacionConfig | null;
   onSuccess: (cursoId: number, meta: CursoFormSuccessMeta) => void;
   onDelete?: () => void;
 };
@@ -45,6 +53,7 @@ export function CursoForm({
   curso,
   defaultNodoId = null,
   lockNodoId = false,
+  lienzoConfig,
   onSuccess,
   onDelete,
 }: CursoFormProps) {
@@ -75,6 +84,8 @@ export function CursoForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [lienzoColocacion, setLienzoColocacion] =
+    useState<FormLienzoColocacionState>(EMPTY_FORM_LIENZO_COLOCACION);
 
   const showTemaSelect = temaIdFixed == null && !isEdit;
 
@@ -140,6 +151,19 @@ export function CursoForm({
     if (result.error) {
       setError(result.error);
       return;
+    }
+
+    if (result.data && !isEdit && lienzoConfig) {
+      const { error: lienzoErr } = await applyFormLienzoColocacion(
+        userId,
+        lienzoConfig,
+        lienzoColocacion,
+        { layer: "detalle", kind: "curso", id: result.data.id },
+      );
+      if (lienzoErr) {
+        setError(lienzoErr);
+        return;
+      }
     }
 
     if (result.data) {
@@ -263,6 +287,13 @@ export function CursoForm({
           onChange={(e) => setFechaFin(e.target.value)}
         />
       </FormField>
+      {!isEdit && lienzoConfig ? (
+        <FormLienzoColocacionSection
+          config={lienzoConfig}
+          value={lienzoColocacion}
+          onChange={setLienzoColocacion}
+        />
+      ) : null}
       <FormError message={error} />
       <FormSubmitButton
         loading={loading}

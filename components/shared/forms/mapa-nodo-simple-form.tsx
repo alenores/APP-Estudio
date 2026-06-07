@@ -7,6 +7,14 @@ import {
   FormSubmitButton,
   FormTextarea,
 } from "@/components/ui";
+import { FormLienzoColocacionSection } from "@/components/shared/forms/form-lienzo-colocacion-section";
+import { applyFormLienzoColocacion } from "@/lib/apply-form-lienzo-colocacion";
+import {
+  EMPTY_FORM_LIENZO_COLOCACION,
+  type FormLienzoColocacionConfig,
+  type FormLienzoColocacionState,
+} from "@/lib/form-lienzo-colocacion-types";
+import { mapaNodoInsertExtrasFromLienzo } from "@/lib/form-lienzo-colocacion";
 import {
   getSessionUserId,
   insertMapaNodoClasificado,
@@ -20,19 +28,23 @@ type MapaNodoSimpleFormProps = {
   nodoId?: number;
   titulo?: string;
   descripcion?: string | null;
+  lienzoConfig?: FormLienzoColocacionConfig | null;
   onSuccess: (nodoId?: number) => void;
 };
 
-/** Alta/edición mínima de nodo tipo `nodo` (título + descripción). */
+/** Alta/edición mínima de nodo tipo formación (título + descripción). */
 export function MapaNodoSimpleForm({
   nodoId,
   titulo: tituloInitial = "",
   descripcion: descripcionInitial = "",
+  lienzoConfig,
   onSuccess,
 }: MapaNodoSimpleFormProps) {
   const isEdit = nodoId != null;
   const [titulo, setTitulo] = useState(tituloInitial);
   const [descripcion, setDescripcion] = useState(descripcionInitial ?? "");
+  const [lienzoColocacion, setLienzoColocacion] =
+    useState<FormLienzoColocacionState>(EMPTY_FORM_LIENZO_COLOCACION);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -71,13 +83,30 @@ export function MapaNodoSimpleForm({
       userId,
       "formacion",
       parsed.data,
+      mapaNodoInsertExtrasFromLienzo(lienzoColocacion),
     );
-    setLoading(false);
-    if (insErr) {
-      setError(insErr);
+    if (insErr || !data) {
+      setLoading(false);
+      setError(insErr ?? "No se pudo crear.");
       return;
     }
-    onSuccess(data?.id);
+
+    if (lienzoConfig) {
+      const { error: lienzoErr } = await applyFormLienzoColocacion(
+        userId,
+        lienzoConfig,
+        lienzoColocacion,
+        { layer: "macro-nodo", id: data.id },
+      );
+      if (lienzoErr) {
+        setLoading(false);
+        setError(lienzoErr);
+        return;
+      }
+    }
+
+    setLoading(false);
+    onSuccess(data.id);
   }
 
   return (
@@ -98,6 +127,14 @@ export function MapaNodoSimpleForm({
           rows={3}
         />
       </FormField>
+
+      {!isEdit && lienzoConfig ? (
+        <FormLienzoColocacionSection
+          config={lienzoConfig}
+          value={lienzoColocacion}
+          onChange={setLienzoColocacion}
+        />
+      ) : null}
 
       <FormError message={error} />
 

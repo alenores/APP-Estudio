@@ -9,6 +9,7 @@ import { LogroRegistroForm } from "@/components/shared/forms/logro-registro-form
 import { TemaForm } from "@/components/shared/forms/tema-form";
 import { formatFormParentSubtitle } from "@/lib/form-parent-context";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
+import type { FormLienzoColocacionConfig } from "@/lib/form-lienzo-colocacion-types";
 
 export type ExploradorCreateKind = "tema" | "curso" | "clase" | "logro";
 
@@ -29,6 +30,53 @@ type ExploradorCreateModalProps = {
     claseId?: number;
   }) => void;
 };
+
+function exploradorLienzoConfig(
+  kind: ExploradorCreateKind,
+  temaId: number | null,
+  nodoId: number | null,
+  temaNombre: string | null,
+  nodoNombre: string | null,
+): FormLienzoColocacionConfig | null {
+  if (kind === "tema") return { mode: "macro-temas" };
+  if (kind === "curso" && temaId != null && temaNombre) {
+    return {
+      mode: "detalle",
+      scope: {
+        kind: "tema",
+        temaId,
+        parentLabel: temaNombre,
+        childKind: "curso",
+      },
+      hijos: [],
+    };
+  }
+  if (kind === "curso" && nodoId != null && nodoNombre) {
+    return {
+      mode: "detalle",
+      scope: {
+        kind: "nodo",
+        nodoId,
+        parentLabel: nodoNombre,
+        childKind: "mixto",
+      },
+      hijos: [],
+    };
+  }
+  if (kind === "logro" && nodoId != null && nodoNombre) {
+    return {
+      mode: "detalle",
+      scope: {
+        kind: "nodo",
+        nodoId,
+        parentLabel: nodoNombre,
+        childKind: "logro",
+      },
+      hijos: [],
+    };
+  }
+  return null;
+}
 
 export function ExploradorCreateModal({
   kind,
@@ -84,6 +132,14 @@ export function ExploradorCreateModal({
   const modalTone =
     kind === "tema" ? "tema" : kind === "clase" ? "clase" : "curso";
 
+  const lienzoConfig = exploradorLienzoConfig(
+    kind,
+    temaId,
+    nodoId,
+    temaNombre,
+    nodoNombre,
+  );
+
   return (
     <DesktopModal
       open
@@ -94,7 +150,10 @@ export function ExploradorCreateModal({
     >
       <div className={estudioFormWellClass(modalTone)}>
       {kind === "tema" ? (
-        <TemaForm onSuccess={(id) => void afterCreate({ temaId: id })} />
+        <TemaForm
+          lienzoConfig={lienzoConfig}
+          onSuccess={(id) => void afterCreate({ temaId: id })}
+        />
       ) : null}
       {createCursoFromTema ? (
         <>
@@ -106,6 +165,7 @@ export function ExploradorCreateModal({
           <CursoForm
             temaId={temaId}
             defaultNodoId={nodoId}
+            lienzoConfig={lienzoConfig}
             onSuccess={(id, meta) =>
               void afterCreate({
                 temaId: meta.temaId,
@@ -126,6 +186,7 @@ export function ExploradorCreateModal({
           <CursoForm
             defaultNodoId={nodoId}
             lockNodoId
+            lienzoConfig={lienzoConfig}
             onSuccess={(id, meta) =>
               void afterCreate({
                 temaId: meta.temaId,
@@ -145,6 +206,7 @@ export function ExploradorCreateModal({
           />
           <LogroRegistroForm
             nodoId={nodoId}
+            lienzoConfig={lienzoConfig}
             onSuccess={(id) =>
               void afterCreate({ nodoId, logroId: id })
             }

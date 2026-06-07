@@ -98,4 +98,26 @@ export async function updateTemaPosition(
   return { error: error?.message ?? null };
 }
 
+export async function updateTemaLienzoLayout(
+  id: number,
+  layout: {
+    etapa: number;
+    carril: number;
+    pos_x: number;
+    pos_y: number;
+  },
+): Promise<{ error: string | null }> {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("temas")
+    .update({
+      etapa: layout.etapa,
+      carril: layout.carril,
+      pos_x: layout.pos_x,
+      pos_y: layout.pos_y,
+    })
+    .eq("id", id);
+  return { error: error?.message ?? null };
+}
+
 export { getSessionUserId };

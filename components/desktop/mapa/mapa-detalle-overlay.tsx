@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { useMapaDetalleHijos } from "@/app/hooks/useMapaDetalleHijos";
+import { MapaDetalleCreateModal } from "@/components/desktop/mapa/mapa-detalle-create-modal";
 import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
 import { AlertText, LoadingText } from "@/components/ui";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const MapaDetalleCanvas = dynamic(
   () =>
@@ -47,8 +48,9 @@ function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string
 
 /** Capa 1 sobre el lienzo macro — hijos de tema o nodo (ADR 010). */
 export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) {
-  const { hijos, enlaces, posiciones, loading, error, addEnlace, removeEnlace, savePosicion } =
+  const { hijos, enlaces, posiciones, loading, error, addEnlace, removeEnlace, savePosicion, reload } =
     useMapaDetalleHijos(scope);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -89,6 +91,14 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
               {scope.parentLabel}
             </h2>
           </div>
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="rounded-lg border border-[var(--td-line)] bg-white px-3 py-1.5 text-sm font-bold text-[var(--td-navy)] hover:bg-[var(--td-line-soft)]"
+            title="Agregar curso o logro"
+          >
+            +
+          </button>
           <span className="rounded-md bg-white px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--td-ink-soft)] ring-1 ring-[var(--td-line)]">
             {loading ? "…" : hijos.length}{" "}
             {scope.kind === "tema"
@@ -124,6 +134,15 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
           ) : null}
         </div>
       </div>
+
+      {creating ? (
+        <MapaDetalleCreateModal
+          scope={scope}
+          hijos={hijos}
+          onClose={() => setCreating(false)}
+          onCreated={() => void reload()}
+        />
+      ) : null}
     </div>
   );
 }

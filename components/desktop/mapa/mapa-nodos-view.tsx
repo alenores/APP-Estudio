@@ -371,7 +371,10 @@ export function MapaNodosView() {
         subtitle="Elegí tipo y completá el formulario"
       >
         <div className={estudioFormWellClass("tema")}>
-          <MapaNodoCreateFlow onSuccess={() => void onSaved()} />
+          <MapaNodoCreateFlow
+            lienzoConfig={{ mode: "macro-nodos" }}
+            onSuccess={() => void onSaved()}
+          />
         </div>
       </DesktopModal>
 
@@ -382,7 +385,10 @@ export function MapaNodosView() {
         subtitle="Mapa de conocimiento"
       >
         <div className={estudioFormWellClass("tema")}>
-          <TemaForm onSuccess={() => void onSaved()} />
+          <TemaForm
+            lienzoConfig={{ mode: "macro-temas" }}
+            onSuccess={() => void onSaved()}
+          />
         </div>
       </DesktopModal>
 

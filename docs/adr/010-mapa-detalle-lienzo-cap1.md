@@ -23,6 +23,7 @@ El mapa macro (capa 0) muestra `nodos_objetivos` o `temas` con enlaces. Se neces
 - **Esc** o «Volver al mapa» → cierra capa 1.
 - **v2a:** enlaces entre hijos vía `enlaces_hijos_nodos` (handles + Delete, como capa 0).
 - **v2b:** arrastrar cards → `lienzo_hijos_posiciones` por scope; sin fila → grilla automática.
+- **Formularios:** sección opcional «Lienzo» al pie (etapa/carril + enlace desde padre); compartida explorador y `/mapa`. En detalle mixto, switch curso|logro para elegir padre del enlace.
 
 ### Capas frontend
 

@@ -12,6 +12,14 @@ export function mapaDetalleGridPosition(index: number): { x: number; y: number }
   return { x: col * COL_WIDTH, y: row * ROW_HEIGHT };
 }
 
+/** Posición sugerida en detalle desde etapa (columna) y carril (fila). */
+export function mapaDetallePosicionDesdeEtapaCarril(
+  etapa: number,
+  carril: number,
+): { x: number; y: number } {
+  return { x: etapa * COL_WIDTH, y: carril * ROW_HEIGHT };
+}
+
 export function mapaDetalleFlowNodeId(
   kind: "curso" | "logro",
   id: number,
