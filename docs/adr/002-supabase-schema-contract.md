@@ -28,6 +28,8 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Enlace entre hijos (detalle mapa) | `enlaces_hijos_nodos` | scope `tema`/`nodo` + origen/destino polimórfico `curso`/`logro` — script `011` |
 | Posición hijo (detalle mapa) | `lienzo_hijos_posiciones` | scope + `hijo_kind`/`hijo_id` + `pos_x`/`pos_y` — script `012` |
 
+**No usar / eliminada:** `enlaces_cursos` — borrador legacy sin scope por tema; reemplazada por `enlaces_hijos_nodos`. Script de limpieza: `docs/sql/014-drop-enlaces-cursos.sql`.
+
 Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
 
 En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `number` en TypeScript; los segmentos de URL se parsean con `lib/parse-entity-id.ts`. `user_id` sigue siendo `string` (uuid).
