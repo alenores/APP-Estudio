@@ -49,6 +49,12 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (estudio); `docs/sql/002-schema-ma
 
 Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`. Por defecto: **`active:scale-95` + `FAB_OPEN_DELAY_MS`** en el botón; sheet con panel instantáneo y fade del velo; **no** slide del panel ni WAAPI al abrir en Android.
 
+### Mapa / lienzo (ADR 009 + 010)
+
+- **Canónico en BD:** `etapa`→`pos_x`, `carril`→`pos_y` — no duplicar por orientación de vista.
+- **Presentación:** orientación, flip de carril, handles y guías → `lib/mapa-lienzo-orientacion.ts` + traducción al guardar drag (`projectDisplayToCanonical`).
+- Ante pedidos de “cómo se ve el eje”: preferir proyección visual (ADR 000 §11) antes de schema o lógica de negocio nueva.
+
 ### Capas (ADR 003)
 
 | Qué | Dónde |
@@ -66,6 +72,7 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Detalle móvil tema/curso/clase | `components/mobile/detalle/` |
 | Shell escritorio + explorador | `app/(desktop)/`, `components/desktop/`, `lib/shell-*.ts`, `useEstudioExplorer` |
 | Mapa conocimiento (solo PC) | `app/(desktop)/mapa/`, `components/desktop/mapa/`, `lib/mapa-queries.ts`, `lib/temas-lienzo-queries.ts`, `useMapaGrafo` |
+| Proyección visual lienzo | `lib/mapa-lienzo-orientacion.ts` — canónico BD vs pantalla; ver ADR 000 §11 y ADR 009 §9 |
 | Primitivos UI | `components/ui/` |
 | Forms compartidos | `components/shared/forms/` |
 
@@ -87,6 +94,8 @@ lib/shell-routes.ts                  → rutas por shell (+ DESKTOP_MAPA_PREFIX)
 lib/mapa-queries.ts                  → CRUD nodos_objetivos / enlaces_nodos
 lib/temas-lienzo-queries.ts          → CRUD enlaces_temas + posición temas (lienzo)
 lib/mapa-lienzo-types.ts             → MapaGrafoModo, LienzoPosicionable
+lib/mapa-lienzo-orientacion.ts       → proyección canónico↔pantalla (ADR 009 §9)
+lib/mapa-layout.ts                   → posición canónica etapa/carril → pos_x/pos_y
 lib/mapa-grafo-enlaces.ts            → conteo enlaces compartido
 lib/mapa-objetivo.ts                 → color/filtro por nodos_objetivos.objetivo_id
 lib/nodo-cursos-stats.ts             → donut cursos por nodo (explorador)

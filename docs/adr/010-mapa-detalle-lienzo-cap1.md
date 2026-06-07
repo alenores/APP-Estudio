@@ -33,6 +33,7 @@ El mapa macro (capa 0) muestra `nodos_objetivos` o `temas` con enlaces. Se neces
 | Queries (online) | `lib/mapa-detalle-queries.ts`, `lib/mapa-detalle-enlace-queries.ts`, `lib/mapa-detalle-posicion-queries.ts` |
 | Edges Flow | `lib/mapa-detalle-flow-edges.ts` |
 | Grilla / IDs Flow | `lib/mapa-detalle-layout.ts` |
+| Proyección visual | Misma capa que capa 0 — `lib/mapa-lienzo-orientacion.ts` ([ADR 009 §9](009-mapa-conocimiento-desktop-only.md#9-proyección-visual-del-lienzo-canónico-vs-pantalla)) |
 | Hook datos | `app/hooks/useMapaDetalleHijos.ts` |
 | Overlay | `components/desktop/mapa/mapa-detalle-overlay.tsx` |
 | Lienzo hijos | `components/desktop/mapa/mapa-detalle-canvas.tsx` |

@@ -22,8 +22,9 @@ Desarrollo asistido por IA (Cursor) y documentación que evite decisiones implí
 8. **Animaciones / feedback en celular:** seguir [ADR 006](006-feedback-ui-movil.md) (delay en el botón + `active:scale`, sheet sin slide; no repetir WAAPI/escalonado salvo pedido explícito).
 9. **Dos shells móvil / escritorio:** [ADR 008](008-dual-shell-mobile-desktop.md). Detección automática en middleware; **sin** toggle de versión; pedidos de UI etiquetar `shared | mobile | desktop`.
 10. **Mapa de conocimiento:** [ADR 009](009-mapa-conocimiento-desktop-only.md). **Solo PC** — sin rutas, links ni bundle en móvil; nodos ≠ conceptos de estudio.
+11. **Canónico vs presentación:** cuando un problema sea de **cómo se ve** o **cómo se lee** un dato (ejes, orden, etiquetas, orientación), resolver primero con una **capa de proyección visual** + traducción al guardar (p. ej. arrastre en lienzo). **No** duplicar semántica en Supabase, formularios ni `lib/*-layout` canónico salvo que el contrato de negocio cambie de verdad. Objetivo: diffs pequeños, una sola fuente de verdad en BD, código legible para humanos e IA. Referencia concreta: [ADR 009 §9](009-mapa-conocimiento-desktop-only.md#9-proyección-visual-del-lienzo-canónico-vs-pantalla).
 
 ## Consecuencias
 
-- Toda feature nueva debe poder justificarse contra ADR 001–008.
+- Toda feature nueva debe poder justificarse contra ADR 001–008 (y 009–010 si toca mapa).
 - Cambios de reglas de negocio → actualizar el ADR correspondiente en el mismo cambio.

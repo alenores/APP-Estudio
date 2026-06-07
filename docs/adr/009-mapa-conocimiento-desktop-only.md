@@ -119,6 +119,7 @@ En `/mapa`, el mismo lienzo React Flow conmuta entre dos grafos:
 |-----|-------|
 | Modo grafo | `lib/mapa-lienzo-types.ts` — `MapaGrafoModo` |
 | Posición lienzo | `lib/mapa-layout.ts` — `posicionEnLienzo` (nodos y temas) |
+| Proyección visual lienzo | `lib/mapa-lienzo-orientacion.ts` — ver [§9](009-mapa-conocimiento-desktop-only.md#9-proyección-visual-del-lienzo-canónico-vs-pantalla) |
 | Build nodos Flow | `lib/mapa-flow-nodes.ts` — `buildMapaFlowNodesForGrafo` |
 | Edges | `lib/mapa-flow-edges.ts` — `toFlowEdges` (genérico) |
 | Conteo enlaces | `lib/mapa-grafo-enlaces.ts` |
@@ -131,6 +132,43 @@ En `/mapa`, el mismo lienzo React Flow conmuta entre dos grafos:
 Reutiliza: drag → guardar posición, conectar handles → insert enlace, Delete → borrar enlace, guías timeline (`MapaTimelineGuides` + `computeMapaGridBounds` sobre `LienzoPosicionable[]`).
 
 Sin offline pack — queries directas, no `useEstudioData`.
+
+### 9. Proyección visual del lienzo (canónico vs pantalla)
+
+React Flow y el DOM usan coordenadas de **pantalla** (origen arriba-izquierda, Y hacia abajo). Los campos de negocio del lienzo usan un espacio **canónico** estable en Supabase:
+
+| Campo | Eje canónico | Significado |
+|-------|--------------|-------------|
+| `etapa` | `pos_x` | Columna / timeline |
+| `carril` | `pos_y` | Carril paralelo |
+
+**Regla:** lo que el usuario elige en formularios, listas y BD **siempre** habla canónico. Cambios de **vista** (invertir ejes, espejar carril, handles de flechas, etiquetas del grid) viven en la **capa de proyección**, no en migraciones ni en heurísticas duplicadas.
+
+| Qué | Dónde |
+|-----|-------|
+| Proyección canónico ↔ pantalla | `lib/mapa-lienzo-orientacion.ts` |
+| Layout canónico (sin flip ni swap) | `lib/mapa-layout.ts` — `posicionDesdeEtapaCarril`, `posicionEnLienzo` |
+| Detalle capa 1 (misma proyección) | `lib/mapa-detalle-layout.ts` — `mapaDetallePositionDisplay` |
+| Switch Etapa→X / Etapa→Y | `mapa-toolbar.tsx` — estado en sesión, default `xy`, sin persistir |
+| Guardar tras drag | `projectDisplayToCanonical` antes de `update*Tema*Position` / `upsertLienzoHijoPosicion` |
+
+**Transformaciones actuales (solo presentación):**
+
+1. **Orientación `xy` \| `yx`:** transpone etapa/carril al pintar (`swapLienzoCoordsAroundOrigin`); incluye `pos_x`/`pos_y` libres si el usuario arrastró la card (opción B acordada).
+2. **Carril en `xy`:** espejo vertical del eje carril — carril 0 **abajo**, mayor carril **arriba** (`flipCanonicalYForCarrilAxis`); en `yx` el carril ya va horizontal izquierda→derecha y no se invierte.
+3. **Handles de enlaces:** entrada/salida según orientación (`mapa-flow-enlace-handles.tsx` + `mapaLienzoFlowHandleConfig`).
+4. **Etiquetas de etapa en `xy`:** margen **inferior** del grid (regla del eje X).
+
+**Antes de implementar algo nuevo en el lienzo**, preguntar:
+
+- ¿Cambia el **contrato** (`etapa`, `carril`, `pos_*` en BD)? → SQL / ADR 002, formularios, queries.
+- ¿Solo cambia **cómo se ve o se arrastra**? → extender `mapa-lienzo-orientacion.ts` (+ guías SVG y drag inverso); **no** tocar el canónico.
+
+**Anti-patrones (rechazar o replantear):**
+
+- Segunda columna en BD para “posición en vista Y/X”.
+- Duplicar `posicionEnLienzo` con variantes por orientación en `mapa-layout.ts`.
+- Guardar en Supabase coordenadas ya transpuestas según el switch del toolbar.
 
 ### 7. Objetivos (fase 7–8)
 
