@@ -1506,7 +1506,17 @@ html.pwa-standalone-zoom-lock body {
   animation: mapa-detalle-slide-in 0.22s ease-out;
 }
 .mapa-detalle-body {
-  min-height: 280px;
+  min-height: 320px;
+}
+.mapa-detalle-split {
+  min-height: 0;
+}
+.mapa-detalle-parent-column .explorer-column-panel {
+  height: 100%;
+  min-height: 0;
+}
+.mapa-detalle-canvas-column {
+  min-height: 240px;
 }
 .mapa-detalle-canvas-wrap {
   min-height: 240px;

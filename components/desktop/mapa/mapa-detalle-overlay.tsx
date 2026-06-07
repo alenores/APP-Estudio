@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useMapaDetalleHijos } from "@/app/hooks/useMapaDetalleHijos";
 import { MapaDetalleCreateModal } from "@/components/desktop/mapa/mapa-detalle-create-modal";
+import { MapaDetalleParentPanel } from "@/components/desktop/mapa/mapa-detalle-parent-panel";
 import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
 import { AlertText, LoadingText } from "@/components/ui";
 import type { MapaDetalleHijoKind } from "@/lib/mapa-detalle-types";
@@ -84,7 +85,7 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
         aria-label="Cerrar detalle"
         onClick={onClose}
       />
-      <div className="mapa-detalle-panel relative z-10 flex min-h-0 w-full max-w-[min(1400px,96vw)] flex-col overflow-hidden rounded-xl border border-[var(--td-line)] bg-white shadow-[0_24px_80px_-12px_rgba(15,23,42,0.45)]">
+      <div className="mapa-detalle-panel relative z-10 flex min-h-0 w-full max-w-[min(1680px,98vw)] flex-col overflow-hidden rounded-xl border border-[var(--td-line)] bg-white shadow-[0_24px_80px_-12px_rgba(15,23,42,0.45)]">
         <header className="flex shrink-0 flex-wrap items-center gap-3 border-b border-[var(--td-line)] bg-[var(--td-line-soft)]/40 px-4 py-3">
           <button
             type="button"
@@ -125,27 +126,52 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
           </span>
         </header>
 
-        <div className="mapa-detalle-body flex min-h-0 flex-1 flex-col p-3">
-          {loading ? (
-            <LoadingText>Cargando {hijosLabel(scope).toLowerCase()}…</LoadingText>
-          ) : null}
-          {error ? (
-            <AlertText>{mapaDetalleErrorMessage(error, scope)}</AlertText>
-          ) : null}
-          {!loading && !error ? (
-            <MapaDetalleCanvas
-              scope={scope}
-              hijos={hijos}
-              enlaces={enlaces}
-              posiciones={posiciones}
-              onEnlaceCreated={addEnlace}
-              onEnlaceRemoved={removeEnlace}
-              onPositionSaved={savePosicion}
-              onAddFromHijo={(kind, id, label) =>
-                setCreating({ source: "card", kind, id, label })
+        <div className="mapa-detalle-body flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+          <div className="mapa-detalle-split flex min-h-0 flex-1 gap-3 overflow-hidden">
+            <aside
+              className="mapa-detalle-parent-column flex min-h-0 w-[min(400px,34%)] shrink-0 flex-col overflow-hidden"
+              aria-label={
+                scope.kind === "tema" ? "Detalle del tema" : "Detalle del nodo"
               }
-            />
-          ) : null}
+            >
+              <MapaDetalleParentPanel
+                scope={scope}
+                onParentDeleted={onClose}
+              />
+            </aside>
+
+            <section
+              className="mapa-detalle-canvas-column flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+              aria-label={`Lienzo de ${hijosLabel(scope).toLowerCase()}`}
+            >
+              {loading ? (
+                <div className="flex min-h-0 flex-1 items-center justify-center rounded-xl border border-[var(--td-line)] bg-[#f8fafc]">
+                  <LoadingText>
+                    Cargando {hijosLabel(scope).toLowerCase()}…
+                  </LoadingText>
+                </div>
+              ) : null}
+              {error ? (
+                <div className="rounded-xl border border-[var(--td-line)] bg-[#f8fafc] p-3">
+                  <AlertText>{mapaDetalleErrorMessage(error, scope)}</AlertText>
+                </div>
+              ) : null}
+              {!loading && !error ? (
+                <MapaDetalleCanvas
+                  scope={scope}
+                  hijos={hijos}
+                  enlaces={enlaces}
+                  posiciones={posiciones}
+                  onEnlaceCreated={addEnlace}
+                  onEnlaceRemoved={removeEnlace}
+                  onPositionSaved={savePosicion}
+                  onAddFromHijo={(kind, id, label) =>
+                    setCreating({ source: "card", kind, id, label })
+                  }
+                />
+              ) : null}
+            </section>
+          </div>
         </div>
       </div>
 

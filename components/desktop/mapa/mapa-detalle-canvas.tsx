@@ -257,14 +257,14 @@ function MapaDetalleCanvasInner({
 
   if (hijos.length === 0) {
     return (
-      <div className="mapa-detalle-canvas-empty flex min-h-0 flex-1 items-center justify-center px-6 py-16 text-center text-sm text-[var(--td-faint)]">
+      <div className="mapa-detalle-canvas-empty flex min-h-0 flex-1 items-center justify-center rounded-xl border border-[var(--td-line)] bg-[#f8fafc] px-6 py-16 text-center text-sm text-[var(--td-faint)]">
         Todavía no hay ítems. Usá el botón + del encabezado o en cada card para crear uno.
       </div>
     );
   }
 
   return (
-    <div className="mapa-detalle-canvas-wrap relative min-h-0 w-full flex-1 overflow-hidden rounded-md bg-[#f8fafc]">
+    <div className="mapa-detalle-canvas-wrap relative min-h-0 w-full flex-1 overflow-hidden rounded-xl border border-[var(--td-line)] bg-[#f8fafc]">
       {status ? (
         <p className="pointer-events-none absolute right-3 top-3 z-10 rounded-lg bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[var(--td-ink-soft)] shadow-sm">
           {status}
