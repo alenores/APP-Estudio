@@ -181,7 +181,16 @@ html.pwa-standalone-zoom-lock body {
 .mobile-shell-tone-tema .estudio-detalle-page,
 .mobile-shell-tone-curso .estudio-detalle-page,
 .mobile-shell-tone-clase .estudio-detalle-page,
-.mobile-shell-tone-neutral .estudio-detalle-page {
+.mobile-shell-tone-neutral .estudio-detalle-page,
+[data-shell-tone] .estudio-detalle-page {
+  background-color: transparent;
+}
+
+.mobile-shell-tone-tema .estudio-progress-cards,
+.mobile-shell-tone-curso .estudio-progress-cards,
+.mobile-shell-tone-clase .estudio-progress-cards,
+.mobile-shell-tone-neutral .estudio-progress-cards,
+[data-shell-tone] .estudio-progress-cards {
   background-color: transparent;
 }
 
@@ -208,6 +217,36 @@ html.pwa-standalone-zoom-lock body {
 .mobile-shell-header {
   background-color: color-mix(in srgb, var(--mobile-shell-bg) 88%, white);
   border-bottom-color: color-mix(in srgb, var(--mobile-shell-bg) 55%, #cbd5e1);
+}
+
+/* Móvil: cards de listado con tono por entidad (tema / curso / clase). */
+[data-shell-tone] .progress-card-tone-tema {
+  --td-card: color-mix(in srgb, var(--estudio-shell-tema) 44%, white);
+  --td-line: color-mix(in srgb, var(--estudio-shell-tema) 58%, #e7decd);
+}
+[data-shell-tone] .progress-card-tone-curso {
+  --td-card: color-mix(in srgb, var(--estudio-shell-curso) 44%, white);
+  --td-line: color-mix(in srgb, var(--estudio-shell-curso) 58%, #e7decd);
+}
+[data-shell-tone] .progress-card-tone-clase {
+  --td-card: color-mix(in srgb, var(--estudio-shell-clase) 44%, white);
+  --td-line: color-mix(in srgb, var(--estudio-shell-clase) 58%, #e7decd);
+}
+
+[data-shell-tone="tema"] .td-zone,
+.mobile-shell-tone-tema .td-zone {
+  --td-zone: color-mix(in srgb, var(--estudio-shell-tema) 32%, white);
+  --td-zone-line: color-mix(in srgb, var(--estudio-shell-tema) 45%, #cbd5e1);
+}
+[data-shell-tone="curso"] .td-zone,
+.mobile-shell-tone-curso .td-zone {
+  --td-zone: color-mix(in srgb, var(--estudio-shell-curso) 32%, white);
+  --td-zone-line: color-mix(in srgb, var(--estudio-shell-curso) 45%, #cbd5e1);
+}
+[data-shell-tone="clase"] .td-zone,
+.mobile-shell-tone-clase .td-zone {
+  --td-zone: color-mix(in srgb, var(--estudio-shell-clase) 32%, white);
+  --td-zone-line: color-mix(in srgb, var(--estudio-shell-clase) 45%, #cbd5e1);
 }
 
 .explorer-column-header--tema {

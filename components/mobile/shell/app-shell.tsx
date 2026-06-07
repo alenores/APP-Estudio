@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
-import { useCallback } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import type { CSSProperties, ReactNode } from "react";
+import { useCallback, useMemo } from "react";
 import { NavPanelProvider, useNavPanel } from "@/lib/nav-panel-context";
 import { buildNavPanelStyle } from "@/lib/nav-transition";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import {
+  estudioEntityShellBgVar,
+  isEstudioEntityTone,
   mobileShellToneClass,
+  shellToneFromPath,
   type EstudioShellTone,
 } from "@/lib/estudio-shell-tone";
 import { useNavDetailGestures } from "@/lib/use-nav-detail-gestures";
@@ -27,6 +30,26 @@ type AppShellProps = {
   shellTone?: EstudioShellTone;
 };
 
+function mobileShellSurfaceStyle(tone: EstudioShellTone): CSSProperties {
+  if (tone === "seguimiento") {
+    return {
+      "--mobile-shell-bg": "var(--estudio-shell-seguimiento)",
+      backgroundColor: "var(--estudio-shell-seguimiento)",
+    } as CSSProperties;
+  }
+  if (isEstudioEntityTone(tone)) {
+    const bg = estudioEntityShellBgVar(tone);
+    return {
+      "--mobile-shell-bg": bg,
+      backgroundColor: bg,
+    } as CSSProperties;
+  }
+  return {
+    "--mobile-shell-bg": "var(--estudio-shell-neutral)",
+    backgroundColor: "var(--estudio-shell-neutral)",
+  } as CSSProperties;
+}
+
 /**
  * Escenario fijo (fondo) + hoja `data-nav-panel` que se desliza — efecto “libro” al navegar.
  */
@@ -40,7 +63,13 @@ function AppShellInner({
   shellTone = "neutral",
 }: AppShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const panel = useNavPanel();
+
+  const resolvedTone = useMemo(() => {
+    const pathTone = shellToneFromPath(pathname);
+    return pathTone !== "neutral" ? pathTone : shellTone;
+  }, [pathname, shellTone]);
 
   const goBack = useCallback(() => {
     if (backHref) router.replace(backHref);
@@ -52,7 +81,7 @@ function AppShellInner({
     panel,
   });
 
-  const panelStyle = buildNavPanelStyle({
+  const motionStyle = buildNavPanelStyle({
     swipeOffset: panel.swipeOffset,
     isSwiping: panel.isSwiping,
     isLeaving: panel.isLeaving,
@@ -61,6 +90,11 @@ function AppShellInner({
     enterScale: detail.enterScale,
     enterOpacity: detail.enterOpacity,
   });
+
+  const panelStyle = {
+    ...mobileShellSurfaceStyle(resolvedTone),
+    ...motionStyle,
+  };
 
   return (
     <main
@@ -73,7 +107,8 @@ function AppShellInner({
     >
       <div
         data-nav-panel
-        className={`mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl shadow-xl ring-1 ring-black/10 will-change-transform ${mobileShellToneClass(shellTone)}`}
+        data-shell-tone={resolvedTone}
+        className={`mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl shadow-xl ring-1 ring-black/10 will-change-transform ${mobileShellToneClass(resolvedTone)}`}
         style={panelStyle}
       >
         <header className="mobile-shell-header sticky top-0 z-10 rounded-t-2xl border-b px-4 py-3 backdrop-blur-md">

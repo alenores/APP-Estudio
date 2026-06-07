@@ -13,6 +13,10 @@ import {
 } from "@/lib/estado-ui";
 import type { CSSProperties, ReactNode } from "react";
 import { HighlightMatch } from "@/components/shared/text/highlight-match";
+import {
+  isProgressCardEntityKind,
+  progressCardToneClass,
+} from "@/lib/estudio-shell-tone";
 import { exploradorNodoClasificacionClass, nodoClasificacionLabel } from "@/lib/mapa-nodo-tipo";
 import type { NodoObjetivoClasificacion } from "@/lib/mapa-nodo-tipo";
 
@@ -111,6 +115,10 @@ export function EstudioProgressCard({
       : kind === "logro"
         ? exploradorNodoClasificacionClass("produccion")
         : "";
+
+  const entityToneClass = isProgressCardEntityKind(kind)
+    ? progressCardToneClass(kind)
+    : "";
 
   const showSearchDescripcion =
     searchShowDescripcion &&
@@ -219,7 +227,7 @@ export function EstudioProgressCard({
       data-explorer-id={explorerId}
       data-selected={selected ? "true" : undefined}
       data-expanded={expandedSlot ? "true" : undefined}
-      className={`td-ccard explorer-progress-card relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] ${nodoKindClass} ${interactive ? "cursor-pointer" : ""} ${
+      className={`td-ccard explorer-progress-card relative flex overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] ${entityToneClass} ${nodoKindClass} ${interactive ? "cursor-pointer" : ""} ${
         selected
           ? explorerId != null
             ? "border-[var(--td-navy)] shadow-[0_8px_24px_-10px_rgba(39,72,103,.4)] ring-2 ring-[var(--td-navy)]/30"
