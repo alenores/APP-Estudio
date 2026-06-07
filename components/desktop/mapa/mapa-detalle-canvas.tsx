@@ -13,16 +13,19 @@ import { toMapaDetalleFlowEdges } from "@/lib/mapa-detalle-flow-edges";
 import { MapaDetalleTimelineGuides } from "@/components/desktop/mapa/mapa-detalle-timeline-guides";
 import {
   buildMapaDetallePosicionesMap,
+  computeMapaDetalleGridBounds,
   mapaDetalleFlowNodeId,
   mapaDetallePositionDisplay,
+  MAPA_DETALLE_ROW_HEIGHT,
   parseMapaDetalleFlowNodeId,
   resolveMapaDetallePosition,
 } from "@/lib/mapa-detalle-layout";
-import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import {
   MAPA_DETALLE_LIENZO_ORIGIN,
-  displayToCanonical,
+  carrilSpanFromIndices,
   mapaLienzoFlowHandleConfig,
+  projectDisplayToCanonical,
+  type MapaLienzoOrientacion,
 } from "@/lib/mapa-lienzo-orientacion";
 import { mapaDetalleFlowNodeTypes } from "@/components/desktop/mapa/mapa-hijo-node";
 import { getSessionUserId } from "@/lib/mapa-queries";
@@ -115,6 +118,18 @@ function MapaDetalleCanvasInner({
     [posiciones],
   );
 
+  const carrilSpan = useMemo(
+    () =>
+      carrilSpanFromIndices(
+        computeMapaDetalleGridBounds(
+          posiciones,
+          hijos.length,
+          orientacionLienzo,
+        ).carriles,
+      ),
+    [posiciones, hijos.length, orientacionLienzo],
+  );
+
   const onAddLinkedStable = useCallback(
     (kind: MapaDetalleHijoKind, id: number) => {
       const hijo = hijos.find((h) => h.kind === kind && h.id === id);
@@ -137,7 +152,11 @@ function MapaDetalleCanvasInner({
         return {
           id: mapaDetalleFlowNodeId(h.kind, h.id),
           type: "mapaHijo",
-          position: mapaDetallePositionDisplay(canonical, orientacionLienzo),
+          position: mapaDetallePositionDisplay(
+            canonical,
+            orientacionLienzo,
+            carrilSpan,
+          ),
           targetPosition: handles.targetPosition,
           sourcePosition: handles.sourcePosition,
           data: {
@@ -155,7 +174,7 @@ function MapaDetalleCanvasInner({
           connectable: true,
         };
       }),
-    [hijos, enlaces, posicionesMap, onAddFromHijo, onAddLinkedStable, orientacionLienzo],
+    [hijos, enlaces, posicionesMap, onAddFromHijo, onAddLinkedStable, orientacionLienzo, carrilSpan],
   );
 
   const [nodes, setNodes] = useState<Node[]>(() => buildNodes());
@@ -190,10 +209,14 @@ function MapaDetalleCanvasInner({
         return;
       }
 
-      const canonical = displayToCanonical(
+      const canonical = projectDisplayToCanonical(
         { x: node.position.x, y: node.position.y },
-        orientacionLienzo,
-        MAPA_DETALLE_LIENZO_ORIGIN,
+        {
+          orientacion: orientacionLienzo,
+          origin: MAPA_DETALLE_LIENZO_ORIGIN,
+          carrilSpan,
+          carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
+        },
       );
 
       const { error } = await upsertLienzoHijoPosicion(
@@ -217,7 +240,7 @@ function MapaDetalleCanvasInner({
         canonical.y,
       );
     },
-    [scope, buildNodes, onPositionSaved, orientacionLienzo],
+    [scope, buildNodes, onPositionSaved, orientacionLienzo, carrilSpan],
   );
 
   const onConnect = useCallback(

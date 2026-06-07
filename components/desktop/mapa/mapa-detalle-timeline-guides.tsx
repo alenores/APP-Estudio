@@ -7,6 +7,10 @@ import {
   computeMapaDetalleGridBounds,
 } from "@/lib/mapa-detalle-layout";
 import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
+import {
+  carrilSpanFromIndices,
+  mapaCarrilGuideY,
+} from "@/lib/mapa-lienzo-orientacion";
 import { ViewportPortal } from "@xyflow/react";
 import { useMemo } from "react";
 
@@ -28,6 +32,10 @@ export function MapaDetalleTimelineGuides({
   );
 
   const isYx = orientacion === "yx";
+  const carrilSpan = useMemo(
+    () => carrilSpanFromIndices(bounds.carriles),
+    [bounds.carriles],
+  );
 
   return (
     <ViewportPortal>
@@ -117,7 +125,12 @@ export function MapaDetalleTimelineGuides({
         )}
         {bounds.carriles.map((carril) => {
           if (!isYx) {
-            const y = carril * MAPA_DETALLE_ROW_HEIGHT;
+            const y = mapaCarrilGuideY(
+              carril,
+              carrilSpan,
+              0,
+              MAPA_DETALLE_ROW_HEIGHT,
+            );
             return (
               <g key={`carril-${carril}`}>
                 <line

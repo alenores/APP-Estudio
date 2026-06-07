@@ -2,10 +2,11 @@ import type {
   LienzoHijoPosicion,
   MapaDetalleHijoKind,
 } from "@/lib/mapa-detalle-types";
-import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
+import type { MapaCarrilSpan, MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import {
   MAPA_DETALLE_LIENZO_ORIGIN,
-  canonicalToDisplay,
+  carrilSpanFromIndices,
+  projectCanonicalToDisplay,
 } from "@/lib/mapa-lienzo-orientacion";
 
 /** Posición en grilla / persistida para hijos del lienzo detalle. */
@@ -90,12 +91,14 @@ export function resolveMapaDetallePosition(
 export function mapaDetallePositionDisplay(
   canonical: { x: number; y: number },
   orientacion: MapaLienzoOrientacion,
+  carrilSpan?: MapaCarrilSpan,
 ): { x: number; y: number } {
-  return canonicalToDisplay(
-    canonical,
+  return projectCanonicalToDisplay(canonical, {
     orientacion,
-    MAPA_DETALLE_LIENZO_ORIGIN,
-  );
+    origin: MAPA_DETALLE_LIENZO_ORIGIN,
+    carrilSpan,
+    carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
+  });
 }
 
 /** Guías del detalle inferidas desde posiciones canónicas guardadas. */
@@ -117,15 +120,13 @@ export function computeMapaDetalleGridBounds(
     return {
       etapas,
       carriles,
-      width: canonicalToDisplay(
+      width: projectCanonicalToDisplay(
         { x: canonicalWidth, y: 0 },
-        "yx",
-        origin,
+        { orientacion: "yx", origin, carrilPitch: MAPA_DETALLE_ROW_HEIGHT },
       ).x,
-      height: canonicalToDisplay(
+      height: projectCanonicalToDisplay(
         { x: 0, y: canonicalHeight },
-        "yx",
-        origin,
+        { orientacion: "yx", origin, carrilPitch: MAPA_DETALLE_ROW_HEIGHT },
       ).y,
     };
   }
@@ -157,16 +158,26 @@ export function computeMapaDetalleGridBounds(
     maxEtapa = Math.max(maxEtapa, etapaDesdeX);
     minCarril = Math.min(minCarril, carrilDesdeY);
     maxCarril = Math.max(maxCarril, carrilDesdeY);
-
-    const display = canonicalToDisplay(canonical, orientacion, origin);
-    maxDisplayX = Math.max(maxDisplayX, display.x + NODE_W);
-    maxDisplayY = Math.max(maxDisplayY, display.y + NODE_H);
   }
 
   const etapaMin = Math.max(0, minEtapa - PAD);
   const etapaMax = maxEtapa + PAD;
   const carrilMin = Math.max(0, minCarril - PAD);
   const carrilMax = maxCarril + PAD;
+  const carrilSpan = carrilSpanFromIndices(
+    rangeInclusive(carrilMin, carrilMax),
+  );
+
+  for (const canonical of canonicalPositions) {
+    const display = projectCanonicalToDisplay(canonical, {
+      orientacion,
+      origin,
+      carrilSpan,
+      carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
+    });
+    maxDisplayX = Math.max(maxDisplayX, display.x + NODE_W);
+    maxDisplayY = Math.max(maxDisplayY, display.y + NODE_H);
+  }
 
   const gridWidthDisplay =
     orientacion === "xy"

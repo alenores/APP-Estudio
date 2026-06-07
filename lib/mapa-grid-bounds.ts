@@ -1,6 +1,7 @@
 import type { LienzoPosicionable } from "@/lib/mapa-lienzo-types";
 import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
-import { canonicalToDisplay } from "@/lib/mapa-lienzo-orientacion";
+import { projectCanonicalToDisplay } from "@/lib/mapa-lienzo-orientacion";
+import { carrilSpanFromIndices } from "@/lib/mapa-lienzo-orientacion";
 import {
   MAPA_CARRIL_HEIGHT,
   MAPA_ETAPA_WIDTH,
@@ -38,8 +39,14 @@ function emptyMapaGridBounds(orientacion: MapaLienzoOrientacion): MapaGridBounds
   return {
     etapas,
     carriles,
-    width: canonicalToDisplay({ x: canonicalWidth, y: 0 }, "yx").x,
-    height: canonicalToDisplay({ x: 0, y: canonicalHeight }, "yx").y,
+    width: projectCanonicalToDisplay(
+      { x: canonicalWidth, y: 0 },
+      { orientacion: "yx" },
+    ).x,
+    height: projectCanonicalToDisplay(
+      { x: 0, y: canonicalHeight },
+      { orientacion: "yx" },
+    ).y,
   };
 }
 
@@ -79,16 +86,24 @@ export function computeMapaGridBounds(
     maxEtapa = Math.max(maxEtapa, etapaDesdeX);
     minCarril = Math.min(minCarril, carrilDesdeY);
     maxCarril = Math.max(maxCarril, carrilDesdeY);
-
-    const display = canonicalToDisplay(canonical, orientacion);
-    maxDisplayX = Math.max(maxDisplayX, display.x + NODE_W);
-    maxDisplayY = Math.max(maxDisplayY, display.y + NODE_H);
   }
 
   const etapaMin = Math.max(0, minEtapa - PAD_ETAPA);
   const etapaMax = maxEtapa + PAD_ETAPA;
   const carrilMin = Math.max(0, minCarril - PAD_CARRIL);
   const carrilMax = maxCarril + PAD_CARRIL;
+  const carrilSpan = carrilSpanFromIndices(
+    rangeInclusive(carrilMin, carrilMax),
+  );
+
+  for (const item of items) {
+    const display = projectCanonicalToDisplay(posicionEnLienzo(item), {
+      orientacion,
+      carrilSpan,
+    });
+    maxDisplayX = Math.max(maxDisplayX, display.x + NODE_W);
+    maxDisplayY = Math.max(maxDisplayY, display.y + NODE_H);
+  }
 
   const gridWidthCanonical =
     MAPA_ORIGIN_X + (etapaMax + 1) * MAPA_ETAPA_WIDTH + 48;

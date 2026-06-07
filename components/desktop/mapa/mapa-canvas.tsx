@@ -6,8 +6,12 @@ import { mapaFlowNodeTypes } from "@/components/desktop/mapa/mapa-nodo-node";
 import { MapaObjetivoLeyenda } from "@/components/desktop/mapa/mapa-objetivo-ui";
 import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
-import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
-import { displayToCanonical } from "@/lib/mapa-lienzo-orientacion";
+import {
+  carrilSpanFromIndices,
+  projectDisplayToCanonical,
+  type MapaLienzoOrientacion,
+} from "@/lib/mapa-lienzo-orientacion";
+import { computeMapaGridBounds } from "@/lib/mapa-grid-bounds";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { buildMapaFlowNodesForGrafo } from "@/lib/mapa-flow-nodes";
 import { buildMapaTemaFlowCardDataMap } from "@/lib/mapa-tema-flow-card";
@@ -139,6 +143,14 @@ function MapaCanvasInner({
   const lienzoItems = grafoModo === "nodos" ? nodos : temas;
   const itemCount = lienzoItems.length;
 
+  const carrilSpan = useMemo(
+    () =>
+      carrilSpanFromIndices(
+        computeMapaGridBounds(lienzoItems, orientacionLienzo).carriles,
+      ),
+    [lienzoItems, orientacionLienzo],
+  );
+
   const nodosById = useMemo(
     () => new Map(nodos.map((n) => [n.id, n])),
     [nodos],
@@ -165,6 +177,7 @@ function MapaCanvasInner({
         onAddLinkedItem: onAddLinkedItem ? onAddLinkedStable : undefined,
         temaCardDataMap,
         orientacionLienzo,
+        carrilSpan,
       }),
     [
       grafoModo,
@@ -178,6 +191,7 @@ function MapaCanvasInner({
       onAddLinkedItem,
       temaCardDataMap,
       orientacionLienzo,
+      carrilSpan,
     ],
   );
 
@@ -207,9 +221,9 @@ function MapaCanvasInner({
     async (_event: unknown, node: Node) => {
       setStatus("Guardando posición…");
       const id = Number(node.id);
-      const canonical = displayToCanonical(
+      const canonical = projectDisplayToCanonical(
         { x: node.position.x, y: node.position.y },
-        orientacionLienzo,
+        { orientacion: orientacionLienzo, carrilSpan },
       );
       const { error } =
         grafoModo === "nodos"
@@ -222,7 +236,7 @@ function MapaCanvasInner({
       }
       onPositionSaved?.(id, canonical.x, canonical.y);
     },
-    [grafoModo, buildNodes, onPositionSaved, orientacionLienzo],
+    [grafoModo, buildNodes, onPositionSaved, orientacionLienzo, carrilSpan],
   );
 
   const onConnect = useCallback(

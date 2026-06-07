@@ -4,6 +4,10 @@ import type { LienzoPosicionable } from "@/lib/mapa-lienzo-types";
 import { computeMapaGridBounds } from "@/lib/mapa-grid-bounds";
 import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import {
+  carrilSpanFromIndices,
+  mapaCarrilGuideY,
+} from "@/lib/mapa-lienzo-orientacion";
+import {
   MAPA_CARRIL_HEIGHT,
   MAPA_ETAPA_WIDTH,
   MAPA_ORIGIN_X,
@@ -28,6 +32,10 @@ export function MapaTimelineGuides({
   );
 
   const isYx = orientacion === "yx";
+  const carrilSpan = useMemo(
+    () => carrilSpanFromIndices(bounds.carriles),
+    [bounds.carriles],
+  );
 
   return (
     <ViewportPortal>
@@ -125,7 +133,12 @@ export function MapaTimelineGuides({
         )}
         {bounds.carriles.map((carril) => {
           if (!isYx) {
-            const y = MAPA_ORIGIN_Y + carril * MAPA_CARRIL_HEIGHT;
+            const y = mapaCarrilGuideY(
+              carril,
+              carrilSpan,
+              MAPA_ORIGIN_Y,
+              MAPA_CARRIL_HEIGHT,
+            );
             return (
               <g key={`carril-${carril}`}>
                 <line
