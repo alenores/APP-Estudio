@@ -12,6 +12,22 @@ export type Tema = {
   created_at: string;
 };
 
+/** Flecha entre temas (`enlaces_temas`) — lienzo PC futuro. */
+export type EnlaceTemaTipo =
+  | "prerequisito"
+  | "continuacion"
+  | "refuerzo"
+  | "paralelo";
+
+export type EnlaceTema = {
+  id: number;
+  user_id: string;
+  origen_id: number;
+  destino_id: number;
+  tipo: EnlaceTemaTipo | null;
+  created_at: string;
+};
+
 export type Curso = {
   id: number;
   user_id: string;

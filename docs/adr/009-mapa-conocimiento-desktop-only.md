@@ -96,14 +96,36 @@ RLS: mismas políticas own-row que ADR 005 (`user_id = auth.uid()`).
 | **4** (hecho) | Guías timeline / carriles, minimapa |
 | **5** (hecho) | Estética nodos custom |
 | **6** (futuro) | FK opcional nodo ↔ tema/curso |
-| **7** (hecho) | Objetivos: catálogo `objetivos`, color/filtro/leyenda por etapa |
+| **7** (hecho) | Objetivos + `nodos_objetivos.objetivo_id`; explorador por nodos |
+| **8** (hecho) | Renombre `nodos_objetivos` / `enlaces_nodos`; `cursos.nodo_id` |
+| **9a** (hecho) | Tabla `enlaces_temas` — grafo entre temas (SQL 006) |
+| **9b** (futuro) | Lienzo dual: vista **Nodos objetivo** \| **Temas** (React Flow) |
 
-### 7. Objetivos (fase 7)
+### 8. Lienzo dual (fase 9b — diseño, sin implementar aún)
+
+Objetivo: en `/mapa`, conmutar el mismo lienzo React Flow entre dos grafos:
+
+| Vista | Nodos | Enlaces | Color / filtro |
+|-------|-------|---------|----------------|
+| **Nodos objetivo** (actual) | `nodos_objetivos` | `enlaces_nodos` | `objetivo_id` + leyenda |
+| **Temas** (futuro) | filas `temas` | `enlaces_temas` | tono shell tema (ADR 002) |
+
+**Prerrequisito ya cubierto:** `enlaces_temas` (006). **Falta cuando se pida la UI:**
+
+1. **Posición en lienzo para temas** — columnas `pos_x`, `pos_y` (y opcional `etapa`/`carril`) en `temas` o tabla auxiliar; hoy los temas solo tienen `orden`/`jerarquia` para listas.
+2. **Capa datos** — `lib/temas-lienzo-queries.ts` (list/insert/delete `enlaces_temas`; update posición tema), hook `useMapaTemas` o `useMapaGrafo(mode)`.
+3. **Canvas compartido** — extraer de `mapa-canvas.tsx` un adaptador: `buildFlowNodes` / `toFlowEdges` parametrizados por tipo de nodo (`mapaNodo` vs `mapaTema`); node component distinto (card tema vs card nodo objetivo).
+4. **Toolbar** — switch «Nodos \| Temas» junto al filtro por objetivo (solo en vista nodos); en vista temas, filtro distinto o ninguno.
+5. **Sin offline pack** — igual que mapa actual (ADR 009): queries directas, no `useEstudioData`.
+
+Reutilizar: drag → guardar posición, crear enlace al conectar handles, borrar con Delete, guías timeline si hay `etapa`.
+
+### 7. Objetivos (fase 7–8)
 
 - Catálogo global: tabla `objetivos` (`docs/sql/003-schema-objetivos.sql`).
-- Color y filtro del lienzo por rango de `mapa_nodos.etapa` → `objetivos.id` (ver `lib/mapa-objetivo.ts`).
-- Seed roadmap ERP: `docs/sql/004-seed-roadmap-erp.sql` (borra nodos/enlaces previos).
-- Opcional estudio: `cursos.objetivo_id` FK → `objetivos` (explorador futuro).
+- Nodos: `nodos_objetivos` con `objetivo_id`; enlaces: `enlaces_nodos`.
+- Cursos: `cursos.nodo_id` → `nodos_objetivos.id` (explorador columna Nodos).
+- Enlaces entre temas: `enlaces_temas` (`docs/sql/006-schema-enlaces-temas.sql`) — lienzo por temas en fase 9b.
 
 | Qué | Dónde |
 |-----|-------|
