@@ -8,7 +8,8 @@ import {
   nodoCoincideFiltroObjetivo,
   type MapaObjetivoFiltro,
 } from "@/lib/mapa-objetivo";
-import { posicionEnLienzo, posicionNodoEnLienzo } from "@/lib/mapa-layout";
+import { posicionEnLienzoDisplay } from "@/lib/mapa-lienzo-orientacion";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import { mapaGrafoEnlaceCounts } from "@/lib/mapa-grafo-enlaces";
 import {
   buildMapaTemaFlowCardDataMap,
@@ -30,6 +31,7 @@ export type MapaFlowNodeBuildOptions = {
   filtroObjetivo: MapaObjetivoFiltro;
   onEditNodo: (id: number) => void;
   onAddLinkedNodo?: (id: number) => void;
+  orientacionLienzo?: MapaLienzoOrientacion;
 };
 
 /** Nodos React Flow con visibilidad por filtro de objetivo (hidden, no borrado). */
@@ -40,9 +42,10 @@ export function buildMapaFlowNodes({
   filtroObjetivo,
   onEditNodo,
   onAddLinkedNodo,
+  orientacionLienzo = "xy",
 }: MapaFlowNodeBuildOptions): Node[] {
   return nodos.map((nodo) => {
-    const pos = posicionNodoEnLienzo(nodo);
+    const pos = posicionEnLienzoDisplay(nodo, orientacionLienzo);
     const { entrada, salida } = mapaGrafoEnlaceCounts(nodo.id, enlaces);
     const objetivoId = mapaObjetivoIdFromNodo(nodo);
     const visible = nodoCoincideFiltroObjetivo(nodo, filtroObjetivo);
@@ -85,6 +88,7 @@ export type MapaFlowTemaBuildOptions = {
   onEditTema: (id: number) => void;
   onAddLinkedTema?: (id: number) => void;
   temaCardDataMap?: Map<number, MapaTemaFlowCardData>;
+  orientacionLienzo?: MapaLienzoOrientacion;
 };
 
 /** Nodos React Flow para vista Temas (tono shell tema, sin filtro objetivo). */
@@ -94,9 +98,10 @@ export function buildMapaFlowNodesTemas({
   onEditTema,
   onAddLinkedTema,
   temaCardDataMap,
+  orientacionLienzo = "xy",
 }: MapaFlowTemaBuildOptions): Node[] {
   return temas.map((tema) => {
-    const pos = posicionEnLienzo(tema);
+    const pos = posicionEnLienzoDisplay(tema, orientacionLienzo);
     const { entrada, salida } = mapaGrafoEnlaceCounts(tema.id, enlaces);
     const cardData = temaCardDataMap?.get(tema.id);
 
@@ -127,6 +132,7 @@ export type MapaFlowGrafoBuildOptions = {
   onEditItem: (id: number) => void;
   onAddLinkedItem?: (id: number) => void;
   temaCardDataMap?: Map<number, MapaTemaFlowCardData>;
+  orientacionLienzo?: MapaLienzoOrientacion;
 };
 
 /** Dispatcher lienzo dual — misma firma para nodos y temas. */
@@ -140,6 +146,7 @@ export function buildMapaFlowNodesForGrafo({
   onEditItem,
   onAddLinkedItem,
   temaCardDataMap,
+  orientacionLienzo = "xy",
 }: MapaFlowGrafoBuildOptions): Node[] {
   if (modo === "temas") {
     return buildMapaFlowNodesTemas({
@@ -148,6 +155,7 @@ export function buildMapaFlowNodesForGrafo({
       onEditTema: onEditItem,
       onAddLinkedTema: onAddLinkedItem,
       temaCardDataMap,
+      orientacionLienzo,
     });
   }
   return buildMapaFlowNodes({
@@ -157,6 +165,7 @@ export function buildMapaFlowNodesForGrafo({
     filtroObjetivo,
     onEditNodo: onEditItem,
     onAddLinkedNodo: onAddLinkedItem,
+    orientacionLienzo,
   });
 }
 

@@ -3,6 +3,7 @@
 import type { MapaObjetivo } from "@/app/types/mapa";
 import { MapaObjetivoFiltroBar } from "@/components/desktop/mapa/mapa-objetivo-ui";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
 
 export type MapaVista = "lienzo" | "lista";
@@ -18,6 +19,8 @@ type MapaToolbarProps = {
   onNuevo: () => void;
   /** Ocultar + macro cuando hay overlay detalle abierto */
   nuevoDisabled?: boolean;
+  orientacionLienzo?: MapaLienzoOrientacion;
+  onOrientacionLienzoChange?: (orientacion: MapaLienzoOrientacion) => void;
 };
 
 /** Controles compactos del mapa (header compartido PC). */
@@ -31,6 +34,8 @@ export function MapaToolbar({
   onFiltroChange,
   onNuevo,
   nuevoDisabled = false,
+  orientacionLienzo = "xy",
+  onOrientacionLienzoChange,
 }: MapaToolbarProps) {
   return (
     <div className="mapa-shell-toolbar flex shrink-0 items-center gap-1.5">
@@ -69,6 +74,45 @@ export function MapaToolbar({
           onChange={onFiltroChange}
           compact
         />
+      ) : null}
+
+      {vista === "lienzo" && onOrientacionLienzoChange ? (
+        <div
+          className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
+          role="tablist"
+          aria-label="Orientación del lienzo"
+        >
+          {(
+            [
+              {
+                id: "xy" as const,
+                label: "Etapa → X",
+                title: "Timeline horizontal (etapa en X, carril en Y)",
+              },
+              {
+                id: "yx" as const,
+                label: "Etapa → Y",
+                title: "Timeline vertical (etapa en Y, carril en X)",
+              },
+            ] as const
+          ).map(({ id, label, title }) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={orientacionLienzo === id}
+              title={title}
+              onClick={() => onOrientacionLienzoChange(id)}
+              className={`rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+                orientacionLienzo === id
+                  ? "bg-[var(--td-navy)] text-white shadow-sm"
+                  : "text-[var(--td-ink-soft)] hover:bg-white/80"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       ) : null}
 
       <div

@@ -6,6 +6,8 @@ import { mapaFlowNodeTypes } from "@/components/desktop/mapa/mapa-nodo-node";
 import { MapaObjetivoLeyenda } from "@/components/desktop/mapa/mapa-objetivo-ui";
 import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
+import { displayToCanonical } from "@/lib/mapa-lienzo-orientacion";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { buildMapaFlowNodesForGrafo } from "@/lib/mapa-flow-nodes";
 import { buildMapaTemaFlowCardDataMap } from "@/lib/mapa-tema-flow-card";
@@ -58,11 +60,26 @@ type MapaCanvasProps = {
   onOpenDetalle?: (id: number) => void;
   /** Botón + en card — alta con enlace desde ese ítem. */
   onAddLinkedItem?: (id: number) => void;
+  orientacionLienzo?: MapaLienzoOrientacion;
 };
 
-function MapaFitView({ count }: { count: number }) {
+function MapaFitView({
+  count,
+  orientacionLienzo,
+}: {
+  count: number;
+  orientacionLienzo: MapaLienzoOrientacion;
+}) {
   const { fitView } = useReactFlow();
   const didFitRef = useRef(false);
+  const orientacionRef = useRef(orientacionLienzo);
+
+  useEffect(() => {
+    if (orientacionRef.current !== orientacionLienzo) {
+      orientacionRef.current = orientacionLienzo;
+      didFitRef.current = false;
+    }
+  }, [orientacionLienzo]);
 
   useEffect(() => {
     if (count === 0) {
@@ -98,6 +115,7 @@ function MapaCanvasInner({
   onEnlaceRemoved,
   onOpenDetalle,
   onAddLinkedItem,
+  orientacionLienzo = "xy",
 }: MapaCanvasProps) {
   const onEditStable = useCallback(
     (id: number) => onEditItem(id),
@@ -146,6 +164,7 @@ function MapaCanvasInner({
         onEditItem: onEditStable,
         onAddLinkedItem: onAddLinkedItem ? onAddLinkedStable : undefined,
         temaCardDataMap,
+        orientacionLienzo,
       }),
     [
       grafoModo,
@@ -158,6 +177,7 @@ function MapaCanvasInner({
       onAddLinkedStable,
       onAddLinkedItem,
       temaCardDataMap,
+      orientacionLienzo,
     ],
   );
 
@@ -187,18 +207,22 @@ function MapaCanvasInner({
     async (_event: unknown, node: Node) => {
       setStatus("Guardando posición…");
       const id = Number(node.id);
+      const canonical = displayToCanonical(
+        { x: node.position.x, y: node.position.y },
+        orientacionLienzo,
+      );
       const { error } =
         grafoModo === "nodos"
-          ? await updateMapaNodoPosition(id, node.position.x, node.position.y)
-          : await updateTemaPosition(id, node.position.x, node.position.y);
+          ? await updateMapaNodoPosition(id, canonical.x, canonical.y)
+          : await updateTemaPosition(id, canonical.x, canonical.y);
       setStatus(null);
       if (error) {
         setNodes(buildNodes());
         return;
       }
-      onPositionSaved?.(id, node.position.x, node.position.y);
+      onPositionSaved?.(id, canonical.x, canonical.y);
     },
-    [grafoModo, buildNodes, onPositionSaved],
+    [grafoModo, buildNodes, onPositionSaved, orientacionLienzo],
   );
 
   const onConnect = useCallback(
@@ -313,11 +337,11 @@ function MapaCanvasInner({
         maxZoom={1.75}
         proOptions={{ hideAttribution: true }}
       >
-        <MapaTimelineGuides items={lienzoItems} />
+        <MapaTimelineGuides items={lienzoItems} orientacion={orientacionLienzo} />
         {grafoModo === "nodos" ? (
           <MapaObjetivoLeyenda objetivos={objetivos} />
         ) : null}
-        <MapaFitView count={itemCount} />
+        <MapaFitView count={itemCount} orientacionLienzo={orientacionLienzo} />
         <Background gap={28} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
         <MiniMap

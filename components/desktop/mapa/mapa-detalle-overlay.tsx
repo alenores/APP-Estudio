@@ -8,6 +8,7 @@ import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
 import { AlertText, LoadingText } from "@/components/ui";
 import type { MapaDetalleHijoKind } from "@/lib/mapa-detalle-types";
 import { formLienzoColocacionDesdePadreDetalle } from "@/lib/form-lienzo-colocacion-types";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import { useEffect, useState } from "react";
 
 type DetalleCreateState =
@@ -36,6 +37,7 @@ const MapaDetalleCanvas = dynamic(
 
 type MapaDetalleOverlayProps = {
   scope: MapaDetalleScope;
+  orientacionLienzo?: MapaLienzoOrientacion;
   onClose: () => void;
 };
 
@@ -59,7 +61,11 @@ function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string
 }
 
 /** Capa 1 sobre el lienzo macro — hijos de tema o nodo (ADR 010). */
-export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) {
+export function MapaDetalleOverlay({
+  scope,
+  orientacionLienzo = "xy",
+  onClose,
+}: MapaDetalleOverlayProps) {
   const { hijos, enlaces, posiciones, loading, error, addEnlace, removeEnlace, savePosicion, reload } =
     useMapaDetalleHijos(scope);
   const [creating, setCreating] = useState<DetalleCreateState | null>(null);
@@ -133,6 +139,7 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
                   hijos={hijos}
                   enlaces={enlaces}
                   posiciones={posiciones}
+                  orientacionLienzo={orientacionLienzo}
                   onEnlaceCreated={addEnlace}
                   onEnlaceRemoved={removeEnlace}
                   onPositionSaved={savePosicion}

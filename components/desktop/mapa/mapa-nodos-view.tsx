@@ -14,6 +14,7 @@ import { TemaForm } from "@/components/shared/forms/tema-form";
 import { AlertText, LoadingText } from "@/components/ui";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import type { MapaObjetivoFiltro } from "@/lib/mapa-objetivo";
 import { posicionEnLienzo } from "@/lib/mapa-layout";
 import type { MapaDetalleScope } from "@/lib/mapa-detalle-types";
@@ -87,6 +88,8 @@ export function MapaNodosView() {
   } = useMapaGrafo(grafoModo);
 
   const [vista, setVista] = useState<VistaMapa>("lienzo");
+  const [orientacionLienzo, setOrientacionLienzo] =
+    useState<MapaLienzoOrientacion>("xy");
   const [filtroObjetivo, setFiltroObjetivo] =
     useState<MapaObjetivoFiltro>("todos");
   const [creating, setCreating] = useState(false);
@@ -206,6 +209,8 @@ export function MapaNodosView() {
           onFiltroChange={setFiltroObjetivo}
           onNuevo={openCreateModal}
           nuevoDisabled={detalleScope != null}
+          orientacionLienzo={orientacionLienzo}
+          onOrientacionLienzoChange={setOrientacionLienzo}
         />
       </DesktopShellToolbar>
 
@@ -235,6 +240,7 @@ export function MapaNodosView() {
             }}
             onOpenDetalle={handleOpenDetalle}
             onAddLinkedItem={handleAddLinked}
+            orientacionLienzo={orientacionLienzo}
           />
         </div>
 
@@ -492,6 +498,7 @@ export function MapaNodosView() {
       {detalleScope ? (
         <MapaDetalleOverlay
           scope={detalleScope}
+          orientacionLienzo={orientacionLienzo}
           onClose={() => setDetalleScope(null)}
         />
       ) : null}

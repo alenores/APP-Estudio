@@ -10,12 +10,19 @@ import { mapaDetalleEnlaceCounts } from "@/lib/mapa-detalle-enlace-counts";
 import { insertEnlaceHijoNodo, deleteEnlaceHijoNodo } from "@/lib/mapa-detalle-enlace-queries";
 import { upsertLienzoHijoPosicion } from "@/lib/mapa-detalle-posicion-queries";
 import { toMapaDetalleFlowEdges } from "@/lib/mapa-detalle-flow-edges";
+import { MapaDetalleTimelineGuides } from "@/components/desktop/mapa/mapa-detalle-timeline-guides";
 import {
   buildMapaDetallePosicionesMap,
   mapaDetalleFlowNodeId,
+  mapaDetallePositionDisplay,
   parseMapaDetalleFlowNodeId,
   resolveMapaDetallePosition,
 } from "@/lib/mapa-detalle-layout";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
+import {
+  MAPA_DETALLE_LIENZO_ORIGIN,
+  displayToCanonical,
+} from "@/lib/mapa-lienzo-orientacion";
 import { mapaDetalleFlowNodeTypes } from "@/components/desktop/mapa/mapa-hijo-node";
 import { getSessionUserId } from "@/lib/mapa-queries";
 import {
@@ -54,11 +61,26 @@ type MapaDetalleCanvasProps = {
     id: number,
     label: string,
   ) => void;
+  orientacionLienzo?: MapaLienzoOrientacion;
 };
 
-function MapaDetalleFitView({ count }: { count: number }) {
+function MapaDetalleFitView({
+  count,
+  orientacionLienzo,
+}: {
+  count: number;
+  orientacionLienzo: MapaLienzoOrientacion;
+}) {
   const { fitView } = useReactFlow();
   const didFitRef = useRef(false);
+  const orientacionRef = useRef(orientacionLienzo);
+
+  useEffect(() => {
+    if (orientacionRef.current !== orientacionLienzo) {
+      orientacionRef.current = orientacionLienzo;
+      didFitRef.current = false;
+    }
+  }, [orientacionLienzo]);
 
   useEffect(() => {
     if (count === 0) {
@@ -85,6 +107,7 @@ function MapaDetalleCanvasInner({
   onEnlaceRemoved,
   onPositionSaved,
   onAddFromHijo,
+  orientacionLienzo = "xy",
 }: MapaDetalleCanvasProps) {
   const posicionesMap = useMemo(
     () => buildMapaDetallePosicionesMap(posiciones),
@@ -103,15 +126,16 @@ function MapaDetalleCanvasInner({
     (): Node[] =>
       hijos.map((h, index) => {
         const { entrada, salida } = mapaDetalleEnlaceCounts(h.kind, h.id, enlaces);
-        return {
-          id: mapaDetalleFlowNodeId(h.kind, h.id),
-          type: "mapaHijo",
-          position: resolveMapaDetallePosition(
+        const canonical = resolveMapaDetallePosition(
             h.kind,
             h.id,
             index,
             posicionesMap,
-          ),
+          );
+        return {
+          id: mapaDetalleFlowNodeId(h.kind, h.id),
+          type: "mapaHijo",
+          position: mapaDetallePositionDisplay(canonical, orientacionLienzo),
           data: {
             hijoId: h.id,
             nombre: h.nombre,
@@ -126,7 +150,7 @@ function MapaDetalleCanvasInner({
           connectable: true,
         };
       }),
-    [hijos, enlaces, posicionesMap, onAddFromHijo, onAddLinkedStable],
+    [hijos, enlaces, posicionesMap, onAddFromHijo, onAddLinkedStable, orientacionLienzo],
   );
 
   const [nodes, setNodes] = useState<Node[]>(() => buildNodes());
@@ -161,12 +185,18 @@ function MapaDetalleCanvasInner({
         return;
       }
 
+      const canonical = displayToCanonical(
+        { x: node.position.x, y: node.position.y },
+        orientacionLienzo,
+        MAPA_DETALLE_LIENZO_ORIGIN,
+      );
+
       const { error } = await upsertLienzoHijoPosicion(
         userId,
         scope,
         parsed,
-        node.position.x,
-        node.position.y,
+        canonical.x,
+        canonical.y,
       );
       setStatus(null);
       if (error) {
@@ -178,11 +208,11 @@ function MapaDetalleCanvasInner({
       onPositionSaved?.(
         parsed.kind,
         parsed.id,
-        node.position.x,
-        node.position.y,
+        canonical.x,
+        canonical.y,
       );
     },
-    [scope, buildNodes, onPositionSaved],
+    [scope, buildNodes, onPositionSaved, orientacionLienzo],
   );
 
   const onConnect = useCallback(
@@ -278,7 +308,12 @@ function MapaDetalleCanvasInner({
         maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
       >
-        <MapaDetalleFitView count={hijos.length} />
+        <MapaDetalleTimelineGuides
+          posiciones={posiciones}
+          itemCount={hijos.length}
+          orientacion={orientacionLienzo}
+        />
+        <MapaDetalleFitView count={hijos.length} orientacionLienzo={orientacionLienzo} />
         <Background gap={28} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
         <MiniMap
