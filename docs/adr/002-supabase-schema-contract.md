@@ -25,6 +25,7 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Seguimiento | `seguimientos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Concepto | `conceptos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Enlace entre temas | `enlaces_temas` | `origen_id` / `destino_id` → `temas.id` (lienzo PC) |
+| Enlace entre hijos (detalle mapa) | `enlaces_hijos_nodos` | scope `tema`/`nodo` + origen/destino polimórfico `curso`/`logro` — script `011` |
 
 Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
 
@@ -113,6 +114,24 @@ Script: `docs/sql/009-schema-logros.sql`, trigger ampliado en `010`. Distinto de
 | `created_at` | timestamptz | default now() |
 
 **Regla de negocio:** `logros.nodo_id` puede apuntar a `tipo = 'formacion'` o `'produccion'`. Trigger `logros_nodo_formacion_o_produccion` (SQL 010).
+
+#### `enlaces_hijos_nodos` (flechas en lienzo detalle — capa 1 `/mapa`)
+
+Script: `docs/sql/011-schema-enlaces-hijos-nodos.sql`. ADR 010 v2.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `scope_kind` | text | not null; `tema` \| `nodo` — padre del overlay |
+| `scope_id` | bigint | not null; id del tema o `nodos_objetivos` |
+| `origen_kind` | text | not null; `curso` \| `logro` |
+| `origen_id` | bigint | not null; id en tabla según `origen_kind` |
+| `destino_kind` | text | not null; `curso` \| `logro` |
+| `destino_id` | bigint | not null |
+| `tipo` | text | nullable; igual semántica que `enlaces_nodos` |
+
+**Reglas (trigger):** scope `tema` → solo curso→curso del mismo `tema_id`; scope `nodo` formacion → curso/logro del mismo `nodo_id`; scope `nodo` produccion → solo logro→logro.
+
+**Fuera de v2a:** posiciones persistidas de hijos en lienzo (fase B).
 
 #### `objetivos` (catálogo roadmap — mapa PC)
 

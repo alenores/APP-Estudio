@@ -25,3 +25,28 @@ export type MapaDetalleHijo = {
   descripcion: string | null;
   kind: MapaDetalleHijoKind;
 };
+
+export type EnlaceHijoNodoScopeKind = "tema" | "nodo";
+
+/** Fila en `enlaces_hijos_nodos` — flechas en lienzo detalle (ADR 010 v2). */
+export type EnlaceHijoNodo = {
+  id: number;
+  user_id: string;
+  scope_kind: EnlaceHijoNodoScopeKind;
+  scope_id: number;
+  origen_kind: MapaDetalleHijoKind;
+  origen_id: number;
+  destino_kind: MapaDetalleHijoKind;
+  destino_id: number;
+  tipo: string | null;
+  created_at: string;
+};
+
+export function mapaDetalleScopeKey(
+  scope: MapaDetalleScope,
+): { scope_kind: EnlaceHijoNodoScopeKind; scope_id: number } {
+  if (scope.kind === "tema") {
+    return { scope_kind: "tema", scope_id: scope.temaId };
+  }
+  return { scope_kind: "nodo", scope_id: scope.nodoId };
+}

@@ -33,6 +33,9 @@ function hijosLabel(scope: MapaDetalleScope): string {
 }
 
 function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string {
+  if (error.includes("enlaces_hijos_nodos")) {
+    return "La tabla enlaces_hijos_nodos no existe o no tiene permisos. Ejecutá docs/sql/011-schema-enlaces-hijos-nodos.sql.";
+  }
   if (error.includes("logros") && scope.childKind === "logro") {
     return "La tabla logros no existe o no tiene permisos. Ejecutá docs/sql/009-schema-logros.sql.";
   }
@@ -41,7 +44,8 @@ function mapaDetalleErrorMessage(error: string, scope: MapaDetalleScope): string
 
 /** Capa 1 sobre el lienzo macro — hijos de tema o nodo (ADR 010). */
 export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) {
-  const { hijos, loading, error } = useMapaDetalleHijos(scope);
+  const { hijos, enlaces, loading, error, addEnlace, removeEnlace } =
+    useMapaDetalleHijos(scope);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -91,6 +95,9 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
                 : scope.childKind === "logro"
                   ? "logros"
                   : "cursos"}
+            {!loading && enlaces.length > 0 ? (
+              <span className="text-[var(--td-faint)]"> · {enlaces.length} enlaces</span>
+            ) : null}
           </span>
         </header>
 
@@ -101,7 +108,15 @@ export function MapaDetalleOverlay({ scope, onClose }: MapaDetalleOverlayProps) 
           {error ? (
             <AlertText>{mapaDetalleErrorMessage(error, scope)}</AlertText>
           ) : null}
-          {!loading && !error ? <MapaDetalleCanvas hijos={hijos} /> : null}
+          {!loading && !error ? (
+            <MapaDetalleCanvas
+              scope={scope}
+              hijos={hijos}
+              enlaces={enlaces}
+              onEnlaceCreated={addEnlace}
+              onEnlaceRemoved={removeEnlace}
+            />
+          ) : null}
         </div>
       </div>
     </div>
