@@ -138,7 +138,10 @@ export default function TemaDetallePage() {
         tone="curso"
       >
         <FormParentBanner parentKind="tema" parentName={tema.nombre} className="mb-4" />
-        <CursoForm temaId={tema.id} onSuccess={onChildCreated} />
+        <CursoForm
+          temaId={tema.id}
+          onSuccess={(_id, _meta) => void onChildCreated()}
+        />
       </StudySheet>
 
       <StudySheet

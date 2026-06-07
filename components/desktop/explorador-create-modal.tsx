@@ -17,6 +17,7 @@ type ExploradorCreateModalProps = {
   nodoId: number | null;
   cursoId: number | null;
   temaNombre: string | null;
+  nodoNombre: string | null;
   cursoNombre: string | null;
   onClose: () => void;
   onCreated: (partial: {
@@ -33,6 +34,7 @@ export function ExploradorCreateModal({
   nodoId,
   cursoId,
   temaNombre,
+  nodoNombre,
   cursoNombre,
   onClose,
   onCreated,
@@ -59,9 +61,15 @@ export function ExploradorCreateModal({
   const subtitle =
     kind === "curso" && temaNombre
       ? formatFormParentSubtitle("tema", temaNombre)
-      : kind === "clase" && cursoNombre
-        ? formatFormParentSubtitle("curso", cursoNombre)
-        : undefined;
+      : kind === "curso" && nodoNombre
+        ? formatFormParentSubtitle("nodo", nodoNombre)
+        : kind === "clase" && cursoNombre
+          ? formatFormParentSubtitle("curso", cursoNombre)
+          : undefined;
+
+  const createCursoFromTema = kind === "curso" && temaId != null && temaNombre;
+  const createCursoFromNodo =
+    kind === "curso" && nodoId != null && nodoNombre && !createCursoFromTema;
 
   return (
     <DesktopModal open onClose={onClose} title={titles[kind]} subtitle={subtitle} tone={kind}>
@@ -69,7 +77,7 @@ export function ExploradorCreateModal({
       {kind === "tema" ? (
         <TemaForm onSuccess={(id) => void afterCreate({ temaId: id })} />
       ) : null}
-      {kind === "curso" && temaId != null && temaNombre ? (
+      {createCursoFromTema ? (
         <>
           <FormParentBanner
             parentKind="tema"
@@ -79,7 +87,33 @@ export function ExploradorCreateModal({
           <CursoForm
             temaId={temaId}
             defaultNodoId={nodoId}
-            onSuccess={(id) => void afterCreate({ temaId, nodoId: nodoId ?? undefined, cursoId: id })}
+            onSuccess={(id, meta) =>
+              void afterCreate({
+                temaId: meta.temaId,
+                nodoId: meta.nodoId,
+                cursoId: id,
+              })
+            }
+          />
+        </>
+      ) : null}
+      {createCursoFromNodo ? (
+        <>
+          <FormParentBanner
+            parentKind="nodo"
+            parentName={nodoNombre}
+            className="mb-4"
+          />
+          <CursoForm
+            defaultNodoId={nodoId}
+            lockNodoId
+            onSuccess={(id, meta) =>
+              void afterCreate({
+                temaId: meta.temaId,
+                nodoId: meta.nodoId,
+                cursoId: id,
+              })
+            }
           />
         </>
       ) : null}

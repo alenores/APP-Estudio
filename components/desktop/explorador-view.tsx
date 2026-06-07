@@ -234,10 +234,32 @@ export function ExploradorView() {
       ? (clases.find((cl) => cl.id === selection.claseId) ?? null)
       : null;
 
+  const selectedNodo =
+    selection.nodoId != null
+      ? (nodos.find((n) => n.id === selection.nodoId) ?? null)
+      : null;
+
   const rootParentSelected =
     selection.rootMode === "nodos"
       ? selection.nodoId != null
       : selection.temaId != null;
+
+  const canCreateCurso =
+    (selection.rootMode === "temas" && selection.temaId != null) ||
+    (selection.rootMode === "nodos" &&
+      selection.nodoId != null &&
+      selectedNodo?.tipo === "nodo");
+
+  const createCursoHint =
+    selection.rootMode === "nodos"
+      ? selection.nodoId == null
+        ? "Elegí un nodo objetivo para crear un curso"
+        : selectedNodo?.tipo === "logro"
+          ? "Los logros no admiten cursos"
+          : "Nuevo curso en el nodo seleccionado"
+      : selection.temaId == null
+        ? "Elegí un tema para crear un curso"
+        : "Nuevo curso en el tema seleccionado";
 
   const nodoDerivados = derivarDesdeSeguimientos([]);
 
@@ -256,11 +278,6 @@ export function ExploradorView() {
       onOpenConceptos: () => openPanel(ref, "conceptos"),
     };
   }
-
-  const selectedNodo =
-    selection.nodoId != null
-      ? (nodos.find((n) => n.id === selection.nodoId) ?? null)
-      : null;
 
   const selectedTemaRef: ExplorerEntityRef | null = selectedTema
     ? { kind: "tema", id: selectedTema.id, nombre: selectedTema.nombre }
@@ -448,7 +465,7 @@ export function ExploradorView() {
                 : selection.rootMode === "nodos"
                   ? selectedNodo?.tipo === "logro"
                     ? "Los logros no tienen cursos asociados."
-                    : "Este nodo no tiene cursos."
+                    : "Este nodo no tiene cursos. Usá el botón + en la cabecera."
                   : "Este tema no tiene cursos. Usá el botón + en la cabecera."
             }
             actions={[
@@ -460,13 +477,9 @@ export function ExploradorView() {
               },
               {
                 label: "Nuevo curso",
-                title:
-                  selection.rootMode !== "temas" || selection.temaId == null
-                    ? "Elegí un tema (vista Temas) para crear un curso"
-                    : "Nuevo curso en el tema seleccionado",
+                title: createCursoHint,
                 variant: "create",
-                disabled:
-                  selection.rootMode !== "temas" || selection.temaId == null,
+                disabled: !canCreateCurso,
                 onClick: () => setCreateKind("curso"),
               },
               editColumnAction(selectedCursoRef, actionHandlers.onEdit),
@@ -598,6 +611,7 @@ export function ExploradorView() {
           nodoId={selection.nodoId}
           cursoId={selection.cursoId}
           temaNombre={selectedTema?.nombre ?? null}
+          nodoNombre={selectedNodo?.titulo ?? null}
           cursoNombre={selectedCurso?.nombre ?? null}
           onClose={() => setCreateKind(null)}
           onCreated={onCreated}

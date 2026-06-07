@@ -12,6 +12,7 @@ import {
   deleteCurso,
   getSessionUserId,
   insertCurso,
+  listTemas,
   updateCurso,
 } from "@/lib/estudio-queries";
 import { listMapaNodosParaCursos } from "@/lib/mapa-queries";
@@ -23,27 +24,42 @@ import {
 import { cursoFormSchema } from "@/lib/validations";
 import { useEffect, useState } from "react";
 
-type CursoFormProps = {
+export type CursoFormSuccessMeta = {
   temaId: number;
+  nodoId: number;
+};
+
+type CursoFormProps = {
+  /** Tema padre fijo (vista Temas del explorador). Si falta, se elige en el formulario. */
+  temaId?: number;
   curso?: Curso;
   defaultNodoId?: number | null;
-  onSuccess: (cursoId: number) => void;
+  /** Nodo fijado (vista Nodos del explorador). Oculta el selector de nodo. */
+  lockNodoId?: boolean;
+  onSuccess: (cursoId: number, meta: CursoFormSuccessMeta) => void;
   onDelete?: () => void;
 };
 
 export function CursoForm({
-  temaId,
+  temaId: temaIdFixed,
   curso,
   defaultNodoId = null,
+  lockNodoId = false,
   onSuccess,
   onDelete,
 }: CursoFormProps) {
   const isEdit = curso != null;
   const [nombre, setNombre] = useState(curso?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(curso?.descripcion ?? "");
+  const [temaId, setTemaId] = useState(
+    String(temaIdFixed ?? curso?.tema_id ?? ""),
+  );
   const [nodoId, setNodoId] = useState(
     String(curso?.nodo_id ?? defaultNodoId ?? ""),
   );
+  const [temasOptions, setTemasOptions] = useState<
+    { id: number; nombre: string }[]
+  >([]);
   const [nodosOptions, setNodosOptions] = useState<
     { id: number; titulo: string }[]
   >([]);
@@ -60,18 +76,36 @@ export function CursoForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  const showTemaSelect = temaIdFixed == null && !isEdit;
+
   useEffect(() => {
+    if (!showTemaSelect) return;
+    void listTemas().then(({ data }) => {
+      if (data) {
+        setTemasOptions(data.map((t) => ({ id: t.id, nombre: t.nombre })));
+      }
+    });
+  }, [showTemaSelect]);
+
+  useEffect(() => {
+    if (lockNodoId && defaultNodoId != null) return;
     void listMapaNodosParaCursos().then(({ data }) => {
       if (data) {
         setNodosOptions(data.map((n) => ({ id: n.id, titulo: n.titulo })));
       }
     });
-  }, []);
+  }, [lockNodoId, defaultNodoId]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
+
+    const resolvedTemaId = temaIdFixed ?? Number(temaId);
+    if (!Number.isFinite(resolvedTemaId) || resolvedTemaId <= 0) {
+      setFieldErrors({ tema_id: "Elegí un tema" });
+      return;
+    }
 
     const parsed = cursoFormSchema.safeParse({
       nombre,
@@ -100,7 +134,7 @@ export function CursoForm({
 
     const result = isEdit
       ? await updateCurso(curso.id, parsed.data)
-      : await insertCurso(userId, temaId, parsed.data);
+      : await insertCurso(userId, resolvedTemaId, parsed.data);
     setLoading(false);
 
     if (result.error) {
@@ -109,7 +143,10 @@ export function CursoForm({
     }
 
     if (result.data) {
-      onSuccess(result.data.id);
+      onSuccess(result.data.id, {
+        temaId: result.data.tema_id,
+        nodoId: result.data.nodo_id,
+      });
     }
   }
 
@@ -120,10 +157,10 @@ export function CursoForm({
     );
     if (!ok) return;
     setLoading(true);
-    const { error: delError } = await deleteCurso(curso.id);
+    const { error: delErr } = await deleteCurso(curso.id);
     setLoading(false);
-    if (delError) {
-      setError(delError);
+    if (delErr) {
+      setError(delErr);
       return;
     }
     onDelete();
@@ -138,21 +175,43 @@ export function CursoForm({
           onChange={(e) => setNombre(e.target.value)}
         />
       </FormField>
-      <FormField label="Nodo objetivo *" error={fieldErrors.nodo_id}>
-        <select
-          required
-          value={nodoId}
-          onChange={(e) => setNodoId(e.target.value)}
-          className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
-        >
-          <option value="">Elegí un nodo…</option>
-          {nodosOptions.map((n) => (
-            <option key={n.id} value={String(n.id)}>
-              {n.titulo}
-            </option>
-          ))}
-        </select>
-      </FormField>
+
+      {showTemaSelect ? (
+        <FormField label="Tema *" error={fieldErrors.tema_id}>
+          <select
+            required
+            value={temaId}
+            onChange={(e) => setTemaId(e.target.value)}
+            className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
+          >
+            <option value="">Elegí un tema…</option>
+            {temasOptions.map((t) => (
+              <option key={t.id} value={String(t.id)}>
+                {t.nombre}
+              </option>
+            ))}
+          </select>
+        </FormField>
+      ) : null}
+
+      {!lockNodoId ? (
+        <FormField label="Nodo objetivo *" error={fieldErrors.nodo_id}>
+          <select
+            required
+            value={nodoId}
+            onChange={(e) => setNodoId(e.target.value)}
+            className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
+          >
+            <option value="">Elegí un nodo…</option>
+            {nodosOptions.map((n) => (
+              <option key={n.id} value={String(n.id)}>
+                {n.titulo}
+              </option>
+            ))}
+          </select>
+        </FormField>
+      ) : null}
+
       <FormField label="Descripción" error={fieldErrors.descripcion}>
         <FormTextarea
           rows={3}

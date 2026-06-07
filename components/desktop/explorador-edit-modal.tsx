@@ -98,7 +98,7 @@ export function ExploradorEditModal({
           <CursoForm
             temaId={curso.tema_id}
             curso={curso}
-            onSuccess={() => void afterSave()}
+            onSuccess={(_id, _meta) => void afterSave()}
             onDelete={() => void afterDelete()}
           />
         ) : null}
