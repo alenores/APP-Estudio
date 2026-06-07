@@ -144,7 +144,7 @@ export function DesktopUserMenu() {
   const { avatarUrl, name } = userDisplay(user);
 
   return (
-    <div ref={rootRef} className="relative">
+    <div ref={rootRef} className="relative shrink-0">
       <button
         type="button"
         aria-expanded={open}

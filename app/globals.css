@@ -911,6 +911,18 @@ html.pwa-standalone-zoom-lock body {
   color: rgba(226, 232, 240, 0.55);
 }
 
+.desktop-shell-header-start {
+  flex: 0 1 auto;
+}
+
+.desktop-shell-header-end {
+  flex: 0 1 auto;
+}
+
+.desktop-shell-toolbar-slot {
+  scrollbar-width: thin;
+}
+
 .desktop-main-inset {
   padding: 0.375rem 0.5rem;
 }

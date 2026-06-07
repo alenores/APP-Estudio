@@ -43,9 +43,9 @@ export function DesktopShell({
   return (
     <div className="desktop-shell flex min-h-dvh flex-col text-[var(--td-ink)]">
       <header className="shrink-0 border-b border-[var(--td-line)] bg-white/90 px-4 py-2 backdrop-blur-sm sm:px-6">
-        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <div className="flex min-w-0 flex-1 items-center gap-4 sm:gap-6">
-            <div className="min-w-0">
+        <div className="mx-auto flex w-full max-w-[1600px] items-center gap-3">
+          <div className="desktop-shell-header-start flex min-w-0 items-center gap-4 sm:gap-6">
+            <div className="min-w-0 shrink">
               <p className="text-[10px] font-extrabold uppercase tracking-[0.18em] text-[var(--td-faint)]">
                 APP Estudio · Escritorio
               </p>
@@ -53,7 +53,10 @@ export function DesktopShell({
                 {title}
               </h1>
             </div>
-            <nav className="flex items-center gap-1" aria-label="Secciones escritorio">
+            <nav
+              className="flex shrink-0 items-center gap-1"
+              aria-label="Secciones escritorio"
+            >
               {NAV.map(({ href, label }) => {
                 const active =
                   href === DESKTOP_SHELL_PREFIX
@@ -75,11 +78,11 @@ export function DesktopShell({
               })}
             </nav>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+          <div className="desktop-shell-header-end ml-auto flex min-w-0 items-center justify-end gap-2">
             <div
               ref={toolbarRef}
               id="desktop-shell-toolbar"
-              className="desktop-shell-toolbar-slot flex flex-wrap items-center justify-end gap-1.5 empty:hidden"
+              className="desktop-shell-toolbar-slot flex min-w-0 items-center justify-end gap-1.5 overflow-x-auto empty:hidden"
             />
             <DesktopUserMenu />
           </div>

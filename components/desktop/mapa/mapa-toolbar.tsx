@@ -33,7 +33,7 @@ export function MapaToolbar({
   nuevoDisabled = false,
 }: MapaToolbarProps) {
   return (
-    <div className="mapa-shell-toolbar flex flex-wrap items-center justify-end gap-1.5">
+    <div className="mapa-shell-toolbar flex shrink-0 items-center gap-1.5">
       <div
         className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
         role="tablist"
