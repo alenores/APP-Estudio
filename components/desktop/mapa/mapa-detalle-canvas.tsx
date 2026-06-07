@@ -16,17 +16,15 @@ import {
   buildMapaDetallePosicionesMap,
   computeMapaDetalleGridBounds,
   computeMapaDetalleLienzoContentRect,
+  mapaDetalleDisplayToCanonical,
   mapaDetalleFlowNodeId,
   mapaDetallePositionDisplay,
-  MAPA_DETALLE_ROW_HEIGHT,
   parseMapaDetalleFlowNodeId,
   resolveMapaDetallePosition,
 } from "@/lib/mapa-detalle-layout";
 import {
-  MAPA_DETALLE_LIENZO_ORIGIN,
   carrilSpanFromIndices,
   mapaLienzoFlowHandleConfig,
-  projectDisplayToCanonical,
   type MapaLienzoOrientacion,
 } from "@/lib/mapa-lienzo-orientacion";
 import { mapaDetalleFlowNodeTypes } from "@/components/desktop/mapa/mapa-hijo-node";
@@ -195,14 +193,10 @@ function MapaDetalleCanvasInner({
         return;
       }
 
-      const canonical = projectDisplayToCanonical(
+      const canonical = mapaDetalleDisplayToCanonical(
         { x: node.position.x, y: node.position.y },
-        {
-          orientacion: orientacionLienzo,
-          origin: MAPA_DETALLE_LIENZO_ORIGIN,
-          carrilSpan,
-          carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
-        },
+        orientacionLienzo,
+        carrilSpan,
       );
 
       const { error } = await upsertLienzoHijoPosicion(

@@ -7,6 +7,7 @@ import {
   MAPA_DETALLE_LIENZO_ORIGIN,
   carrilSpanFromIndices,
   projectCanonicalToDisplay,
+  projectDisplayToCanonical,
 } from "@/lib/mapa-lienzo-orientacion";
 import {
   computeLienzoIndicesFromPositions,
@@ -18,20 +19,61 @@ import {
 /** Posición en grilla / persistida para hijos del lienzo detalle. */
 
 export const MAPA_DETALLE_COL_WIDTH = 268;
-export const MAPA_DETALLE_ROW_HEIGHT = 108;
+/** Alto de fila carril (canónico Y). Igual al ancho de etapa para cards de 240px en Y/X. */
+export const MAPA_DETALLE_ROW_HEIGHT = 268;
+/** Pitch carril anterior — solo normalización de posiciones ya guardadas. */
+const MAPA_DETALLE_ROW_HEIGHT_LEGACY = 108;
 const COLS = 3;
+
+/** Slot de layout (no CSS): cards siguen max-w-[240px] en el componente. */
+export const MAPA_DETALLE_NODE_W = 240;
+export const MAPA_DETALLE_NODE_SLOT_H = 120;
 
 const EDGE = 12;
 const ETAPA_LABEL_BAND = 40;
-const NODE_W = 240;
-const NODE_H = 88;
 
 export const MAPA_DETALLE_GRID_PITCH: MapaLienzoGridPitch = {
-  originX: 0,
-  originY: 0,
+  originX: MAPA_DETALLE_LIENZO_ORIGIN.x,
+  originY: MAPA_DETALLE_LIENZO_ORIGIN.y,
   etapaPitch: MAPA_DETALLE_COL_WIDTH,
   carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
 };
+
+function mapaDetalleCellInsetCanonical(): { etapa: number; carril: number } {
+  return {
+    etapa: (MAPA_DETALLE_COL_WIDTH - MAPA_DETALLE_NODE_W) / 2,
+    carril: (MAPA_DETALLE_ROW_HEIGHT - MAPA_DETALLE_NODE_SLOT_H) / 2,
+  };
+}
+
+/** Inset en pantalla para centrar la card dentro de la celda etapa×carril. */
+export function mapaDetalleDisplayInset(
+  orientacion: MapaLienzoOrientacion,
+): { dx: number; dy: number } {
+  const { etapa, carril } = mapaDetalleCellInsetCanonical();
+  return orientacion === "xy"
+    ? { dx: etapa, dy: carril }
+    : { dx: carril, dy: etapa };
+}
+
+/** Re-mapea Y guardadas con pitch 108 al pitch actual (sin escribir BD). */
+export function mapaDetalleNormalizeCanonicalY(y: number): number {
+  const legacyCarril = Math.round(y / MAPA_DETALLE_ROW_HEIGHT_LEGACY);
+  const onLegacyGrid =
+    Math.abs(y - legacyCarril * MAPA_DETALLE_ROW_HEIGHT_LEGACY) <= 1;
+  if (!onLegacyGrid) return y;
+  const onCurrentGrid =
+    Math.abs(y - legacyCarril * MAPA_DETALLE_ROW_HEIGHT) <= 1;
+  if (onCurrentGrid) return y;
+  return legacyCarril * MAPA_DETALLE_ROW_HEIGHT;
+}
+
+export function mapaDetalleNormalizeCanonical(pos: {
+  x: number;
+  y: number;
+}): { x: number; y: number } {
+  return { x: pos.x, y: mapaDetalleNormalizeCanonicalY(pos.y) };
+}
 
 export type MapaDetalleGridBounds = {
   etapas: number[];
@@ -49,7 +91,10 @@ function rangeInclusive(min: number, max: number): number[] {
 export function mapaDetalleGridPosition(index: number): { x: number; y: number } {
   const col = index % COLS;
   const row = Math.floor(index / COLS);
-  return { x: col * MAPA_DETALLE_COL_WIDTH, y: row * MAPA_DETALLE_ROW_HEIGHT };
+  return {
+    x: col * MAPA_DETALLE_COL_WIDTH,
+    y: row * MAPA_DETALLE_ROW_HEIGHT,
+  };
 }
 
 /** Posición sugerida en detalle desde etapa (columna) y carril (fila) — canónico X/Y. */
@@ -107,12 +152,33 @@ export function mapaDetallePositionDisplay(
   orientacion: MapaLienzoOrientacion,
   carrilSpan?: MapaCarrilSpan,
 ): { x: number; y: number } {
-  return projectCanonicalToDisplay(canonical, {
+  const normalized = mapaDetalleNormalizeCanonical(canonical);
+  const projected = projectCanonicalToDisplay(normalized, {
     orientacion,
     origin: MAPA_DETALLE_LIENZO_ORIGIN,
     carrilSpan,
     carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
   });
+  const { dx, dy } = mapaDetalleDisplayInset(orientacion);
+  return { x: projected.x + dx, y: projected.y + dy };
+}
+
+/** Pantalla → canónico (resta inset usado solo en presentación). */
+export function mapaDetalleDisplayToCanonical(
+  display: { x: number; y: number },
+  orientacion: MapaLienzoOrientacion,
+  carrilSpan?: MapaCarrilSpan,
+): { x: number; y: number } {
+  const { dx, dy } = mapaDetalleDisplayInset(orientacion);
+  return projectDisplayToCanonical(
+    { x: display.x - dx, y: display.y - dy },
+    {
+      orientacion,
+      origin: MAPA_DETALLE_LIENZO_ORIGIN,
+      carrilSpan,
+      carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
+    },
+  );
 }
 
 export function collectMapaDetalleCanonicalPositions(
@@ -179,14 +245,12 @@ export function computeMapaDetalleGridBounds(
   let maxDisplayY = origin.y;
 
   for (const canonical of positions) {
-    const display = projectCanonicalToDisplay(canonical, {
-      orientacion,
-      origin,
-      carrilSpan,
-      carrilPitch: MAPA_DETALLE_ROW_HEIGHT,
-    });
-    maxDisplayX = Math.max(maxDisplayX, display.x + NODE_W);
-    maxDisplayY = Math.max(maxDisplayY, display.y + NODE_H);
+    const display = mapaDetallePositionDisplay(canonical, orientacion, carrilSpan);
+    maxDisplayX = Math.max(maxDisplayX, display.x + MAPA_DETALLE_NODE_W);
+    maxDisplayY = Math.max(
+      maxDisplayY,
+      display.y + MAPA_DETALLE_NODE_SLOT_H,
+    );
   }
 
   const contentRect = mapaLienzoContentRectFromIndices(

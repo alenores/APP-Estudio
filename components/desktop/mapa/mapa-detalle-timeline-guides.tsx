@@ -8,6 +8,7 @@ import {
 } from "@/lib/mapa-detalle-layout";
 import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import {
+  MAPA_DETALLE_LIENZO_ORIGIN,
   carrilSpanFromIndices,
   mapaCarrilGuideY,
 } from "@/lib/mapa-lienzo-orientacion";
@@ -32,6 +33,7 @@ export function MapaDetalleTimelineGuides({
   );
 
   const isYx = orientacion === "yx";
+  const { x: originX, y: originY } = MAPA_DETALLE_LIENZO_ORIGIN;
   const carrilSpan = useMemo(
     () => carrilSpanFromIndices(bounds.carriles),
     [bounds.carriles],
@@ -47,7 +49,7 @@ export function MapaDetalleTimelineGuides({
       >
         {bounds.etapas.map((etapa) => {
           if (!isYx) {
-            const x = etapa * MAPA_DETALLE_COL_WIDTH;
+            const x = originX + etapa * MAPA_DETALLE_COL_WIDTH;
             return (
               <g key={`etapa-${etapa}`}>
                 <rect
@@ -79,7 +81,7 @@ export function MapaDetalleTimelineGuides({
             );
           }
 
-          const y = etapa * MAPA_DETALLE_COL_WIDTH;
+          const y = originY + etapa * MAPA_DETALLE_COL_WIDTH;
           return (
             <g key={`etapa-${etapa}`}>
               <rect
@@ -108,18 +110,26 @@ export function MapaDetalleTimelineGuides({
         })}
         {!isYx ? (
           <line
-            x1={(bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH}
+            x1={
+              originX + (bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH
+            }
             y1={0}
-            x2={(bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH}
+            x2={
+              originX + (bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH
+            }
             y2={bounds.height}
             className="mapa-guide-vline"
           />
         ) : (
           <line
             x1={0}
-            y1={(bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH}
+            y1={
+              originY + (bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH
+            }
             x2={bounds.width}
-            y2={(bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH}
+            y2={
+              originY + (bounds.etapas.at(-1)! + 1) * MAPA_DETALLE_COL_WIDTH
+            }
             className="mapa-guide-hline"
           />
         )}
@@ -128,7 +138,7 @@ export function MapaDetalleTimelineGuides({
             const y = mapaCarrilGuideY(
               carril,
               carrilSpan,
-              0,
+              originY,
               MAPA_DETALLE_ROW_HEIGHT,
             );
             return (
@@ -147,7 +157,7 @@ export function MapaDetalleTimelineGuides({
             );
           }
 
-          const x = carril * MAPA_DETALLE_ROW_HEIGHT;
+          const x = originX + carril * MAPA_DETALLE_ROW_HEIGHT;
           return (
             <g key={`carril-${carril}`}>
               <line
