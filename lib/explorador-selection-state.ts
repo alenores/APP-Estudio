@@ -8,6 +8,7 @@ export const EMPTY_EXPLORER_SELECTION: ExplorerSelection = {
   temaId: null,
   nodoId: null,
   cursoId: null,
+  logroId: null,
   claseId: null,
 };
 
@@ -53,6 +54,7 @@ export function selectionsEqual(
     a.temaId === b.temaId &&
     a.nodoId === b.nodoId &&
     a.cursoId === b.cursoId &&
+    a.logroId === b.logroId &&
     a.claseId === b.claseId
   );
 }

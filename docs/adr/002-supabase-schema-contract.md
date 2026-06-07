@@ -21,6 +21,7 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Tema | `temas` | — |
 | Curso | `cursos` | `tema_id` → `temas.id` |
 | Clase | `clases` | `curso_id` → `cursos.id` |
+| Logro (registro) | `logros` | `nodo_id` → `nodos_objetivos.id` (solo padre `tipo = logro`) |
 | Seguimiento | `seguimientos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Concepto | `conceptos` | exactamente uno: `tema_id` \| `curso_id` \| `clase_id` |
 | Enlace entre temas | `enlaces_temas` | `origen_id` / `destino_id` → `temas.id` (lienzo PC) |
@@ -97,6 +98,21 @@ Tabla `nodos_objetivos` (antes `mapa_nodos`). Script: `docs/sql/005-schema-nodos
 FK `origen_id` / `destino_id` → `nodos_objetivos.id`.
 
 **Regla de negocio:** `cursos.nodo_id` solo puede apuntar a filas con `tipo = 'nodo'`. Trigger `cursos_solo_nodo_tipo` (SQL 008).
+
+#### `logros` (registros hijos de nodo tipo logro)
+
+Script: `docs/sql/009-schema-logros.sql`. Distinto de `nodos_objetivos.tipo = 'logro'` (nodo padre en el grafo).
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `id` | bigint | PK |
+| `user_id` | uuid | RLS |
+| `nodo_id` | bigint | not null, FK → `nodos_objetivos.id` |
+| `nombre` | text | not null |
+| `descripcion` | text | |
+| `created_at` | timestamptz | default now() |
+
+**Regla de negocio:** `logros.nodo_id` solo puede apuntar a filas con `tipo = 'logro'`. Trigger `logros_solo_nodo_tipo_logro` (SQL 009). Se listan en la columna central del explorador (vista nodos), como los cursos de un nodo tipo `nodo`.
 
 #### `objetivos` (catálogo roadmap — mapa PC)
 

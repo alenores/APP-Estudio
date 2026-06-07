@@ -5,11 +5,12 @@ import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { ClaseForm } from "@/components/shared/forms/clase-form";
 import { CursoForm } from "@/components/shared/forms/curso-form";
 import { FormParentBanner } from "@/components/shared/forms/form-parent-banner";
+import { LogroRegistroForm } from "@/components/shared/forms/logro-registro-form";
 import { TemaForm } from "@/components/shared/forms/tema-form";
 import { formatFormParentSubtitle } from "@/lib/form-parent-context";
 import { estudioFormWellClass } from "@/lib/estudio-shell-tone";
 
-export type ExploradorCreateKind = "tema" | "curso" | "clase";
+export type ExploradorCreateKind = "tema" | "curso" | "clase" | "logro";
 
 type ExploradorCreateModalProps = {
   kind: ExploradorCreateKind;
@@ -24,6 +25,7 @@ type ExploradorCreateModalProps = {
     temaId?: number;
     nodoId?: number;
     cursoId?: number;
+    logroId?: number;
     claseId?: number;
   }) => void;
 };
@@ -45,9 +47,12 @@ export function ExploradorCreateModal({
     temaId?: number;
     nodoId?: number;
     cursoId?: number;
+    logroId?: number;
     claseId?: number;
   }) {
-    await refreshSnapshot();
+    if (partial.cursoId != null || partial.claseId != null) {
+      await refreshSnapshot();
+    }
     onCreated(partial);
     onClose();
   }
@@ -56,6 +61,7 @@ export function ExploradorCreateModal({
     tema: "Nuevo tema",
     curso: "Nuevo curso",
     clase: "Nueva clase",
+    logro: "Nuevo logro",
   };
 
   const subtitle =
@@ -63,17 +69,30 @@ export function ExploradorCreateModal({
       ? formatFormParentSubtitle("tema", temaNombre)
       : kind === "curso" && nodoNombre
         ? formatFormParentSubtitle("nodo", nodoNombre)
-        : kind === "clase" && cursoNombre
-          ? formatFormParentSubtitle("curso", cursoNombre)
-          : undefined;
+        : kind === "logro" && nodoNombre
+          ? formatFormParentSubtitle("nodo", nodoNombre)
+          : kind === "clase" && cursoNombre
+            ? formatFormParentSubtitle("curso", cursoNombre)
+            : undefined;
 
   const createCursoFromTema = kind === "curso" && temaId != null && temaNombre;
   const createCursoFromNodo =
     kind === "curso" && nodoId != null && nodoNombre && !createCursoFromTema;
+  const createLogroFromNodo =
+    kind === "logro" && nodoId != null && nodoNombre;
+
+  const modalTone =
+    kind === "tema" ? "tema" : kind === "clase" ? "clase" : "curso";
 
   return (
-    <DesktopModal open onClose={onClose} title={titles[kind]} subtitle={subtitle} tone={kind}>
-      <div className={estudioFormWellClass(kind)}>
+    <DesktopModal
+      open
+      onClose={onClose}
+      title={titles[kind]}
+      subtitle={subtitle}
+      tone={modalTone}
+    >
+      <div className={estudioFormWellClass(modalTone)}>
       {kind === "tema" ? (
         <TemaForm onSuccess={(id) => void afterCreate({ temaId: id })} />
       ) : null}
@@ -113,6 +132,21 @@ export function ExploradorCreateModal({
                 nodoId: meta.nodoId,
                 cursoId: id,
               })
+            }
+          />
+        </>
+      ) : null}
+      {createLogroFromNodo ? (
+        <>
+          <FormParentBanner
+            parentKind="nodo"
+            parentName={nodoNombre}
+            className="mb-4"
+          />
+          <LogroRegistroForm
+            nodoId={nodoId}
+            onSuccess={(id) =>
+              void afterCreate({ nodoId, logroId: id })
             }
           />
         </>

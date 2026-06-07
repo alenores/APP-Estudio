@@ -17,7 +17,7 @@ export type ExploradorColumnAction = {
 };
 
 type ExploradorColumnCardProps = {
-  kind: "tema" | "curso" | "clase" | "nodo";
+  kind: "tema" | "curso" | "clase" | "nodo" | "logro";
   explorerId: number;
   nombre: string;
   derivados: SeguimientoDerivados;
@@ -31,7 +31,7 @@ type ExploradorColumnCardProps = {
   fechaFin?: string | null;
   fechaParen?: string | null;
   hijosStats?: HijosProgressStats;
-  hijosLabel?: "cursos" | "clases";
+  hijosLabel?: "cursos" | "clases" | "logros";
   link?: string | null;
   dificultad?: string | null;
   orden?: number;
@@ -76,9 +76,9 @@ export function ExploradorColumnCard({
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
   const expandedSlot =
-    expanded && kind === "nodo" ? (
+    expanded && (kind === "nodo" || kind === "logro") ? (
       <ExploradorCardExpanded
-        kind="nodo"
+        kind={kind}
         descripcion={descripcion ?? null}
         fechaInicio={null}
         fechaFin={null}

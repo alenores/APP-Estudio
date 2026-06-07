@@ -193,6 +193,14 @@ export const conceptoFormSchema = z.object({
 
 export type ConceptoFormValues = z.infer<typeof conceptoFormSchema>;
 
+/** Registro en tabla `logros` (hijo de nodo tipo logro). */
+export const logroRegistroFormSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre es obligatorio").max(200),
+  descripcion: optionalText,
+});
+
+export type LogroRegistroFormValues = z.infer<typeof logroRegistroFormSchema>;
+
 const optionalFloat = z
   .string()
   .trim()

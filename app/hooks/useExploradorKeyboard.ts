@@ -8,6 +8,7 @@ import {
 import type {
   ClaseConDerivados,
   CursoConDerivados,
+  Logro,
   TemaConDerivados,
 } from "@/app/types/estudio";
 import type { MapaNodo } from "@/app/types/mapa";
@@ -28,9 +29,11 @@ type ColumnItem = {
 type UseExploradorKeyboardArgs = {
   enabled: boolean;
   rootMode: ExplorerRootMode;
+  middleColumnShowsLogros: boolean;
   temas: TemaConDerivados[];
   nodos: MapaNodo[];
   cursos: CursoConDerivados[];
+  logros: Logro[];
   clases: ClaseConDerivados[];
   selection: ExplorerSelection;
   onNavigate: (href: string) => void;
@@ -52,9 +55,11 @@ function isTypingTarget(target: EventTarget | null): boolean {
 function columnItems(
   column: ExplorerColumnKind,
   rootMode: ExplorerRootMode,
+  middleColumnShowsLogros: boolean,
   temas: TemaConDerivados[],
   nodos: MapaNodo[],
   cursos: CursoConDerivados[],
+  logros: Logro[],
   clases: ClaseConDerivados[],
 ): ColumnItem[] {
   switch (column) {
@@ -68,6 +73,13 @@ function columnItems(
       }
       return temas.map((t) => ({ id: t.id, nombre: t.nombre, kind: "tema" }));
     case "cursos":
+      if (middleColumnShowsLogros) {
+        return logros.map((l) => ({
+          id: l.id,
+          nombre: l.nombre,
+          kind: "logro",
+        }));
+      }
       return cursos.map((c) => ({ id: c.id, nombre: c.nombre, kind: "curso" }));
     case "clases":
       return clases.map((cl) => ({
@@ -81,13 +93,14 @@ function columnItems(
 function selectedIdInColumn(
   column: ExplorerColumnKind,
   rootMode: ExplorerRootMode,
+  middleColumnShowsLogros: boolean,
   selection: ExplorerSelection,
 ): number | null {
   switch (column) {
     case "temas":
       return rootMode === "nodos" ? selection.nodoId : selection.temaId;
     case "cursos":
-      return selection.cursoId;
+      return middleColumnShowsLogros ? selection.logroId : selection.cursoId;
     case "clases":
       return selection.claseId;
   }
@@ -95,7 +108,7 @@ function selectedIdInColumn(
 
 function columnFromSelection(selection: ExplorerSelection): ExplorerColumnKind {
   if (selection.claseId != null) return "clases";
-  if (selection.cursoId != null) return "cursos";
+  if (selection.cursoId != null || selection.logroId != null) return "cursos";
   return "temas";
 }
 
@@ -109,6 +122,7 @@ function hrefForItem(
         rootMode: "temas",
         temaId: item.id,
         cursoId: null,
+        logroId: null,
         claseId: null,
       });
     case "nodo":
@@ -116,6 +130,7 @@ function hrefForItem(
         rootMode: "nodos",
         nodoId: item.id,
         cursoId: null,
+        logroId: null,
         claseId: null,
       });
     case "curso":
@@ -124,6 +139,15 @@ function hrefForItem(
         temaId: selection.rootMode === "temas" ? selection.temaId : null,
         nodoId: selection.rootMode === "nodos" ? selection.nodoId : null,
         cursoId: item.id,
+        logroId: null,
+        claseId: null,
+      });
+    case "logro":
+      return explorerHref({
+        rootMode: "nodos",
+        nodoId: selection.nodoId,
+        cursoId: null,
+        logroId: item.id,
         claseId: null,
       });
     case "clase":
@@ -132,6 +156,7 @@ function hrefForItem(
         temaId: selection.rootMode === "temas" ? selection.temaId : null,
         nodoId: selection.rootMode === "nodos" ? selection.nodoId : null,
         cursoId: selection.cursoId,
+        logroId: selection.logroId,
         claseId: item.id,
       });
   }
@@ -145,9 +170,11 @@ function scrollCardIntoView(id: number) {
 export function useExploradorKeyboard({
   enabled,
   rootMode,
+  middleColumnShowsLogros,
   temas,
   nodos,
   cursos,
+  logros,
   clases,
   selection,
   onNavigate,
@@ -175,13 +202,20 @@ export function useExploradorKeyboard({
     const items = columnItems(
       column,
       rootMode,
+      middleColumnShowsLogros,
       temas,
       nodos,
       cursos,
+      logros,
       clases,
     );
     if (items.length === 0) return null;
-    const selectedId = selectedIdInColumn(column, rootMode, selection);
+    const selectedId = selectedIdInColumn(
+      column,
+      rootMode,
+      middleColumnShowsLogros,
+      selection,
+    );
     const idx =
       selectedId != null
         ? items.findIndex((i) => i.id === selectedId)
@@ -192,7 +226,16 @@ export function useExploradorKeyboard({
       return { kind: "nodo", id: item.id, nombre: item.nombre };
     }
     return { kind: item.kind, id: item.id, nombre: item.nombre };
-  }, [rootMode, temas, nodos, cursos, clases, selection]);
+  }, [
+    rootMode,
+    middleColumnShowsLogros,
+    temas,
+    nodos,
+    cursos,
+    logros,
+    clases,
+    selection,
+  ]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -205,16 +248,23 @@ export function useExploradorKeyboard({
       const items = columnItems(
         column,
         rootMode,
+        middleColumnShowsLogros,
         temas,
         nodos,
         cursos,
+        logros,
         clases,
       );
 
       if (e.key === "ArrowUp" || e.key === "ArrowDown") {
         if (items.length === 0) return;
         e.preventDefault();
-        const selectedId = selectedIdInColumn(column, rootMode, selection);
+        const selectedId = selectedIdInColumn(
+          column,
+          rootMode,
+          middleColumnShowsLogros,
+          selection,
+        );
         let idx =
           selectedId != null
             ? items.findIndex((i) => i.id === selectedId)
@@ -237,13 +287,20 @@ export function useExploradorKeyboard({
         const nextItems = columnItems(
           nextColumn,
           rootMode,
+          middleColumnShowsLogros,
           temas,
           nodos,
           cursos,
+          logros,
           clases,
         );
         if (nextItems.length === 0) return;
-        const selectedId = selectedIdInColumn(nextColumn, rootMode, selection);
+        const selectedId = selectedIdInColumn(
+          nextColumn,
+          rootMode,
+          middleColumnShowsLogros,
+          selection,
+        );
         const item =
           selectedId != null
             ? (nextItems.find((i) => i.id === selectedId) ?? nextItems[0]!)
@@ -271,6 +328,7 @@ export function useExploradorKeyboard({
         onEdit(entity);
         return;
       }
+      if (entity.kind === "logro" || entity.kind === "nodo") return;
       if (key === "s") {
         e.preventDefault();
         onOpenPanel(entity, "seguimientos");
@@ -287,9 +345,11 @@ export function useExploradorKeyboard({
   }, [
     enabled,
     rootMode,
+    middleColumnShowsLogros,
     temas,
     nodos,
     cursos,
+    logros,
     clases,
     selection,
     navigateToItem,

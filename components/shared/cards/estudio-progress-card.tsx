@@ -18,7 +18,7 @@ import { exploradorNodoClasificacionClass, nodoClasificacionLabel } from "@/lib/
 const DONUT_R = 11;
 const DONUT_C = 2 * Math.PI * DONUT_R;
 
-export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "nodo";
+export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "nodo" | "logro";
 
 export type EstudioProgressCardProps = {
   kind: EstudioProgressCardKind;
@@ -34,7 +34,7 @@ export type EstudioProgressCardProps = {
   fechaParen?: string | null;
   /** Progreso de hijos (cursos en tema, clases en curso) desde seguimientos. */
   hijosStats?: HijosProgressStats;
-  hijosLabel?: "cursos" | "clases";
+  hijosLabel?: "cursos" | "clases" | "logros";
   link?: string | null;
   descripcion?: string | null;
   dificultad?: string | null;
@@ -99,13 +99,14 @@ export function EstudioProgressCard({
 
   const showDonut =
     (kind === "tema" || kind === "curso" || kind === "nodo") &&
-    hijosStats != null &&
-    !(kind === "nodo" && nodoClasificacion === "logro");
+    hijosStats != null;
 
   const nodoKindClass =
     kind === "nodo" && nodoClasificacion
       ? exploradorNodoClasificacionClass(nodoClasificacion)
-      : "";
+      : kind === "logro"
+        ? exploradorNodoClasificacionClass("logro")
+        : "";
 
   const showSearchDescripcion =
     searchShowDescripcion &&

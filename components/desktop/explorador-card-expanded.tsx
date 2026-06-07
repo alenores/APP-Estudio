@@ -8,7 +8,7 @@ import { recordActionTileClass } from "@/lib/estudio-shell-tone";
 import { parseNivelEntendimiento } from "@/lib/nivel-entendimiento-ui";
 
 type ExploradorCardExpandedProps = {
-  kind: "tema" | "curso" | "clase" | "nodo";
+  kind: "tema" | "curso" | "clase" | "nodo" | "logro";
   descripcion: string | null;
   fechaInicio: string | null;
   fechaFin: string | null;
@@ -34,7 +34,7 @@ export function ExploradorCardExpanded({
   const invertidoMin = derivados.tiempo_consumido ?? 0;
   const restanteMin = derivados.tiempo_faltante_estimado;
   const showFechas = kind === "tema" || kind === "curso";
-  const showNodoOnly = kind === "nodo";
+  const showNodoOnly = kind === "nodo" || kind === "logro";
 
   if (showNodoOnly) {
     return (

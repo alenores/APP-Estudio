@@ -49,6 +49,16 @@ export type Curso = {
   created_at: string;
 };
 
+/** Registro hijo de `nodos_objetivos` tipo logro — tabla `logros` (SQL 009). */
+export type Logro = {
+  id: number;
+  user_id: string;
+  nodo_id: number;
+  nombre: string;
+  descripcion: string | null;
+  created_at: string;
+};
+
 export type Clase = {
   id: number;
   user_id: string;
