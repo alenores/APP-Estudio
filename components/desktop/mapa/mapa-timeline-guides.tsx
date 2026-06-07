@@ -45,7 +45,7 @@ export function MapaTimelineGuides({ items }: { items: LienzoPosicionable[] }) {
                 y2={bounds.height}
                 className="mapa-guide-vline"
               />
-              <text x={x + 10} y={26} className="mapa-guide-etapa-label">
+              <text x={x + 10} y={32} className="mapa-guide-etapa-label">
                 Etapa {etapa}
               </text>
             </g>
@@ -69,7 +69,7 @@ export function MapaTimelineGuides({ items }: { items: LienzoPosicionable[] }) {
                 y2={y}
                 className="mapa-guide-hline"
               />
-              <text x={6} y={y - 8} className="mapa-guide-carril-label">
+              <text x={6} y={y - 12} className="mapa-guide-carril-label">
                 Carril {carril}
               </text>
             </g>
