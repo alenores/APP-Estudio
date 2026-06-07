@@ -2,9 +2,13 @@
 
 import type { MapaTemaNodeData } from "@/components/desktop/mapa/mapa-tema-node-types";
 import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
+import {
+  MapaFlowEnlaceHandleSource,
+  MapaFlowEnlaceHandleTarget,
+} from "@/components/desktop/mapa/mapa-flow-enlace-handles";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
+import { mapaLienzoFlowHandleConfig } from "@/lib/mapa-lienzo-orientacion";
 import type { NodeProps } from "@xyflow/react";
-import { Handle, Position } from "@xyflow/react";
 
 function EnlaceBadge({ label, count }: { label: string; count: number }) {
   if (count <= 0) return null;
@@ -24,7 +28,11 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
     enlacesEntrada = 0,
     enlacesSalida = 0,
     cardData,
+    orientacionLienzo = "xy",
   } = data as MapaTemaNodeData;
+
+  const { badgeEntrada, badgeSalida } =
+    mapaLienzoFlowHandleConfig(orientacionLienzo);
 
   const lienzoMeta = (
     <div className="mapa-flow-tema-lienzo-meta flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-[var(--td-line)]/80 px-3 py-2">
@@ -37,8 +45,8 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
       </div>
       {enlacesEntrada > 0 || enlacesSalida > 0 ? (
         <div className="flex flex-wrap gap-1">
-          <EnlaceBadge label="←" count={enlacesEntrada} />
-          <EnlaceBadge label="→" count={enlacesSalida} />
+          <EnlaceBadge label={badgeEntrada} count={enlacesEntrada} />
+          <EnlaceBadge label={badgeSalida} count={enlacesSalida} />
         </div>
       ) : null}
     </div>
@@ -50,13 +58,7 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
         selected ? "mapa-flow-tema-node--selected" : ""
       }`}
     >
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="target"
-        className="mapa-flow-handle mapa-flow-handle--target"
-        title="Recibe enlaces (entrada)"
-      />
+      <MapaFlowEnlaceHandleTarget orientacionLienzo={orientacionLienzo} />
 
       <div className="relative">
         <EstudioProgressCard
@@ -86,13 +88,7 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
         </div>
       </div>
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="source"
-        className="mapa-flow-handle mapa-flow-handle--source"
-        title="Creá enlaces (salida)"
-      />
+      <MapaFlowEnlaceHandleSource orientacionLienzo={orientacionLienzo} />
     </div>
   );
 }

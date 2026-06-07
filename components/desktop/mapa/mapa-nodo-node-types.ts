@@ -1,5 +1,6 @@
 import type { MapaNodo } from "@/app/types/mapa";
 import type { MapaObjetivoId } from "@/app/types/mapa";
+import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 
 export type MapaNodoNodeData = {
   nodo: MapaNodo;
@@ -9,4 +10,5 @@ export type MapaNodoNodeData = {
   enlacesSalida?: number;
   objetivoId?: MapaObjetivoId | null;
   objetivoNombre?: string | null;
+  orientacionLienzo?: MapaLienzoOrientacion;
 };

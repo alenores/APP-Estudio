@@ -8,8 +8,11 @@ import {
   nodoCoincideFiltroObjetivo,
   type MapaObjetivoFiltro,
 } from "@/lib/mapa-objetivo";
-import { posicionEnLienzoDisplay } from "@/lib/mapa-lienzo-orientacion";
 import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
+import {
+  mapaLienzoFlowHandleConfig,
+  posicionEnLienzoDisplay,
+} from "@/lib/mapa-lienzo-orientacion";
 import { mapaGrafoEnlaceCounts } from "@/lib/mapa-grafo-enlaces";
 import {
   buildMapaTemaFlowCardDataMap,
@@ -46,6 +49,7 @@ export function buildMapaFlowNodes({
 }: MapaFlowNodeBuildOptions): Node[] {
   return nodos.map((nodo) => {
     const pos = posicionEnLienzoDisplay(nodo, orientacionLienzo);
+    const handles = mapaLienzoFlowHandleConfig(orientacionLienzo);
     const { entrada, salida } = mapaGrafoEnlaceCounts(nodo.id, enlaces);
     const objetivoId = mapaObjetivoIdFromNodo(nodo);
     const visible = nodoCoincideFiltroObjetivo(nodo, filtroObjetivo);
@@ -54,6 +58,8 @@ export function buildMapaFlowNodes({
       id: String(nodo.id),
       type: "mapaNodo",
       position: pos,
+      targetPosition: handles.targetPosition,
+      sourcePosition: handles.sourcePosition,
       hidden: !visible,
       data: {
         nodo,
@@ -66,6 +72,7 @@ export function buildMapaFlowNodes({
           objetivoId != null
             ? mapaObjetivoNombre(objetivos, objetivoId)
             : null,
+        orientacionLienzo,
       },
       draggable: true,
     };
@@ -102,6 +109,7 @@ export function buildMapaFlowNodesTemas({
 }: MapaFlowTemaBuildOptions): Node[] {
   return temas.map((tema) => {
     const pos = posicionEnLienzoDisplay(tema, orientacionLienzo);
+    const handles = mapaLienzoFlowHandleConfig(orientacionLienzo);
     const { entrada, salida } = mapaGrafoEnlaceCounts(tema.id, enlaces);
     const cardData = temaCardDataMap?.get(tema.id);
 
@@ -109,6 +117,8 @@ export function buildMapaFlowNodesTemas({
       id: String(tema.id),
       type: "mapaTema",
       position: pos,
+      targetPosition: handles.targetPosition,
+      sourcePosition: handles.sourcePosition,
       data: {
         tema,
         onEdit: onEditTema,
@@ -116,6 +126,7 @@ export function buildMapaFlowNodesTemas({
         enlacesEntrada: entrada,
         enlacesSalida: salida,
         cardData: cardData ?? EMPTY_TEMA_CARD,
+        orientacionLienzo,
       },
       draggable: true,
     };

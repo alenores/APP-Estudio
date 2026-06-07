@@ -1,9 +1,13 @@
 "use client";
 
 import type { MapaHijoNodeData } from "@/components/desktop/mapa/mapa-hijo-node-types";
+import {
+  MapaFlowEnlaceHandleSource,
+  MapaFlowEnlaceHandleTarget,
+} from "@/components/desktop/mapa/mapa-flow-enlace-handles";
 import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
+import { mapaLienzoFlowHandleConfig } from "@/lib/mapa-lienzo-orientacion";
 import type { NodeProps } from "@xyflow/react";
-import { Handle, Position } from "@xyflow/react";
 
 function EnlaceBadge({ label, count }: { label: string; count: number }) {
   if (count <= 0) return null;
@@ -24,7 +28,11 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
     onAddLinked,
     enlacesEntrada = 0,
     enlacesSalida = 0,
+    orientacionLienzo = "xy",
   } = data as MapaHijoNodeData;
+
+  const { badgeEntrada, badgeSalida } =
+    mapaLienzoFlowHandleConfig(orientacionLienzo);
   const toneClass =
     kind === "logro" ? "mapa-flow-node--logro" : "mapa-flow-node--tema";
 
@@ -39,13 +47,7 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
         selected ? "mapa-flow-node--selected" : ""
       }`}
     >
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="target"
-        className="mapa-flow-handle mapa-flow-handle--target"
-        title="Recibe enlaces (entrada)"
-      />
+      <MapaFlowEnlaceHandleTarget orientacionLienzo={orientacionLienzo} />
 
       <div className="px-3 pb-2.5 pt-2">
         <div className="mb-1.5 flex items-start justify-between gap-2">
@@ -76,19 +78,13 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
         ) : null}
         {enlacesEntrada > 0 || enlacesSalida > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
-            <EnlaceBadge label="←" count={enlacesEntrada} />
-            <EnlaceBadge label="→" count={enlacesSalida} />
+            <EnlaceBadge label={badgeEntrada} count={enlacesEntrada} />
+            <EnlaceBadge label={badgeSalida} count={enlacesSalida} />
           </div>
         ) : null}
       </div>
 
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="source"
-        className="mapa-flow-handle mapa-flow-handle--source"
-        title="Creá enlaces (salida)"
-      />
+      <MapaFlowEnlaceHandleSource orientacionLienzo={orientacionLienzo} />
     </div>
   );
 }

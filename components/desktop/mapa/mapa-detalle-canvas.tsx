@@ -22,6 +22,7 @@ import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import {
   MAPA_DETALLE_LIENZO_ORIGIN,
   displayToCanonical,
+  mapaLienzoFlowHandleConfig,
 } from "@/lib/mapa-lienzo-orientacion";
 import { mapaDetalleFlowNodeTypes } from "@/components/desktop/mapa/mapa-hijo-node";
 import { getSessionUserId } from "@/lib/mapa-queries";
@@ -127,15 +128,18 @@ function MapaDetalleCanvasInner({
       hijos.map((h, index) => {
         const { entrada, salida } = mapaDetalleEnlaceCounts(h.kind, h.id, enlaces);
         const canonical = resolveMapaDetallePosition(
-            h.kind,
-            h.id,
-            index,
-            posicionesMap,
-          );
+          h.kind,
+          h.id,
+          index,
+          posicionesMap,
+        );
+        const handles = mapaLienzoFlowHandleConfig(orientacionLienzo);
         return {
           id: mapaDetalleFlowNodeId(h.kind, h.id),
           type: "mapaHijo",
           position: mapaDetallePositionDisplay(canonical, orientacionLienzo),
+          targetPosition: handles.targetPosition,
+          sourcePosition: handles.sourcePosition,
           data: {
             hijoId: h.id,
             nombre: h.nombre,
@@ -144,6 +148,7 @@ function MapaDetalleCanvasInner({
             onAddLinked: onAddFromHijo ? onAddLinkedStable : undefined,
             enlacesEntrada: entrada,
             enlacesSalida: salida,
+            orientacionLienzo,
           },
           draggable: true,
           selectable: true,

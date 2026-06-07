@@ -1,6 +1,7 @@
 /** Proyección visual del lienzo — canónico X/Y (etapa→X, carril→Y) vs transpuesto Y/X. */
 
 import type { LienzoPosicionable } from "@/lib/mapa-lienzo-types";
+import { Position } from "@xyflow/react";
 import {
   MAPA_ORIGIN_X,
   MAPA_ORIGIN_Y,
@@ -53,4 +54,18 @@ export function posicionEnLienzoDisplay(
   origin: MapaLienzoOrigin = MAPA_LIENZO_ORIGIN,
 ): { x: number; y: number } {
   return canonicalToDisplay(posicionEnLienzo(item), orientacion, origin);
+}
+
+/** Handles y badges de enlaces según orientación del lienzo. */
+export function mapaLienzoFlowHandleConfig(
+  orientacion: MapaLienzoOrientacion = "xy",
+) {
+  const vertical = orientacion === "yx";
+  return {
+    axis: vertical ? ("y" as const) : ("x" as const),
+    targetPosition: vertical ? Position.Top : Position.Left,
+    sourcePosition: vertical ? Position.Bottom : Position.Right,
+    badgeEntrada: vertical ? "↑" : "←",
+    badgeSalida: vertical ? "↓" : "→",
+  };
 }

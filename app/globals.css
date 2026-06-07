@@ -1214,19 +1214,68 @@ html.pwa-standalone-zoom-lock body {
   border-width: 2px !important;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.mapa-flow-handle--target {
+.mapa-flow-handle--axis-x.mapa-flow-handle--target {
   left: -5px !important;
+  top: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateY(-50%);
   border-color: #64748b !important;
   background: white !important;
 }
-.mapa-flow-handle--source {
+.mapa-flow-handle--axis-x.mapa-flow-handle--source {
   right: -5px !important;
+  top: 50% !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: translateY(-50%);
   border-color: #264a6e !important;
   background: #264a6e !important;
 }
-.mapa-flow-node:hover .mapa-flow-handle,
-.mapa-flow-node--selected .mapa-flow-handle {
-  transform: scale(1.15);
+.mapa-flow-handle--axis-y.mapa-flow-handle--target {
+  top: -5px !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateX(-50%);
+  border-color: #64748b !important;
+  background: white !important;
+}
+.mapa-flow-handle--axis-y.mapa-flow-handle--source {
+  bottom: -5px !important;
+  left: 50% !important;
+  top: auto !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  border-color: #264a6e !important;
+  background: #264a6e !important;
+}
+.mapa-flow-node:hover .mapa-flow-handle--axis-x.mapa-flow-handle--target,
+.mapa-flow-node--selected .mapa-flow-handle--axis-x.mapa-flow-handle--target,
+.mapa-flow-tema-node:hover .mapa-flow-handle--axis-x.mapa-flow-handle--target,
+.mapa-flow-tema-node--selected .mapa-flow-handle--axis-x.mapa-flow-handle--target {
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 0 0 3px rgba(38, 74, 110, 0.12);
+}
+.mapa-flow-node:hover .mapa-flow-handle--axis-x.mapa-flow-handle--source,
+.mapa-flow-node--selected .mapa-flow-handle--axis-x.mapa-flow-handle--source,
+.mapa-flow-tema-node:hover .mapa-flow-handle--axis-x.mapa-flow-handle--source,
+.mapa-flow-tema-node--selected .mapa-flow-handle--axis-x.mapa-flow-handle--source {
+  transform: translateY(-50%) scale(1.15);
+  box-shadow: 0 0 0 3px rgba(38, 74, 110, 0.12);
+}
+.mapa-flow-node:hover .mapa-flow-handle--axis-y.mapa-flow-handle--target,
+.mapa-flow-node--selected .mapa-flow-handle--axis-y.mapa-flow-handle--target,
+.mapa-flow-tema-node:hover .mapa-flow-handle--axis-y.mapa-flow-handle--target,
+.mapa-flow-tema-node--selected .mapa-flow-handle--axis-y.mapa-flow-handle--target {
+  transform: translateX(-50%) scale(1.15);
+  box-shadow: 0 0 0 3px rgba(38, 74, 110, 0.12);
+}
+.mapa-flow-node:hover .mapa-flow-handle--axis-y.mapa-flow-handle--source,
+.mapa-flow-node--selected .mapa-flow-handle--axis-y.mapa-flow-handle--source,
+.mapa-flow-tema-node:hover .mapa-flow-handle--axis-y.mapa-flow-handle--source,
+.mapa-flow-tema-node--selected .mapa-flow-handle--axis-y.mapa-flow-handle--source {
+  transform: translateX(-50%) scale(1.15);
   box-shadow: 0 0 0 3px rgba(38, 74, 110, 0.12);
 }
 
