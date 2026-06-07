@@ -1,4 +1,5 @@
 import type { Tema } from "@/app/types/estudio";
+import type { MapaTemaFlowCardData } from "@/lib/mapa-tema-flow-card";
 
 export type MapaTemaNodeData = {
   tema: Tema;
@@ -6,4 +7,5 @@ export type MapaTemaNodeData = {
   onAddLinked?: (id: number) => void;
   enlacesEntrada?: number;
   enlacesSalida?: number;
+  cardData: MapaTemaFlowCardData;
 };

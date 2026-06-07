@@ -2,6 +2,7 @@
 
 import type { MapaTemaNodeData } from "@/components/desktop/mapa/mapa-tema-node-types";
 import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
+import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
 import type { NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
 
@@ -14,7 +15,7 @@ function EnlaceBadge({ label, count }: { label: string; count: number }) {
   );
 }
 
-/** Card de tema en el lienzo (ADR 009 fase 9b). Tono shell tema. */
+/** Card de tema en el lienzo — misma visual que explorador + meta etapa/carril/enlaces. */
 export function MapaTemaNode({ data, selected }: NodeProps) {
   const {
     tema,
@@ -22,12 +23,13 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
     onAddLinked,
     enlacesEntrada = 0,
     enlacesSalida = 0,
+    cardData,
   } = data as MapaTemaNodeData;
 
   return (
     <div
-      className={`mapa-flow-node mapa-flow-node--tema group max-w-[240px] rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] transition-[box-shadow,transform] duration-150 ${
-        selected ? "mapa-flow-node--selected" : ""
+      className={`mapa-flow-tema-node group relative w-[min(280px,90vw)] ${
+        selected ? "mapa-flow-tema-node--selected" : ""
       }`}
     >
       <Handle
@@ -38,46 +40,53 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
         title="Recibe enlaces (entrada)"
       />
 
-      <div className="px-3 pb-2.5 pt-2">
-        <span className="mapa-flow-node-tema-badge mb-1.5 inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide">
-          Tema
-        </span>
-
-        <div className="flex items-start justify-between gap-2">
-          <div className="mapa-flow-node-meta min-w-0">
-            <span className="mapa-flow-node-etapa">Etapa {tema.etapa}</span>
-            <span className="mapa-flow-node-dot" aria-hidden>
-              ·
-            </span>
-            <span className="mapa-flow-node-carril">Carril {tema.carril}</span>
-          </div>
-          <MapaFlowNodeCardActions
+      <div className="mapa-flow-tema-node-shell overflow-hidden rounded-[15px] border border-[var(--td-line)] bg-[var(--td-card)] shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)]">
+        <div className="relative">
+          <EstudioProgressCard
+            kind="tema"
+            nombre={tema.nombre}
+            derivados={cardData.derivados}
+            fechaParen={cardData.fechaParen}
+            hijosStats={cardData.hijosStats}
+            hijosLabel="cursos"
+            explorerId={tema.id}
             selected={selected}
-            onEdit={() => onEdit(tema.id)}
-            editLabel="Editar"
-            onAdd={
-              onAddLinked ? () => onAddLinked(tema.id) : undefined
-            }
-            addTitle="Nuevo tema enlazado desde aquí"
+            className="mapa-flow-tema-progress-card !rounded-none !border-0 !shadow-none"
           />
+          <div className="pointer-events-none absolute right-2 top-2 z-[2]">
+            <div className="pointer-events-auto">
+              <MapaFlowNodeCardActions
+                selected={selected}
+                onEdit={() => onEdit(tema.id)}
+                editLabel="Editar"
+                onAdd={
+                  onAddLinked ? () => onAddLinked(tema.id) : undefined
+                }
+                addTitle="Nuevo tema enlazado desde aquí"
+              />
+            </div>
+          </div>
         </div>
 
-        <p className="mapa-flow-node-title mt-1.5 text-[15px] font-bold leading-snug">
-          {tema.nombre}
-        </p>
-
-        {tema.descripcion?.trim() ? (
-          <p className="mapa-flow-node-desc mt-1 line-clamp-2 text-[11px] leading-snug">
-            {tema.descripcion}
-          </p>
-        ) : null}
-
-        {enlacesEntrada > 0 || enlacesSalida > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-1">
-            <EnlaceBadge label="←" count={enlacesEntrada} />
-            <EnlaceBadge label="→" count={enlacesSalida} />
+        <div className="mapa-flow-tema-lienzo-meta flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-t border-[var(--td-line)]/80 px-3 py-2">
+          <div className="mapa-flow-node-meta flex min-w-0 flex-wrap items-center gap-x-1 text-[10px] font-semibold">
+            <span className="mapa-flow-node-etapa text-[var(--estudio-shell-tema)]">
+              Etapa {tema.etapa}
+            </span>
+            <span className="mapa-flow-node-dot text-[var(--td-faint)]" aria-hidden>
+              ·
+            </span>
+            <span className="mapa-flow-node-carril text-[var(--estudio-shell-tema)]">
+              Carril {tema.carril}
+            </span>
           </div>
-        ) : null}
+          {enlacesEntrada > 0 || enlacesSalida > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              <EnlaceBadge label="←" count={enlacesEntrada} />
+              <EnlaceBadge label="→" count={enlacesSalida} />
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <Handle

@@ -10,7 +10,18 @@ import {
 } from "@/lib/mapa-objetivo";
 import { posicionEnLienzo, posicionNodoEnLienzo } from "@/lib/mapa-layout";
 import { mapaGrafoEnlaceCounts } from "@/lib/mapa-grafo-enlaces";
+import {
+  buildMapaTemaFlowCardDataMap,
+  type MapaTemaFlowCardData,
+} from "@/lib/mapa-tema-flow-card";
+import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
 import type { Node } from "@xyflow/react";
+
+const EMPTY_TEMA_CARD: MapaTemaFlowCardData = {
+  derivados: derivarDesdeSeguimientos([]),
+  fechaParen: null,
+  hijosStats: { terminadas: 0, total: 0 },
+};
 
 export type MapaFlowNodeBuildOptions = {
   nodos: MapaNodo[];
@@ -73,6 +84,7 @@ export type MapaFlowTemaBuildOptions = {
   enlaces: MapaGrafoEnlace[];
   onEditTema: (id: number) => void;
   onAddLinkedTema?: (id: number) => void;
+  temaCardDataMap?: Map<number, MapaTemaFlowCardData>;
 };
 
 /** Nodos React Flow para vista Temas (tono shell tema, sin filtro objetivo). */
@@ -81,10 +93,12 @@ export function buildMapaFlowNodesTemas({
   enlaces,
   onEditTema,
   onAddLinkedTema,
+  temaCardDataMap,
 }: MapaFlowTemaBuildOptions): Node[] {
   return temas.map((tema) => {
     const pos = posicionEnLienzo(tema);
     const { entrada, salida } = mapaGrafoEnlaceCounts(tema.id, enlaces);
+    const cardData = temaCardDataMap?.get(tema.id);
 
     return {
       id: String(tema.id),
@@ -96,6 +110,7 @@ export function buildMapaFlowNodesTemas({
         onAddLinked: onAddLinkedTema,
         enlacesEntrada: entrada,
         enlacesSalida: salida,
+        cardData: cardData ?? EMPTY_TEMA_CARD,
       },
       draggable: true,
     };
@@ -111,6 +126,7 @@ export type MapaFlowGrafoBuildOptions = {
   filtroObjetivo: MapaObjetivoFiltro;
   onEditItem: (id: number) => void;
   onAddLinkedItem?: (id: number) => void;
+  temaCardDataMap?: Map<number, MapaTemaFlowCardData>;
 };
 
 /** Dispatcher lienzo dual — misma firma para nodos y temas. */
@@ -123,6 +139,7 @@ export function buildMapaFlowNodesForGrafo({
   filtroObjetivo,
   onEditItem,
   onAddLinkedItem,
+  temaCardDataMap,
 }: MapaFlowGrafoBuildOptions): Node[] {
   if (modo === "temas") {
     return buildMapaFlowNodesTemas({
@@ -130,6 +147,7 @@ export function buildMapaFlowNodesForGrafo({
       enlaces,
       onEditTema: onEditItem,
       onAddLinkedTema: onAddLinkedItem,
+      temaCardDataMap,
     });
   }
   return buildMapaFlowNodes({

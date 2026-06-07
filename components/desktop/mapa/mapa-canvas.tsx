@@ -8,6 +8,8 @@ import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guid
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { buildMapaFlowNodesForGrafo } from "@/lib/mapa-flow-nodes";
+import { buildMapaTemaFlowCardDataMap } from "@/lib/mapa-tema-flow-card";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
 import {
   mapaObjetivoColor,
   mapaObjetivoIdFromNodo,
@@ -106,6 +108,16 @@ function MapaCanvasInner({
     [onAddLinkedItem],
   );
 
+  const { cacheData } = useEstudioData();
+
+  const temaCardDataMap = useMemo(() => {
+    if (grafoModo !== "temas") return undefined;
+    return buildMapaTemaFlowCardDataMap(
+      cacheData,
+      temas.map((t) => t.id),
+    );
+  }, [grafoModo, cacheData, temas]);
+
   const lienzoItems = grafoModo === "nodos" ? nodos : temas;
   const itemCount = lienzoItems.length;
 
@@ -133,6 +145,7 @@ function MapaCanvasInner({
         filtroObjetivo,
         onEditItem: onEditStable,
         onAddLinkedItem: onAddLinkedItem ? onAddLinkedStable : undefined,
+        temaCardDataMap,
       }),
     [
       grafoModo,
@@ -144,6 +157,7 @@ function MapaCanvasInner({
       onEditStable,
       onAddLinkedStable,
       onAddLinkedItem,
+      temaCardDataMap,
     ],
   );
 

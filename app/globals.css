@@ -1320,6 +1320,21 @@ html.pwa-standalone-zoom-lock body {
 }
 
 /* Vista Temas — tono shell tema (ADR 009 fase 9b) */
+.mapa-flow-tema-node-shell {
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.mapa-flow-tema-node--selected .mapa-flow-tema-node-shell {
+  box-shadow: 0 8px 24px -10px rgba(39, 72, 103, 0.4);
+  outline: 2px solid color-mix(in srgb, var(--td-navy) 30%, transparent);
+  outline-offset: 0;
+}
+.mapa-flow-tema-progress-card.explorer-progress-card[data-selected="true"] {
+  box-shadow: none;
+  outline: none;
+}
+.mapa-flow-tema-lienzo-meta {
+  background: color-mix(in srgb, var(--estudio-shell-tema) 8%, var(--td-card));
+}
 .mapa-flow-node--tema {
   border-color: color-mix(in srgb, var(--estudio-shell-tema) 65%, #cbd5e1);
   background: color-mix(in srgb, var(--estudio-shell-tema) 28%, white);
