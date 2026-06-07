@@ -22,11 +22,20 @@ export function isEstudioEntityTone(
   return tone === "tema" || tone === "curso" || tone === "clase";
 }
 
-/** Tono del panel móvil según ruta (/temas, /cursos, /clases). */
+/**
+ * Tono de la card madre móvil (panel AppShell) según profundidad de navegación:
+ * - Listado de temas → verde (tema)
+ * - Detalle de tema (cursos hijos) → celeste (curso)
+ * - Detalle de curso o clase (clases / ficha clase) → salmón (clase)
+ */
 export function shellToneFromPath(pathname: string): EstudioShellTone {
-  if (pathname.startsWith("/clases")) return "clase";
-  if (pathname.startsWith("/cursos")) return "curso";
-  if (pathname.startsWith("/temas")) return "tema";
+  const path = pathname.replace(/\/$/, "") || "/";
+
+  if (path.startsWith("/clases/")) return "clase";
+  if (path.startsWith("/cursos/")) return "clase";
+  if (path === "/temas" || path === "/temas/nuevo") return "tema";
+  if (path.startsWith("/temas/")) return "curso";
+
   return "neutral";
 }
 

@@ -65,7 +65,7 @@ export default function TemaDetallePage() {
 
   if (loading) {
     return (
-      <AppShell title="Tema" backHref="/temas" shellTone="tema">
+      <AppShell title="Tema" backHref="/temas" shellTone="curso">
         <LoadingText />
       </AppShell>
     );
@@ -73,7 +73,7 @@ export default function TemaDetallePage() {
 
   if (error || !tema || !metrics) {
     return (
-      <AppShell title="Tema" backHref="/temas" shellTone="tema">
+      <AppShell title="Tema" backHref="/temas" shellTone="curso">
         <AlertText>{error ?? "No encontrado"}</AlertText>
       </AppShell>
     );
@@ -99,7 +99,7 @@ export default function TemaDetallePage() {
       <AppShell
         breadcrumb={`Tema · ${tema.nombre}`}
         backHref="/temas"
-        shellTone="tema"
+        shellTone="curso"
         contentClassName="estudio-detalle-shell tema-detalle-shell flex min-h-0 flex-1 flex-col gap-0 px-2 pt-4 pb-0"
       >
         <TemaDetalleView
