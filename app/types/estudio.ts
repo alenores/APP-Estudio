@@ -24,7 +24,7 @@ export type Curso = {
   fecha_estimada_fin: string | null;
   plataforma: string | null;
   link: string | null;
-  objetivo_id: number | null;
+  nodo_id: number;
   created_at: string;
 };
 

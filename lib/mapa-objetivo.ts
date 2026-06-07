@@ -1,13 +1,14 @@
 /**
- * Objetivos del mapa de conocimiento (roadmap ERP).
- * Catálogo en Supabase `objetivos`; color/filtro por rango de `mapa_nodos.etapa`.
+ * Objetivos del mapa / nodos (roadmap ERP).
+ * Catálogo en Supabase `objetivos`; cada fila de `nodos_objetivos` tiene `objetivo_id`.
  * ADR 009 fase 7.
  */
 
-import type { MapaObjetivo, MapaObjetivoId } from "@/app/types/mapa";
+import type { MapaNodo, MapaObjetivo, MapaObjetivoId } from "@/app/types/mapa";
 import {
   OBJETIVO_COLOR,
   OBJETIVO_SHORT,
+  parseObjetivoId,
 } from "@/lib/objetivo-ui";
 
 /** Id de objetivo en BD (objetivos.id). */
@@ -19,20 +20,12 @@ export const MAPA_OBJETIVO_COLOR: Record<MapaObjetivoId, string> = OBJETIVO_COLO
 /** @deprecated Usar OBJETIVO_SHORT en lib/objetivo-ui.ts */
 export const MAPA_OBJETIVO_SHORT: Record<MapaObjetivoId, string> = OBJETIVO_SHORT;
 
-/** Rango inclusivo de etapa → objetivo_id. Mantener sincronizado con seed SQL. */
-const ETAPA_RANGES: { id: MapaObjetivoId; min: number; max: number }[] = [
-  { id: 1, min: 0, max: 8 },
-  { id: 2, min: 9, max: 9 },
-  { id: 3, min: 10, max: 10 },
-];
-
-/** Objetivo visual de un nodo según su etapa. null si etapa fuera de roadmap. */
-export function mapaObjetivoIdFromEtapa(etapa: number): MapaObjetivoId | null {
-  const e = Math.trunc(etapa);
-  for (const r of ETAPA_RANGES) {
-    if (e >= r.min && e <= r.max) return r.id;
-  }
-  return null;
+/** Objetivo visual de un nodo según `nodos_objetivos.objetivo_id`. */
+export function mapaObjetivoIdFromNodo(
+  nodo: Pick<MapaNodo, "objetivo_id"> | null | undefined,
+): MapaObjetivoId | null {
+  if (!nodo) return null;
+  return parseObjetivoId(nodo.objetivo_id);
 }
 
 export function mapaObjetivoColor(id: MapaObjetivoId): string {
@@ -46,22 +39,22 @@ export function mapaObjetivoToneClass(id: MapaObjetivoId): string {
 export type MapaObjetivoFiltro = "todos" | MapaObjetivoId;
 
 export function nodoCoincideFiltroObjetivo(
-  etapa: number,
+  nodo: Pick<MapaNodo, "objetivo_id">,
   filtro: MapaObjetivoFiltro,
 ): boolean {
   if (filtro === "todos") return true;
-  return mapaObjetivoIdFromEtapa(etapa) === filtro;
+  return mapaObjetivoIdFromNodo(nodo) === filtro;
 }
 
 export function enlaceCoincideFiltroObjetivo(
-  origenEtapa: number,
-  destinoEtapa: number,
+  origen: Pick<MapaNodo, "objetivo_id">,
+  destino: Pick<MapaNodo, "objetivo_id">,
   filtro: MapaObjetivoFiltro,
 ): boolean {
   if (filtro === "todos") return true;
   return (
-    nodoCoincideFiltroObjetivo(origenEtapa, filtro) &&
-    nodoCoincideFiltroObjetivo(destinoEtapa, filtro)
+    nodoCoincideFiltroObjetivo(origen, filtro) &&
+    nodoCoincideFiltroObjetivo(destino, filtro)
   );
 }
 
@@ -73,7 +66,6 @@ export function mapaObjetivoNombre(
   return objetivos.find((o) => o.id === id)?.nombre ?? `Objetivo ${id}`;
 }
 
-/** Objetivos ordenados para UI (filtro + leyenda). */
 export function mapaObjetivosOrdenados(objetivos: MapaObjetivo[]): MapaObjetivo[] {
   return [...objetivos].sort(
     (a, b) => a.orden - b.orden || a.id - b.id,
@@ -89,4 +81,15 @@ export function mapaObjetivoIdsDisponibles(
     .filter((id): id is MapaObjetivoId => id === 1 || id === 2 || id === 3);
   if (fromDb.length > 0) return fromDb;
   return [1, 2, 3];
+}
+
+/** Orden en explorador PC y listados. */
+export function sortNodosObjetivos(nodos: MapaNodo[]): MapaNodo[] {
+  return [...nodos].sort(
+    (a, b) =>
+      (a.orden ?? a.etapa) - (b.orden ?? b.etapa) ||
+      a.etapa - b.etapa ||
+      a.carril - b.carril ||
+      a.titulo.localeCompare(b.titulo, "es"),
+  );
 }

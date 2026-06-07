@@ -1,7 +1,7 @@
 import type { MapaEnlace, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
 import {
   enlaceCoincideFiltroObjetivo,
-  mapaObjetivoIdFromEtapa,
+  mapaObjetivoIdFromNodo,
   mapaObjetivoNombre,
   nodoCoincideFiltroObjetivo,
   type MapaObjetivoFiltro,
@@ -29,8 +29,8 @@ export function buildMapaFlowNodes({
   return nodos.map((nodo) => {
     const pos = posicionNodoEnLienzo(nodo);
     const { entrada, salida } = mapaNodoEnlaceCounts(nodo.id, enlaces);
-    const objetivoId = mapaObjetivoIdFromEtapa(nodo.etapa);
-    const visible = nodoCoincideFiltroObjetivo(nodo.etapa, filtroObjetivo);
+    const objetivoId = mapaObjetivoIdFromNodo(nodo);
+    const visible = nodoCoincideFiltroObjetivo(nodo, filtroObjetivo);
 
     return {
       id: String(nodo.id),
@@ -59,7 +59,7 @@ export function buildMapaFlowNodeVisibilityPatch(
 ): { id: string; hidden: boolean }[] {
   return nodos.map((nodo) => ({
     id: String(nodo.id),
-    hidden: !nodoCoincideFiltroObjetivo(nodo.etapa, filtroObjetivo),
+    hidden: !nodoCoincideFiltroObjetivo(nodo, filtroObjetivo),
   }));
 }
 
@@ -74,11 +74,7 @@ export function buildMapaFlowEdgeVisibilityPatch(
     const visible =
       origen != null &&
       destino != null &&
-      enlaceCoincideFiltroObjetivo(
-        origen.etapa,
-        destino.etapa,
-        filtroObjetivo,
-      );
+      enlaceCoincideFiltroObjetivo(origen, destino, filtroObjetivo);
     return { id: String(e.id), hidden: !visible };
   });
 }

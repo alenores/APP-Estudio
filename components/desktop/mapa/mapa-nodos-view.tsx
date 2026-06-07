@@ -85,8 +85,8 @@ export function MapaNodosView() {
   if (error) {
     return (
       <AlertText>
-        {error.includes("mapa_nodos") || error.includes("mapa_enlaces")
-          ? "Las tablas del mapa aún no existen en Supabase. Ejecutá docs/sql/002-schema-mapa-conocimiento.sql en el SQL Editor."
+        {error.includes("nodos_objetivos") || error.includes("enlaces_nodos")
+          ? "Las tablas nodos_objetivos / enlaces_nodos no existen o no tienen permisos. Ver docs/sql/005-schema-nodos-objetivos.sql."
           : error.includes("objetivos")
             ? "La tabla objetivos no existe o no tiene permisos. Ejecutá docs/sql/003-schema-objetivos.sql."
             : error}

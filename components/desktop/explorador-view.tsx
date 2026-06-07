@@ -34,6 +34,7 @@ import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
 } from "@/lib/explorer-entity-panel";
+import { objetivoIdForCurso } from "@/lib/curso-nodo-objetivo";
 import { parseObjetivoId } from "@/lib/objetivo-ui";
 import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
@@ -73,12 +74,13 @@ export function ExploradorView() {
   const bootstrappedRef = useRef(false);
   const {
     temas,
-    objetivos,
+    nodos,
+    nodosById,
     cursos,
     clases,
     clasesStatsPorCurso,
     cursosStatsPorTema,
-    cursosStatsPorObjetivo,
+    cursosStatsPorNodo,
     selection,
     loading,
     error,
@@ -130,7 +132,7 @@ export function ExploradorView() {
       explorerHref({
         rootMode: mode,
         temaId: mode === "temas" ? selection.temaId : null,
-        objetivoId: mode === "objetivos" ? selection.objetivoId : null,
+        nodoId: mode === "nodos" ? selection.nodoId : null,
         cursoId: null,
         claseId: null,
       }),
@@ -149,7 +151,7 @@ export function ExploradorView() {
 
   function onCreated(partial: {
     temaId?: number;
-    objetivoId?: number;
+    nodoId?: number;
     cursoId?: number;
     claseId?: number;
   }) {
@@ -157,7 +159,7 @@ export function ExploradorView() {
       explorerHref({
         rootMode: selection.rootMode,
         temaId: partial.temaId ?? selection.temaId,
-        objetivoId: partial.objetivoId ?? selection.objetivoId,
+        nodoId: partial.nodoId ?? selection.nodoId,
         cursoId: partial.cursoId ?? null,
         claseId: partial.claseId ?? null,
       }),
@@ -173,12 +175,7 @@ export function ExploradorView() {
       explorerHref({
         rootMode: selection.rootMode,
         temaId: cleared.temaId !== undefined ? null : selection.temaId,
-        objetivoId:
-          cleared.temaId !== undefined && selection.rootMode === "objetivos"
-            ? selection.objetivoId
-            : cleared.temaId !== undefined
-              ? null
-              : selection.objetivoId,
+        nodoId: cleared.temaId !== undefined ? null : selection.nodoId,
         cursoId: cleared.cursoId !== undefined ? null : selection.cursoId,
         claseId: cleared.claseId !== undefined ? null : selection.claseId,
       }),
@@ -195,7 +192,7 @@ export function ExploradorView() {
       explorerHref({
         rootMode: "temas",
         temaId: curso.tema_id,
-        objetivoId: null,
+        nodoId: null,
         cursoId: curso.id,
         claseId: null,
       }),
@@ -209,9 +206,9 @@ export function ExploradorView() {
       explorerHref({
         rootMode: selection.rootMode,
         temaId: selection.rootMode === "temas" ? (curso?.tema_id ?? selection.temaId) : null,
-        objetivoId:
-          selection.rootMode === "objetivos"
-            ? (parseObjetivoId(curso?.objetivo_id ?? null) ?? selection.objetivoId)
+        nodoId:
+          selection.rootMode === "nodos"
+            ? (curso?.nodo_id ?? selection.nodoId)
             : null,
         cursoId: clase.curso_id,
         claseId: clase.id,
@@ -233,11 +230,11 @@ export function ExploradorView() {
       : null;
 
   const rootParentSelected =
-    selection.rootMode === "objetivos"
-      ? selection.objetivoId != null
+    selection.rootMode === "nodos"
+      ? selection.nodoId != null
       : selection.temaId != null;
 
-  const objetivoDerivados = derivarDesdeSeguimientos([]);
+  const nodoDerivados = derivarDesdeSeguimientos([]);
 
   function entityCounts(ref: ExplorerEntityRef | null) {
     if (!ref || !cacheData) return { seguimientos: 0, conceptos: 0 };
@@ -286,7 +283,7 @@ export function ExploradorView() {
     enabled: packReady && !modalsOpen,
     rootMode: selection.rootMode,
     temas,
-    objetivos,
+    nodos,
     cursos,
     clases,
     selection,
@@ -306,21 +303,21 @@ export function ExploradorView() {
         <div className="explorer-columns-grid flex min-h-0 flex-1 gap-2 overflow-hidden bg-transparent">
           <ExploradorColumn
             columnKind="tema"
-            label={selection.rootMode === "objetivos" ? "Objetivos" : "Temas"}
+            label={selection.rootMode === "nodos" ? "Nodos objetivo" : "Temas"}
             count={
-              selection.rootMode === "objetivos" ? objetivos.length : temas.length
+              selection.rootMode === "nodos" ? nodos.length : temas.length
             }
             emptyMessage={
-              selection.rootMode === "objetivos"
-                ? "No hay objetivos en el catálogo."
+              selection.rootMode === "nodos"
+                ? "No hay nodos objetivo."
                 : "No hay temas. Usá el botón + en la cabecera."
             }
             rootSwitch={{
-              value: selection.rootMode,
-              onChange: switchRootMode,
+              value: selection.rootMode === "nodos" ? "nodos" : "temas",
+              onChange: (v) => switchRootMode(v === "nodos" ? "nodos" : "temas"),
             }}
             actions={
-              selection.rootMode === "objetivos"
+              selection.rootMode === "nodos"
                 ? []
                 : [
                     {
@@ -333,29 +330,29 @@ export function ExploradorView() {
                   ]
             }
           >
-            {selection.rootMode === "objetivos"
-              ? objetivos.map((o) => (
+            {selection.rootMode === "nodos"
+              ? nodos.map((n) => (
                   <ExploradorColumnCard
-                    key={o.id}
-                    kind="objetivo"
-                    explorerId={o.id}
-                    nombre={o.nombre}
-                    derivados={objetivoDerivados}
-                    descripcion={o.descripcion}
-                    hijosStats={cursosStatsPorObjetivo.get(o.id)}
+                    key={n.id}
+                    kind="nodo"
+                    explorerId={n.id}
+                    nombre={n.titulo}
+                    derivados={nodoDerivados}
+                    descripcion={n.descripcion}
+                    hijosStats={cursosStatsPorNodo.get(n.id)}
                     hijosLabel="cursos"
-                    objetivoId={o.id}
-                    selected={selection.objetivoId === o.id}
+                    objetivoId={parseObjetivoId(n.objetivo_id)}
+                    selected={selection.nodoId === n.id}
                     expanded={
-                      selection.objetivoId === o.id &&
+                      selection.nodoId === n.id &&
                       selection.cursoId == null &&
                       selection.claseId == null
                     }
                     onSelect={() =>
                       go(
                         explorerHref({
-                          rootMode: "objetivos",
-                          objetivoId: o.id,
+                          rootMode: "nodos",
+                          nodoId: n.id,
                           cursoId: null,
                           claseId: null,
                         }),
@@ -414,11 +411,11 @@ export function ExploradorView() {
             count={cursos.length}
             emptyMessage={
               !rootParentSelected
-                ? selection.rootMode === "objetivos"
-                  ? "Elegí un objetivo para ver sus cursos."
+                ? selection.rootMode === "nodos"
+                  ? "Elegí un nodo para ver sus cursos."
                   : "Elegí un tema para ver sus cursos."
-                : selection.rootMode === "objetivos"
-                  ? "Este objetivo no tiene cursos."
+                : selection.rootMode === "nodos"
+                  ? "Este nodo no tiene cursos."
                   : "Este tema no tiene cursos. Usá el botón + en la cabecera."
             }
             actions={[
@@ -465,7 +462,7 @@ export function ExploradorView() {
                 link={c.link}
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
-                objetivoId={c.objetivo_id}
+                objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
                 selected={selection.cursoId === c.id}
                 expanded={
                   selection.cursoId === c.id && selection.claseId == null
@@ -565,6 +562,7 @@ export function ExploradorView() {
         <ExploradorCreateModal
           kind={createKind}
           temaId={selection.temaId}
+          nodoId={selection.nodoId}
           cursoId={selection.cursoId}
           temaNombre={selectedTema?.nombre ?? null}
           cursoNombre={selectedCurso?.nombre ?? null}
@@ -589,6 +587,7 @@ export function ExploradorView() {
         <ExploradorSearchModal
           kind={searchKind}
           cacheData={cacheData}
+          nodosById={nodosById}
           onClose={() => setSearchKind(null)}
           onSelectCurso={onSearchCurso}
           onSelectClase={onSearchClase}

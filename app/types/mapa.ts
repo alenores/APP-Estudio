@@ -1,4 +1,4 @@
-/** Nodo del mapa de conocimiento (grafo PC). No confundir con `conceptos` de estudio. */
+/** Nodo del mapa de conocimiento (grafo PC). Tabla `nodos_objetivos`. */
 
 export type MapaObjetivoId = 1 | 2 | 3;
 
@@ -11,6 +11,9 @@ export type MapaObjetivo = {
   created_at: string;
 };
 
+export type NodoObjetivoTipo = "dominio" | string;
+
+/** Fila en `nodos_objetivos` (antes `mapa_nodos`). */
 export type MapaNodo = {
   id: number;
   user_id: string;
@@ -20,6 +23,10 @@ export type MapaNodo = {
   pos_y: number;
   carril: number;
   etapa: number;
+  /** Orden en listados (explorador PC). Fallback UI: `etapa`. */
+  orden: number;
+  tipo: NodoObjetivoTipo | null;
+  objetivo_id: number;
   created_at: string;
 };
 
@@ -29,6 +36,7 @@ export type MapaEnlaceTipo =
   | "refuerzo"
   | "paralelo";
 
+/** Fila en `enlaces_nodos` (antes `mapa_enlaces`). */
 export type MapaEnlace = {
   id: number;
   user_id: string;

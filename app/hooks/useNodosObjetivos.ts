@@ -1,12 +1,12 @@
 "use client";
 
-import type { MapaObjetivo } from "@/app/types/mapa";
-import { listMapaObjetivos } from "@/lib/mapa-queries";
-import { mapaObjetivosOrdenados } from "@/lib/mapa-objetivo";
+import type { MapaNodo } from "@/app/types/mapa";
+import { listMapaNodos } from "@/lib/mapa-queries";
 import { useEffect, useState } from "react";
 
-export function useObjetivosCatalog() {
-  const [objetivos, setObjetivos] = useState<MapaObjetivo[]>([]);
+/** Catálogo de nodos objetivo para explorador PC (ADR 009 + estudio). */
+export function useNodosObjetivos() {
+  const [nodos, setNodos] = useState<MapaNodo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,14 +15,14 @@ export function useObjetivosCatalog() {
 
     void (async () => {
       setLoading(true);
-      const { data, error: err } = await listMapaObjetivos();
+      const { data, error: err } = await listMapaNodos();
       if (cancelled) return;
       if (err) {
         setError(err);
-        setObjetivos([]);
+        setNodos([]);
       } else {
         setError(null);
-        setObjetivos(data ? mapaObjetivosOrdenados(data) : []);
+        setNodos(data ?? []);
       }
       setLoading(false);
     })();
@@ -32,5 +32,5 @@ export function useObjetivosCatalog() {
     };
   }, []);
 
-  return { objetivos, loading, error };
+  return { nodos, loading, error };
 }

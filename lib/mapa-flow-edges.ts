@@ -1,4 +1,4 @@
-import type { MapaEnlace, MapaEnlaceTipo } from "@/app/types/mapa";
+import type { MapaEnlace, MapaEnlaceTipo, MapaNodo } from "@/app/types/mapa";
 import {
   enlaceCoincideFiltroObjetivo,
   type MapaObjetivoFiltro,
@@ -17,7 +17,7 @@ function strokeForTipo(tipo: MapaEnlaceTipo | null): string {
 }
 
 export type ToFlowEdgesOptions = {
-  nodosById?: Map<number, { etapa: number }>;
+  nodosById?: Map<number, MapaNodo>;
   filtroObjetivo?: MapaObjetivoFiltro;
 };
 
@@ -36,11 +36,7 @@ export function toFlowEdges(
       const origen = nodosById.get(e.origen_id);
       const destino = nodosById.get(e.destino_id);
       if (origen && destino) {
-        hidden = !enlaceCoincideFiltroObjetivo(
-          origen.etapa,
-          destino.etapa,
-          filtro,
-        );
+        hidden = !enlaceCoincideFiltroObjetivo(origen, destino, filtro);
       }
     }
     return {

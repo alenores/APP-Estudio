@@ -17,7 +17,7 @@ export type ExploradorColumnAction = {
 };
 
 type ExploradorColumnCardProps = {
-  kind: "tema" | "curso" | "clase" | "objetivo";
+  kind: "tema" | "curso" | "clase" | "nodo";
   explorerId: number;
   nombre: string;
   derivados: SeguimientoDerivados;
@@ -74,9 +74,9 @@ export function ExploradorColumnCard({
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
   const expandedSlot =
-    expanded && kind === "objetivo" ? (
+    expanded && kind === "nodo" ? (
       <ExploradorCardExpanded
-        kind="objetivo"
+        kind="nodo"
         descripcion={descripcion ?? null}
         fechaInicio={null}
         fechaFin={null}
@@ -126,8 +126,8 @@ export function ExploradorColumnCard({
 }
 
 type ExploradorRootSwitch = {
-  value: "temas" | "objetivos";
-  onChange: (value: "temas" | "objetivos") => void;
+  value: "temas" | "nodos";
+  onChange: (value: "temas" | "nodos") => void;
 };
 
 type ExploradorColumnProps = {
@@ -200,7 +200,7 @@ function ExploradorRootSwitchControl({
       {(
         [
           { id: "temas" as const, label: "Temas" },
-          { id: "objetivos" as const, label: "Objetivos" },
+          { id: "nodos" as const, label: "Nodos" },
         ] as const
       ).map((opt) => (
         <button

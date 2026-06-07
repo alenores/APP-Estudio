@@ -1,31 +1,31 @@
 "use client";
 
 import { useEstudioData } from "@/app/hooks/useEstudioData";
-import { useObjetivosCatalog } from "@/app/hooks/useObjetivosCatalog";
+import { useNodosObjetivos } from "@/app/hooks/useNodosObjetivos";
 import type {
   ClaseConDerivados,
   CursoConDerivados,
   TemaConDerivados,
 } from "@/app/types/estudio";
+import type { MapaNodo } from "@/app/types/mapa";
 import {
-  getCursosPorObjetivoFromCache,
+  getCursosPorNodoFromCache,
   getCursoDetalleFromCache,
   getTemaDetalleFromCache,
   listTemasConDerivadosFromCache,
 } from "@/lib/estudio-offline-read";
 import { clasesStatsMapPorCursos } from "@/lib/curso-clases-stats";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
-import { cursosStatsMapPorObjetivos } from "@/lib/objetivo-cursos-stats";
+import { cursosStatsMapPorNodos } from "@/lib/nodo-cursos-stats";
 import { cursosStatsMapPorTemas } from "@/lib/tema-cursos-stats";
-import { parseObjetivoId } from "@/lib/objetivo-ui";
 import { useMemo } from "react";
 
-export type ExplorerRootMode = "temas" | "objetivos";
+export type ExplorerRootMode = "temas" | "nodos";
 
 export type ExplorerSelection = {
   rootMode: ExplorerRootMode;
   temaId: number | null;
-  objetivoId: number | null;
+  nodoId: number | null;
   cursoId: number | null;
   claseId: number | null;
 };
@@ -37,26 +37,31 @@ function parseId(value: string | null): number | null {
 }
 
 function parseRootMode(params: URLSearchParams): ExplorerRootMode {
-  return params.get("vista") === "objetivos" ? "objetivos" : "temas";
+  const vista = params.get("vista");
+  if (vista === "nodos" || vista === "objetivos") return "nodos";
+  return "temas";
 }
 
-/** Resuelve tema/objetivo/curso/clase desde query (?vista=&tema=&objetivo=&curso=&clase=). */
+/** Resuelve tema/nodo/curso/clase desde query (?vista=&tema=&nodo=&curso=&clase=). */
 export function parseExplorerSelection(
   params: URLSearchParams,
 ): ExplorerSelection {
   const rootMode = parseRootMode(params);
   const temaId = parseId(params.get("tema"));
-  const objetivoId = parseId(params.get("objetivo"));
+  const nodoId =
+    parseId(params.get("nodo")) ?? parseId(params.get("objetivo"));
   const cursoId = parseId(params.get("curso"));
   const claseId = parseId(params.get("clase"));
-  return { rootMode, temaId, objetivoId, cursoId, claseId };
+  return { rootMode, temaId, nodoId, cursoId, claseId };
 }
 
 export function normalizeExplorerSelection(
   cache: NonNullable<ReturnType<typeof useEstudioData>["cacheData"]>,
+  nodos: MapaNodo[],
   raw: ExplorerSelection,
 ): ExplorerSelection {
-  let { rootMode, temaId, objetivoId, cursoId, claseId } = raw;
+  let { rootMode, temaId, nodoId, cursoId, claseId } = raw;
+  const nodoIds = new Set(nodos.map((n) => n.id));
 
   if (claseId != null) {
     const clase = cache.clases.find((c) => c.id === claseId);
@@ -68,29 +73,29 @@ export function normalizeExplorerSelection(
       if (!curso) {
         claseId = null;
         cursoId = null;
-      } else if (rootMode === "objetivos") {
-        objetivoId = parseObjetivoId(curso.objetivo_id) ?? objetivoId;
+      } else if (rootMode === "nodos") {
+        nodoId = curso.nodo_id;
         temaId = null;
       } else {
         temaId = curso.tema_id;
-        objetivoId = null;
+        nodoId = null;
       }
     }
   } else if (cursoId != null) {
     const curso = cache.cursos.find((c) => c.id === cursoId);
     if (!curso) {
       cursoId = null;
-    } else if (rootMode === "objetivos") {
-      objetivoId = parseObjetivoId(curso.objetivo_id) ?? objetivoId;
+    } else if (rootMode === "nodos") {
+      nodoId = curso.nodo_id;
       temaId = null;
     } else {
       temaId = curso.tema_id;
-      objetivoId = null;
+      nodoId = null;
     }
   }
 
   if (rootMode === "temas") {
-    objetivoId = null;
+    nodoId = null;
     if (temaId != null && !cache.temas.some((t) => t.id === temaId)) {
       temaId = null;
       cursoId = null;
@@ -102,15 +107,14 @@ export function normalizeExplorerSelection(
     }
   } else {
     temaId = null;
-    if (objetivoId != null && parseObjetivoId(objetivoId) == null) {
-      objetivoId = null;
+    if (nodoId != null && !nodoIds.has(nodoId)) {
+      nodoId = null;
       cursoId = null;
       claseId = null;
     }
-    if (cursoId != null && objetivoId != null) {
+    if (cursoId != null && nodoId != null) {
       const curso = cache.cursos.find((c) => c.id === cursoId);
-      const oid = parseObjetivoId(curso?.objetivo_id ?? null);
-      if (!curso || oid !== parseObjetivoId(objetivoId)) cursoId = null;
+      if (!curso || curso.nodo_id !== nodoId) cursoId = null;
     }
   }
 
@@ -119,29 +123,29 @@ export function normalizeExplorerSelection(
     if (!clase || clase.curso_id !== cursoId) claseId = null;
   }
 
-  return { rootMode, temaId, objetivoId, cursoId, claseId };
+  return { rootMode, temaId, nodoId, cursoId, claseId };
 }
 
 export function useEstudioExplorer(selection: ExplorerSelection) {
   const { cacheData, packReady, loadingPack, error } = useEstudioData();
   const {
-    objetivos,
-    loading: loadingObjetivos,
-    error: objetivosError,
-  } = useObjetivosCatalog();
+    nodos,
+    loading: loadingNodos,
+    error: nodosError,
+  } = useNodosObjetivos();
 
   const normalized = useMemo(
     () =>
       cacheData
-        ? normalizeExplorerSelection(cacheData, selection)
+        ? normalizeExplorerSelection(cacheData, nodos, selection)
         : {
             rootMode: "temas" as const,
             temaId: null,
-            objetivoId: null,
+            nodoId: null,
             cursoId: null,
             claseId: null,
           },
-    [cacheData, selection],
+    [cacheData, nodos, selection],
   );
 
   const temas: TemaConDerivados[] = useMemo(
@@ -151,13 +155,13 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
 
   const cursos: CursoConDerivados[] = useMemo(() => {
     if (!cacheData) return [];
-    if (normalized.rootMode === "objetivos") {
-      if (normalized.objetivoId == null) return [];
-      return getCursosPorObjetivoFromCache(cacheData, normalized.objetivoId);
+    if (normalized.rootMode === "nodos") {
+      if (normalized.nodoId == null) return [];
+      return getCursosPorNodoFromCache(cacheData, normalized.nodoId);
     }
     if (normalized.temaId == null) return [];
     return getTemaDetalleFromCache(cacheData, normalized.temaId).cursos;
-  }, [cacheData, normalized.rootMode, normalized.temaId, normalized.objetivoId]);
+  }, [cacheData, normalized.rootMode, normalized.temaId, normalized.nodoId]);
 
   const clases: ClaseConDerivados[] = useMemo(() => {
     if (!cacheData || normalized.cursoId == null) return [];
@@ -180,28 +184,34 @@ export function useEstudioExplorer(selection: ExplorerSelection) {
     );
   }, [cacheData, temas]);
 
-  const cursosStatsPorObjetivo = useMemo((): Map<number, HijosProgressStats> => {
-    if (!cacheData || objetivos.length === 0) return new Map();
-    return cursosStatsMapPorObjetivos(
+  const cursosStatsPorNodo = useMemo((): Map<number, HijosProgressStats> => {
+    if (!cacheData || nodos.length === 0) return new Map();
+    return cursosStatsMapPorNodos(
       cacheData,
-      objetivos.map((o) => o.id),
+      nodos.map((n) => n.id),
     );
-  }, [cacheData, objetivos]);
+  }, [cacheData, nodos]);
+
+  const nodosById = useMemo(
+    () => new Map(nodos.map((n) => [n.id, n])),
+    [nodos],
+  );
 
   const loading =
-    loadingPack || (!packReady && !cacheData) || loadingObjetivos;
+    loadingPack || (!packReady && !cacheData) || loadingNodos;
 
   return {
     temas,
-    objetivos,
+    nodos,
+    nodosById,
     cursos,
     clases,
     clasesStatsPorCurso,
     cursosStatsPorTema,
-    cursosStatsPorObjetivo,
+    cursosStatsPorNodo,
     selection: normalized,
     loading,
-    error: error ?? objetivosError,
+    error: error ?? nodosError,
     packReady,
   };
 }
@@ -211,17 +221,15 @@ export function explorerHref(
   partial: Partial<ExplorerSelection> & {
     rootMode?: ExplorerRootMode;
     temaId?: number | null;
-    objetivoId?: number | null;
+    nodoId?: number | null;
     cursoId?: number | null;
     claseId?: number | null;
   },
 ): string {
   const params = new URLSearchParams();
-  if (partial.rootMode === "objetivos") params.set("vista", "objetivos");
+  if (partial.rootMode === "nodos") params.set("vista", "nodos");
   if (partial.temaId != null) params.set("tema", String(partial.temaId));
-  if (partial.objetivoId != null) {
-    params.set("objetivo", String(partial.objetivoId));
-  }
+  if (partial.nodoId != null) params.set("nodo", String(partial.nodoId));
   if (partial.cursoId != null) params.set("curso", String(partial.cursoId));
   if (partial.claseId != null) params.set("clase", String(partial.claseId));
   const q = params.toString();

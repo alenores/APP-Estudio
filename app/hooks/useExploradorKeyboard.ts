@@ -10,7 +10,7 @@ import type {
   CursoConDerivados,
   TemaConDerivados,
 } from "@/app/types/estudio";
-import type { MapaObjetivo } from "@/app/types/mapa";
+import type { MapaNodo } from "@/app/types/mapa";
 import type {
   ExplorerEntityRef,
   ExplorerPanelKind,
@@ -22,14 +22,14 @@ export type ExplorerColumnKind = "temas" | "cursos" | "clases";
 type ColumnItem = {
   id: number;
   nombre: string;
-  kind: ExplorerEntityRef["kind"] | "objetivo";
+  kind: ExplorerEntityRef["kind"] | "nodo";
 };
 
 type UseExploradorKeyboardArgs = {
   enabled: boolean;
   rootMode: ExplorerRootMode;
   temas: TemaConDerivados[];
-  objetivos: MapaObjetivo[];
+  nodos: MapaNodo[];
   cursos: CursoConDerivados[];
   clases: ClaseConDerivados[];
   selection: ExplorerSelection;
@@ -53,17 +53,17 @@ function columnItems(
   column: ExplorerColumnKind,
   rootMode: ExplorerRootMode,
   temas: TemaConDerivados[],
-  objetivos: MapaObjetivo[],
+  nodos: MapaNodo[],
   cursos: CursoConDerivados[],
   clases: ClaseConDerivados[],
 ): ColumnItem[] {
   switch (column) {
     case "temas":
-      if (rootMode === "objetivos") {
-        return objetivos.map((o) => ({
-          id: o.id,
-          nombre: o.nombre,
-          kind: "objetivo",
+      if (rootMode === "nodos") {
+        return nodos.map((n) => ({
+          id: n.id,
+          nombre: n.titulo,
+          kind: "nodo",
         }));
       }
       return temas.map((t) => ({ id: t.id, nombre: t.nombre, kind: "tema" }));
@@ -85,7 +85,7 @@ function selectedIdInColumn(
 ): number | null {
   switch (column) {
     case "temas":
-      return rootMode === "objetivos" ? selection.objetivoId : selection.temaId;
+      return rootMode === "nodos" ? selection.nodoId : selection.temaId;
     case "cursos":
       return selection.cursoId;
     case "clases":
@@ -111,10 +111,10 @@ function hrefForItem(
         cursoId: null,
         claseId: null,
       });
-    case "objetivo":
+    case "nodo":
       return explorerHref({
-        rootMode: "objetivos",
-        objetivoId: item.id,
+        rootMode: "nodos",
+        nodoId: item.id,
         cursoId: null,
         claseId: null,
       });
@@ -122,8 +122,7 @@ function hrefForItem(
       return explorerHref({
         rootMode: selection.rootMode,
         temaId: selection.rootMode === "temas" ? selection.temaId : null,
-        objetivoId:
-          selection.rootMode === "objetivos" ? selection.objetivoId : null,
+        nodoId: selection.rootMode === "nodos" ? selection.nodoId : null,
         cursoId: item.id,
         claseId: null,
       });
@@ -131,8 +130,7 @@ function hrefForItem(
       return explorerHref({
         rootMode: selection.rootMode,
         temaId: selection.rootMode === "temas" ? selection.temaId : null,
-        objetivoId:
-          selection.rootMode === "objetivos" ? selection.objetivoId : null,
+        nodoId: selection.rootMode === "nodos" ? selection.nodoId : null,
         cursoId: selection.cursoId,
         claseId: item.id,
       });
@@ -148,7 +146,7 @@ export function useExploradorKeyboard({
   enabled,
   rootMode,
   temas,
-  objetivos,
+  nodos,
   cursos,
   clases,
   selection,
@@ -178,7 +176,7 @@ export function useExploradorKeyboard({
       column,
       rootMode,
       temas,
-      objetivos,
+      nodos,
       cursos,
       clases,
     );
@@ -189,11 +187,11 @@ export function useExploradorKeyboard({
         ? items.findIndex((i) => i.id === selectedId)
         : -1;
     const item = idx >= 0 ? items[idx] : items[0];
-    if (!item || item.kind === "objetivo") return null;
+    if (!item || item.kind === "nodo") return null;
     return item
       ? { kind: item.kind, id: item.id, nombre: item.nombre }
       : null;
-  }, [rootMode, temas, objetivos, cursos, clases, selection]);
+  }, [rootMode, temas, nodos, cursos, clases, selection]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -207,7 +205,7 @@ export function useExploradorKeyboard({
         column,
         rootMode,
         temas,
-        objetivos,
+        nodos,
         cursos,
         clases,
       );
@@ -239,7 +237,7 @@ export function useExploradorKeyboard({
           nextColumn,
           rootMode,
           temas,
-          objetivos,
+          nodos,
           cursos,
           clases,
         );
@@ -289,7 +287,7 @@ export function useExploradorKeyboard({
     enabled,
     rootMode,
     temas,
-    objetivos,
+    nodos,
     cursos,
     clases,
     selection,

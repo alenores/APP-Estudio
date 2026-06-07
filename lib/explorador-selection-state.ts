@@ -6,7 +6,7 @@ import {
 export const EMPTY_EXPLORER_SELECTION: ExplorerSelection = {
   rootMode: "temas",
   temaId: null,
-  objetivoId: null,
+  nodoId: null,
   cursoId: null,
   claseId: null,
 };
@@ -51,7 +51,7 @@ export function selectionsEqual(
   return (
     a.rootMode === b.rootMode &&
     a.temaId === b.temaId &&
-    a.objetivoId === b.objetivoId &&
+    a.nodoId === b.nodoId &&
     a.cursoId === b.cursoId &&
     a.claseId === b.claseId
   );

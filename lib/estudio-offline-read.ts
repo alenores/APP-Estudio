@@ -147,12 +147,12 @@ function attachDerivadosToClasesFromCache(
   }));
 }
 
-export function getCursosPorObjetivoFromCache(
+export function getCursosPorNodoFromCache(
   cache: EstudioOfflineCacheData,
-  objetivoId: number,
+  nodoId: number,
 ): CursoConDerivados[] {
   const cursosRaw = sortCursos(
-    cache.cursos.filter((c) => c.objetivo_id === objetivoId),
+    cache.cursos.filter((c) => c.nodo_id === nodoId),
   );
   return attachDerivadosToCursosFromCache(cache, cursosRaw);
 }

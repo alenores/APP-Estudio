@@ -83,8 +83,10 @@ app/(desktop)/explorador/page.tsx    → explorador 3 columnas (PC)
 app/(desktop)/mapa/page.tsx          → mapa conocimiento (solo PC, ADR 009)
 lib/shell-detect.ts                  → detección shell en middleware
 lib/shell-routes.ts                  → rutas por shell (+ DESKTOP_MAPA_PREFIX)
-lib/mapa-queries.ts                  → CRUD mapa_nodos (sin snapshot offline)
-lib/mapa-objetivo.ts                 → color/filtro objetivos en lienzo
+lib/mapa-queries.ts                  → CRUD nodos_objetivos / enlaces_nodos
+lib/mapa-objetivo.ts                 → color/filtro por nodos_objetivos.objetivo_id
+lib/nodo-cursos-stats.ts             → donut cursos por nodo (explorador)
+app/hooks/useNodosObjetivos.ts       → catálogo nodos para explorador PC
 app/hooks/useMapaNodos.ts            → datos mapa (separado de useEstudioData)
 lib/form-parent-types.ts             → ConceptoParent, SeguimientoParent
 app/hooks/useEstudioExplorer.ts      → árbol temas/cursos/clases (PC)

@@ -6,7 +6,8 @@ import type {
 } from "@/app/types/estudio";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-card";
-import { parseObjetivoId } from "@/lib/objetivo-ui";
+import { objetivoIdForCurso } from "@/lib/curso-nodo-objetivo";
+import type { MapaNodo } from "@/app/types/mapa";
 import type { EstudioOfflineCacheData } from "@/lib/estudio-offline-cache";
 import {
   listAllClasesConDerivadosFromCache,
@@ -21,6 +22,7 @@ export type ExploradorSearchKind = "curso" | "clase";
 type ExploradorSearchModalProps = {
   kind: ExploradorSearchKind;
   cacheData: EstudioOfflineCacheData;
+  nodosById: Map<number, MapaNodo>;
   onClose: () => void;
   onSelectCurso: (curso: CursoConDerivados) => void;
   onSelectClase: (clase: ClaseConDerivados) => void;
@@ -29,6 +31,7 @@ type ExploradorSearchModalProps = {
 export function ExploradorSearchModal({
   kind,
   cacheData,
+  nodosById,
   onClose,
   onSelectCurso,
   onSelectClase,
@@ -136,7 +139,7 @@ export function ExploradorSearchModal({
                         searchContextLine={`Tema · ${temaNombreById.get(c.tema_id) ?? "—"}`}
                         searchShowDescripcion
                         linkIconOnly
-                        objetivoId={parseObjetivoId(c.objetivo_id)}
+                        objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
                         onSelect={() => onSelectCurso(c)}
                       />
                     </li>

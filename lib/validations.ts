@@ -45,6 +45,10 @@ export const temaFormSchema = z.object({
 export const cursoFormSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio").max(200),
   descripcion: optionalText,
+  nodo_id: z.coerce
+    .number({ invalid_type_error: "Elegí un nodo objetivo" })
+    .int("Nodo inválido")
+    .positive("Elegí un nodo objetivo"),
   orden: optionalInt,
   jerarquia: optionalInt,
   fecha_estimada_inicio: optionalDate,
@@ -203,6 +207,12 @@ export const mapaNodoFormSchema = z.object({
   descripcion: optionalText,
   etapa: optionalInt,
   carril: optionalInt,
+  orden: optionalInt,
+  tipo: optionalText,
+  objetivo_id: z.coerce
+    .number({ invalid_type_error: "Elegí un objetivo" })
+    .int()
+    .refine((v) => v === 1 || v === 2 || v === 3, "Objetivo inválido"),
   pos_x: optionalFloat,
   pos_y: optionalFloat,
 });

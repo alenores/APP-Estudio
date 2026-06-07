@@ -2,7 +2,6 @@ import type { EstudioOfflineCacheData } from "@/lib/estudio-offline-cache";
 import { derivarDesdeSeguimientos } from "@/lib/seguimiento-derivados";
 import { normalizarEstado } from "@/lib/estado-ui";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
-import { parseObjetivoId } from "@/lib/objetivo-ui";
 
 function seguimientosPorCurso(
   cache: EstudioOfflineCacheData,
@@ -11,15 +10,11 @@ function seguimientosPorCurso(
   return cache.seguimientos.filter((s) => s.curso_id === cursoId);
 }
 
-/** Cursos del objetivo terminados según seguimientos. */
-export function cursosStatsPorObjetivo(
+export function cursosStatsPorNodo(
   cache: EstudioOfflineCacheData,
-  objetivoId: number,
+  nodoId: number,
 ): HijosProgressStats {
-  const oid = parseObjetivoId(objetivoId);
-  if (oid == null) return { terminadas: 0, total: 0 };
-
-  const cursos = cache.cursos.filter((c) => c.objetivo_id === oid);
+  const cursos = cache.cursos.filter((c) => c.nodo_id === nodoId);
   let terminadas = 0;
   for (const curso of cursos) {
     const d = derivarDesdeSeguimientos(seguimientosPorCurso(cache, curso.id));
@@ -31,13 +26,13 @@ export function cursosStatsPorObjetivo(
   return { terminadas, total: cursos.length };
 }
 
-export function cursosStatsMapPorObjetivos(
+export function cursosStatsMapPorNodos(
   cache: EstudioOfflineCacheData,
-  objetivoIds: number[],
+  nodoIds: number[],
 ): Map<number, HijosProgressStats> {
   const map = new Map<number, HijosProgressStats>();
-  for (const id of objetivoIds) {
-    map.set(id, cursosStatsPorObjetivo(cache, id));
+  for (const id of nodoIds) {
+    map.set(id, cursosStatsPorNodo(cache, id));
   }
   return map;
 }

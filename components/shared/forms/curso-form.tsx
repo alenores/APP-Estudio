@@ -14,17 +14,19 @@ import {
   insertCurso,
   updateCurso,
 } from "@/lib/estudio-queries";
+import { listMapaNodos } from "@/lib/mapa-queries";
 import { zodFieldErrors } from "@/lib/form-errors";
 import {
   isoToDateInputValue,
   numberFieldInitial,
 } from "@/lib/iso-date-input";
 import { cursoFormSchema } from "@/lib/validations";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type CursoFormProps = {
   temaId: number;
   curso?: Curso;
+  defaultNodoId?: number | null;
   onSuccess: (cursoId: number) => void;
   onDelete?: () => void;
 };
@@ -32,12 +34,19 @@ type CursoFormProps = {
 export function CursoForm({
   temaId,
   curso,
+  defaultNodoId = null,
   onSuccess,
   onDelete,
 }: CursoFormProps) {
   const isEdit = curso != null;
   const [nombre, setNombre] = useState(curso?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(curso?.descripcion ?? "");
+  const [nodoId, setNodoId] = useState(
+    String(curso?.nodo_id ?? defaultNodoId ?? ""),
+  );
+  const [nodosOptions, setNodosOptions] = useState<
+    { id: number; titulo: string }[]
+  >([]);
   const [orden, setOrden] = useState(numberFieldInitial(curso?.orden));
   const [jerarquia, setJerarquia] = useState(numberFieldInitial(curso?.jerarquia));
   const [fechaInicio, setFechaInicio] = useState(
@@ -51,6 +60,14 @@ export function CursoForm({
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  useEffect(() => {
+    void listMapaNodos().then(({ data }) => {
+      if (data) {
+        setNodosOptions(data.map((n) => ({ id: n.id, titulo: n.titulo })));
+      }
+    });
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -59,6 +76,7 @@ export function CursoForm({
     const parsed = cursoFormSchema.safeParse({
       nombre,
       descripcion,
+      nodo_id: nodoId,
       orden,
       jerarquia,
       fecha_estimada_inicio: fechaInicio,
@@ -119,6 +137,21 @@ export function CursoForm({
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
+      </FormField>
+      <FormField label="Nodo objetivo *" error={fieldErrors.nodo_id}>
+        <select
+          required
+          value={nodoId}
+          onChange={(e) => setNodoId(e.target.value)}
+          className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
+        >
+          <option value="">Elegí un nodo…</option>
+          {nodosOptions.map((n) => (
+            <option key={n.id} value={String(n.id)}>
+              {n.titulo}
+            </option>
+          ))}
+        </select>
       </FormField>
       <FormField label="Descripción" error={fieldErrors.descripcion}>
         <FormTextarea

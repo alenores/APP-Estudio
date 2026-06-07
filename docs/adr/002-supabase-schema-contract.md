@@ -56,9 +56,28 @@ En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `n
 | `fecha_estimada_fin` | date | |
 | `plataforma` | text | libre (ej. Platzi) |
 | `link` | text | URL del curso |
-| `objetivo_id` | bigint | nullable, FK → `objetivos.id` (roadmap; ver ADR 009 fase 7) |
+| `nodo_id` | bigint | not null, FK → `nodos_objetivos.id` (roadmap; ver ADR 009 fase 8) |
 
 No hay columna `estado` en `cursos`: ver campos derivados.
+
+#### `nodos_objetivos` (grafo mapa PC + padre de cursos)
+
+Tabla `nodos_objetivos` (antes `mapa_nodos`). Script: `docs/sql/005-schema-nodos-objetivos.sql`.
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `titulo` | text | not null |
+| `descripcion` | text | |
+| `pos_x`, `pos_y` | float | lienzo React Flow |
+| `carril`, `etapa` | integer | layout timeline |
+| `orden` | integer | orden en explorador PC |
+| `tipo` | text | ej. `dominio` |
+| `objetivo_id` | bigint | FK → `objetivos.id` |
+| `user_id` | uuid | RLS |
+
+#### `enlaces_nodos` (antes `mapa_enlaces`)
+
+FK `origen_id` / `destino_id` → `nodos_objetivos.id`.
 
 #### `objetivos` (catálogo roadmap — mapa PC)
 
@@ -68,7 +87,7 @@ No hay columna `estado` en `cursos`: ver campos derivados.
 | `descripcion` | text | |
 | `orden` | integer | not null, default 0 |
 
-Sin `user_id` (referencia global). Script: `docs/sql/003-schema-objetivos.sql`. Color en mapa por rango de `mapa_nodos.etapa` → id 1–3.
+Sin `user_id` (referencia global). Script: `docs/sql/003-schema-objetivos.sql`. Color en mapa y dot en cursos vía `nodos_objetivos.objetivo_id`.
 
 #### `clases` (catálogo — sin progreso persistido)
 

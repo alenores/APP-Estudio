@@ -256,6 +256,7 @@ export async function insertCurso(
       fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
       plataforma: emptyToNull(values.plataforma),
       link: emptyToNull(values.link),
+      nodo_id: values.nodo_id,
     })
     .select()
     .single();
@@ -327,6 +328,7 @@ export async function updateCurso(
       fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
       plataforma: emptyToNull(values.plataforma),
       link: emptyToNull(values.link),
+      nodo_id: values.nodo_id,
     })
     .eq("id", cursoId)
     .select()

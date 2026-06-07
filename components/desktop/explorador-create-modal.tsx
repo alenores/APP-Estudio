@@ -14,12 +14,14 @@ export type ExploradorCreateKind = "tema" | "curso" | "clase";
 type ExploradorCreateModalProps = {
   kind: ExploradorCreateKind;
   temaId: number | null;
+  nodoId: number | null;
   cursoId: number | null;
   temaNombre: string | null;
   cursoNombre: string | null;
   onClose: () => void;
   onCreated: (partial: {
     temaId?: number;
+    nodoId?: number;
     cursoId?: number;
     claseId?: number;
   }) => void;
@@ -28,6 +30,7 @@ type ExploradorCreateModalProps = {
 export function ExploradorCreateModal({
   kind,
   temaId,
+  nodoId,
   cursoId,
   temaNombre,
   cursoNombre,
@@ -38,6 +41,7 @@ export function ExploradorCreateModal({
 
   async function afterCreate(partial: {
     temaId?: number;
+    nodoId?: number;
     cursoId?: number;
     claseId?: number;
   }) {
@@ -74,7 +78,8 @@ export function ExploradorCreateModal({
           />
           <CursoForm
             temaId={temaId}
-            onSuccess={(id) => void afterCreate({ temaId, cursoId: id })}
+            defaultNodoId={nodoId}
+            onSuccess={(id) => void afterCreate({ temaId, nodoId: nodoId ?? undefined, cursoId: id })}
           />
         </>
       ) : null}

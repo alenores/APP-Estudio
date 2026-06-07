@@ -17,7 +17,7 @@ import { HighlightMatch } from "@/components/shared/text/highlight-match";
 const DONUT_R = 11;
 const DONUT_C = 2 * Math.PI * DONUT_R;
 
-export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "objetivo";
+export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "nodo";
 
 export type EstudioProgressCardProps = {
   kind: EstudioProgressCardKind;
@@ -94,7 +94,7 @@ export function EstudioProgressCard({
       : DONUT_C;
 
   const showDonut =
-    (kind === "tema" || kind === "curso" || kind === "objetivo") &&
+    (kind === "tema" || kind === "curso" || kind === "nodo") &&
     hijosStats != null;
 
   const showSearchDescripcion =
@@ -169,7 +169,7 @@ export function EstudioProgressCard({
           )
         ) : null}
         <span className="ml-auto flex items-center gap-3">
-          {kind !== "objetivo" ? (
+          {kind !== "nodo" ? (
             <span className="text-base font-extrabold text-[var(--td-ink)]">
               {pct}%
             </span>
@@ -215,7 +215,7 @@ export function EstudioProgressCard({
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
     >
-      {kind !== "objetivo" ? (
+      {kind !== "nodo" ? (
         <div
           className={`${estadoStripDetalleClass(derivados.etiqueta_estado)} self-stretch`}
         >
@@ -229,7 +229,7 @@ export function EstudioProgressCard({
             nombre={objetivoNombre}
             className="right-3 top-3"
           />
-        ) : kind === "objetivo" && objetivoId != null ? (
+        ) : kind === "nodo" && objetivoId != null ? (
           <ObjetivoDot
             objetivoId={objetivoId}
             nombre={objetivoNombre ?? nombre}

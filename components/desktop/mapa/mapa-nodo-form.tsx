@@ -31,6 +31,10 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
   const [descripcion, setDescripcion] = useState(nodo?.descripcion ?? "");
   const [etapa, setEtapa] = useState(numberFieldInitial(nodo?.etapa));
   const [carril, setCarril] = useState(numberFieldInitial(nodo?.carril));
+  const [orden, setOrden] = useState(numberFieldInitial(nodo?.orden ?? nodo?.etapa));
+  const [objetivoId, setObjetivoId] = useState(
+    String(nodo?.objetivo_id ?? 1),
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -45,6 +49,8 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
       descripcion,
       etapa,
       carril,
+      orden,
+      objetivo_id: objetivoId,
       pos_x: nodo ? String(nodo.pos_x) : "0",
       pos_y: nodo ? String(nodo.pos_y) : "0",
     });
@@ -105,6 +111,28 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
           rows={3}
         />
       </FormField>
+
+      <div className="grid grid-cols-2 gap-3">
+        <FormField label="Objetivo *" error={fieldErrors.objetivo_id}>
+          <select
+            required
+            value={objetivoId}
+            onChange={(e) => setObjetivoId(e.target.value)}
+            className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm"
+          >
+            <option value="1">1 — BaaS</option>
+            <option value="2">2 — Infra propia</option>
+            <option value="3">3 — SaaS</option>
+          </select>
+        </FormField>
+        <FormField label="Orden (lista)" error={fieldErrors.orden}>
+          <FormInput
+            value={orden}
+            onChange={(e) => setOrden(e.target.value)}
+            inputMode="numeric"
+          />
+        </FormField>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <FormField label="Etapa (timeline)" error={fieldErrors.etapa}>

@@ -10,7 +10,7 @@ import {
 } from "@/lib/mapa-flow-nodes";
 import {
   mapaObjetivoColor,
-  mapaObjetivoIdFromEtapa,
+  mapaObjetivoIdFromNodo,
   type MapaObjetivoFiltro,
 } from "@/lib/mapa-objetivo";
 import {
@@ -193,7 +193,8 @@ function MapaCanvasInner({
 
       if (error || !data) {
         setStatus(
-          error?.includes("mapa_enlaces_origen_destino_uniq")
+          error?.includes("enlaces_nodos") ||
+          error?.includes("origen_destino")
             ? "Ese enlace ya existe."
             : (error ?? "No se pudo crear el enlace."),
         );
@@ -255,10 +256,8 @@ function MapaCanvasInner({
         <MiniMap
           className="mapa-minimap"
           nodeColor={(node) => {
-            const etapa = Number(
-              (node.data as { nodo?: { etapa?: number } })?.nodo?.etapa ?? 0,
-            );
-            const objId = mapaObjetivoIdFromEtapa(etapa);
+            const nodo = (node.data as { nodo?: MapaNodo })?.nodo;
+            const objId = mapaObjetivoIdFromNodo(nodo);
             return objId != null ? mapaObjetivoColor(objId) : "#94a3b8";
           }}
           nodeStrokeColor="#264a6e"
