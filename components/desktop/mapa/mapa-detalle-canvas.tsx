@@ -11,9 +11,11 @@ import { insertEnlaceHijoNodo, deleteEnlaceHijoNodo } from "@/lib/mapa-detalle-e
 import { upsertLienzoHijoPosicion } from "@/lib/mapa-detalle-posicion-queries";
 import { toMapaDetalleFlowEdges } from "@/lib/mapa-detalle-flow-edges";
 import { MapaDetalleTimelineGuides } from "@/components/desktop/mapa/mapa-detalle-timeline-guides";
+import { MapaLienzoFitView } from "@/components/desktop/mapa/mapa-lienzo-fit-view";
 import {
   buildMapaDetallePosicionesMap,
   computeMapaDetalleGridBounds,
+  computeMapaDetalleLienzoContentRect,
   mapaDetalleFlowNodeId,
   mapaDetallePositionDisplay,
   MAPA_DETALLE_ROW_HEIGHT,
@@ -35,7 +37,6 @@ import {
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
-  useReactFlow,
   applyEdgeChanges,
   type Connection,
   type Edge,
@@ -44,7 +45,7 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type MapaDetalleCanvasProps = {
   scope: MapaDetalleScope;
@@ -67,40 +68,6 @@ type MapaDetalleCanvasProps = {
   ) => void;
   orientacionLienzo?: MapaLienzoOrientacion;
 };
-
-function MapaDetalleFitView({
-  count,
-  orientacionLienzo,
-}: {
-  count: number;
-  orientacionLienzo: MapaLienzoOrientacion;
-}) {
-  const { fitView } = useReactFlow();
-  const didFitRef = useRef(false);
-  const orientacionRef = useRef(orientacionLienzo);
-
-  useEffect(() => {
-    if (orientacionRef.current !== orientacionLienzo) {
-      orientacionRef.current = orientacionLienzo;
-      didFitRef.current = false;
-    }
-  }, [orientacionLienzo]);
-
-  useEffect(() => {
-    if (count === 0) {
-      didFitRef.current = false;
-      return;
-    }
-    if (didFitRef.current) return;
-    didFitRef.current = true;
-    const t = window.setTimeout(() => {
-      void fitView({ padding: 0.3, maxZoom: 1, duration: 150 });
-    }, 50);
-    return () => window.clearTimeout(t);
-  }, [count, fitView]);
-
-  return null;
-}
 
 function MapaDetalleCanvasInner({
   scope,
@@ -129,6 +96,25 @@ function MapaDetalleCanvasInner({
       ),
     [posiciones, hijos.length, orientacionLienzo],
   );
+
+  const contentRect = useMemo(
+    () =>
+      computeMapaDetalleLienzoContentRect(
+        posiciones,
+        hijos.length,
+        orientacionLienzo,
+      ),
+    [posiciones, hijos.length, orientacionLienzo],
+  );
+
+  const fitKey = useMemo(() => {
+    const bounds = computeMapaDetalleGridBounds(
+      posiciones,
+      hijos.length,
+      orientacionLienzo,
+    );
+    return `${hijos.length}:${orientacionLienzo}:${bounds.etapas.join(",")}:${bounds.carriles.join(",")}`;
+  }, [hijos.length, posiciones, orientacionLienzo]);
 
   const onAddLinkedStable = useCallback(
     (kind: MapaDetalleHijoKind, id: number) => {
@@ -333,7 +319,7 @@ function MapaDetalleCanvasInner({
         nodesConnectable
         elementsSelectable
         minZoom={0.25}
-        maxZoom={1.5}
+        maxZoom={2.5}
         proOptions={{ hideAttribution: true }}
       >
         <MapaDetalleTimelineGuides
@@ -341,7 +327,7 @@ function MapaDetalleCanvasInner({
           itemCount={hijos.length}
           orientacion={orientacionLienzo}
         />
-        <MapaDetalleFitView count={hijos.length} orientacionLienzo={orientacionLienzo} />
+        <MapaLienzoFitView contentRect={contentRect} fitKey={fitKey} />
         <Background gap={28} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
         <MiniMap

@@ -3,6 +3,12 @@ import type { MapaLienzoOrientacion } from "@/lib/mapa-lienzo-orientacion";
 import { projectCanonicalToDisplay } from "@/lib/mapa-lienzo-orientacion";
 import { carrilSpanFromIndices } from "@/lib/mapa-lienzo-orientacion";
 import {
+  MAPA_MACRO_GRID_PITCH,
+  computeMapaLienzoIndices,
+  mapaLienzoContentRectFromIndices,
+  type MapaLienzoContentRect,
+} from "@/lib/mapa-lienzo-fit-bounds";
+import {
   MAPA_CARRIL_HEIGHT,
   MAPA_ETAPA_WIDTH,
   MAPA_ORIGIN_X,
@@ -17,10 +23,8 @@ export type MapaGridBounds = {
   height: number;
 };
 
-const PAD_ETAPA = 1;
-const PAD_CARRIL = 1;
-const NODE_W = 240;
-const NODE_H = 88;
+const EDGE = 12;
+const ETAPA_LABEL_BAND = 40;
 
 function rangeInclusive(min: number, max: number): number[] {
   const out: number[] = [];
@@ -29,28 +33,31 @@ function rangeInclusive(min: number, max: number): number[] {
 }
 
 function emptyMapaGridBounds(orientacion: MapaLienzoOrientacion): MapaGridBounds {
-  const etapas = [0, 1, 2, 3];
-  const carriles = [0, 1, 2];
-  const canonicalWidth = MAPA_ORIGIN_X + 4 * MAPA_ETAPA_WIDTH + 64;
-  const canonicalHeight = MAPA_ORIGIN_Y + 3 * MAPA_CARRIL_HEIGHT + 80;
-  if (orientacion === "xy") {
-    return { etapas, carriles, width: canonicalWidth, height: canonicalHeight };
-  }
+  const rect = mapaLienzoContentRectFromIndices(
+    { etapaMin: 0, etapaMax: 0, carrilMin: 0, carrilMax: 0 },
+    orientacion,
+    MAPA_MACRO_GRID_PITCH,
+    null,
+  );
   return {
-    etapas,
-    carriles,
-    width: projectCanonicalToDisplay(
-      { x: canonicalWidth, y: 0 },
-      { orientacion: "yx" },
-    ).x,
-    height: projectCanonicalToDisplay(
-      { x: 0, y: canonicalHeight },
-      { orientacion: "yx" },
-    ).y,
+    etapas: [0],
+    carriles: [0],
+    width: rect.x + rect.width,
+    height: rect.y + rect.height,
   };
 }
 
-/** Extensión del grid de guías según etapas/c carriles y posiciones libres en el lienzo. */
+function gridSizeFromContentRect(rect: MapaLienzoContentRect): {
+  width: number;
+  height: number;
+} {
+  return {
+    width: rect.x + rect.width,
+    height: rect.y + rect.height,
+  };
+}
+
+/** Extensión del grid de guías según etapas/c carriles y posiciones en el lienzo. */
 export function computeMapaGridBounds(
   items: LienzoPosicionable[],
   orientacion: MapaLienzoOrientacion = "xy",
@@ -59,70 +66,37 @@ export function computeMapaGridBounds(
     return emptyMapaGridBounds(orientacion);
   }
 
-  let minEtapa = Infinity;
-  let maxEtapa = -Infinity;
-  let minCarril = Infinity;
-  let maxCarril = -Infinity;
+  const indices = computeMapaLienzoIndices(items, MAPA_MACRO_GRID_PITCH);
+  const carrilSpan = carrilSpanFromIndices(
+    rangeInclusive(indices.carrilMin, indices.carrilMax),
+  );
+
   let maxDisplayX = MAPA_ORIGIN_X;
   let maxDisplayY = MAPA_ORIGIN_Y;
-
-  for (const item of items) {
-    const etapa = Number(item.etapa);
-    const carril = Number(item.carril);
-    minEtapa = Math.min(minEtapa, etapa);
-    maxEtapa = Math.max(maxEtapa, etapa);
-    minCarril = Math.min(minCarril, carril);
-    maxCarril = Math.max(maxCarril, carril);
-
-    const canonical = posicionEnLienzo(item);
-    const etapaDesdeX = Math.floor(
-      (canonical.x - MAPA_ORIGIN_X + MAPA_ETAPA_WIDTH / 2) / MAPA_ETAPA_WIDTH,
-    );
-    const carrilDesdeY = Math.floor(
-      (canonical.y - MAPA_ORIGIN_Y + MAPA_CARRIL_HEIGHT / 2) /
-        MAPA_CARRIL_HEIGHT,
-    );
-    minEtapa = Math.min(minEtapa, etapaDesdeX);
-    maxEtapa = Math.max(maxEtapa, etapaDesdeX);
-    minCarril = Math.min(minCarril, carrilDesdeY);
-    maxCarril = Math.max(maxCarril, carrilDesdeY);
-  }
-
-  const etapaMin = Math.max(0, minEtapa - PAD_ETAPA);
-  const etapaMax = maxEtapa + PAD_ETAPA;
-  const carrilMin = Math.max(0, minCarril - PAD_CARRIL);
-  const carrilMax = maxCarril + PAD_CARRIL;
-  const carrilSpan = carrilSpanFromIndices(
-    rangeInclusive(carrilMin, carrilMax),
-  );
 
   for (const item of items) {
     const display = projectCanonicalToDisplay(posicionEnLienzo(item), {
       orientacion,
       carrilSpan,
     });
-    maxDisplayX = Math.max(maxDisplayX, display.x + NODE_W);
-    maxDisplayY = Math.max(maxDisplayY, display.y + NODE_H);
+    maxDisplayX = Math.max(maxDisplayX, display.x + 240);
+    maxDisplayY = Math.max(maxDisplayY, display.y + 88);
   }
 
-  const gridWidthCanonical =
-    MAPA_ORIGIN_X + (etapaMax + 1) * MAPA_ETAPA_WIDTH + 48;
-  const gridHeightCanonical =
-    MAPA_ORIGIN_Y + (carrilMax + 1) * MAPA_CARRIL_HEIGHT + 48;
-
-  const gridWidthDisplay =
-    orientacion === "xy"
-      ? gridWidthCanonical
-      : MAPA_ORIGIN_X + (carrilMax + 1) * MAPA_CARRIL_HEIGHT + 48;
-  const gridHeightDisplay =
-    orientacion === "xy"
-      ? gridHeightCanonical
-      : MAPA_ORIGIN_Y + (etapaMax + 1) * MAPA_ETAPA_WIDTH + 48;
+  const contentRect = mapaLienzoContentRectFromIndices(
+    indices,
+    orientacion,
+    MAPA_MACRO_GRID_PITCH,
+    null,
+  );
+  const { width: tightW, height: tightH } = gridSizeFromContentRect(contentRect);
 
   return {
-    etapas: rangeInclusive(etapaMin, etapaMax),
-    carriles: rangeInclusive(carrilMin, carrilMax),
-    width: Math.max(maxDisplayX + 80, gridWidthDisplay),
-    height: Math.max(maxDisplayY + 80, gridHeightDisplay),
+    etapas: rangeInclusive(indices.etapaMin, indices.etapaMax),
+    carriles: rangeInclusive(indices.carrilMin, indices.carrilMax),
+    width: Math.max(maxDisplayX + EDGE, tightW),
+    height: Math.max(maxDisplayY + EDGE + ETAPA_LABEL_BAND, tightH),
   };
 }
+
+export { computeMapaMacroContentRect, type MapaLienzoContentRect } from "@/lib/mapa-lienzo-fit-bounds";

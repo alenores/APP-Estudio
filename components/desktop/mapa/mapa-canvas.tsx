@@ -5,13 +5,14 @@ import type { MapaEnlace, MapaNodo, MapaObjetivo } from "@/app/types/mapa";
 import { mapaFlowNodeTypes } from "@/components/desktop/mapa/mapa-nodo-node";
 import { MapaObjetivoLeyenda } from "@/components/desktop/mapa/mapa-objetivo-ui";
 import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
+import { MapaLienzoFitView } from "@/components/desktop/mapa/mapa-lienzo-fit-view";
 import type { MapaGrafoModo } from "@/lib/mapa-lienzo-types";
 import {
   carrilSpanFromIndices,
   projectDisplayToCanonical,
   type MapaLienzoOrientacion,
 } from "@/lib/mapa-lienzo-orientacion";
-import { computeMapaGridBounds } from "@/lib/mapa-grid-bounds";
+import { computeMapaGridBounds, computeMapaMacroContentRect } from "@/lib/mapa-grid-bounds";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { buildMapaFlowNodesForGrafo } from "@/lib/mapa-flow-nodes";
 import { buildMapaTemaFlowCardDataMap } from "@/lib/mapa-tema-flow-card";
@@ -38,7 +39,6 @@ import {
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
-  useReactFlow,
   applyEdgeChanges,
   type Connection,
   type Edge,
@@ -47,7 +47,7 @@ import {
   type NodeChange,
   applyNodeChanges,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type MapaCanvasProps = {
   grafoModo: MapaGrafoModo;
@@ -66,45 +66,6 @@ type MapaCanvasProps = {
   onAddLinkedItem?: (id: number) => void;
   orientacionLienzo?: MapaLienzoOrientacion;
 };
-
-function MapaFitView({
-  count,
-  orientacionLienzo,
-}: {
-  count: number;
-  orientacionLienzo: MapaLienzoOrientacion;
-}) {
-  const { fitView } = useReactFlow();
-  const didFitRef = useRef(false);
-  const orientacionRef = useRef(orientacionLienzo);
-
-  useEffect(() => {
-    if (orientacionRef.current !== orientacionLienzo) {
-      orientacionRef.current = orientacionLienzo;
-      didFitRef.current = false;
-    }
-  }, [orientacionLienzo]);
-
-  useEffect(() => {
-    if (count === 0) {
-      didFitRef.current = false;
-      return;
-    }
-    const runFit = () => {
-      void fitView({ padding: 0.25, maxZoom: 1, duration: 150 });
-    };
-    if (didFitRef.current) return;
-    didFitRef.current = true;
-    const t = window.setTimeout(runFit, 50);
-    const t2 = window.setTimeout(runFit, 280);
-    return () => {
-      window.clearTimeout(t);
-      window.clearTimeout(t2);
-    };
-  }, [count, fitView]);
-
-  return null;
-}
 
 function MapaCanvasInner({
   grafoModo,
@@ -150,6 +111,16 @@ function MapaCanvasInner({
       ),
     [lienzoItems, orientacionLienzo],
   );
+
+  const contentRect = useMemo(
+    () => computeMapaMacroContentRect(lienzoItems, orientacionLienzo),
+    [lienzoItems, orientacionLienzo],
+  );
+
+  const fitKey = useMemo(() => {
+    const bounds = computeMapaGridBounds(lienzoItems, orientacionLienzo);
+    return `${itemCount}:${orientacionLienzo}:${bounds.etapas.join(",")}:${bounds.carriles.join(",")}`;
+  }, [itemCount, lienzoItems, orientacionLienzo]);
 
   const nodosById = useMemo(
     () => new Map(nodos.map((n) => [n.id, n])),
@@ -348,14 +319,14 @@ function MapaCanvasInner({
         onNodeClick={(_e, node) => onOpenDetalle?.(Number(node.id))}
         deleteKeyCode={["Backspace", "Delete"]}
         minZoom={0.2}
-        maxZoom={1.75}
+        maxZoom={2.5}
         proOptions={{ hideAttribution: true }}
       >
         <MapaTimelineGuides items={lienzoItems} orientacion={orientacionLienzo} />
         {grafoModo === "nodos" ? (
           <MapaObjetivoLeyenda objetivos={objetivos} />
         ) : null}
-        <MapaFitView count={itemCount} orientacionLienzo={orientacionLienzo} />
+        <MapaLienzoFitView contentRect={contentRect} fitKey={fitKey} />
         <Background gap={28} size={1} color="#cbd5e1" />
         <Controls showInteractive={false} />
         <MiniMap
