@@ -157,7 +157,7 @@ export function LogroRegistroForm({
       <div className="flex flex-wrap items-center gap-3 pt-1">
         <FormSubmitButton
           loading={loading}
-          label={isEdit ? "Guardar logro" : "Crear logro"}
+          label={isEdit ? "Guardar logro" : "Crear registro logro"}
         />
         {isEdit && onDelete ? (
           <button

@@ -16,6 +16,8 @@ type MapaToolbarProps = {
   onVistaChange: (vista: MapaVista) => void;
   onFiltroChange: (filtro: MapaObjetivoFiltro) => void;
   onNuevo: () => void;
+  /** Ocultar + macro cuando hay overlay detalle abierto */
+  nuevoDisabled?: boolean;
 };
 
 /** Controles compactos del mapa (header compartido PC). */
@@ -28,6 +30,7 @@ export function MapaToolbar({
   onVistaChange,
   onFiltroChange,
   onNuevo,
+  nuevoDisabled = false,
 }: MapaToolbarProps) {
   return (
     <div className="mapa-shell-toolbar flex flex-wrap items-center justify-end gap-1.5">
@@ -99,7 +102,13 @@ export function MapaToolbar({
       <button
         type="button"
         onClick={onNuevo}
-        className="shrink-0 rounded-md bg-[var(--td-navy)] px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-[var(--td-navy-2)]"
+        disabled={nuevoDisabled}
+        title={
+          nuevoDisabled
+            ? "Usá el botón + del panel de detalle para agregar cursos o logros"
+            : undefined
+        }
+        className="shrink-0 rounded-md bg-[var(--td-navy)] px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-[var(--td-navy-2)] disabled:cursor-not-allowed disabled:opacity-40"
       >
         {grafoModo === "nodos" ? "+ Nodo" : "+ Tema"}
       </button>

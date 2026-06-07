@@ -115,22 +115,31 @@ export async function insertMapaNodoClasificado(
       ? { x: extras.pos_x, y: extras.pos_y }
       : posicionDesdeEtapaCarril(etapa, carril);
 
-  const { data, error } = await supabase
+  const baseRow = {
+    user_id: userId,
+    titulo: values.titulo,
+    descripcion: emptyToNull(values.descripcion),
+    pos_x: pos.x,
+    pos_y: pos.y,
+    carril,
+    etapa,
+    tipo: clasificacion,
+    objetivo_id: extras?.objetivo_id ?? 1,
+  };
+
+  let { data, error } = await supabase
     .from("nodos_objetivos")
-    .insert({
-      user_id: userId,
-      titulo: values.titulo,
-      descripcion: emptyToNull(values.descripcion),
-      pos_x: pos.x,
-      pos_y: pos.y,
-      carril,
-      etapa,
-      orden: extras?.orden ?? etapa,
-      tipo: clasificacion,
-      objetivo_id: extras?.objetivo_id ?? 1,
-    })
+    .insert({ ...baseRow, orden: extras?.orden ?? etapa })
     .select()
     .single();
+
+  if (error?.message?.includes("orden")) {
+    ({ data, error } = await supabase
+      .from("nodos_objetivos")
+      .insert(baseRow)
+      .select()
+      .single());
+  }
 
   return {
     data: data ? mapNodoRow(data as Record<string, unknown>) : null,
@@ -150,22 +159,31 @@ export async function insertMapaNodo(
       ? { x: values.pos_x, y: values.pos_y }
       : posicionDesdeEtapaCarril(etapa, carril);
 
-  const { data, error } = await supabase
+  const baseRow = {
+    user_id: userId,
+    titulo: values.titulo,
+    descripcion: emptyToNull(values.descripcion),
+    pos_x: pos.x,
+    pos_y: pos.y,
+    carril,
+    etapa,
+    tipo: values.tipo,
+    objetivo_id: values.objetivo_id,
+  };
+
+  let { data, error } = await supabase
     .from("nodos_objetivos")
-    .insert({
-      user_id: userId,
-      titulo: values.titulo,
-      descripcion: emptyToNull(values.descripcion),
-      pos_x: pos.x,
-      pos_y: pos.y,
-      carril,
-      etapa,
-      orden: values.orden ?? etapa,
-      tipo: values.tipo,
-      objetivo_id: values.objetivo_id,
-    })
+    .insert({ ...baseRow, orden: values.orden ?? etapa })
     .select()
     .single();
+
+  if (error?.message?.includes("orden")) {
+    ({ data, error } = await supabase
+      .from("nodos_objetivos")
+      .insert(baseRow)
+      .select()
+      .single());
+  }
 
   return {
     data: data ? mapNodoRow(data as Record<string, unknown>) : null,

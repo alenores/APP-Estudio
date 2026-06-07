@@ -93,7 +93,11 @@ export function MapaLogroForm({
     );
     if (insErr || !data) {
       setLoading(false);
-      setError(insErr);
+      setError(
+        insErr?.includes("orden") && insErr.includes("nodos_objetivos")
+          ? "Falta la columna orden en nodos_objetivos. Ejecutá docs/sql/013-nodos-objetivos-orden.sql en Supabase."
+          : (insErr ?? "No se pudo crear."),
+      );
       return;
     }
 
@@ -160,7 +164,7 @@ export function MapaLogroForm({
       <div className="flex flex-wrap items-center gap-3 pt-1">
         <FormSubmitButton
           loading={loading}
-          label={isEdit ? "Guardar logro" : "Crear logro"}
+          label={isEdit ? "Guardar logro" : "Crear nodo de producción"}
         />
         {isEdit && onDelete ? (
           <button

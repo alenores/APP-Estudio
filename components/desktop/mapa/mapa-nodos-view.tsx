@@ -182,6 +182,7 @@ export function MapaNodosView() {
           onVistaChange={setVista}
           onFiltroChange={setFiltroObjetivo}
           onNuevo={() => setCreating(true)}
+          nuevoDisabled={detalleScope != null}
         />
       </DesktopShellToolbar>
 
