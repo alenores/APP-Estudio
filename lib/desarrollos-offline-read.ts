@@ -14,7 +14,14 @@ function sortByNombre<T extends { nombre: string }>(rows: T[]): T[] {
 export function listDefinicionesGeneralesFromCache(
   cache: DesarrollosOfflineCacheData,
 ): DefinicionGeneral[] {
-  return sortByNombre(cache.definicion_general);
+  return [...cache.definicion_general].sort((a, b) => {
+    const aOrden = a.orden ?? null;
+    const bOrden = b.orden ?? null;
+    if (aOrden !== null && bOrden !== null) return aOrden - bOrden;
+    if (aOrden !== null) return -1;
+    if (bOrden !== null) return 1;
+    return a.nombre.localeCompare(b.nombre, "es");
+  });
 }
 
 export function getDefinicionGeneralFromCache(

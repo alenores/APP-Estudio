@@ -9,6 +9,7 @@ export type DefinicionGeneral = {
   pos_y: number;
   etapa: number;
   carril: number;
+  orden: number | null;
   created_at: string;
 };
 
