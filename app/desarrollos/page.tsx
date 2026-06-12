@@ -2,19 +2,22 @@
 
 import { useDefinicionesGeneralesList } from "@/app/hooks/useDefinicionesGeneralesList";
 import { AppShell } from "@/components/mobile/shell/app-shell";
-import { DesarrollosFab } from "@/components/mobile/desarrollos/desarrollos-chrome";
+import {
+  DesarrollosEmptyState,
+  DesarrollosFab,
+} from "@/components/mobile/desarrollos/desarrollos-chrome";
 import { GeneralListCard } from "@/components/mobile/desarrollos/general-list-card";
 import { DesarrollosSyncBanner } from "@/components/shared/sync/desarrollos-sync-banner";
 import { DefinicionGeneralForm } from "@/components/shared/forms/definicion-general-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import {
   AlertText,
-  EmptyState,
   LoadingText,
   TextLink,
 } from "@/components/ui";
 import { clearDesarrollosOfflineCache } from "@/lib/desarrollos-offline-cache";
 import { createClient } from "@/lib/supabase/client";
+import { Layers } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -61,9 +64,13 @@ export default function DesarrollosPage() {
         {loading ? <LoadingText>Cargando desarrollos…</LoadingText> : null}
         {error ? <AlertText>{error}</AlertText> : null}
         {!loading && !error && generales.length === 0 ? (
-          <EmptyState>
-            No hay definiciones generales. Usá el botón + para crear la primera.
-          </EmptyState>
+          <div className="mt-4">
+            <DesarrollosEmptyState
+              icon={Layers}
+              title="Sin definiciones generales"
+              hint="Usá el botón + General para crear la primera."
+            />
+          </div>
         ) : null}
         <ul className="mt-4 flex flex-col gap-3">
           {generales.map((g) => (

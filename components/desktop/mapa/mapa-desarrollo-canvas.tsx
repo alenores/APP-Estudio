@@ -91,10 +91,14 @@ function MapaDesarrolloCanvasInner({
         sourcePosition: handles.sourcePosition,
         data: {
           label: (
-            <div className="rounded-lg border-2 border-violet-400 bg-violet-50 px-3 py-2 text-left shadow-sm">
-              <p className="text-[10px] font-bold uppercase text-violet-700">General</p>
-              <p className="font-semibold text-sm">{g.nombre}</p>
-              <p className="text-[10px] text-violet-800/70">
+            <div className="rounded-lg border-2 border-[#EA580C]/50 bg-stone-50 px-3 py-2 text-left shadow-sm dark:border-[#EA580C]/40 dark:bg-stone-900">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[#EA580C]">
+                General
+              </p>
+              <p className="font-semibold text-sm text-stone-900 dark:text-stone-100">
+                {g.nombre}
+              </p>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400">
                 ↓{entrada} ↑{salida}
               </p>
             </div>

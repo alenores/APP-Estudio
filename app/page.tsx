@@ -121,8 +121,8 @@ export default function HomePage() {
               onClick={() => enterTypology("desarrollos")}
               className={`rounded-xl border px-4 py-3 text-left transition active:scale-[0.98] ${
                 typology === "desarrollos"
-                  ? "border-violet-500 bg-violet-50"
-                  : "border-border hover:border-violet-300"
+                  ? "border-[#EA580C] bg-[#EA580C]/10"
+                  : "border-border hover:border-[#EA580C]/40"
               }`}
             >
               <p className="font-semibold text-ink">Desarrollos</p>

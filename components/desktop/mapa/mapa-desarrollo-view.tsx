@@ -103,14 +103,14 @@ export function MapaDesarrolloView() {
     <>
       <DesktopShellToolbar>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-md bg-violet-700 px-2.5 py-1 text-xs font-semibold text-white">
+          <span className="rounded-md bg-[#EA580C] px-2.5 py-1 text-xs font-semibold text-white">
             Desarrollos
           </span>
           <button
             type="button"
             onClick={() => setCreating(true)}
             disabled={detalleScope != null}
-            className="rounded-md border border-violet-300 px-2.5 py-1 text-xs font-semibold text-violet-900 hover:bg-violet-50 disabled:opacity-40"
+            className="rounded-md border border-stone-300 px-2.5 py-1 text-xs font-semibold text-stone-800 transition hover:border-[#EA580C]/40 hover:bg-stone-50 disabled:opacity-40 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-900"
           >
             + General
           </button>
@@ -125,13 +125,16 @@ export function MapaDesarrolloView() {
             <option value="yx">Eje Y = tiempo</option>
           </select>
           <TextLink href="/">Tipología</TextLink>
-          <Link href="/explorador-desarrollos" className="text-xs font-semibold text-violet-800">
+          <Link
+            href="/explorador-desarrollos"
+            className="text-xs font-semibold text-[#EA580C] hover:text-[#c2410c]"
+          >
             Explorador
           </Link>
         </div>
       </DesktopShellToolbar>
 
-      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-violet-200 bg-[#f1f5f9]">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-stone-300 bg-stone-100 dark:border-stone-700 dark:bg-stone-900/50">
         <MapaDesarrolloCanvas
           generales={generales}
           enlaces={enlaces}

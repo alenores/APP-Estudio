@@ -5,6 +5,44 @@ import type { ReactNode } from "react";
 
 export const DS_ACCENT = "#EA580C";
 
+/** Clases compartidas explorador desktop (3 columnas jerárquicas). */
+export const dsExplorerColumn = {
+  general: {
+    section:
+      "border-stone-300/80 bg-stone-100/50 dark:border-stone-700 dark:bg-stone-900/40",
+    itemSelected:
+      "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900",
+    itemIdle:
+      "border-stone-200/90 bg-white/80 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/50 dark:hover:bg-stone-900",
+  },
+  especifica: {
+    section:
+      "border-stone-300/60 bg-stone-50/60 dark:border-stone-700 dark:bg-stone-900/30",
+    itemSelected:
+      "border-stone-600 bg-white shadow-sm ring-1 ring-stone-400/30 dark:border-stone-500 dark:bg-stone-900",
+    itemIdle:
+      "border-stone-200/80 bg-white/70 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/40",
+  },
+  accion: {
+    section:
+      "border-stone-200/80 bg-stone-50/40 dark:border-stone-800 dark:bg-stone-950/30",
+    itemSelected:
+      "border-stone-500 bg-white shadow-sm dark:border-stone-500 dark:bg-stone-900",
+    itemIdle:
+      "border-stone-200/70 bg-white/60 hover:border-stone-300 hover:bg-white dark:border-stone-800 dark:bg-stone-900/30",
+  },
+} as const;
+
+export function dsExplorerItemClass(
+  level: keyof typeof dsExplorerColumn,
+  selected: boolean,
+): string {
+  const col = dsExplorerColumn[level];
+  return `w-full rounded-lg border px-3 py-2 text-left text-sm transition-[border-color,box-shadow,background-color] duration-150 ${
+    selected ? col.itemSelected : col.itemIdle
+  }`;
+}
+
 type DesarrollosDetailHeroProps = {
   levelLabel: string;
   title: string;
