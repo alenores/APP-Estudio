@@ -9,6 +9,7 @@ import {
   DESKTOP_MAPA_PREFIX,
   DESKTOP_SHELL_PREFIX,
 } from "@/lib/shell-routes";
+import { PUBLIC_STATIC_IMAGE_QUERY } from "@/lib/public-static-image-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState, type CSSProperties, type ReactNode } from "react";
@@ -36,6 +37,7 @@ export function DesktopShell({
   }, []);
 
   const NAV = [
+    { href: "/", label: "Inicio", icon: HomeIcon, exact: true },
     { href: DESKTOP_SHELL_PREFIX, label: "Explorador", icon: ExplorerIcon },
     { href: DESKTOP_MAPA_PREFIX, label: "Mapa", icon: MapIcon },
   ] as const;
@@ -56,15 +58,22 @@ export function DesktopShell({
           {/* Logo + marca */}
           <div className="desktop-shell-header-start flex min-w-0 items-center gap-5 sm:gap-7">
             <div className="flex min-w-0 shrink items-center gap-2.5">
-              <div
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl"
+              <Link
+                href="/"
+                className="shrink-0 rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+                aria-label="Ir a inicio"
                 style={{
-                  background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%)",
                   boxShadow: "0 4px 14px -2px rgba(59,130,246,0.45), 0 0 0 1px rgba(255,255,255,0.12) inset",
                 } as CSSProperties}
               >
-                <AppLogoIcon />
-              </div>
+                <img
+                  src={`/logo-identidad.png${PUBLIC_STATIC_IMAGE_QUERY}`}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-xl"
+                />
+              </Link>
               <div className="min-w-0 shrink">
                 <p
                   className="text-[9.5px] font-extrabold uppercase tracking-[0.2em]"
@@ -86,9 +95,11 @@ export function DesktopShell({
               className="flex shrink-0 items-center gap-1"
               aria-label="Secciones escritorio"
             >
-              {NAV.map(({ href, label, icon: Icon }) => {
-                const active =
-                  pathname === href || pathname.startsWith(`${href}/`);
+              {NAV.map(({ href, label, icon: Icon, ...rest }) => {
+                const exact = "exact" in rest && rest.exact;
+                const active = exact
+                  ? pathname === href
+                  : pathname === href || pathname.startsWith(`${href}/`);
                 return (
                   <Link
                     key={href}
@@ -141,13 +152,16 @@ export function DesktopShell({
   );
 }
 
-function AppLogoIcon() {
+function HomeIcon({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <rect x="2" y="2" width="6" height="6" rx="1.5" fill="white" fillOpacity="0.9" />
-      <rect x="10" y="2" width="6" height="6" rx="1.5" fill="white" fillOpacity="0.6" />
-      <rect x="2" y="10" width="6" height="6" rx="1.5" fill="white" fillOpacity="0.6" />
-      <rect x="10" y="10" width="6" height="6" rx="1.5" fill="white" fillOpacity="0.35" />
+    <svg className={className} style={style} viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M2.5 7.5 8 2.5l5.5 5M4 6.5V13h3v-2.5h2V13h3V6.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }

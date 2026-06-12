@@ -22,18 +22,24 @@ function resolveSourcePath() {
   return null;
 }
 
+/** Mismo diseño que AppLogoIcon en desktop-shell (4 cuadrados + gradiente azul). */
 async function createDefaultSource(outputPath) {
   const svg = `
     <svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#4f46e5"/>
-          <stop offset="100%" style="stop-color:#312e81"/>
+          <stop offset="0%" style="stop-color:#3b82f6"/>
+          <stop offset="55%" style="stop-color:#2563eb"/>
+          <stop offset="100%" style="stop-color:#1d4ed8"/>
         </linearGradient>
       </defs>
       <rect width="512" height="512" rx="96" fill="url(#g)"/>
-      <text x="256" y="290" font-family="Arial,sans-serif" font-size="120" font-weight="bold"
-        fill="white" text-anchor="middle">AE</text>
+      <g transform="scale(28.4444444444)">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="white" fill-opacity="0.9"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="white" fill-opacity="0.6"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="white" fill-opacity="0.6"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="white" fill-opacity="0.35"/>
+      </g>
     </svg>`;
   mkdirSync(path.dirname(outputPath), { recursive: true });
   await sharp(Buffer.from(svg)).png().toFile(outputPath);
