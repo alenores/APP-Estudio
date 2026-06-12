@@ -30,13 +30,35 @@ export type Accion = {
   created_at: string;
 };
 
+export type CaracteristicaTipo = "nota" | "implicancia_tecnica" | "prompt_cursor";
+
 export type Caracteristica = {
   id: number;
   user_id: string;
   definicion_general_id: number | null;
   definicion_especifica_id: number | null;
   accion_id: number | null;
+  tipo: CaracteristicaTipo;
+  titulo: string | null;
   created_at: string;
+};
+
+export type PendienteEstado = "abierto" | "en_progreso" | "resuelto" | "descartado";
+
+export type PendientePrioridad = "alta" | "media" | "baja";
+
+export type Pendiente = {
+  id: number;
+  user_id: string;
+  definicion_general_id: number | null;
+  definicion_especifica_id: number | null;
+  accion_id: number | null;
+  titulo: string;
+  descripcion: string | null;
+  estado: PendienteEstado;
+  prioridad: PendientePrioridad;
+  created_at: string;
+  resolved_at: string | null;
 };
 
 export type EnlaceDefinicionGeneralTipo =

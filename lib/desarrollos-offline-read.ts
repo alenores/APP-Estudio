@@ -1,7 +1,9 @@
 import type {
   Accion,
+  Caracteristica,
   DefinicionEspecifica,
   DefinicionGeneral,
+  Pendiente,
 } from "@/app/types/desarrollos";
 import type { DesarrollosOfflineCacheData } from "@/lib/desarrollos-offline-cache";
 
@@ -142,4 +144,105 @@ export function countAccionesByGeneralFromCache(
   );
   return cache.acciones.filter((a) => especificaIds.has(a.definicion_especifica_id))
     .length;
+}
+
+export function listCaracteristicasByEspecificaFromCache(
+  cache: DesarrollosOfflineCacheData,
+  especificaId: number,
+): Caracteristica[] {
+  return (cache.caracteristicas ?? [])
+    .filter((c) => c.definicion_especifica_id === especificaId)
+    .sort((a, b) => b.id - a.id);
+}
+
+export function listCaracteristicasByAccionFromCache(
+  cache: DesarrollosOfflineCacheData,
+  accionId: number,
+): Caracteristica[] {
+  return (cache.caracteristicas ?? [])
+    .filter((c) => c.accion_id === accionId)
+    .sort((a, b) => b.id - a.id);
+}
+
+export function listPendientesByGeneralFromCache(
+  cache: DesarrollosOfflineCacheData,
+  generalId: number,
+): Pendiente[] {
+  return (cache.pendientes ?? [])
+    .filter((p) => p.definicion_general_id === generalId)
+    .sort((a, b) => b.id - a.id);
+}
+
+export function listPendientesByEspecificaFromCache(
+  cache: DesarrollosOfflineCacheData,
+  especificaId: number,
+): Pendiente[] {
+  return (cache.pendientes ?? [])
+    .filter((p) => p.definicion_especifica_id === especificaId)
+    .sort((a, b) => b.id - a.id);
+}
+
+export function listPendientesByAccionFromCache(
+  cache: DesarrollosOfflineCacheData,
+  accionId: number,
+): Pendiente[] {
+  return (cache.pendientes ?? [])
+    .filter((p) => p.accion_id === accionId)
+    .sort((a, b) => b.id - a.id);
+}
+
+export function listAllPendientesFromCache(
+  cache: DesarrollosOfflineCacheData,
+): Pendiente[] {
+  return [...(cache.pendientes ?? [])].sort((a, b) => b.id - a.id);
+}
+
+export type PendienteNodeRef = {
+  kind: "general" | "especifica" | "accion";
+  id: number;
+  label: string;
+  href: string;
+};
+
+export function resolvePendienteNodeFromCache(
+  cache: DesarrollosOfflineCacheData,
+  pendiente: Pendiente,
+): PendienteNodeRef | null {
+  if (pendiente.accion_id != null) {
+    const accion = getAccionFromCache(cache, pendiente.accion_id);
+    if (!accion) return null;
+    return {
+      kind: "accion",
+      id: accion.id,
+      label: accion.nombre,
+      href: `/acciones/${accion.id}`,
+    };
+  }
+  if (pendiente.definicion_especifica_id != null) {
+    const especifica = getDefinicionEspecificaFromCache(
+      cache,
+      pendiente.definicion_especifica_id,
+    );
+    if (!especifica) return null;
+    return {
+      kind: "especifica",
+      id: especifica.id,
+      label: especifica.nombre,
+      href: `/definicion-especifica/${especifica.id}`,
+    };
+  }
+  if (pendiente.definicion_general_id != null) {
+    const general = getDefinicionGeneralFromCache(
+      cache,
+      pendiente.definicion_general_id,
+    );
+    if (!general) return null;
+    return {
+      kind: "general",
+      id: general.id,
+      label: general.nombre,
+      href: `/definicion-general/${general.id}`,
+    };
+  }
+  return null;
 }

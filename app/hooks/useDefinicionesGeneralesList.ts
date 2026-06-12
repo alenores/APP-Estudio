@@ -5,7 +5,14 @@ import {
   countAccionesByEspecificaFromCache,
   countAccionesByGeneralFromCache,
   countEspecificasByGeneralFromCache,
+  listAllPendientesFromCache,
+  listCaracteristicasByAccionFromCache,
+  listCaracteristicasByEspecificaFromCache,
   listDefinicionesGeneralesFromCache,
+  listPendientesByAccionFromCache,
+  listPendientesByEspecificaFromCache,
+  listPendientesByGeneralFromCache,
+  resolvePendienteNodeFromCache,
 } from "@/lib/desarrollos-offline-read";
 import type { DefinicionGeneral } from "@/app/types/desarrollos";
 import { useMemo } from "react";
@@ -70,10 +77,16 @@ export function useDefinicionGeneralDetalle(id: number | null) {
     return map;
   }, [cacheData, detalle]);
 
+  const pendientes = useMemo(() => {
+    if (!cacheData || id == null) return [];
+    return listPendientesByGeneralFromCache(cacheData, id);
+  }, [cacheData, id]);
+
   return {
     general: detalle?.general ?? null,
     especificas: detalle?.especificas ?? [],
     accionesCountByEspecifica,
+    pendientes,
     loading: loadingPack,
     error,
     reload: refreshSnapshot,
@@ -99,10 +112,22 @@ export function useDefinicionEspecificaDetalle(id: number | null) {
     return { especifica, general, acciones };
   }, [cacheData, id]);
 
+  const caracteristicas = useMemo(() => {
+    if (!cacheData || id == null) return [];
+    return listCaracteristicasByEspecificaFromCache(cacheData, id);
+  }, [cacheData, id]);
+
+  const pendientes = useMemo(() => {
+    if (!cacheData || id == null) return [];
+    return listPendientesByEspecificaFromCache(cacheData, id);
+  }, [cacheData, id]);
+
   return {
     especifica: detalle?.especifica ?? null,
     general: detalle?.general ?? null,
     acciones: detalle?.acciones ?? [],
+    caracteristicas,
+    pendientes,
     loading: loadingPack,
     error,
     reload: refreshSnapshot,
@@ -129,10 +154,49 @@ export function useAccionDetalle(id: number | null) {
     return { accion, especifica, general };
   }, [cacheData, id]);
 
+  const caracteristicas = useMemo(() => {
+    if (!cacheData || id == null) return [];
+    return listCaracteristicasByAccionFromCache(cacheData, id);
+  }, [cacheData, id]);
+
+  const pendientes = useMemo(() => {
+    if (!cacheData || id == null) return [];
+    return listPendientesByAccionFromCache(cacheData, id);
+  }, [cacheData, id]);
+
   return {
     accion: detalle?.accion ?? null,
     especifica: detalle?.especifica ?? null,
     general: detalle?.general ?? null,
+    caracteristicas,
+    pendientes,
+    loading: loadingPack,
+    error,
+    reload: refreshSnapshot,
+  };
+}
+
+export function usePendientesGlobales() {
+  const { cacheData, loadingPack, error, refreshSnapshot } = useDesarrollosData();
+
+  const pendientes = useMemo(() => {
+    if (!cacheData) return [];
+    return listAllPendientesFromCache(cacheData);
+  }, [cacheData]);
+
+  const rows = useMemo(() => {
+    if (!cacheData) return [];
+    return pendientes
+      .map((p) => {
+        const node = resolvePendienteNodeFromCache(cacheData, p);
+        if (!node) return null;
+        return { pendiente: p, node };
+      })
+      .filter((row): row is NonNullable<typeof row> => row != null);
+  }, [cacheData, pendientes]);
+
+  return {
+    rows,
     loading: loadingPack,
     error,
     reload: refreshSnapshot,

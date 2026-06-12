@@ -5,7 +5,10 @@ import {
 } from "@/app/hooks/useDefinicionesGeneralesList";
 import { AppShell } from "@/components/mobile/shell/app-shell";
 import { AccionListCard } from "@/components/mobile/desarrollos/accion-list-card";
+import { CaracteristicaListCard } from "@/components/mobile/desarrollos/caracteristica-list-card";
+import { PendientesSection } from "@/components/mobile/desarrollos/pendientes-section";
 import { AccionForm } from "@/components/shared/forms/accion-form";
+import { CaracteristicaForm } from "@/components/shared/forms/caracteristica-form";
 import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-especifica-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { AlertText, LoadingText, SurfaceCard, TextLink } from "@/components/ui";
@@ -13,14 +16,26 @@ import { useParams, useRouter } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { useState } from "react";
 
-type SheetState = null | { mode: "accion" } | { mode: "edit-especifica" };
+type SheetState =
+  | null
+  | { mode: "accion" }
+  | { mode: "caracteristica" }
+  | { mode: "edit-especifica" };
 
 export default function DefinicionEspecificaDetallePage() {
   const router = useRouter();
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { especifica, general, acciones, loading, error, reload } =
-    useDefinicionEspecificaDetalle(id);
+  const {
+    especifica,
+    general,
+    acciones,
+    caracteristicas,
+    pendientes,
+    loading,
+    error,
+    reload,
+  } = useDefinicionEspecificaDetalle(id);
   const [sheet, setSheet] = useState<SheetState>(null);
 
   if (loading) {
@@ -69,6 +84,39 @@ export default function DefinicionEspecificaDetallePage() {
           </button>
         </SurfaceCard>
 
+        <div className="mb-3 mt-6 flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
+            Características
+          </h2>
+          <button
+            type="button"
+            onClick={() => setSheet({ mode: "caracteristica" })}
+            className="text-xs font-semibold text-indigo-800"
+          >
+            + Nueva
+          </button>
+        </div>
+        {caracteristicas.length === 0 ? (
+          <p className="text-sm text-ink-muted">Sin características.</p>
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {caracteristicas.map((c) => (
+              <li key={c.id}>
+                <CaracteristicaListCard
+                  caracteristica={c}
+                  onDeleted={() => void reload()}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <PendientesSection
+          pendientes={pendientes}
+          parent={{ definicion_especifica_id: especifica.id }}
+          onChanged={() => void reload()}
+        />
+
         <h2 className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-ink-muted">
           Acciones
         </h2>
@@ -101,6 +149,20 @@ export default function DefinicionEspecificaDetallePage() {
             setSheet(null);
             await reload();
             router.push(`/acciones/${newId}`);
+          }}
+        />
+      </StudySheet>
+
+      <StudySheet
+        open={sheet?.mode === "caracteristica"}
+        onClose={() => setSheet(null)}
+        title="Nueva característica"
+      >
+        <CaracteristicaForm
+          parent={{ definicion_especifica_id: especifica.id }}
+          onSuccess={() => {
+            setSheet(null);
+            void reload();
           }}
         />
       </StudySheet>

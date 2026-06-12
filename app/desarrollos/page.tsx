@@ -54,6 +54,9 @@ export default function DesarrollosPage() {
         }
       >
         <DesarrollosSyncBanner />
+        <p className="mt-2 text-center">
+          <TextLink href="/pendientes">Todos los pendientes</TextLink>
+        </p>
         {loading ? <LoadingText>Cargando desarrollos…</LoadingText> : null}
         {error ? <AlertText>{error}</AlertText> : null}
         {!loading && !error && generales.length === 0 ? (

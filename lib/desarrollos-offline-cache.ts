@@ -10,6 +10,7 @@ import type {
   Caracteristica,
   DefinicionEspecifica,
   DefinicionGeneral,
+  Pendiente,
 } from "@/app/types/desarrollos";
 
 /** Tablas ADR 011 — nombres exactos. */
@@ -18,6 +19,7 @@ export const DESARROLLOS_TABLE = {
   definicion_especifica: "definicion_especifica",
   acciones: "acciones",
   caracteristicas: "caracteristicas",
+  pendientes: "pendientes",
 } as const;
 
 export type DesarrollosTableName =
@@ -30,6 +32,7 @@ export type DesarrollosDataSignature = {
   definicion_especifica: DesarrollosTableSignature;
   acciones: DesarrollosTableSignature;
   caracteristicas: DesarrollosTableSignature;
+  pendientes: DesarrollosTableSignature;
 };
 
 export type DesarrollosOfflineCacheData = {
@@ -39,6 +42,7 @@ export type DesarrollosOfflineCacheData = {
   definicion_especifica: DefinicionEspecifica[];
   acciones: Accion[];
   caracteristicas: Caracteristica[];
+  pendientes: Pendiente[];
   signature?: DesarrollosDataSignature;
 };
 
@@ -86,6 +90,7 @@ export function buildDesarrollosSignatureFromSnapshot(
     definicion_especifica: buildTableContentSignature(data.definicion_especifica),
     acciones: buildTableContentSignature(data.acciones),
     caracteristicas: buildTableContentSignature(data.caracteristicas),
+    pendientes: buildTableContentSignature(data.pendientes ?? []),
   };
 }
 
@@ -120,6 +125,7 @@ export function normalizeDesarrollosSignature(
     definicion_especifica: normalizeTableSignature(raw?.definicion_especifica),
     acciones: normalizeTableSignature(raw?.acciones),
     caracteristicas: normalizeTableSignature(raw?.caracteristicas),
+    pendientes: normalizeTableSignature(raw?.pendientes),
   };
 }
 
@@ -155,18 +161,20 @@ async function fetchRemoteSignature(): Promise<{
   signature: DesarrollosDataSignature | null;
   error: string | null;
 }> {
-  const [generalRes, especificaRes, accionesRes, carRes] = await Promise.all([
+  const [generalRes, especificaRes, accionesRes, carRes, pendRes] = await Promise.all([
     fetchTableContentSignature(DESARROLLOS_TABLE.definicion_general),
     fetchTableContentSignature(DESARROLLOS_TABLE.definicion_especifica),
     fetchTableContentSignature(DESARROLLOS_TABLE.acciones),
     fetchTableContentSignature(DESARROLLOS_TABLE.caracteristicas),
+    fetchTableContentSignature(DESARROLLOS_TABLE.pendientes),
   ]);
 
   const firstError =
     generalRes.error ??
     especificaRes.error ??
     accionesRes.error ??
-    carRes.error;
+    carRes.error ??
+    pendRes.error;
 
   if (firstError) {
     return { signature: null, error: firstError };
@@ -178,6 +186,7 @@ async function fetchRemoteSignature(): Promise<{
       definicion_especifica: especificaRes.signature,
       acciones: accionesRes.signature,
       caracteristicas: carRes.signature,
+      pendientes: pendRes.signature,
     },
     error: null,
   };
@@ -188,6 +197,7 @@ export type DesarrollosChangedTables = {
   definicion_especifica: boolean;
   acciones: boolean;
   caracteristicas: boolean;
+  pendientes: boolean;
 };
 
 function buildChangedTables(
@@ -208,6 +218,7 @@ function buildChangedTables(
       local.caracteristicas,
       remote.caracteristicas,
     ),
+    pendientes: tableContentSignatureChanged(local.pendientes, remote.pendientes),
   };
 }
 
@@ -230,6 +241,7 @@ export async function checkDesarrollosUpdatesAvailable(
         definicion_especifica: false,
         acciones: false,
         caracteristicas: false,
+        pendientes: false,
       },
       remoteSignature: null,
     };
@@ -279,7 +291,7 @@ export async function downloadDesarrollosSnapshot(): Promise<{
     return { data: null, error: authError?.message ?? "Sesión no disponible." };
   }
 
-  const [generalRes, especificaRes, accionesRes, carRes] = await Promise.all([
+  const [generalRes, especificaRes, accionesRes, carRes, pendRes] = await Promise.all([
     supabase
       .from(DESARROLLOS_TABLE.definicion_general)
       .select("*")
@@ -290,13 +302,15 @@ export async function downloadDesarrollosSnapshot(): Promise<{
       .order("nombre", NOMBRE_ASC),
     supabase.from(DESARROLLOS_TABLE.acciones).select("*").order("nombre", NOMBRE_ASC),
     supabase.from(DESARROLLOS_TABLE.caracteristicas).select("*").order("id", NOMBRE_ASC),
+    supabase.from(DESARROLLOS_TABLE.pendientes).select("*").order("id", NOMBRE_ASC),
   ]);
 
   const firstError =
     generalRes.error?.message ??
     especificaRes.error?.message ??
     accionesRes.error?.message ??
-    carRes.error?.message;
+    carRes.error?.message ??
+    pendRes.error?.message;
 
   if (firstError) {
     return { data: null, error: firstError };
@@ -306,6 +320,7 @@ export async function downloadDesarrollosSnapshot(): Promise<{
   const definicion_especifica = (especificaRes.data ?? []) as DefinicionEspecifica[];
   const acciones = (accionesRes.data ?? []) as Accion[];
   const caracteristicas = (carRes.data ?? []) as Caracteristica[];
+  const pendientes = (pendRes.data ?? []) as Pendiente[];
 
   const snapshot: DesarrollosOfflineCacheData = {
     updatedAt: new Date().toISOString(),
@@ -314,6 +329,7 @@ export async function downloadDesarrollosSnapshot(): Promise<{
     definicion_especifica,
     acciones,
     caracteristicas,
+    pendientes,
     signature: buildDesarrollosSignatureFromSnapshot({
       updatedAt: "",
       userId: user.id,
@@ -321,6 +337,7 @@ export async function downloadDesarrollosSnapshot(): Promise<{
       definicion_especifica,
       acciones,
       caracteristicas,
+      pendientes,
     }),
   };
 

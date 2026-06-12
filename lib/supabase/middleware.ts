@@ -28,6 +28,7 @@ const PROTECTED_DESARROLLOS_PREFIXES = [
   "/definicion-general",
   "/definicion-especifica",
   "/acciones",
+  "/pendientes",
   DESKTOP_DESARROLLOS_PREFIX,
 ];
 

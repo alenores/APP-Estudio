@@ -5,6 +5,7 @@ import {
 } from "@/app/hooks/useDefinicionesGeneralesList";
 import { AppShell } from "@/components/mobile/shell/app-shell";
 import { EspecificaListCard } from "@/components/mobile/desarrollos/especifica-list-card";
+import { PendientesSection } from "@/components/mobile/desarrollos/pendientes-section";
 import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-especifica-form";
 import { DefinicionGeneralForm } from "@/components/shared/forms/definicion-general-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
@@ -19,7 +20,7 @@ export default function DefinicionGeneralDetallePage() {
   const router = useRouter();
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
-  const { general, especificas, accionesCountByEspecifica, loading, error, reload } =
+  const { general, especificas, accionesCountByEspecifica, pendientes, loading, error, reload } =
     useDefinicionGeneralDetalle(id);
   const [sheet, setSheet] = useState<SheetState>(null);
 
@@ -62,6 +63,12 @@ export default function DefinicionGeneralDetallePage() {
             Editar general
           </button>
         </SurfaceCard>
+
+        <PendientesSection
+          pendientes={pendientes}
+          parent={{ definicion_general_id: general.id }}
+          onChanged={() => void reload()}
+        />
 
         <h2 className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-ink-muted">
           Definiciones específicas

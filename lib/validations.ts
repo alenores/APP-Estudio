@@ -260,3 +260,19 @@ export type DefinicionEspecificaFormValues = z.infer<
 export const accionFormSchema = definicionGeneralFormSchema;
 
 export type AccionFormValues = z.infer<typeof accionFormSchema>;
+
+export const caracteristicaFormSchema = z.object({
+  tipo: z.enum(["nota", "implicancia_tecnica", "prompt_cursor"]),
+  titulo: optionalText,
+});
+
+export type CaracteristicaFormValues = z.infer<typeof caracteristicaFormSchema>;
+
+export const pendienteFormSchema = z.object({
+  titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
+  descripcion: optionalText,
+  estado: z.enum(["abierto", "en_progreso", "resuelto", "descartado"]),
+  prioridad: z.enum(["alta", "media", "baja"]),
+});
+
+export type PendienteFormValues = z.infer<typeof pendienteFormSchema>;
