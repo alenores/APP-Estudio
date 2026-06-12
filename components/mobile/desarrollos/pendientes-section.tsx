@@ -1,10 +1,14 @@
 "use client";
 
 import type { Pendiente } from "@/app/types/desarrollos";
-import { SurfaceCard, TextLink } from "@/components/ui";
+import { TextLink } from "@/components/ui";
 import { useDesarrollosData } from "@/app/hooks/useDesarrollosData";
 import { PendienteForm } from "@/components/shared/forms/pendiente-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
+import {
+  DesarrollosEmptyState,
+  DesarrollosSectionHeader,
+} from "@/components/mobile/desarrollos/desarrollos-chrome";
 import { patchPendienteEstado, type PendienteParent } from "@/lib/desarrollos-queries";
 import {
   PENDIENTE_ESTADO_BADGE_CLASS,
@@ -13,7 +17,8 @@ import {
   PENDIENTE_PRIORIDAD_BADGE_CLASS,
   PENDIENTE_PRIORIDAD_LABELS,
 } from "@/lib/pendiente-ui";
-import { useState } from "react";
+import { ClipboardList } from "lucide-react";
+import { useState, type ReactNode } from "react";
 
 type PendientesSectionProps = {
   title?: string;
@@ -21,6 +26,71 @@ type PendientesSectionProps = {
   parent: PendienteParent;
   onChanged: () => void;
 };
+
+function PendienteCard({
+  pendiente,
+  updating,
+  onEdit,
+  onEstadoChange,
+  nodeLine,
+}: {
+  pendiente: Pendiente;
+  updating: boolean;
+  onEdit: () => void;
+  onEstadoChange: (estado: Pendiente["estado"]) => void;
+  nodeLine?: ReactNode;
+}) {
+  return (
+    <article className="overflow-hidden rounded-xl border border-stone-200 bg-paper-elevated shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-stone-300 dark:border-stone-700 dark:bg-stone-900 dark:hover:border-stone-600">
+      <div className="border-b border-stone-100 px-4 py-3 dark:border-stone-800">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-left text-sm font-semibold leading-snug text-stone-900 transition-colors hover:text-[#EA580C] dark:text-stone-100"
+          >
+            {pendiente.titulo}
+          </button>
+          <div className="flex flex-wrap gap-1.5">
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${PENDIENTE_ESTADO_BADGE_CLASS[pendiente.estado]}`}
+            >
+              {PENDIENTE_ESTADO_LABELS[pendiente.estado]}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${PENDIENTE_PRIORIDAD_BADGE_CLASS[pendiente.prioridad]}`}
+            >
+              {PENDIENTE_PRIORIDAD_LABELS[pendiente.prioridad]}
+            </span>
+          </div>
+        </div>
+        {nodeLine}
+        {pendiente.descripcion ? (
+          <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+            {pendiente.descripcion}
+          </p>
+        ) : null}
+      </div>
+      <div className="flex items-center gap-2 bg-stone-50/80 px-4 py-2.5 dark:bg-stone-900/60">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-stone-400">
+          Estado
+        </span>
+        <select
+          value={pendiente.estado}
+          disabled={updating}
+          onChange={(e) => onEstadoChange(e.target.value as Pendiente["estado"])}
+          className="min-w-0 flex-1 rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-700 transition-colors focus:border-[#EA580C]/50 focus:outline-none disabled:opacity-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200"
+        >
+          {PENDIENTE_ESTADOS.map((estado) => (
+            <option key={estado} value={estado}>
+              {PENDIENTE_ESTADO_LABELS[estado]}
+            </option>
+          ))}
+        </select>
+      </div>
+    </article>
+  );
+}
 
 export function PendientesSection({
   title = "Pendientes",
@@ -45,68 +115,28 @@ export function PendientesSection({
 
   return (
     <>
-      <div className="mb-3 mt-6 flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-          {title}
-        </h2>
-        <button
-          type="button"
-          onClick={() => setCreateOpen(true)}
-          className="text-xs font-semibold text-indigo-800"
-        >
-          + Nuevo
-        </button>
-      </div>
+      <DesarrollosSectionHeader
+        title={title}
+        actionLabel="+ Nuevo"
+        onAction={() => setCreateOpen(true)}
+      />
 
       {pendientes.length === 0 ? (
-        <p className="text-sm text-ink-muted">Sin pendientes.</p>
+        <DesarrollosEmptyState
+          icon={ClipboardList}
+          title="Sin pendientes"
+          hint="Registrá tareas abiertas para este nodo con el botón + Nuevo."
+        />
       ) : (
         <ul className="flex flex-col gap-3">
           {pendientes.map((p) => (
             <li key={p.id}>
-              <SurfaceCard className="space-y-2">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditPendiente(p)}
-                    className="text-left text-sm font-semibold text-ink"
-                  >
-                    {p.titulo}
-                  </button>
-                  <div className="flex flex-wrap gap-1">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${PENDIENTE_ESTADO_BADGE_CLASS[p.estado]}`}
-                    >
-                      {PENDIENTE_ESTADO_LABELS[p.estado]}
-                    </span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${PENDIENTE_PRIORIDAD_BADGE_CLASS[p.prioridad]}`}
-                    >
-                      {PENDIENTE_PRIORIDAD_LABELS[p.prioridad]}
-                    </span>
-                  </div>
-                </div>
-                {p.descripcion ? (
-                  <p className="text-xs text-ink-muted">{p.descripcion}</p>
-                ) : null}
-                <label className="flex items-center gap-2 text-xs text-ink-muted">
-                  <span>Estado</span>
-                  <select
-                    value={p.estado}
-                    disabled={updatingId === p.id}
-                    onChange={(e) =>
-                      void handleEstadoChange(p, e.target.value as Pendiente["estado"])
-                    }
-                    className="rounded-lg border border-border bg-paper-elevated px-2 py-1 text-xs"
-                  >
-                    {PENDIENTE_ESTADOS.map((estado) => (
-                      <option key={estado} value={estado}>
-                        {PENDIENTE_ESTADO_LABELS[estado]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              </SurfaceCard>
+              <PendienteCard
+                pendiente={p}
+                updating={updatingId === p.id}
+                onEdit={() => setEditPendiente(p)}
+                onEstadoChange={(estado) => void handleEstadoChange(p, estado)}
+              />
             </li>
           ))}
         </ul>
@@ -175,47 +205,18 @@ export function PendienteGlobalRow({
 
   return (
     <>
-      <SurfaceCard className="space-y-2">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <button
-            type="button"
-            onClick={() => setEditOpen(true)}
-            className="text-left text-sm font-semibold text-ink"
-          >
-            {pendiente.titulo}
-          </button>
-          <div className="flex flex-wrap gap-1">
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${PENDIENTE_ESTADO_BADGE_CLASS[pendiente.estado]}`}
-            >
-              {PENDIENTE_ESTADO_LABELS[pendiente.estado]}
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${PENDIENTE_PRIORIDAD_BADGE_CLASS[pendiente.prioridad]}`}
-            >
-              {PENDIENTE_PRIORIDAD_LABELS[pendiente.prioridad]}
-            </span>
-          </div>
-        </div>
-        <p className="text-xs text-ink-muted">
-          Nodo: <TextLink href={nodeHref}>{nodeLabel}</TextLink>
-        </p>
-        {pendiente.descripcion ? (
-          <p className="text-xs text-ink-muted">{pendiente.descripcion}</p>
-        ) : null}
-        <select
-          value={pendiente.estado}
-          disabled={updating}
-          onChange={(e) => void handleEstadoChange(e.target.value as Pendiente["estado"])}
-          className="rounded-lg border border-border bg-paper-elevated px-2 py-1 text-xs"
-        >
-          {PENDIENTE_ESTADOS.map((estado) => (
-            <option key={estado} value={estado}>
-              {PENDIENTE_ESTADO_LABELS[estado]}
-            </option>
-          ))}
-        </select>
-      </SurfaceCard>
+      <PendienteCard
+        pendiente={pendiente}
+        updating={updating}
+        onEdit={() => setEditOpen(true)}
+        onEstadoChange={(estado) => void handleEstadoChange(estado)}
+        nodeLine={
+          <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">
+            Nodo:{" "}
+            <TextLink href={nodeHref}>{nodeLabel}</TextLink>
+          </p>
+        }
+      />
 
       <StudySheet open={editOpen} onClose={() => setEditOpen(false)} title="Editar pendiente">
         <PendienteForm

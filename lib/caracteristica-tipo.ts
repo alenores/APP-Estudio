@@ -13,7 +13,9 @@ export const CARACTERISTICA_TIPO_LABELS: Record<CaracteristicaTipo, string> = {
 };
 
 export const CARACTERISTICA_TIPO_BADGE_CLASS: Record<CaracteristicaTipo, string> = {
-  nota: "bg-slate-100 text-slate-700",
-  implicancia_tecnica: "bg-amber-100 text-amber-800",
-  prompt_cursor: "bg-violet-100 text-violet-800",
+  nota: "border border-stone-300/80 bg-stone-100 text-stone-700 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300",
+  implicancia_tecnica:
+    "border border-amber-300/80 bg-amber-50 text-amber-900 dark:border-amber-700/60 dark:bg-amber-950/40 dark:text-amber-300",
+  prompt_cursor:
+    "border border-stone-700/80 bg-stone-900 text-stone-100 dark:border-stone-600 dark:bg-stone-950",
 };

@@ -3,13 +3,20 @@
 import { useAccionDetalle } from "@/app/hooks/useDefinicionesGeneralesList";
 import { AppShell } from "@/components/mobile/shell/app-shell";
 import { CaracteristicaListCard } from "@/components/mobile/desarrollos/caracteristica-list-card";
+import {
+  DesarrollosDetailHero,
+  DesarrollosEmptyState,
+  DesarrollosMetaLine,
+  DesarrollosSectionHeader,
+} from "@/components/mobile/desarrollos/desarrollos-chrome";
 import { PendientesSection } from "@/components/mobile/desarrollos/pendientes-section";
 import { AccionForm } from "@/components/shared/forms/accion-form";
 import { CaracteristicaForm } from "@/components/shared/forms/caracteristica-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
-import { AlertText, LoadingText, SurfaceCard, TextLink } from "@/components/ui";
+import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { useParams, useRouter } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
+import { Play, StickyNote } from "lucide-react";
 import { useState } from "react";
 
 type SheetState = null | { mode: "edit" } | { mode: "caracteristica" };
@@ -45,51 +52,45 @@ export default function AccionDetallePage() {
         backHref={`/definicion-especifica/${especifica.id}`}
         shellTone="clase"
       >
-        <SurfaceCard className="border-fuchsia-200 bg-fuchsia-50/50">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-fuchsia-700">
-            Acción
-          </p>
-          <h1 className="mt-1 text-lg font-semibold">{accion.nombre}</h1>
-          {accion.descripcion ? (
-            <p className="mt-2 text-sm text-ink-muted">{accion.descripcion}</p>
-          ) : null}
-          <p className="mt-3 text-xs text-ink-muted">
-            Específica:{" "}
-            <TextLink href={`/definicion-especifica/${especifica.id}`}>
-              {especifica.nombre}
-            </TextLink>
-          </p>
-          <p className="mt-1 text-xs text-ink-muted">
-            General:{" "}
-            <TextLink href={`/definicion-general/${general.id}`}>
-              {general.nombre}
-            </TextLink>
-          </p>
-          <button
-            type="button"
-            onClick={() => setSheet({ mode: "edit" })}
-            className="mt-3 text-xs font-semibold text-fuchsia-800"
-          >
-            Editar acción
-          </button>
-        </SurfaceCard>
+        <DesarrollosDetailHero
+          level="accion"
+          levelLabel="Acción"
+          icon={Play}
+          title={accion.nombre}
+          description={accion.descripcion}
+          editLabel="Editar acción"
+          onEdit={() => setSheet({ mode: "edit" })}
+          meta={
+            <>
+              <DesarrollosMetaLine>
+                Específica:{" "}
+                <TextLink href={`/definicion-especifica/${especifica.id}`}>
+                  {especifica.nombre}
+                </TextLink>
+              </DesarrollosMetaLine>
+              <DesarrollosMetaLine>
+                General:{" "}
+                <TextLink href={`/definicion-general/${general.id}`}>
+                  {general.nombre}
+                </TextLink>
+              </DesarrollosMetaLine>
+            </>
+          }
+        />
 
-        <div className="mb-3 mt-6 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-            Características
-          </h2>
-          <button
-            type="button"
-            onClick={() => setSheet({ mode: "caracteristica" })}
-            className="text-xs font-semibold text-fuchsia-800"
-          >
-            + Nueva
-          </button>
-        </div>
+        <DesarrollosSectionHeader
+          title="Características"
+          actionLabel="+ Nueva"
+          onAction={() => setSheet({ mode: "caracteristica" })}
+        />
         {caracteristicas.length === 0 ? (
-          <p className="text-sm text-ink-muted">Sin características.</p>
+          <DesarrollosEmptyState
+            icon={StickyNote}
+            title="Sin características"
+            hint="Agregá notas, implicancias técnicas o prompts con + Nueva."
+          />
         ) : (
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-3 pb-8">
             {caracteristicas.map((c) => (
               <li key={c.id}>
                 <CaracteristicaListCard

@@ -6,14 +6,22 @@ import {
 import { AppShell } from "@/components/mobile/shell/app-shell";
 import { AccionListCard } from "@/components/mobile/desarrollos/accion-list-card";
 import { CaracteristicaListCard } from "@/components/mobile/desarrollos/caracteristica-list-card";
+import {
+  DesarrollosDetailHero,
+  DesarrollosEmptyState,
+  DesarrollosFab,
+  DesarrollosMetaLine,
+  DesarrollosSectionHeader,
+} from "@/components/mobile/desarrollos/desarrollos-chrome";
 import { PendientesSection } from "@/components/mobile/desarrollos/pendientes-section";
 import { AccionForm } from "@/components/shared/forms/accion-form";
 import { CaracteristicaForm } from "@/components/shared/forms/caracteristica-form";
 import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-especifica-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
-import { AlertText, LoadingText, SurfaceCard, TextLink } from "@/components/ui";
+import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { useParams, useRouter } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
+import { CornerDownRight, Play, StickyNote } from "lucide-react";
 import { useState } from "react";
 
 type SheetState =
@@ -61,43 +69,35 @@ export default function DefinicionEspecificaDetallePage() {
         backHref={`/definicion-general/${general.id}`}
         shellTone="clase"
       >
-        <SurfaceCard className="border-indigo-200 bg-indigo-50/50">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-indigo-700">
-            Definición específica
-          </p>
-          <h1 className="mt-1 text-lg font-semibold">{especifica.nombre}</h1>
-          {especifica.descripcion ? (
-            <p className="mt-2 text-sm text-ink-muted">{especifica.descripcion}</p>
-          ) : null}
-          <p className="mt-2 text-xs text-ink-muted">
-            General:{" "}
-            <TextLink href={`/definicion-general/${general.id}`}>
-              {general.nombre}
-            </TextLink>
-          </p>
-          <button
-            type="button"
-            onClick={() => setSheet({ mode: "edit-especifica" })}
-            className="mt-3 text-xs font-semibold text-indigo-800"
-          >
-            Editar específica
-          </button>
-        </SurfaceCard>
+        <DesarrollosDetailHero
+          level="especifica"
+          levelLabel="Definición específica"
+          icon={CornerDownRight}
+          title={especifica.nombre}
+          description={especifica.descripcion}
+          editLabel="Editar específica"
+          onEdit={() => setSheet({ mode: "edit-especifica" })}
+          meta={
+            <DesarrollosMetaLine>
+              General:{" "}
+              <TextLink href={`/definicion-general/${general.id}`}>
+                {general.nombre}
+              </TextLink>
+            </DesarrollosMetaLine>
+          }
+        />
 
-        <div className="mb-3 mt-6 flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-            Características
-          </h2>
-          <button
-            type="button"
-            onClick={() => setSheet({ mode: "caracteristica" })}
-            className="text-xs font-semibold text-indigo-800"
-          >
-            + Nueva
-          </button>
-        </div>
+        <DesarrollosSectionHeader
+          title="Características"
+          actionLabel="+ Nueva"
+          onAction={() => setSheet({ mode: "caracteristica" })}
+        />
         {caracteristicas.length === 0 ? (
-          <p className="text-sm text-ink-muted">Sin características.</p>
+          <DesarrollosEmptyState
+            icon={StickyNote}
+            title="Sin características"
+            hint="Agregá notas, implicancias técnicas o prompts con + Nueva."
+          />
         ) : (
           <ul className="flex flex-col gap-3">
             {caracteristicas.map((c) => (
@@ -117,13 +117,15 @@ export default function DefinicionEspecificaDetallePage() {
           onChanged={() => void reload()}
         />
 
-        <h2 className="mb-3 mt-6 text-sm font-semibold uppercase tracking-wide text-ink-muted">
-          Acciones
-        </h2>
+        <DesarrollosSectionHeader title="Acciones" />
         {acciones.length === 0 ? (
-          <p className="text-sm text-ink-muted">Sin acciones.</p>
+          <DesarrollosEmptyState
+            icon={Play}
+            title="Sin acciones"
+            hint="Definí pasos concretos con el botón + Acción."
+          />
         ) : (
-          <ul className="flex flex-col gap-3 pb-20">
+          <ul className="flex flex-col gap-2 pb-20">
             {acciones.map((a) => (
               <li key={a.id}>
                 <AccionListCard accion={a} />
@@ -133,14 +135,7 @@ export default function DefinicionEspecificaDetallePage() {
         )}
       </AppShell>
 
-      <button
-        type="button"
-        onClick={() => setSheet({ mode: "accion" })}
-        className="fixed bottom-6 right-4 z-20 flex h-14 items-center gap-2 rounded-full bg-fuchsia-700 px-5 text-sm font-semibold text-white shadow-lg active:scale-95"
-      >
-        <span className="text-lg leading-none">+</span>
-        Acción
-      </button>
+      <DesarrollosFab label="Acción" onClick={() => setSheet({ mode: "accion" })} />
 
       <StudySheet open={sheet?.mode === "accion"} onClose={() => setSheet(null)} title="Nueva acción">
         <AccionForm
