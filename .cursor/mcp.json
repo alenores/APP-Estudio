@@ -6,9 +6,7 @@
         "/c",
         "npx",
         "-y",
-        "@supabase/mcp-server-supabase",
-        "--access-token",
-        "Tsbp_6f5a875223a18645563608d730c7ad41163eefe7"
+        "@supabase/mcp-server-supabase"
       ]
     }
   }
