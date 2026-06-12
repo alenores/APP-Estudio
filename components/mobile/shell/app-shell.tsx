@@ -110,18 +110,18 @@ function AppShellInner({
       <div
         data-nav-panel
         data-shell-tone={resolvedTone}
-        className={`mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl shadow-xl ring-1 ring-black/10 will-change-transform ${mobileShellToneClass(resolvedTone)}`}
+        className={`mx-auto flex w-full max-w-lg min-h-0 flex-1 flex-col rounded-2xl shadow-[0_20px_60px_-12px_rgba(26,35,50,0.28),0_8px_24px_-8px_rgba(26,35,50,0.14)] ring-1 ring-black/8 will-change-transform ${mobileShellToneClass(resolvedTone)}`}
         style={panelStyle}
       >
         <header className="mobile-shell-header sticky top-0 z-10 rounded-t-2xl border-b px-4 py-3 backdrop-blur-md">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             {backHref ? (
               <Link
                 href={backHref}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition hover:bg-accent-subtle hover:text-accent"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition-all duration-150 active:scale-90 hover:bg-accent-subtle hover:text-accent"
                 aria-label="Volver"
               >
-                ←
+                <BackArrowIcon />
               </Link>
             ) : null}
             {breadcrumb ? (
@@ -155,5 +155,19 @@ export function AppShell(props: AppShellProps) {
     <NavPanelProvider>
       <AppShellInner {...props} />
     </NavPanelProvider>
+  );
+}
+
+function BackArrowIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+      <path
+        d="M11 4L6 9l5 5"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

@@ -157,9 +157,9 @@ export function ExploradorColumn({
   children,
 }: ExploradorColumnProps) {
   return (
-    <section className="explorer-column-panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[var(--td-shadow)]">
+    <section className="explorer-column-panel flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] bg-[var(--td-zone)] shadow-[0_8px_32px_-8px_rgba(30,41,59,0.20),0_2px_8px_-4px_rgba(30,41,59,0.1)]">
       <header
-        className={`${explorerColumnHeaderClass(columnKind)} shrink-0 border-b border-[var(--td-line)]/80 px-3 py-2.5`}
+        className={`${explorerColumnHeaderClass(columnKind)} shrink-0 border-b border-[var(--td-line)]/70 px-3 py-2.5`}
       >
         <div className="flex flex-col gap-2">
           {rootSwitch ? (
@@ -183,9 +183,10 @@ export function ExploradorColumn({
         onWheel={onColumnBodyWheel}
       >
         {count === 0 ? (
-          <p className="rounded-lg border border-dashed border-[var(--td-line)] px-3 py-8 text-center text-sm text-[var(--td-faint)]">
-            {emptyMessage}
-          </p>
+          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[var(--td-line)] px-4 py-10 text-center">
+            <EmptyStateIcon />
+            <p className="text-sm text-[var(--td-faint)]">{emptyMessage}</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-2">{children}</div>
         )}
@@ -200,7 +201,7 @@ function ExploradorRootSwitchControl({
 }: ExploradorRootSwitch) {
   return (
     <div
-      className="flex rounded-lg border border-[var(--td-line)] bg-white p-0.5 shadow-sm"
+      className="flex rounded-lg border border-[var(--td-line)] bg-[var(--td-line-soft)]/60 p-0.5 shadow-inner"
       role="group"
       aria-label="Vista de la primera columna"
     >
@@ -215,9 +216,9 @@ function ExploradorRootSwitchControl({
           type="button"
           aria-pressed={value === opt.id}
           onClick={() => onChange(opt.id)}
-          className={`min-w-0 flex-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-[transform,background-color,color,box-shadow] duration-150 active:scale-95 ${
+          className={`min-w-0 flex-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wide transition-all duration-150 active:scale-95 ${
             value === opt.id
-              ? "bg-[var(--td-navy)] text-white shadow-sm"
+              ? "bg-[var(--td-navy)] text-white shadow-sm shadow-[var(--td-navy)]/30"
               : "text-[var(--td-filter-text-muted)] hover:text-[var(--td-navy)]"
           }`}
         >
@@ -260,10 +261,10 @@ function ColumnHeaderButton({
         aria-label={aria}
         disabled={disabled}
         onClick={onClick}
-        className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-[transform,background-color,border-color,color,box-shadow] duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+        className={`inline-flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-150 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 ${
           variant === "create"
-            ? "bg-[var(--td-navy)] text-white shadow-sm hover:bg-[var(--td-navy-2)] hover:shadow-md"
-            : "border border-[var(--td-line)] bg-white text-[var(--td-navy)] shadow-sm hover:border-[var(--td-navy)]/35 hover:bg-[var(--td-line-soft)]"
+            ? "bg-[var(--td-navy)] text-white shadow-sm hover:bg-[var(--accent)] hover:shadow-[0_4px_14px_-2px_rgba(37,99,235,0.45)]"
+            : "border border-[var(--td-line)] bg-white text-[var(--td-navy)] shadow-sm hover:border-[var(--td-navy)]/40 hover:bg-[var(--td-line-soft)] hover:shadow-md"
         }`}
       >
         {variant === "create" ? (
@@ -284,7 +285,7 @@ function ColumnHeaderButton({
       aria-label={aria}
       disabled={disabled}
       onClick={onClick}
-      className="rounded-md border border-[var(--td-line)] bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--td-filter-text-muted)] transition-[transform,background-color,border-color,color] duration-150 hover:border-[var(--td-navy)]/40 hover:text-[var(--td-navy)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+      className="rounded-md border border-[var(--td-line)] bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--td-filter-text-muted)] transition-all duration-150 hover:border-[var(--td-navy)]/40 hover:text-[var(--td-navy)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
     >
       {label}
     </button>
@@ -327,6 +328,24 @@ function IconSearch() {
         strokeWidth="1.75"
         strokeLinecap="round"
       />
+    </svg>
+  );
+}
+
+function EmptyStateIcon() {
+  return (
+    <svg
+      width="40"
+      height="40"
+      viewBox="0 0 40 40"
+      fill="none"
+      aria-hidden
+      className="opacity-30"
+    >
+      <rect x="6" y="10" width="28" height="20" rx="4" stroke="currentColor" strokeWidth="1.5" className="text-[var(--td-ink-soft)]" />
+      <path d="M12 18h16M12 24h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-[var(--td-faint)]" />
+      <circle cx="32" cy="10" r="5" fill="var(--td-line)" stroke="var(--td-line-soft)" strokeWidth="1" />
+      <path d="M30 10h4M32 8v4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" className="text-[var(--td-ink-soft)]" />
     </svg>
   );
 }

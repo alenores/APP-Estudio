@@ -55,13 +55,22 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`${toneClass} mapa-flow-node group max-w-[240px] rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] transition-[box-shadow,transform] duration-150 ${
-        selected ? "mapa-flow-node--selected" : ""
+      className={`${toneClass} mapa-flow-node group max-w-[268px] rounded-xl border bg-white transition-[box-shadow,transform] duration-200 ${
+        selected
+          ? "mapa-flow-node--selected scale-[1.02]"
+          : "hover:-translate-y-0.5 hover:shadow-[0_8px_28px_-6px_rgba(26,35,50,0.22)]"
       }`}
       style={
         !esProduccion && objetivoId != null
-          ? { borderLeftWidth: 4, borderLeftColor: accent }
-          : undefined
+          ? { borderLeftWidth: 4, borderLeftColor: accent,
+              boxShadow: selected
+                ? `0 0 0 2px #264a6e, 0 12px 36px -8px rgba(37,99,235,0.28)`
+                : "0 4px 18px -6px rgba(26,35,50,0.18)"
+            }
+          : { boxShadow: selected
+              ? "0 0 0 2px #264a6e, 0 12px 36px -8px rgba(26,35,50,0.28)"
+              : "0 4px 18px -6px rgba(26,35,50,0.18)"
+            }
       }
     >
       <MapaFlowEnlaceHandleTarget orientacionLienzo={orientacionLienzo} />

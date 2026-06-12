@@ -51,11 +51,30 @@ export function EntityCard({
   });
 
   return (
-    <div className="flex items-start gap-2 rounded-2xl border border-border bg-paper-elevated p-4 shadow-sm transition hover:border-accent/30 hover:shadow-md">
+    <div
+      className="relative flex items-stretch gap-0 overflow-hidden rounded-2xl border border-border bg-paper-elevated transition-all duration-200 active:scale-[0.985] hover:border-accent/30 hover:shadow-md"
+      style={{
+        boxShadow: "0 1px 4px rgba(26,35,50,0.07), 0 4px 16px -6px rgba(26,35,50,0.10)",
+      }}
+    >
+      {/* Franja lateral de estado */}
+      <span
+        className={`shrink-0 w-[3px] self-stretch rounded-l-2xl ${estadoDotClass(etiqueta_estado).replace("rounded-full h-2.5 w-2.5", "")}`}
+        style={{
+          background: etiqueta_estado === "terminado"
+            ? "var(--estado-terminado)"
+            : etiqueta_estado === "en curso"
+            ? "var(--estado-en-curso)"
+            : etiqueta_estado === "pausado"
+            ? "var(--estado-pausado)"
+            : "var(--border-strong)",
+        }}
+        aria-hidden
+      />
       <Link
         href={href}
         prefetch={false}
-        className="flex min-w-0 flex-1 items-start gap-3"
+        className="flex min-w-0 flex-1 items-center gap-3 px-4 py-4"
         onClick={forwardTransition ? nav.onClick : undefined}
         onPointerDown={forwardTransition ? nav.onPointerDown : undefined}
         onPointerMove={forwardTransition ? nav.onPointerMove : undefined}
@@ -63,42 +82,62 @@ export function EntityCard({
         onPointerCancel={forwardTransition ? nav.onPointerCancel : undefined}
         style={forwardTransition ? { touchAction: "pan-y" } : undefined}
       >
+        {/* Indicador de estado circular */}
         <span
-          className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${estadoDotClass(etiqueta_estado)}`}
+          className={`mt-0.5 h-3 w-3 shrink-0 self-start rounded-full ring-2 ring-offset-2 ring-offset-paper-elevated ${estadoDotClass(etiqueta_estado)}`}
           aria-hidden
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-ink">{nombre}</h3>
+            <h3 className="font-semibold leading-snug text-ink">{nombre}</h3>
             {badge ? (
-              <span className="shrink-0 text-[10px] uppercase tracking-wide text-ink-muted">
+              <span className="shrink-0 rounded-full bg-border/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink-muted">
                 {badge}
               </span>
             ) : null}
           </div>
           {subtitulo ? (
-            <p className="mt-1 line-clamp-2 text-xs text-ink-muted">{subtitulo}</p>
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-muted">{subtitulo}</p>
           ) : null}
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
             {estadoTexto ? (
-              <span className="text-xs text-ink-muted">{estadoTexto}</span>
+              <span className="text-xs font-medium text-ink-muted">{estadoTexto}</span>
             ) : null}
             {porcentaje_avance != null ? (
-              <span className="text-xs font-medium text-accent">
+              <span className="rounded-full bg-accent-subtle px-2 py-0.5 text-xs font-bold text-accent">
                 {porcentaje_avance}%
               </span>
             ) : null}
           </div>
         </div>
         {!hasExternal ? (
-          <span className="text-border-strong" aria-hidden>
-            ›
-          </span>
+          <ChevronRightIcon />
         ) : null}
       </Link>
       {hasExternal ? (
-        <PlatformLinkIcon link={externalLink!} size="sm" className="mt-0.5" />
+        <PlatformLinkIcon link={externalLink!} size="sm" className="mr-4 self-center mt-0.5" />
       ) : null}
     </div>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden
+      className="shrink-0 text-border-strong"
+    >
+      <path
+        d="M6 4l4 4-4 4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

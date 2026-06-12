@@ -43,7 +43,8 @@ function UserAvatar({
       <img
         src={avatarUrl}
         alt=""
-        className="h-8 w-8 shrink-0 rounded-full object-cover ring-2 ring-white"
+        className="h-8 w-8 shrink-0 rounded-full object-cover"
+        style={{ boxShadow: "0 0 0 2px rgba(255,255,255,0.2)" }}
         onError={() => setImageError(true)}
       />
     );
@@ -52,7 +53,11 @@ function UserAvatar({
   return (
     <span
       aria-hidden
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--td-navy)] text-xs font-bold text-white ring-2 ring-white"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+      style={{
+        background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+        boxShadow: "0 0 0 2px rgba(255,255,255,0.15)",
+      }}
     >
       {userInitials(name)}
     </span>
@@ -151,14 +156,17 @@ export function DesktopUserMenu() {
         aria-haspopup="menu"
         aria-controls={open ? menuId : undefined}
         onClick={() => setOpen((v) => !v)}
-        className={`flex max-w-[min(100vw-2rem,14rem)] items-center gap-2 rounded-full border py-0.5 pl-0.5 pr-3 transition-colors sm:max-w-xs sm:pr-3.5 ${
-          open
-            ? "border-[var(--td-navy)] bg-[var(--td-line-soft)]"
-            : "border-[var(--td-line)] hover:bg-[var(--td-line-soft)]"
-        }`}
+        className="flex max-w-[min(100vw-2rem,14rem)] items-center gap-2 rounded-full py-0.5 pl-0.5 pr-3 transition-all duration-200 sm:max-w-xs sm:pr-3.5"
+        style={{
+          border: "1px solid rgba(255,255,255,0.12)",
+          background: open ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.06)",
+        }}
       >
         <UserAvatar avatarUrl={avatarUrl} name={name} />
-        <span className="min-w-0 truncate text-sm font-semibold text-[var(--td-ink)]">
+        <span
+          className="min-w-0 truncate text-sm font-semibold"
+          style={{ color: "var(--ds-text)" }}
+        >
           {name}
         </span>
       </button>

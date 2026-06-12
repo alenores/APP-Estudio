@@ -40,7 +40,7 @@ export function MapaToolbar({
   return (
     <div className="mapa-shell-toolbar flex shrink-0 items-center gap-1.5">
       <div
-        className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
+        className="flex rounded-md border border-white/10 bg-white/5 p-0.5"
         role="tablist"
         aria-label="Grafo del mapa"
       >
@@ -56,10 +56,10 @@ export function MapaToolbar({
             role="tab"
             aria-selected={grafoModo === id}
             onClick={() => onGrafoModoChange(id)}
-            className={`rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition-all duration-150 active:scale-95 ${
               grafoModo === id
-                ? "bg-[var(--td-navy)] text-white shadow-sm"
-                : "text-[var(--td-ink-soft)] hover:bg-white/80"
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
             {label}
@@ -78,7 +78,7 @@ export function MapaToolbar({
 
       {vista === "lienzo" && onOrientacionLienzoChange ? (
         <div
-          className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
+          className="flex rounded-md border border-white/10 bg-white/5 p-0.5"
           role="tablist"
           aria-label="Orientación del lienzo"
         >
@@ -103,10 +103,10 @@ export function MapaToolbar({
               aria-selected={orientacionLienzo === id}
               title={title}
               onClick={() => onOrientacionLienzoChange(id)}
-              className={`rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+              className={`rounded px-2.5 py-1 text-xs font-semibold transition-all duration-150 active:scale-95 ${
                 orientacionLienzo === id
-                  ? "bg-[var(--td-navy)] text-white shadow-sm"
-                  : "text-[var(--td-ink-soft)] hover:bg-white/80"
+                  ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
+                  : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
             >
               {label}
@@ -116,7 +116,7 @@ export function MapaToolbar({
       ) : null}
 
       <div
-        className="flex rounded-md border border-[var(--td-line)] bg-[var(--td-line-soft)]/50 p-0.5"
+        className="flex rounded-md border border-white/10 bg-white/5 p-0.5"
         role="tablist"
         aria-label="Vista del mapa"
       >
@@ -132,10 +132,10 @@ export function MapaToolbar({
             role="tab"
             aria-selected={vista === id}
             onClick={() => onVistaChange(id)}
-            className={`rounded px-2.5 py-1 text-xs font-semibold transition-colors ${
+            className={`rounded px-2.5 py-1 text-xs font-semibold transition-all duration-150 active:scale-95 ${
               vista === id
-                ? "bg-[var(--td-navy)] text-white shadow-sm"
-                : "text-[var(--td-ink-soft)] hover:bg-white/80"
+                ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
             {label}
@@ -152,9 +152,10 @@ export function MapaToolbar({
             ? "Usá el botón + del panel de detalle para agregar cursos o logros"
             : undefined
         }
-        className="shrink-0 rounded-md bg-[var(--td-navy)] px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-[var(--td-navy-2)] disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex items-center gap-1 shrink-0 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-500 hover:shadow-[0_4px_14px_-2px_rgba(37,99,235,0.45)] transition-all duration-150 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {grafoModo === "nodos" ? "+ Nodo" : "+ Tema"}
+        <span className="text-[14px] leading-none" aria-hidden>+</span>
+        <span>{grafoModo === "nodos" ? "Nodo" : "Tema"}</span>
       </button>
     </div>
   );

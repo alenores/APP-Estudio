@@ -2,34 +2,63 @@
 @import "@xyflow/react/dist/style.css";
 
 :root {
-  --paper: #faf8f3;
+  /* ─── Superficie (móvil) ─── */
+  --paper: #f8f7f2;
   --paper-elevated: #ffffff;
-  --ink: #1e293b;
-  --ink-muted: #64748b;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --accent: #2c5282;
-  --accent-hover: #234e77;
-  --accent-subtle: #ebf2f8;
-  --danger: #b91c1c;
+  --ink: #1a2332;
+  --ink-muted: #5a6a7e;
+  --border: #e4e9f0;
+  --border-strong: #c8d2de;
+
+  /* ─── Acento principal (azul más saturado y vibrante) ─── */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: #eff6ff;
+  --accent-glow: rgba(37,99,235,0.18);
+
+  /* ─── Danger ─── */
+  --danger: #dc2626;
   --danger-subtle: #fef2f2;
 
+  /* ─── Estados ─── */
   --estado-sin: #94a3b8;
-  --estado-sin-empezar: #2c5c8a;
-  --estado-en-curso: #2c5c8a;
+  --estado-sin-empezar: #2563eb;
+  --estado-en-curso: #2563eb;
   --estado-pausado: #c7c3ba;
   --estado-pausado-text: #6b675f;
-  --estado-terminado: #54734f;
+  --estado-terminado: #16a34a;
 
-  /** Fondo gris general (móvil + PC) y tonos de contenedor por entidad. */
-  --estudio-stage-bg: #94a3b8;
-  --estudio-shell-tema: #d4f0eb;
-  --estudio-shell-curso: #dceefb;
-  --estudio-shell-clase: #fde8e4;
-  --estudio-shell-seguimiento: #faf3d4;
-  --estudio-shell-neutral: #fcfaf5;
+  /* ─── Tonos entidad móvil ─── */
+  --estudio-stage-bg: #7e9ab5;
+  --estudio-shell-tema: #c8ede6;
+  --estudio-shell-curso: #d2e8fb;
+  --estudio-shell-clase: #fce0da;
+  --estudio-shell-seguimiento: #f6efc8;
+  --estudio-shell-neutral: #f9f7f2;
   --estudio-tone-seguimiento-ink: #5c5318;
   --estudio-tone-seguimiento-accent: #b8860b;
+
+  /* ─── Sombras unificadas ─── */
+  --shadow-xs:  0 1px 2px rgba(26,35,50,0.06);
+  --shadow-sm:  0 1px 3px rgba(26,35,50,0.08), 0 1px 2px rgba(26,35,50,0.06);
+  --shadow-md:  0 4px 16px -4px rgba(26,35,50,0.14), 0 2px 6px -2px rgba(26,35,50,0.08);
+  --shadow-lg:  0 12px 40px -8px rgba(26,35,50,0.22), 0 4px 14px -4px rgba(26,35,50,0.12);
+  --shadow-xl:  0 24px 64px -12px rgba(26,35,50,0.28), 0 8px 24px -6px rgba(26,35,50,0.14);
+  --shadow-card: var(--shadow-sm);
+
+  /* ─── Desktop dark shell ─── */
+  --ds-bg-from:   #0d1829;
+  --ds-bg-mid:    #111d33;
+  --ds-bg-to:     #162342;
+  --ds-header-bg: rgba(10,16,30,0.82);
+  --ds-header-border: rgba(255,255,255,0.07);
+  --ds-text:      rgba(226,232,240,0.92);
+  --ds-text-muted:rgba(148,163,184,0.75);
+  --ds-surface:   rgba(255,255,255,0.04);
+  --ds-surface-hover: rgba(255,255,255,0.08);
+  --ds-border:    rgba(255,255,255,0.09);
+  --ds-accent:    #3b82f6;
+  --ds-accent-glow: rgba(59,130,246,0.25);
 }
 
 @theme inline {
@@ -912,15 +941,36 @@ html.pwa-standalone-zoom-lock body {
   }
 }
 
-/* —— Shell escritorio (ADR 008) —— */
+/* —— Shell escritorio (ADR 008) — Dark premium —— */
 .desktop-shell {
   min-width: 1024px;
-  --desktop-shell-bg: #64748b;
-  background-color: var(--desktop-shell-bg);
+  background: linear-gradient(145deg,
+    var(--ds-bg-from) 0%,
+    var(--ds-bg-mid)  45%,
+    var(--ds-bg-to)   100%
+  );
+  /* Textura sutil de ruido sobre el gradiente */
+  background-attachment: fixed;
+  position: relative;
+}
+
+/* Ruido/grano sobre el fondo oscuro */
+.desktop-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.desktop-shell > * {
+  position: relative;
+  z-index: 1;
 }
 
 .desktop-shell .deploy-sha-footer {
-  color: rgba(226, 232, 240, 0.55);
+  color: rgba(148, 163, 184, 0.45);
 }
 
 .desktop-shell-header-start {
@@ -1152,6 +1202,11 @@ html.pwa-standalone-zoom-lock body {
 .mapa-canvas-host {
   flex: 1 1 0;
   min-height: 0;
+  /* El lienzo tiene su propio fondo claro para contrastar con el shell oscuro */
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06),
+              0 8px 32px -8px rgba(10,16,30,0.5);
 }
 .mapa-canvas-wrap {
   flex: 1 1 0;
@@ -1160,13 +1215,27 @@ html.pwa-standalone-zoom-lock body {
 .mapa-canvas-wrap .react-flow {
   width: 100%;
   height: 100%;
+  /* Fondo claro tipo pizarra para el lienzo */
+  background-color: #f0f4f8;
+  background-image:
+    radial-gradient(circle, #c8d5e4 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.mapa-canvas-wrap .react-flow__controls {
+  box-shadow: 0 4px 16px -4px rgba(10,16,30,0.25);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.9);
 }
 .mapa-canvas-wrap .react-flow__controls button {
-  border-color: var(--td-line);
+  border-color: #e2e8f0;
   background: white;
+  color: #334155;
+  transition: background 150ms ease, color 150ms ease;
 }
 .mapa-canvas-wrap .react-flow__controls button:hover {
-  background: var(--td-line-soft);
+  background: #eff6ff;
+  color: #2563eb;
 }
 .mapa-flow-node {
   cursor: grab;
@@ -1559,13 +1628,14 @@ html.pwa-standalone-zoom-lock body {
 }
 .mapa-minimap {
   margin: 0 12px 12px 0 !important;
-  border-radius: 10px !important;
-  border: 1px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255,255,255,0.85) !important;
   overflow: hidden;
-  box-shadow: 0 4px 16px -6px rgba(27, 34, 43, 0.2);
+  box-shadow: 0 8px 24px -6px rgba(10,16,30,0.35), 0 2px 8px -2px rgba(10,16,30,0.2);
+  backdrop-filter: blur(4px);
 }
 .mapa-minimap .react-flow__minimap-mask {
-  fill: rgba(241, 245, 249, 0.82);
+  fill: rgba(224, 231, 241, 0.78);
 }
 
 /* Lienzo detalle — capa 1 (ADR 010) */

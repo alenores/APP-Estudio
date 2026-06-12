@@ -70,7 +70,7 @@ export function MapaObjetivoFiltroBar({
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-0.5 border border-[var(--td-line)] bg-white p-0.5 ${
+      className={`flex flex-wrap items-center gap-0.5 border border-white/10 bg-white/5 p-0.5 ${
         compact ? "rounded-md" : "rounded-lg"
       }`}
       role="group"
@@ -118,17 +118,18 @@ function FiltroBtn({
       title={title ?? label}
       aria-pressed={active}
       onClick={onClick}
-      className={`font-semibold transition-colors ${
+      className={`font-semibold transition-all duration-150 active:scale-95 ${
         compact ? "rounded px-2 py-0.5 text-[11px]" : "rounded-md px-2.5 py-1 text-xs"
       } ${
         active
           ? "text-white shadow-sm"
-          : "text-[var(--td-ink-soft)] hover:bg-[var(--td-line-soft)]"
+          : "text-slate-400 hover:text-white hover:bg-white/5"
       }`}
       style={
         active
           ? {
-              backgroundColor: accent ?? "var(--td-navy)",
+              backgroundColor: accent ?? "#2563eb",
+              boxShadow: `0 2px 8px -2px ${accent ?? "#2563eb"}`,
             }
           : undefined
       }
