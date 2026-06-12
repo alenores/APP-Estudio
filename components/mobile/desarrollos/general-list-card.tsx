@@ -1,7 +1,7 @@
 "use client";
 
 import type { DefinicionGeneral } from "@/app/types/desarrollos";
-import { ChevronRight, GitBranch, Layers, Zap } from "lucide-react";
+import { ChevronRight, GitBranch, Zap } from "lucide-react";
 import Link from "next/link";
 
 type GeneralListCardProps = {
@@ -9,24 +9,6 @@ type GeneralListCardProps = {
   especificasCount: number;
   accionesCount: number;
 };
-
-function CountBadge({
-  icon: Icon,
-  count,
-  label,
-}: {
-  icon: typeof Layers;
-  count: number;
-  label: string;
-}) {
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300">
-      <Icon className="h-3 w-3 shrink-0 text-[#EA580C]" aria-hidden />
-      <span className="tabular-nums font-semibold text-stone-800 dark:text-stone-100">{count}</span>
-      <span className="text-stone-500 dark:text-stone-400">{label}</span>
-    </span>
-  );
-}
 
 export function GeneralListCard({
   general,
@@ -39,48 +21,47 @@ export function GeneralListCard({
     <Link
       href={href}
       prefetch={false}
-      className="group relative flex overflow-hidden rounded-2xl border border-stone-200 bg-paper-elevated shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:border-[#EA580C]/35 hover:shadow-md active:scale-[0.985] dark:border-stone-700 dark:bg-stone-900 dark:hover:border-[#EA580C]/50"
-      style={{
-        boxShadow:
-          "0 1px 3px rgba(28,25,23,0.06), 0 4px 14px -6px rgba(28,25,23,0.10)",
-      }}
+      className="group flex overflow-hidden rounded-2xl border border-stone-200 bg-paper-elevated shadow-sm transition-[transform,box-shadow,border-color] duration-200 hover:border-[#EA580C]/40 hover:shadow-md active:scale-[0.985] dark:border-stone-700 dark:bg-stone-900 dark:hover:border-[#EA580C]/40"
+      style={{ boxShadow: "0 1px 3px rgba(28,25,23,0.06), 0 4px 14px -6px rgba(28,25,23,0.09)" }}
     >
-      <span
-        className="w-1 shrink-0 self-stretch bg-[#EA580C]"
-        aria-hidden
-      />
+      {/* Franja naranja nivel 1 */}
+      <span className="w-1 shrink-0 self-stretch bg-[#EA580C]" aria-hidden />
 
-      <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-4">
-        <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-[#EA580C] ring-1 ring-stone-200/80 transition-colors duration-200 group-hover:bg-[#EA580C]/10 group-hover:ring-[#EA580C]/25 dark:bg-stone-800 dark:ring-stone-700"
-          aria-hidden
-        >
-          <Layers className="h-5 w-5" strokeWidth={2.25} />
-        </div>
+      <div className="flex min-w-0 flex-1 flex-col px-4 py-4">
+        {/* Título */}
+        <h2 className="text-[17px] font-bold leading-tight tracking-tight text-stone-900 dark:text-stone-100">
+          {general.nombre}
+        </h2>
 
-        <div className="min-w-0 flex-1">
-          <span className="inline-flex items-center rounded-full bg-[#EA580C]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#EA580C] dark:bg-[#EA580C]/15">
-            Definición general
+        {/* Descripción */}
+        {general.descripcion ? (
+          <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+            {general.descripcion}
+          </p>
+        ) : null}
+
+        {/* Contadores */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300">
+            <GitBranch className="h-3.5 w-3.5 text-[#EA580C]" aria-hidden />
+            <span className="tabular-nums font-bold text-stone-800 dark:text-stone-100">
+              {especificasCount}
+            </span>{" "}
+            específicas
           </span>
-
-          <h2 className="mt-1.5 text-lg font-bold leading-snug tracking-tight text-stone-900 dark:text-stone-100">
-            {general.nombre}
-          </h2>
-
-          {general.descripcion ? (
-            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
-              {general.descripcion}
-            </p>
-          ) : null}
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            <CountBadge icon={GitBranch} count={especificasCount} label="específicas" />
-            <CountBadge icon={Zap} count={accionesCount} label="acciones" />
-          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300">
+            <Zap className="h-3.5 w-3.5 text-[#EA580C]" aria-hidden />
+            <span className="tabular-nums font-bold text-stone-800 dark:text-stone-100">
+              {accionesCount}
+            </span>{" "}
+            acciones
+          </span>
         </div>
+      </div>
 
+      <div className="flex shrink-0 items-center pr-4">
         <ChevronRight
-          className="h-5 w-5 shrink-0 text-stone-400 transition-colors duration-200 group-hover:text-[#EA580C] dark:text-stone-500"
+          className="h-5 w-5 text-stone-300 transition-colors duration-200 group-hover:text-[#EA580C] dark:text-stone-600"
           aria-hidden
         />
       </div>

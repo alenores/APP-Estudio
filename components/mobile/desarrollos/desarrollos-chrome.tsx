@@ -1,6 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import type { ReactNode } from "react";
 
 export const DS_ACCENT = "#EA580C";
@@ -43,12 +44,13 @@ export function dsExplorerItemClass(
   }`;
 }
 
+/* ─── Detail Hero ─────────────────────────────────────────── */
+
 type DesarrollosDetailHeroProps = {
   levelLabel: string;
   title: string;
   description?: string | null;
   icon: LucideIcon;
-  /** general | especifica | accion — controla énfasis visual del nivel */
   level: "general" | "especifica" | "accion";
   meta?: ReactNode;
   editLabel: string;
@@ -65,91 +67,105 @@ export function DesarrollosDetailHero({
   editLabel,
   onEdit,
 }: DesarrollosDetailHeroProps) {
-  const accentBar =
+  const topStrip =
     level === "general"
       ? "bg-[#EA580C]"
       : level === "especifica"
-        ? "bg-stone-500 dark:bg-stone-600"
-        : "bg-stone-400 dark:bg-stone-600";
-
-  const iconWrap =
-    level === "general"
-      ? "bg-[#EA580C]/10 text-[#EA580C] ring-[#EA580C]/20"
-      : level === "especifica"
-        ? "bg-stone-100 text-stone-600 ring-stone-200 dark:bg-stone-800 dark:text-stone-300 dark:ring-stone-700"
-        : "bg-stone-100 text-stone-500 ring-stone-200 dark:bg-stone-800 dark:text-stone-400 dark:ring-stone-700";
+        ? "bg-stone-400 dark:bg-stone-600"
+        : "bg-stone-300 dark:bg-stone-700";
 
   const levelBadge =
     level === "general"
-      ? "bg-[#EA580C]/10 text-[#EA580C]"
-      : "border border-stone-300/80 bg-stone-100 text-stone-600 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400";
+      ? "bg-[#EA580C]/10 text-[#EA580C] dark:bg-[#EA580C]/15"
+      : "border border-stone-200 bg-stone-100 text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400";
 
   return (
-    <section className="relative overflow-hidden rounded-2xl border border-stone-200 bg-paper-elevated shadow-sm dark:border-stone-700 dark:bg-stone-900">
-      <span className={`absolute inset-y-0 left-0 w-1 ${accentBar}`} aria-hidden />
-      <div className="flex gap-3 px-4 py-4 pl-5">
-        <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ${iconWrap}`}
-          aria-hidden
-        >
-          <Icon className="h-5 w-5" strokeWidth={2.25} />
-        </div>
-        <div className="min-w-0 flex-1">
+    <section className="overflow-hidden rounded-2xl border border-stone-200 bg-paper-elevated shadow-sm dark:border-stone-700 dark:bg-stone-900">
+      {/* Franja superior de nivel */}
+      <div className={`h-1 w-full ${topStrip}`} aria-hidden />
+
+      <div className="px-5 py-4">
+        {/* Fila: badge de nivel + botón editar */}
+        <div className="flex items-start justify-between gap-2">
           <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] ${levelBadge}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${levelBadge}`}
           >
+            <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
             {levelLabel}
           </span>
-          <h1 className="mt-1.5 text-lg font-bold leading-snug text-stone-900 dark:text-stone-100">
-            {title}
-          </h1>
-          {description ? (
-            <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
-              {description}
-            </p>
-          ) : null}
-          {meta ? <div className="mt-2 space-y-1">{meta}</div> : null}
           <button
             type="button"
             onClick={onEdit}
-            className="mt-3 text-xs font-semibold text-[#EA580C] transition-colors hover:text-[#c2410c] active:scale-95 dark:text-orange-400"
+            className="shrink-0 text-[11px] font-semibold text-[#EA580C] transition-colors hover:text-[#c2410c] active:scale-95 dark:text-orange-400"
           >
             {editLabel}
           </button>
         </div>
+
+        {/* Título */}
+        <h1 className="mt-3 text-xl font-bold leading-tight tracking-tight text-stone-900 dark:text-stone-100">
+          {title}
+        </h1>
+
+        {/* Descripción */}
+        {description ? (
+          <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+            {description}
+          </p>
+        ) : null}
+
+        {/* Meta: breadcrumbs de padres */}
+        {meta ? (
+          <div className="mt-3 space-y-1.5 border-t border-stone-100 pt-3 dark:border-stone-800">
+            {meta}
+          </div>
+        ) : null}
       </div>
     </section>
   );
 }
 
+/* ─── Section Header ──────────────────────────────────────── */
+
 type DesarrollosSectionHeaderProps = {
   title: string;
+  count?: number;
   actionLabel?: string;
   onAction?: () => void;
 };
 
 export function DesarrollosSectionHeader({
   title,
+  count,
   actionLabel,
   onAction,
 }: DesarrollosSectionHeaderProps) {
   return (
-    <div className="mb-3 mt-6 flex items-center justify-between gap-2">
-      <h2 className="text-xs font-bold uppercase tracking-[0.16em] text-stone-500 dark:text-stone-400">
+    <div className="flex items-center gap-3">
+      <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
         {title}
-      </h2>
+        {count != null ? (
+          <span className="ml-1.5 font-bold tabular-nums text-stone-500 dark:text-stone-400">
+            ({count})
+          </span>
+        ) : null}
+      </span>
+      <span className="h-px flex-1 bg-stone-200 dark:bg-stone-800" aria-hidden />
       {actionLabel && onAction ? (
         <button
           type="button"
           onClick={onAction}
-          className="text-xs font-semibold text-[#EA580C] transition-colors hover:text-[#c2410c] active:scale-95"
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-[#EA580C]/30 bg-[#EA580C]/8 px-2.5 py-1 text-[11px] font-semibold text-[#EA580C] transition-colors hover:bg-[#EA580C]/15 active:scale-95 dark:border-[#EA580C]/25 dark:bg-[#EA580C]/10"
         >
-          {actionLabel}
+          <Plus className="h-3 w-3" strokeWidth={2.5} aria-hidden />
+          {actionLabel.replace("+ ", "")}
         </button>
       ) : null}
     </div>
   );
 }
+
+/* ─── Empty State ─────────────────────────────────────────── */
 
 type DesarrollosEmptyStateProps = {
   icon: LucideIcon;
@@ -159,19 +175,21 @@ type DesarrollosEmptyStateProps = {
 
 export function DesarrollosEmptyState({ icon: Icon, title, hint }: DesarrollosEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center rounded-xl border border-dashed border-stone-300 bg-stone-50/60 px-4 py-8 text-center dark:border-stone-700 dark:bg-stone-900/40">
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-stone-200/70 text-stone-500 dark:bg-stone-800 dark:text-stone-400">
-        <Icon className="h-5 w-5" strokeWidth={2} aria-hidden />
+    <div className="flex flex-col items-center rounded-xl border border-dashed border-stone-200 bg-stone-50/40 px-4 py-10 text-center dark:border-stone-800 dark:bg-stone-900/30">
+      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-500">
+        <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
       </div>
-      <p className="mt-3 text-sm font-medium text-stone-700 dark:text-stone-300">{title}</p>
+      <p className="mt-3 text-sm font-semibold text-stone-600 dark:text-stone-300">{title}</p>
       {hint ? (
-        <p className="mt-1 max-w-[240px] text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+        <p className="mt-1.5 max-w-[220px] text-xs leading-relaxed text-stone-400 dark:text-stone-500">
           {hint}
         </p>
       ) : null}
     </div>
   );
 }
+
+/* ─── FAB ─────────────────────────────────────────────────── */
 
 type DesarrollosFabProps = {
   label: string;
@@ -183,16 +201,18 @@ export function DesarrollosFab({ label, onClick }: DesarrollosFabProps) {
     <button
       type="button"
       onClick={onClick}
-      className="fixed bottom-6 right-4 z-20 flex h-14 items-center gap-2 rounded-full bg-[#EA580C] px-5 text-sm font-semibold text-white shadow-lg shadow-[#EA580C]/25 transition-[transform,background-color] duration-150 hover:bg-[#c2410c] active:scale-95"
+      className="fixed bottom-6 right-4 z-20 flex h-14 items-center gap-2 rounded-full bg-[#EA580C] px-5 text-sm font-bold text-white shadow-xl shadow-[#EA580C]/30 transition-[transform,background-color] duration-150 hover:bg-[#c2410c] active:scale-95"
     >
-      <span className="text-lg leading-none">+</span>
+      <Plus className="h-4.5 w-4.5" strokeWidth={2.5} aria-hidden />
       {label}
     </button>
   );
 }
 
+/* ─── Meta line ───────────────────────────────────────────── */
+
 export function DesarrollosMetaLine({ children }: { children: ReactNode }) {
   return (
-    <p className="text-xs text-stone-500 dark:text-stone-400">{children}</p>
+    <p className="text-xs leading-relaxed text-stone-500 dark:text-stone-400">{children}</p>
   );
 }
