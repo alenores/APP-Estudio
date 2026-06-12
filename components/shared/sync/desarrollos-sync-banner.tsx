@@ -10,7 +10,6 @@ export function DesarrollosSyncBanner() {
     syncing,
     syncingDetail,
     hasUpdatesAvailable,
-    updatesCheckDone,
     actualizarDatos,
     recheckUpdates,
     error,
@@ -21,10 +20,8 @@ export function DesarrollosSyncBanner() {
   }, [recheckUpdates]);
 
   const showButton = !syncing && (hasUpdatesAvailable || !packReady);
-  const showUpToDate =
-    packReady && updatesCheckDone && !hasUpdatesAvailable && !syncing && !error;
 
-  if (!showButton && !syncing && !error && !showUpToDate) return null;
+  if (!showButton && !syncing && !error) return null;
 
   return (
     <div className="w-full space-y-2 rounded-xl border border-stone-200 bg-stone-50/80 px-3.5 py-3 dark:border-stone-700 dark:bg-stone-900/50">
@@ -42,9 +39,6 @@ export function DesarrollosSyncBanner() {
         >
           {!packReady ? "Descargar desarrollos" : "Actualizar desarrollos"}
         </button>
-      ) : null}
-      {showUpToDate ? (
-        <p className="text-xs text-stone-500 dark:text-stone-400">Datos locales al día.</p>
       ) : null}
     </div>
   );

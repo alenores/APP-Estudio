@@ -18,12 +18,16 @@ import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { writeContentTypology } from "@/lib/content-typology";
 import { CornerDownRight, Layers, Map, Play } from "lucide-react";
-
-const DS_COL_HEADER =
-  "flex shrink-0 items-center justify-between gap-2 border-b-2 border-[#EA580C] bg-stone-50 px-3 py-2.5 text-sm font-semibold text-stone-700 dark:bg-stone-900/80 dark:text-stone-200";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+
+const DS_COL_HEADER =
+  "flex shrink-0 items-center justify-between gap-2 border-b-2 border-[#EA580C] bg-stone-50 px-3 py-3 text-lg font-bold text-stone-800 dark:bg-stone-900/80 dark:text-stone-100";
+const DS_CARD_TITLE =
+  "text-base font-semibold leading-snug text-stone-900 dark:text-stone-100";
+const DS_CARD_DESC =
+  "mt-1 line-clamp-2 text-sm leading-snug text-stone-600 dark:text-stone-300";
 
 const EMPTY_SELECTION: DesarrollosExplorerSelection = {
   generalId: null,
@@ -162,11 +166,9 @@ export function DesarrollosExploradorView() {
                     onClick={() => go({ generalId: g.id, especificaId: null, accionId: null })}
                     className={dsExplorerItemClass("general", selection.generalId === g.id)}
                   >
-                    <p className="text-base font-semibold leading-snug text-stone-900 dark:text-stone-100">{g.nombre}</p>
+                    <p className={DS_CARD_TITLE}>{g.nombre}</p>
                     {g.descripcion ? (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-stone-400 dark:text-stone-500">
-                        {g.descripcion}
-                      </p>
+                      <p className={DS_CARD_DESC}>{g.descripcion}</p>
                     ) : null}
                     <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                       {especificasCountByGeneral.get(g.id) ?? 0} específicas
@@ -217,11 +219,9 @@ export function DesarrollosExploradorView() {
                       selection.especificaId === e.id,
                     )}
                   >
-                    <p className="text-base font-semibold leading-snug text-stone-800 dark:text-stone-100">{e.nombre}</p>
+                    <p className={DS_CARD_TITLE}>{e.nombre}</p>
                     {e.descripcion ? (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-stone-400 dark:text-stone-500">
-                        {e.descripcion}
-                      </p>
+                      <p className={DS_CARD_DESC}>{e.descripcion}</p>
                     ) : null}
                     <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                       {accionesCountByEspecifica.get(e.id) ?? 0} acciones
@@ -273,11 +273,9 @@ export function DesarrollosExploradorView() {
                     }
                     className={dsExplorerItemClass("accion", selection.accionId === a.id)}
                   >
-                    <p className="text-base font-semibold leading-snug text-stone-800 dark:text-stone-100">{a.nombre}</p>
+                    <p className={DS_CARD_TITLE}>{a.nombre}</p>
                     {a.descripcion ? (
-                      <p className="mt-0.5 line-clamp-2 text-xs text-stone-500 dark:text-stone-400">
-                        {a.descripcion}
-                      </p>
+                      <p className={DS_CARD_DESC}>{a.descripcion}</p>
                     ) : null}
                   </button>
                 </li>
