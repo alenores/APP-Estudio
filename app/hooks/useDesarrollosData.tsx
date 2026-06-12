@@ -7,6 +7,7 @@ import {
   readDesarrollosOfflineCache,
   type DesarrollosOfflineCacheData,
 } from "@/lib/desarrollos-offline-cache";
+import { createClient } from "@/lib/supabase/client";
 import {
   createContext,
   useCallback,
@@ -18,6 +19,8 @@ import {
 } from "react";
 
 const LOADING_PACK_SAFETY_MS = 3000;
+const AUTH_WAIT_MS = 5000;
+const AUTH_POLL_MS = 200;
 
 const remoteSyncSession = {
   completed: false,
@@ -37,6 +40,21 @@ function commitRemoteSyncSession(
   setUpdatesCheckDone(true);
 }
 
+async function waitForAuthUser(maxMs = AUTH_WAIT_MS): Promise<string | null> {
+  const supabase = createClient();
+  const started = Date.now();
+
+  while (Date.now() - started < maxMs) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user?.id) return user.id;
+    await new Promise((resolve) => window.setTimeout(resolve, AUTH_POLL_MS));
+  }
+
+  return null;
+}
+
 export type DesarrollosDataContextValue = {
   cacheData: DesarrollosOfflineCacheData | null;
   packReady: boolean;
@@ -49,6 +67,7 @@ export type DesarrollosDataContextValue = {
   setError: (value: string | null) => void;
   actualizarDatos: () => Promise<void>;
   refreshSnapshot: () => Promise<void>;
+  recheckUpdates: () => Promise<void>;
 };
 
 const DesarrollosDataContext = createContext<DesarrollosDataContextValue | null>(
@@ -103,6 +122,42 @@ export function DesarrollosDataProvider({ children }: { children: ReactNode }) {
 
   const actualizarDatos = refreshSnapshot;
 
+  const applyUpdatesCheckResult = useCallback(
+    (cached: DesarrollosOfflineCacheData, hasUpdates: boolean, checkError: string | null) => {
+      if (checkError) {
+        setHasUpdatesAvailable(!isDesarrollosPackReady(cached));
+      } else {
+        setHasUpdatesAvailable(hasUpdates);
+        remoteSyncSession.hasUpdatesAvailable = hasUpdates;
+      }
+      setUpdatesCheckDone(true);
+      remoteSyncSession.updatesCheckDone = true;
+    },
+    [],
+  );
+
+  const recheckUpdates = useCallback(async () => {
+    if (!navigator.onLine) return;
+
+    const cached = readDesarrollosOfflineCache();
+    if (!cached) {
+      setHasUpdatesAvailable(true);
+      setUpdatesCheckDone(true);
+      return;
+    }
+
+    const userId = await waitForAuthUser();
+    if (!userId) return;
+
+    try {
+      const { hasUpdates, error: checkError } =
+        await checkDesarrollosUpdatesAvailable(cached);
+      applyUpdatesCheckResult(cached, hasUpdates, checkError);
+    } catch {
+      applyUpdatesCheckResult(cached, false, "check-failed");
+    }
+  }, [applyUpdatesCheckResult]);
+
   useEffect(() => {
     const safety = window.setTimeout(() => {
       setLoadingPack(false);
@@ -116,6 +171,18 @@ export function DesarrollosDataProvider({ children }: { children: ReactNode }) {
     const runUpdatesCheck = async (cached: DesarrollosOfflineCacheData) => {
       if (!navigator.onLine) {
         commitRemoteSyncSession(false, setHasUpdatesAvailable, setUpdatesCheckDone);
+        return;
+      }
+
+      const userId = await waitForAuthUser();
+      if (cancelled) return;
+
+      if (!userId) {
+        commitRemoteSyncSession(
+          !isDesarrollosPackReady(cached),
+          setHasUpdatesAvailable,
+          setUpdatesCheckDone,
+        );
         return;
       }
 
@@ -137,7 +204,11 @@ export function DesarrollosDataProvider({ children }: { children: ReactNode }) {
         commitRemoteSyncSession(hasUpdates, setHasUpdatesAvailable, setUpdatesCheckDone);
       } catch {
         if (!cancelled) {
-          commitRemoteSyncSession(false, setHasUpdatesAvailable, setUpdatesCheckDone);
+          commitRemoteSyncSession(
+            !isDesarrollosPackReady(cached),
+            setHasUpdatesAvailable,
+            setUpdatesCheckDone,
+          );
         }
       }
     };
@@ -183,6 +254,7 @@ export function DesarrollosDataProvider({ children }: { children: ReactNode }) {
       setError,
       actualizarDatos,
       refreshSnapshot,
+      recheckUpdates,
     }),
     [
       cacheData,
@@ -195,6 +267,7 @@ export function DesarrollosDataProvider({ children }: { children: ReactNode }) {
       error,
       actualizarDatos,
       refreshSnapshot,
+      recheckUpdates,
     ],
   );
 

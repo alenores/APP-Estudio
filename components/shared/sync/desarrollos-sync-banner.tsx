@@ -1,6 +1,7 @@
 "use client";
 
 import { useDesarrollosData } from "@/app/hooks/useDesarrollosData";
+import { useEffect } from "react";
 
 /** Botón Actualizar — tipología desarrollos (ADR 011). */
 export function DesarrollosSyncBanner() {
@@ -11,15 +12,22 @@ export function DesarrollosSyncBanner() {
     hasUpdatesAvailable,
     updatesCheckDone,
     actualizarDatos,
+    recheckUpdates,
     error,
   } = useDesarrollosData();
 
-  const showButton = !syncing && (hasUpdatesAvailable || !packReady);
+  useEffect(() => {
+    void recheckUpdates();
+  }, [recheckUpdates]);
 
-  if (!showButton && !syncing && !error) return null;
+  const showButton = !syncing && (hasUpdatesAvailable || !packReady);
+  const showUpToDate =
+    packReady && updatesCheckDone && !hasUpdatesAvailable && !syncing && !error;
+
+  if (!showButton && !syncing && !error && !showUpToDate) return null;
 
   return (
-    <div className="space-y-2 rounded-xl border border-violet-200 bg-violet-50/60 px-3.5 py-3">
+    <div className="w-full space-y-2 rounded-xl border border-violet-200 bg-violet-50/60 px-3.5 py-3">
       {syncing ? (
         <p className="text-sm text-ink-muted">{syncingDetail ?? "Actualizando…"}</p>
       ) : null}
@@ -33,7 +41,7 @@ export function DesarrollosSyncBanner() {
           {!packReady ? "Descargar desarrollos" : "Actualizar desarrollos"}
         </button>
       ) : null}
-      {packReady && updatesCheckDone && !hasUpdatesAvailable && !syncing ? (
+      {showUpToDate ? (
         <p className="text-xs text-ink-muted">Datos locales al día.</p>
       ) : null}
     </div>
