@@ -161,6 +161,11 @@ export function DesarrollosExploradorView() {
                     className={dsExplorerItemClass("general", selection.generalId === g.id)}
                   >
                     <p className="font-semibold text-stone-900 dark:text-stone-100">{g.nombre}</p>
+                    {g.descripcion ? (
+                      <p className="mt-0.5 line-clamp-2 text-xs text-stone-400 dark:text-stone-500">
+                        {g.descripcion}
+                      </p>
+                    ) : null}
                     <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                       {especificasCountByGeneral.get(g.id) ?? 0} específicas
                     </p>
@@ -211,6 +216,11 @@ export function DesarrollosExploradorView() {
                     )}
                   >
                     <p className="font-semibold text-stone-800 dark:text-stone-100">{e.nombre}</p>
+                    {e.descripcion ? (
+                      <p className="mt-0.5 line-clamp-2 text-xs text-stone-400 dark:text-stone-500">
+                        {e.descripcion}
+                      </p>
+                    ) : null}
                     <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                       {accionesCountByEspecifica.get(e.id) ?? 0} acciones
                     </p>
