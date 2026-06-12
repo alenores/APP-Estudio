@@ -192,6 +192,7 @@ export async function insertCaracteristica(
       accion_id: "accion_id" in parent ? parent.accion_id : null,
       tipo: values.tipo,
       titulo: emptyToNull(values.titulo),
+      descripcion: emptyToNull(values.descripcion),
     })
     .select()
     .single();

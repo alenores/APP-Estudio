@@ -40,6 +40,7 @@ export type Caracteristica = {
   accion_id: number | null;
   tipo: CaracteristicaTipo;
   titulo: string | null;
+  descripcion: string | null;
   created_at: string;
 };
 

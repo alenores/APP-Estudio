@@ -31,6 +31,7 @@ export function CaracteristicaForm({ parent, onSuccess }: CaracteristicaFormProp
   const { refreshSnapshot } = useDesarrollosData();
   const [tipo, setTipo] = useState<"nota" | "implicancia_tecnica" | "prompt_cursor">("nota");
   const [titulo, setTitulo] = useState("");
+  const [descripcion, setDescripcion] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -40,7 +41,7 @@ export function CaracteristicaForm({ parent, onSuccess }: CaracteristicaFormProp
     setError(null);
     setFieldErrors({});
 
-    const parsed = caracteristicaFormSchema.safeParse({ tipo, titulo });
+    const parsed = caracteristicaFormSchema.safeParse({ tipo, titulo, descripcion });
     if (!parsed.success) {
       setFieldErrors(zodFieldErrors(parsed.error));
       return;
@@ -86,6 +87,13 @@ export function CaracteristicaForm({ parent, onSuccess }: CaracteristicaFormProp
         ) : (
           <FormInput value={titulo} onChange={(e) => setTitulo(e.target.value)} />
         )}
+      </FormField>
+      <FormField label="Descripción (opcional)" error={fieldErrors.descripcion}>
+        <FormTextarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
+          rows={4}
+        />
       </FormField>
       {error ? <FormError message={error} /> : null}
       <FormSubmitButton loading={loading} label="Crear característica" />

@@ -72,7 +72,11 @@ export function CaracteristicaListCard({
         </div>
       ) : null}
 
-      {!caracteristica.titulo ? (
+      {caracteristica.descripcion ? (
+        <p className="whitespace-pre-wrap text-sm text-ink-muted">{caracteristica.descripcion}</p>
+      ) : null}
+
+      {!caracteristica.titulo && !caracteristica.descripcion ? (
         <p className="text-xs text-ink-muted">Sin título.</p>
       ) : null}
 

@@ -264,6 +264,7 @@ export type AccionFormValues = z.infer<typeof accionFormSchema>;
 export const caracteristicaFormSchema = z.object({
   tipo: z.enum(["nota", "implicancia_tecnica", "prompt_cursor"]),
   titulo: optionalText,
+  descripcion: optionalText,
 });
 
 export type CaracteristicaFormValues = z.infer<typeof caracteristicaFormSchema>;
