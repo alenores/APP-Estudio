@@ -12,25 +12,25 @@ export const dsExplorerColumn = {
     section:
       "border-stone-300/80 bg-stone-100/50 dark:border-stone-700 dark:bg-stone-900/40",
     itemSelected:
-      "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900",
+      "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900 dark:border-[#EA580C]/70",
     itemIdle:
-      "border-stone-200/90 bg-white/80 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/50 dark:hover:bg-stone-900",
+      "border-stone-200 bg-white/90 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:hover:bg-stone-900",
   },
   especifica: {
     section:
       "border-stone-300/60 bg-stone-50/60 dark:border-stone-700 dark:bg-stone-900/30",
     itemSelected:
-      "border-stone-600 bg-white shadow-sm ring-1 ring-stone-400/30 dark:border-stone-500 dark:bg-stone-900",
+      "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900 dark:border-[#EA580C]/70",
     itemIdle:
-      "border-stone-200/80 bg-white/70 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/40",
+      "border-stone-200 bg-white/90 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:hover:bg-stone-900",
   },
   accion: {
     section:
       "border-stone-200/80 bg-stone-50/40 dark:border-stone-800 dark:bg-stone-950/30",
     itemSelected:
-      "border-stone-500 bg-white shadow-sm dark:border-stone-500 dark:bg-stone-900",
+      "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900 dark:border-[#EA580C]/70",
     itemIdle:
-      "border-stone-200/70 bg-white/60 hover:border-stone-300 hover:bg-white dark:border-stone-800 dark:bg-stone-900/30",
+      "border-stone-200 bg-white/90 hover:border-stone-300 hover:bg-white dark:border-stone-800 dark:bg-stone-900/50 dark:hover:bg-stone-900",
   },
 } as const;
 

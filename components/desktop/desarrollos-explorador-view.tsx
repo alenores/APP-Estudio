@@ -16,9 +16,11 @@ import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-e
 import { AccionForm } from "@/components/shared/forms/accion-form";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { AlertText, LoadingText, TextLink } from "@/components/ui";
-import { explorerColumnHeaderClass } from "@/lib/estudio-shell-tone";
 import { writeContentTypology } from "@/lib/content-typology";
 import { CornerDownRight, Layers, Map, Play } from "lucide-react";
+
+const DS_COL_HEADER =
+  "flex shrink-0 items-center justify-between gap-2 border-b-2 border-[#EA580C] bg-stone-50 px-3 py-2.5 text-sm font-semibold text-stone-700 dark:bg-stone-900/80 dark:text-stone-200";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -134,7 +136,7 @@ export function DesarrollosExploradorView() {
         <section
           className={`flex min-h-0 flex-col rounded-lg border ${dsExplorerColumn.general.section}`}
         >
-          <header className={explorerColumnHeaderClass("tema")}>
+          <header className={DS_COL_HEADER}>
             <span className="inline-flex items-center gap-1.5">
               <Layers className="h-3.5 w-3.5" aria-hidden />
               Definición general
@@ -160,7 +162,7 @@ export function DesarrollosExploradorView() {
                     onClick={() => go({ generalId: g.id, especificaId: null, accionId: null })}
                     className={dsExplorerItemClass("general", selection.generalId === g.id)}
                   >
-                    <p className="font-semibold text-stone-900 dark:text-stone-100">{g.nombre}</p>
+                    <p className="text-base font-semibold leading-snug text-stone-900 dark:text-stone-100">{g.nombre}</p>
                     {g.descripcion ? (
                       <p className="mt-0.5 line-clamp-2 text-xs text-stone-400 dark:text-stone-500">
                         {g.descripcion}
@@ -179,7 +181,7 @@ export function DesarrollosExploradorView() {
         <section
           className={`flex min-h-0 flex-col rounded-lg border ${dsExplorerColumn.especifica.section}`}
         >
-          <header className={explorerColumnHeaderClass("curso")}>
+          <header className={DS_COL_HEADER}>
             <span className="inline-flex items-center gap-1.5">
               <CornerDownRight className="h-3.5 w-3.5" aria-hidden />
               Definición específica
@@ -215,7 +217,7 @@ export function DesarrollosExploradorView() {
                       selection.especificaId === e.id,
                     )}
                   >
-                    <p className="font-semibold text-stone-800 dark:text-stone-100">{e.nombre}</p>
+                    <p className="text-base font-semibold leading-snug text-stone-800 dark:text-stone-100">{e.nombre}</p>
                     {e.descripcion ? (
                       <p className="mt-0.5 line-clamp-2 text-xs text-stone-400 dark:text-stone-500">
                         {e.descripcion}
@@ -234,7 +236,7 @@ export function DesarrollosExploradorView() {
         <section
           className={`flex min-h-0 flex-col rounded-lg border ${dsExplorerColumn.accion.section}`}
         >
-          <header className={explorerColumnHeaderClass("clase")}>
+          <header className={DS_COL_HEADER}>
             <span className="inline-flex items-center gap-1.5">
               <Play className="h-3.5 w-3.5" aria-hidden />
               Acciones
@@ -271,7 +273,7 @@ export function DesarrollosExploradorView() {
                     }
                     className={dsExplorerItemClass("accion", selection.accionId === a.id)}
                   >
-                    <p className="font-semibold text-stone-800 dark:text-stone-100">{a.nombre}</p>
+                    <p className="text-base font-semibold leading-snug text-stone-800 dark:text-stone-100">{a.nombre}</p>
                     {a.descripcion ? (
                       <p className="mt-0.5 line-clamp-2 text-xs text-stone-500 dark:text-stone-400">
                         {a.descripcion}
@@ -313,6 +315,20 @@ export function DesarrollosExploradorView() {
                 {selectedAccion.nombre}
               </TextLink>
             </p>
+          ) : null}
+          {(selectedAccion || selectedEspecifica) ? (
+            <div className="mt-4">
+              <Link
+                href={
+                  selectedAccion
+                    ? `/acciones/${selectedAccion.id}`
+                    : `/definicion-especifica/${selectedEspecifica!.id}`
+                }
+                className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#c2410c] active:scale-95"
+              >
+                Ver detalle completo →
+              </Link>
+            </div>
           ) : null}
         </aside>
       ) : null}
