@@ -23,3 +23,9 @@ export type AppShellKind = "mobile" | "desktop";
 export function shellKindFromRequest(request: NextRequest): AppShellKind {
   return isMobileShellRequest(request) ? "mobile" : "desktop";
 }
+
+/** Detección shell en cliente (home, selector tipología). */
+export function isMobileShellClient(): boolean {
+  if (typeof window === "undefined") return false;
+  return MOBILE_UA_RE.test(navigator.userAgent);
+}

@@ -242,3 +242,21 @@ export const mapaNodoFormSchema = z.object({
 });
 
 export type MapaNodoFormValues = z.infer<typeof mapaNodoFormSchema>;
+
+/** Tipología desarrollos — fase 1 (ADR 011). */
+export const definicionGeneralFormSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre es obligatorio").max(200),
+  descripcion: optionalText,
+});
+
+export type DefinicionGeneralFormValues = z.infer<typeof definicionGeneralFormSchema>;
+
+export const definicionEspecificaFormSchema = definicionGeneralFormSchema;
+
+export type DefinicionEspecificaFormValues = z.infer<
+  typeof definicionEspecificaFormSchema
+>;
+
+export const accionFormSchema = definicionGeneralFormSchema;
+
+export type AccionFormValues = z.infer<typeof accionFormSchema>;

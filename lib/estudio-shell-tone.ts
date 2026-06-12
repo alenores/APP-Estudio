@@ -33,6 +33,10 @@ export function shellToneFromPath(pathname: string): EstudioShellTone {
 
   if (path.startsWith("/clases/")) return "clase";
   if (path.startsWith("/cursos/")) return "clase";
+  if (path.startsWith("/acciones/")) return "clase";
+  if (path.startsWith("/definicion-especifica/")) return "curso";
+  if (path.startsWith("/definicion-general/")) return "curso";
+  if (path === "/desarrollos") return "tema";
   if (path === "/temas" || path === "/temas/nuevo") return "tema";
   if (path.startsWith("/temas/")) return "curso";
 

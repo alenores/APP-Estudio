@@ -28,6 +28,20 @@ Usar **nombres exactos** de tablas y columnas documentados abajo. Sin aliases, s
 | Enlace entre hijos (detalle mapa) | `enlaces_hijos_nodos` | scope `tema`/`nodo` + origen/destino polimórfico `curso`/`logro` — script `011` |
 | Posición hijo (detalle mapa) | `lienzo_hijos_posiciones` | scope + `hijo_kind`/`hijo_id` + `pos_x`/`pos_y` — script `012` |
 
+### Tipología desarrollos (ADR 011)
+
+Script base: [`docs/sql/015-schema-desarrollos.sql`](../sql/015-schema-desarrollos.sql). Lienzo: [`016-schema-desarrollos-lienzo.sql`](../sql/016-schema-desarrollos-lienzo.sql).
+
+| Entidad (UI) | Tabla Supabase | Padre |
+|--------------|----------------|-------|
+| Abuelo | `definicion_general` | — |
+| Padre | `definicion_especifica` | `definicion_general_id` → `definicion_general.id` |
+| Hijo | `acciones` | `definicion_especifica_id` → `definicion_especifica.id` |
+| Característica (≈ seguimiento) | `caracteristicas` | exactamente uno: `definicion_general_id` \| `definicion_especifica_id` \| `accion_id` |
+| Enlace lienzo capa 0 | `enlaces_definicion_general` | `origen_id` / `destino_id` → `definicion_general.id` |
+| Enlace lienzo capa 1 | `enlaces_desarrollo_acciones` | `definicion_general_id` scope + origen/destino → `acciones.id` |
+| Posición hijo lienzo | `lienzo_desarrollo_acciones_posiciones` | `definicion_general_id` + `accion_id` + `pos_x`/`pos_y` |
+
 **No usar / eliminada:** `enlaces_cursos` — borrador legacy sin scope por tema; reemplazada por `enlaces_hijos_nodos`. Script de limpieza: `docs/sql/014-drop-enlaces-cursos.sql`.
 
 Todas incluyen `id` (`bigint` PK autoincremental), `user_id` (`uuid` FK `auth.users`), `created_at`.
@@ -213,6 +227,43 @@ Implementación: `lib/seguimiento-form-scope.ts`, `seguimientoFormSchemaForScope
 | `jerarquia` | integer | not null, default 0 — desempate / agrupación visual |
 
 Al insertar: `user_id = auth.uid()` y **solo** la FK activa. No alimenta campos derivados del padre (eso sigue siendo solo `seguimientos`).
+
+#### `definicion_general` (tipología desarrollos — fase 1)
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `nombre` | text | not null |
+| `descripcion` | text | |
+| `pos_x`, `pos_y` | double precision | not null default 0 — lienzo `/mapa` modo desarrollos |
+| `etapa`, `carril` | integer | not null default 0 — guías timeline |
+
+#### `definicion_especifica`
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `definicion_general_id` | bigint | not null, FK CASCADE |
+| `nombre` | text | not null |
+| `descripcion` | text | |
+
+#### `acciones`
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `definicion_especifica_id` | bigint | not null, FK CASCADE |
+| `nombre` | text | not null |
+| `descripcion` | text | |
+
+#### `caracteristicas` (fase 1 — contrato mínimo)
+
+| Columna | Tipo | Notas |
+|---------|------|-------|
+| `definicion_general_id` | bigint | nullable; uno de tres con CHECK |
+| `definicion_especifica_id` | bigint | nullable |
+| `accion_id` | bigint | nullable |
+
+Campos de negocio → fase 2 (ADR 011).
+
+Listados desarrollos: `ORDER BY nombre ASC` (fase 1 sin `orden`/`jerarquia`).
 
 ### Campos derivados (solo lectura en UI / `lib/`)
 

@@ -1,7 +1,7 @@
 /** Tipos compartidos del lienzo dual (nodos objetivo | temas) — ADR 009 fase 9b. */
 
 /** Modo del grafo en `/mapa`. */
-export type MapaGrafoModo = "nodos" | "temas";
+export type MapaGrafoModo = "nodos" | "temas" | "desarrollos";
 
 /** Fila con posición persistida o derivable de etapa/carril. */
 export type LienzoPosicionable = {

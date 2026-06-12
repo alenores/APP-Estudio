@@ -3,21 +3,37 @@ import { NextResponse, type NextRequest } from "next/server";
 import { shellKindFromRequest } from "@/lib/shell-detect";
 import {
   defaultAppHome,
+  desktopUrlFromMobileDesarrollosPath,
   desktopUrlFromMobilePath,
+  DESKTOP_DESARROLLOS_PREFIX,
   DESKTOP_MAPA_PREFIX,
   DESKTOP_SHELL_PREFIX,
   isDesktopShellPath,
+  isMobileDesarrollosPath,
   isMobileShellPath,
   isShellRoutingExempt,
 } from "@/lib/shell-routes";
 
-const PROTECTED_PREFIXES = [
+const PROTECTED_ACADEMICO_PREFIXES = [
   "/temas",
   "/cursos",
   "/clases",
   "/seguimientos",
   DESKTOP_SHELL_PREFIX,
   DESKTOP_MAPA_PREFIX,
+];
+
+const PROTECTED_DESARROLLOS_PREFIXES = [
+  "/desarrollos",
+  "/definicion-general",
+  "/definicion-especifica",
+  "/acciones",
+  DESKTOP_DESARROLLOS_PREFIX,
+];
+
+const PROTECTED_PREFIXES = [
+  ...PROTECTED_ACADEMICO_PREFIXES,
+  ...PROTECTED_DESARROLLOS_PREFIXES,
 ];
 
 function applyShellRouting(request: NextRequest): NextResponse | null {
@@ -29,24 +45,25 @@ function applyShellRouting(request: NextRequest): NextResponse | null {
   if (shell === "mobile") {
     if (isDesktopShellPath(path)) {
       const url = request.nextUrl.clone();
-      url.pathname = "/temas";
+      url.pathname = "/";
       url.search = "";
       return NextResponse.redirect(url);
     }
     return null;
   }
 
-  // Escritorio: no accede a rutas móviles ni home móvil.
-  if (path === "/") {
-    const url = request.nextUrl.clone();
-    url.pathname = DESKTOP_SHELL_PREFIX;
-    url.search = "";
-    return NextResponse.redirect(url);
-  }
-
   if (isMobileShellPath(path)) {
     const url = request.nextUrl.clone();
     const target = desktopUrlFromMobilePath(path);
+    const q = target.indexOf("?");
+    url.pathname = q === -1 ? target : target.slice(0, q);
+    url.search = q === -1 ? "" : target.slice(q);
+    return NextResponse.redirect(url);
+  }
+
+  if (isMobileDesarrollosPath(path)) {
+    const url = request.nextUrl.clone();
+    const target = desktopUrlFromMobileDesarrollosPath(path);
     const q = target.indexOf("?");
     url.pathname = q === -1 ? target : target.slice(0, q);
     url.search = q === -1 ? "" : target.slice(q);

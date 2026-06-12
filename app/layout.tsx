@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
 import { EstudioDataRoot } from "@/components/shared/data/estudio-data-root";
+import { DesarrollosDataRoot } from "@/components/shared/data/desarrollos-data-root";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { ServiceWorkerRegister } from "./sw-register";
 import "./globals.css";
@@ -60,7 +61,9 @@ export default function RootLayout({
       <body className={`${NAV_STAGE_MAIN_CLASS} min-h-full text-ink`}>
         <PreventViewportZoom />
         <ServiceWorkerRegister />
-        <EstudioDataRoot>{children}</EstudioDataRoot>
+        <EstudioDataRoot>
+          <DesarrollosDataRoot>{children}</DesarrollosDataRoot>
+        </EstudioDataRoot>
       </body>
     </html>
   );
