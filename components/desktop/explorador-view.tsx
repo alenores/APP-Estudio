@@ -417,6 +417,9 @@ export function ExploradorView() {
               value: selection.rootMode === "nodos" ? "nodos" : "temas",
               onChange: (v) => switchRootMode(v === "nodos" ? "nodos" : "temas"),
             }}
+            helpSectionId={
+              selection.rootMode === "nodos" ? "nodos-objetivo" : "temas"
+            }
             actions={
               selection.rootMode === "nodos"
                 ? [
@@ -536,6 +539,9 @@ export function ExploradorView() {
             columnKind="curso"
             label={middleColumnLabel}
             count={middleColumnCount}
+            helpSectionId={
+              middleColumnMode !== "logros" ? "cursos" : undefined
+            }
             emptyMessage={
               !rootParentSelected
                 ? selection.rootMode === "nodos"
@@ -744,6 +750,7 @@ export function ExploradorView() {
             columnKind="clase"
             label="Clases"
             count={noClasesColumn ? 0 : clases.length}
+            helpSectionId="clases"
             emptyMessage={
               noClasesColumn
                 ? "Los registros logro no tienen clases."

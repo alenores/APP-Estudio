@@ -5,7 +5,9 @@ import { EstudioProgressCard } from "@/components/shared/cards/estudio-progress-
 import type { SeguimientoDerivados } from "@/app/types/estudio";
 import { parseObjetivoId } from "@/lib/objetivo-ui";
 import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
+import { SectionHelpButton } from "@/components/shared/section-help";
 import { explorerColumnHeaderClass } from "@/lib/estudio-shell-tone";
+import type { SectionHelpId } from "@/lib/section-help-content";
 import type { ReactNode, WheelEvent } from "react";
 
 export type ExploradorColumnAction = {
@@ -147,6 +149,7 @@ type ExploradorColumnProps = {
   emptyMessage: string;
   actions: ExploradorColumnAction[];
   rootSwitch?: ExploradorRootSwitch;
+  helpSectionId?: SectionHelpId;
   children: ReactNode;
 };
 
@@ -157,6 +160,7 @@ export function ExploradorColumn({
   emptyMessage,
   actions,
   rootSwitch,
+  helpSectionId,
   children,
 }: ExploradorColumnProps) {
   return (
@@ -169,9 +173,17 @@ export function ExploradorColumn({
             <ExploradorRootSwitchControl {...rootSwitch} />
           ) : null}
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
-              {label}{" "}
-              <span className="font-semibold text-[var(--td-faint)]">{count}</span>
+            <h2 className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.14em] text-[var(--td-ink-soft)]">
+              <span className="truncate">
+                {label}{" "}
+                <span className="font-semibold text-[var(--td-faint)]">{count}</span>
+              </span>
+              {helpSectionId ? (
+                <SectionHelpButton
+                  sectionId={helpSectionId}
+                  surface="desktop"
+                />
+              ) : null}
             </h2>
             <div className="flex flex-wrap items-center gap-1.5">
               {actions.map((action) => (

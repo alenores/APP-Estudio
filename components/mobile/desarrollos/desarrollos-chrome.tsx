@@ -3,6 +3,8 @@
 import type { LucideIcon } from "lucide-react";
 import { Plus } from "lucide-react";
 import type { ReactNode } from "react";
+import { SectionHelpButton } from "@/components/shared/section-help";
+import type { SectionHelpId } from "@/lib/section-help-content";
 
 export const DS_ACCENT = "#EA580C";
 
@@ -92,6 +94,16 @@ export function DesarrollosDetailHero({
           >
             <Icon className="h-3 w-3 shrink-0" strokeWidth={2.5} aria-hidden />
             {levelLabel}
+            <SectionHelpButton
+              sectionId={
+                level === "general"
+                  ? "definicion-general"
+                  : level === "especifica"
+                    ? "definicion-especifica"
+                    : "acciones"
+              }
+              surface="mobile"
+            />
           </span>
           <button
             type="button"
@@ -132,6 +144,7 @@ type DesarrollosSectionHeaderProps = {
   count?: number;
   actionLabel?: string;
   onAction?: () => void;
+  helpSectionId?: SectionHelpId;
 };
 
 export function DesarrollosSectionHeader({
@@ -139,15 +152,19 @@ export function DesarrollosSectionHeader({
   count,
   actionLabel,
   onAction,
+  helpSectionId,
 }: DesarrollosSectionHeaderProps) {
   return (
     <div className="flex items-center gap-3">
-      <span className="shrink-0 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
         {title}
         {count != null ? (
           <span className="ml-1.5 font-bold tabular-nums text-stone-500 dark:text-stone-400">
             ({count})
           </span>
+        ) : null}
+        {helpSectionId ? (
+          <SectionHelpButton sectionId={helpSectionId} surface="mobile" />
         ) : null}
       </span>
       <span className="h-px flex-1 bg-stone-200 dark:bg-stone-800" aria-hidden />

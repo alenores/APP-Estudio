@@ -25,7 +25,15 @@ export const jakartaDetalle = Plus_Jakarta_Sans({
 });
 
 import { formatFechaCalendario } from "@/lib/format-fecha-calendario";
+import { SectionHelpButton } from "@/components/shared/section-help";
+import type { SectionHelpId } from "@/lib/section-help-content";
 export { formatFechaCalendario };
+
+const DETALLE_EYEBROW_HELP: Record<string, SectionHelpId> = {
+  Tema: "temas",
+  Curso: "cursos",
+  Clase: "clases",
+};
 
 function formatHoyFlag(): string {
   return new Date().toLocaleDateString("es-AR", {
@@ -81,10 +89,15 @@ export function DetalleHeaderCard({
   descripcion: string | null;
   extra?: ReactNode;
 }) {
+  const helpSectionId = DETALLE_EYEBROW_HELP[eyebrow];
+
   return (
     <section className="td-card td-rise td-d1 px-6 pb-5 pt-6">
-      <p className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-[var(--td-faint)]">
+      <p className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-[0.2em] text-[var(--td-faint)]">
         {eyebrow}
+        {helpSectionId ? (
+          <SectionHelpButton sectionId={helpSectionId} surface="mobile" />
+        ) : null}
       </p>
       <h1 className="mt-1.5 text-[34px] font-extrabold leading-[1.05] tracking-tight text-[var(--td-ink)] max-[430px]:text-[30px]">
         {nombre}

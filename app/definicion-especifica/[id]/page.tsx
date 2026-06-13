@@ -122,7 +122,10 @@ function DefinicionEspecificaDetalleMobile() {
           onChanged={() => void reload()}
         />
 
-        <DesarrollosSectionHeader title="Acciones" />
+        <DesarrollosSectionHeader
+          title="Acciones"
+          helpSectionId="acciones"
+        />
         {acciones.length === 0 ? (
           <DesarrollosEmptyState
             icon={Play}

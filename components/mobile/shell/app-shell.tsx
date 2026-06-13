@@ -7,6 +7,7 @@ import { useCallback, useMemo } from "react";
 import { NavPanelProvider, useNavPanel } from "@/lib/nav-panel-context";
 import { buildNavPanelStyle } from "@/lib/nav-transition";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
+import { SectionHelpButton } from "@/components/shared/section-help";
 import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import {
   estudioEntityShellBgHex,
@@ -16,6 +17,7 @@ import {
   shellToneFromPath,
   type EstudioShellTone,
 } from "@/lib/estudio-shell-tone";
+import type { SectionHelpId } from "@/lib/section-help-content";
 import { useNavDetailGestures } from "@/lib/use-nav-detail-gestures";
 
 type AppShellProps = {
@@ -29,6 +31,8 @@ type AppShellProps = {
   contentClassName?: string;
   /** Tono del panel deslizante según entidad (tema / curso / clase). */
   shellTone?: EstudioShellTone;
+  /** Ayuda contextual junto al título principal. */
+  titleHelpSectionId?: SectionHelpId;
 };
 
 function mobileShellSurfaceStyle(tone: EstudioShellTone): CSSProperties {
@@ -63,6 +67,7 @@ function AppShellInner({
   actions,
   contentClassName,
   shellTone = "neutral",
+  titleHelpSectionId,
 }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -129,8 +134,14 @@ function AppShellInner({
                 {breadcrumb}
               </p>
             ) : (
-              <h1 className="min-w-0 flex-1 truncate text-lg font-semibold text-ink">
-                {title}
+              <h1 className="inline-flex min-w-0 flex-1 items-center gap-1.5 truncate text-lg font-semibold text-ink">
+                <span className="truncate">{title}</span>
+                {titleHelpSectionId ? (
+                  <SectionHelpButton
+                    sectionId={titleHelpSectionId}
+                    surface="mobile"
+                  />
+                ) : null}
               </h1>
             )}
             {actions}

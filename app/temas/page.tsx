@@ -30,6 +30,7 @@ export default function TemasPage() {
   return (
     <AppShell
       title="Temas"
+      titleHelpSectionId="temas"
       backHref="/"
       shellTone="tema"
       actions={

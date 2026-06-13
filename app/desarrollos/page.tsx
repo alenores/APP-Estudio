@@ -77,6 +77,7 @@ export default function DesarrollosPage() {
             <DesarrollosSectionHeader
               title="Definiciones generales"
               count={generales.length > 0 ? generales.length : undefined}
+              helpSectionId="definicion-general"
             />
             {generales.length === 0 ? (
               <DesarrollosEmptyState

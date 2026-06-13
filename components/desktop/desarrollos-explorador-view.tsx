@@ -17,6 +17,7 @@ import { DefinicionGeneralForm } from "@/components/shared/forms/definicion-gene
 import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-especifica-form";
 import { AccionForm } from "@/components/shared/forms/accion-form";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
+import { SectionHelpButton } from "@/components/shared/section-help";
 import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { writeContentTypology } from "@/lib/content-typology";
 import { CornerDownRight, Layers, Map, Play } from "lucide-react";
@@ -142,9 +143,13 @@ export function DesarrollosExploradorView() {
           className={`flex min-h-0 flex-col rounded-lg border ${dsExplorerColumn.general.section}`}
         >
           <header className={DS_COL_HEADER}>
-            <span className="inline-flex items-center gap-1.5">
-              <Layers className="h-3.5 w-3.5" aria-hidden />
-              Definición general
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <Layers className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span className="truncate">Definición general</span>
+              <SectionHelpButton
+                sectionId="definicion-general"
+                surface="desktop"
+              />
             </span>
             <button
               type="button"
@@ -188,9 +193,13 @@ export function DesarrollosExploradorView() {
           className={`flex min-h-0 flex-col rounded-lg border ${dsExplorerColumn.especifica.section}`}
         >
           <header className={DS_COL_HEADER}>
-            <span className="inline-flex items-center gap-1.5">
-              <CornerDownRight className="h-3.5 w-3.5" aria-hidden />
-              Definición específica
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <CornerDownRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span className="truncate">Definición específica</span>
+              <SectionHelpButton
+                sectionId="definicion-especifica"
+                surface="desktop"
+              />
             </span>
             <button
               type="button"
@@ -244,9 +253,10 @@ export function DesarrollosExploradorView() {
           className={`flex min-h-0 flex-col rounded-lg border ${dsExplorerColumn.accion.section}`}
         >
           <header className={DS_COL_HEADER}>
-            <span className="inline-flex items-center gap-1.5">
-              <Play className="h-3.5 w-3.5" aria-hidden />
-              Acciones
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <Play className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span className="truncate">Acciones</span>
+              <SectionHelpButton sectionId="acciones" surface="desktop" />
             </span>
             <button
               type="button"

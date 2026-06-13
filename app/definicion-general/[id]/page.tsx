@@ -75,7 +75,10 @@ function DefinicionGeneralDetalleMobile() {
           onChanged={() => void reload()}
         />
 
-        <DesarrollosSectionHeader title="Definiciones específicas" />
+        <DesarrollosSectionHeader
+          title="Definiciones específicas"
+          helpSectionId="definicion-especifica"
+        />
         {especificas.length === 0 ? (
           <DesarrollosEmptyState
             icon={GitBranch}
