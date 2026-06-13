@@ -50,6 +50,15 @@ export function isMobileDesarrollosPath(pathname: string): boolean {
   );
 }
 
+/** Ficha de detalle desarrollos (`/definicion-general/1`, etc.) — accesible también en PC. */
+export function isDesarrollosDetailPath(pathname: string): boolean {
+  return (
+    /^\/definicion-general\/\d+/.test(pathname) ||
+    /^\/definicion-especifica\/\d+/.test(pathname) ||
+    /^\/acciones\/\d+/.test(pathname)
+  );
+}
+
 export function isDesktopShellPath(pathname: string): boolean {
   return (
     pathname === DESKTOP_SHELL_PREFIX ||

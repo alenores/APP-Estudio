@@ -2,6 +2,7 @@
 
 import {
   desarrollosExplorerHref,
+  desarrollosSelectionsEqual,
   parseDesarrollosExplorerSelection,
   useDesarrollosExplorer,
   type DesarrollosExplorerSelection,
@@ -19,7 +20,7 @@ import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { writeContentTypology } from "@/lib/content-typology";
 import { CornerDownRight, Layers, Map, Play } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const DS_COL_HEADER =
@@ -54,6 +55,7 @@ function ExplorerEmptyColumn({ message }: { message: string }) {
 
 export function DesarrollosExploradorView() {
   const router = useRouter();
+  const pathname = usePathname();
   const [activeSelection, setActiveSelection] =
     useState<DesarrollosExplorerSelection>(EMPTY_SELECTION);
   const bootstrappedRef = useRef(false);
@@ -83,13 +85,11 @@ export function DesarrollosExploradorView() {
   }, []);
 
   useEffect(() => {
-    if (!packReady) return;
-    const href = desarrollosExplorerHref(selection);
-    if (href !== desarrollosExplorerHref(activeSelection)) {
-      setActiveSelection(selection);
-      window.history.replaceState(window.history.state, "", href);
-    }
-  }, [packReady, selection, activeSelection]);
+    if (!packReady || pathname !== "/explorador-desarrollos") return;
+    if (desarrollosSelectionsEqual(activeSelection, selection)) return;
+    setActiveSelection(selection);
+    router.replace(desarrollosExplorerHref(selection), { scroll: false });
+  }, [packReady, pathname, activeSelection, selection, router]);
 
   function go(partial: Partial<DesarrollosExplorerSelection>) {
     const next = { ...selection, ...partial };
@@ -316,16 +316,18 @@ export function DesarrollosExploradorView() {
           ) : null}
           {(selectedAccion || selectedEspecifica) ? (
             <div className="mt-4">
-              <Link
-                href={
-                  selectedAccion
+              <button
+                type="button"
+                onClick={() => {
+                  const href = selectedAccion
                     ? `/acciones/${selectedAccion.id}`
-                    : `/definicion-especifica/${selectedEspecifica!.id}`
-                }
+                    : `/definicion-especifica/${selectedEspecifica!.id}`;
+                  router.push(href);
+                }}
                 className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#c2410c] active:scale-95"
               >
                 Ver detalle completo →
-              </Link>
+              </button>
             </div>
           ) : null}
         </aside>

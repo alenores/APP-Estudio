@@ -41,6 +41,17 @@ export function parseDesarrollosExplorerSelection(
   };
 }
 
+export function desarrollosSelectionsEqual(
+  a: DesarrollosExplorerSelection,
+  b: DesarrollosExplorerSelection,
+): boolean {
+  return (
+    a.generalId === b.generalId &&
+    a.especificaId === b.especificaId &&
+    a.accionId === b.accionId
+  );
+}
+
 export function desarrollosExplorerHref(
   selection: DesarrollosExplorerSelection,
 ): string {

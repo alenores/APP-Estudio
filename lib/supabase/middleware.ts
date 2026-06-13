@@ -9,6 +9,7 @@ import {
   DESKTOP_MAPA_PREFIX,
   DESKTOP_SHELL_PREFIX,
   isDesktopShellPath,
+  isDesarrollosDetailPath,
   isMobileDesarrollosPath,
   isMobileShellPath,
   isShellRoutingExempt,
@@ -63,6 +64,7 @@ function applyShellRouting(request: NextRequest): NextResponse | null {
   }
 
   if (isMobileDesarrollosPath(path)) {
+    if (isDesarrollosDetailPath(path)) return null;
     const url = request.nextUrl.clone();
     const target = desktopUrlFromMobileDesarrollosPath(path);
     const q = target.indexOf("?");
