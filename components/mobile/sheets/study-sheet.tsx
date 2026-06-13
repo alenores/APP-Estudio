@@ -5,7 +5,8 @@ import {
   studySheetToneClass,
   type EstudioSurfaceTone,
 } from "@/lib/estudio-shell-tone";
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 /** Desplazamiento hacia abajo (px) para cerrar con swipe. */
 const SWIPE_DISMISS_PX = 80;
@@ -38,6 +39,11 @@ export function StudySheet({
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -130,9 +136,9 @@ export function StudySheet({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-40 flex flex-col justify-end px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
       <button
         type="button"
@@ -198,6 +204,7 @@ export function StudySheet({
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
