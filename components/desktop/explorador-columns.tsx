@@ -33,6 +33,7 @@ type ExploradorColumnCardProps = {
   hijosStats?: HijosProgressStats;
   hijosLabel?: "cursos" | "clases" | "logros" | "hijos";
   link?: string | null;
+  linkChat?: string | null;
   dificultad?: string | null;
   orden?: number;
   seguimientosCount?: number;
@@ -63,6 +64,7 @@ export function ExploradorColumnCard({
   hijosStats,
   hijosLabel,
   link,
+  linkChat,
   dificultad,
   orden,
   seguimientosCount = 0,
@@ -120,6 +122,7 @@ export function ExploradorColumnCard({
       hijosStats={hijosStats}
       hijosLabel={hijosLabel}
       link={link}
+      linkChat={linkChat}
       dificultad={dificultad}
       orden={orden}
       expandedSlot={expandedSlot}

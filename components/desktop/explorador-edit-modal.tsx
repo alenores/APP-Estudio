@@ -101,6 +101,7 @@ export function ExploradorEditModal({
               nodoId={nodo.id}
               titulo={nodo.titulo}
               descripcion={nodo.descripcion}
+              linkChat={nodo.link_chat}
               onSuccess={() => void afterSave()}
             />
           )

@@ -68,6 +68,7 @@ export function MapaTemaNode({ data, selected }: NodeProps) {
           fechaParen={cardData.fechaParen}
           hijosStats={cardData.hijosStats}
           hijosLabel="cursos"
+          linkChat={tema.link_chat}
           explorerId={tema.id}
           selected={selected}
           footerSlot={lienzoMeta}

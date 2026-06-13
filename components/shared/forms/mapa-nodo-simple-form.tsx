@@ -28,6 +28,7 @@ type MapaNodoSimpleFormProps = {
   nodoId?: number;
   titulo?: string;
   descripcion?: string | null;
+  linkChat?: string | null;
   lienzoConfig?: FormLienzoColocacionConfig | null;
   initialLienzoColocacion?: FormLienzoColocacionState;
   lockEnlacePadre?: boolean;
@@ -40,6 +41,7 @@ export function MapaNodoSimpleForm({
   nodoId,
   titulo: tituloInitial = "",
   descripcion: descripcionInitial = "",
+  linkChat: linkChatInitial = "",
   lienzoConfig,
   initialLienzoColocacion,
   lockEnlacePadre = false,
@@ -49,6 +51,7 @@ export function MapaNodoSimpleForm({
   const isEdit = nodoId != null;
   const [titulo, setTitulo] = useState(tituloInitial);
   const [descripcion, setDescripcion] = useState(descripcionInitial ?? "");
+  const [linkChat, setLinkChat] = useState(linkChatInitial ?? "");
   const [lienzoColocacion, setLienzoColocacion] =
     useState<FormLienzoColocacionState>(
       () => initialLienzoColocacion ?? EMPTY_FORM_LIENZO_COLOCACION,
@@ -62,7 +65,11 @@ export function MapaNodoSimpleForm({
     setError(null);
     setFieldErrors({});
 
-    const parsed = mapaNodoSimpleFormSchema.safeParse({ titulo, descripcion });
+    const parsed = mapaNodoSimpleFormSchema.safeParse({
+      titulo,
+      descripcion,
+      link_chat: linkChat,
+    });
     if (!parsed.success) {
       setFieldErrors(zodFieldErrors(parsed.error));
       return;
@@ -133,6 +140,15 @@ export function MapaNodoSimpleForm({
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           rows={3}
+        />
+      </FormField>
+
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
         />
       </FormField>
 

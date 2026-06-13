@@ -5,6 +5,7 @@ export type DefinicionGeneral = {
   user_id: string;
   nombre: string;
   descripcion: string | null;
+  link_chat: string | null;
   pos_x: number;
   pos_y: number;
   etapa: number;
@@ -19,6 +20,7 @@ export type DefinicionEspecifica = {
   definicion_general_id: number;
   nombre: string;
   descripcion: string | null;
+  link_chat: string | null;
   created_at: string;
 };
 
@@ -28,6 +30,7 @@ export type Accion = {
   definicion_especifica_id: number;
   nombre: string;
   descripcion: string | null;
+  link_chat: string | null;
   created_at: string;
 };
 

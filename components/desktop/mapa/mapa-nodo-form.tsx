@@ -29,6 +29,7 @@ type MapaNodoFormProps = {
 export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
   const [titulo, setTitulo] = useState(nodo.titulo);
   const [descripcion, setDescripcion] = useState(nodo.descripcion ?? "");
+  const [linkChat, setLinkChat] = useState(nodo.link_chat ?? "");
   const [tipo, setTipo] = useState(nodo.tipo);
   const [etapa, setEtapa] = useState(numberFieldInitial(nodo.etapa));
   const [carril, setCarril] = useState(numberFieldInitial(nodo.carril));
@@ -46,6 +47,7 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
     const parsed = mapaNodoFormSchema.safeParse({
       titulo,
       descripcion,
+      link_chat: linkChat,
       tipo,
       etapa,
       carril,
@@ -110,6 +112,15 @@ export function MapaNodoForm({ nodo, onSuccess, onDelete }: MapaNodoFormProps) {
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
           rows={3}
+        />
+      </FormField>
+
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
         />
       </FormField>
 

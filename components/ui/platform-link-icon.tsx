@@ -5,6 +5,8 @@ type PlatformLinkIconProps = {
   /** sm = listado; lg = detalle de curso */
   size?: "sm" | "lg";
   className?: string;
+  /** Etiqueta de accesibilidad según uso del link. */
+  purpose?: "course" | "chat";
 };
 
 const SIZE_PX = { sm: 32, lg: 44 } as const;
@@ -17,19 +19,24 @@ export function PlatformLinkIcon({
   link,
   size = "sm",
   className = "",
+  purpose = "course",
 }: PlatformLinkIconProps) {
   const platform = platformFromLink(link);
   if (!platform) return null;
 
   const px = SIZE_PX[size];
   const pad = size === "lg" ? "p-2.5" : "p-1.5";
+  const actionLabel =
+    purpose === "chat"
+      ? `Abrir chat en ${platform.label}`
+      : `Abrir curso en ${platform.label}`;
 
   return (
     <a
       href={link}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`Abrir curso en ${platform.label}`}
+      aria-label={actionLabel}
       title={platform.label}
       className={`inline-flex shrink-0 items-center justify-center rounded-xl border border-border bg-paper-elevated shadow-sm transition hover:border-accent/40 hover:shadow-md active:scale-95 ${pad} ${className}`}
       onClick={(e) => e.stopPropagation()}

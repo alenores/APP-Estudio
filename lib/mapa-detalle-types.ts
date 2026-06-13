@@ -24,6 +24,8 @@ export type MapaDetalleHijo = {
   nombre: string;
   descripcion: string | null;
   kind: MapaDetalleHijoKind;
+  link?: string | null;
+  link_chat?: string | null;
 };
 
 /** Fila en `enlaces_hijos_nodos` — flechas en lienzo detalle (ADR 010 v2). */

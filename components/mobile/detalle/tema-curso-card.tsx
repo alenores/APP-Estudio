@@ -131,6 +131,7 @@ export function TemaCursoCard({
           hijosStats={clasesStats}
           hijosLabel="clases"
           link={curso.link}
+          linkChat={curso.link_chat}
           className={menuRect ? "z-20 ring-2 ring-[var(--td-navy)]/40" : ""}
           bodyWrapper={(content) => (
             <Link

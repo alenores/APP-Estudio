@@ -87,6 +87,7 @@ export function CursoForm({
     isoToDateInputValue(curso?.fecha_estimada_fin),
   );
   const [link, setLink] = useState(curso?.link ?? "");
+  const [linkChat, setLinkChat] = useState(curso?.link_chat ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -136,6 +137,7 @@ export function CursoForm({
       fecha_estimada_fin: fechaFin,
       plataforma: curso?.plataforma ?? "",
       link,
+      link_chat: linkChat,
     });
 
     if (!parsed.success) {
@@ -264,6 +266,14 @@ export function CursoForm({
           El ícono de la plataforma se obtiene automáticamente del link.
         </p>
       ) : null}
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
+        />
+      </FormField>
       <FormField label="Orden" error={fieldErrors.orden}>
         <FormInput
           type="number"

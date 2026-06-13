@@ -16,6 +16,16 @@ const KNOWN_PLATFORMS: Record<string, string> = {
   "edx.org": "edX",
   "linkedin.com": "LinkedIn Learning",
   "skillshare.com": "Skillshare",
+  "chatgpt.com": "ChatGPT",
+  "chat.openai.com": "ChatGPT",
+  "openai.com": "ChatGPT",
+  "claude.ai": "Claude",
+  "gemini.google.com": "Gemini",
+  "copilot.microsoft.com": "Copilot",
+  "perplexity.ai": "Perplexity",
+  "poe.com": "Poe",
+  "grok.com": "Grok",
+  "x.ai": "Grok",
 };
 
 function hostnameFromUrl(url: string): string | null {

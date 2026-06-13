@@ -1,6 +1,7 @@
 "use client";
 
 import type { DefinicionEspecifica } from "@/app/types/desarrollos";
+import { CardChatLinkIcon } from "@/components/shared/links/card-chat-link-icon";
 import { ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
 
@@ -56,7 +57,8 @@ export function EspecificaListCard({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center pr-3">
+        <div className="flex shrink-0 items-center gap-1 pr-2">
+          <CardChatLinkIcon linkChat={especifica.link_chat} />
           <ChevronRight
             className="h-4 w-4 text-stone-300 transition-colors duration-200 group-hover:text-[#EA580C] dark:text-stone-600"
             aria-hidden

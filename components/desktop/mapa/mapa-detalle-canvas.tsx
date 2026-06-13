@@ -149,6 +149,8 @@ function MapaDetalleCanvasInner({
             nombre: h.nombre,
             descripcion: h.descripcion,
             kind: h.kind,
+            link: h.kind === "curso" ? h.link : undefined,
+            linkChat: h.kind === "curso" ? h.link_chat : undefined,
             onAddLinked: onAddFromHijo ? onAddLinkedStable : undefined,
             enlacesEntrada: entrada,
             enlacesSalida: salida,

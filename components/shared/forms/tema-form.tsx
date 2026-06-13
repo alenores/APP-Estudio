@@ -60,6 +60,7 @@ export function TemaForm({
   const [fechaFin, setFechaFin] = useState(
     isoToDateInputValue(tema?.fecha_estimada_fin),
   );
+  const [linkChat, setLinkChat] = useState(tema?.link_chat ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -80,6 +81,7 @@ export function TemaForm({
       jerarquia,
       fecha_estimada_inicio: fechaInicio,
       fecha_estimada_fin: fechaFin,
+      link_chat: linkChat,
     });
 
     if (!parsed.success) {
@@ -153,6 +155,14 @@ export function TemaForm({
           rows={3}
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
+        />
+      </FormField>
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
         />
       </FormField>
       <FormField label="Orden" error={fieldErrors.orden}>

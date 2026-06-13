@@ -36,6 +36,7 @@ export function DefinicionEspecificaForm({
   const isEdit = especifica != null;
   const [nombre, setNombre] = useState(especifica?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(especifica?.descripcion ?? "");
+  const [linkChat, setLinkChat] = useState(especifica?.link_chat ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -45,7 +46,11 @@ export function DefinicionEspecificaForm({
     setError(null);
     setFieldErrors({});
 
-    const parsed = definicionEspecificaFormSchema.safeParse({ nombre, descripcion });
+    const parsed = definicionEspecificaFormSchema.safeParse({
+      nombre,
+      descripcion,
+      link_chat: linkChat,
+    });
     if (!parsed.success) {
       setFieldErrors(zodFieldErrors(parsed.error));
       return;
@@ -98,6 +103,14 @@ export function DefinicionEspecificaForm({
           value={descripcion ?? ""}
           onChange={(e) => setDescripcion(e.target.value)}
           rows={3}
+        />
+      </FormField>
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
         />
       </FormField>
       {error ? <FormError message={error} /> : null}

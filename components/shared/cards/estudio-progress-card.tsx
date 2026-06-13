@@ -37,6 +37,8 @@ export type EstudioProgressCardProps = {
   hijosStats?: HijosProgressStats;
   hijosLabel?: "cursos" | "clases" | "logros" | "hijos";
   link?: string | null;
+  /** URL de chat IA (ChatGPT, Claude, Gemini…). Siempre ícono tocable. */
+  linkChat?: string | null;
   descripcion?: string | null;
   dificultad?: string | null;
   orden?: number;
@@ -73,6 +75,7 @@ export function EstudioProgressCard({
   hijosStats,
   hijosLabel = "clases",
   link,
+  linkChat,
   descripcion,
   dificultad,
   orden,
@@ -89,9 +92,11 @@ export function EstudioProgressCard({
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
   const hasLink = Boolean(link?.trim());
+  const hasChatLink = Boolean(linkChat?.trim());
   const interactive = onSelect != null;
   const showLinkPreview = hasLink && expandedSlot != null && !linkIconOnly;
   const showLinkIcon = hasLink && (linkIconOnly || expandedSlot == null);
+  const showChatLinkIcon = hasChatLink;
 
   const fillStyle: CSSProperties =
     pct > 0 ? { width: `${Math.min(100, pct)}%` } : { display: "none" };
@@ -203,6 +208,14 @@ export function EstudioProgressCard({
           {showLinkIcon ? (
             <PlatformLinkIcon
               link={link!}
+              size="sm"
+              className="!h-7 !w-7 shrink-0 rounded-[9px]"
+            />
+          ) : null}
+          {showChatLinkIcon ? (
+            <PlatformLinkIcon
+              link={linkChat!}
+              purpose="chat"
               size="sm"
               className="!h-7 !w-7 shrink-0 rounded-[9px]"
             />

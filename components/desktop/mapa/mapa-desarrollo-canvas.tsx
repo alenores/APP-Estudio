@@ -5,6 +5,7 @@ import type {
   EnlaceDefinicionGeneral,
 } from "@/app/types/desarrollos";
 import { MapaLienzoFitView } from "@/components/desktop/mapa/mapa-lienzo-fit-view";
+import { CardChatLinkIcon } from "@/components/shared/links/card-chat-link-icon";
 import { MapaTimelineGuides } from "@/components/desktop/mapa/mapa-timeline-guides";
 import { toFlowEdges } from "@/lib/mapa-flow-edges";
 import { mapaGrafoEnlaceCounts } from "@/lib/mapa-grafo-enlaces";
@@ -98,6 +99,11 @@ function MapaDesarrolloCanvasInner({
               <p className="font-semibold text-sm text-stone-900 dark:text-stone-100">
                 {g.nombre}
               </p>
+              {g.link_chat?.trim() ? (
+                <div className="mt-1.5 flex justify-end">
+                  <CardChatLinkIcon linkChat={g.link_chat} />
+                </div>
+              ) : null}
               <p className="text-[10px] text-stone-500 dark:text-stone-400">
                 ↓{entrada} ↑{salida}
               </p>

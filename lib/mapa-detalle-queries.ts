@@ -8,6 +8,8 @@ type CursoDetalleRow = {
   id: number;
   nombre: string;
   descripcion: string | null;
+  link: string | null;
+  link_chat: string | null;
 };
 
 async function listCursosDetalle(
@@ -16,7 +18,7 @@ async function listCursosDetalle(
   const supabase = createClient();
   let query = supabase
     .from("cursos")
-    .select("id, nombre, descripcion")
+    .select("id, nombre, descripcion, link, link_chat")
     .order("orden", ORDEN_ASC)
     .order("nombre", ORDEN_ASC);
 

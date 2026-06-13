@@ -464,6 +464,7 @@ export function ExploradorView() {
                           : "cursos"
                     }
                     nodoClasificacion={n.tipo}
+                    linkChat={n.link_chat}
                     objetivoId={parseObjetivoId(n.objetivo_id)}
                     selected={selection.nodoId === n.id}
                     expanded={
@@ -507,6 +508,7 @@ export function ExploradorView() {
                       hijosLabel="cursos"
                       seguimientosCount={counts.seguimientos}
                       conceptosCount={counts.conceptos}
+                      linkChat={t.link_chat}
                       selected={selection.temaId === t.id}
                       expanded={
                         selection.temaId === t.id &&
@@ -646,6 +648,7 @@ export function ExploradorView() {
                         hijosStats={clasesStatsPorCurso.get(c.id)}
                         hijosLabel="clases"
                         link={c.link}
+                        linkChat={c.link_chat}
                         seguimientosCount={counts.seguimientos}
                         conceptosCount={counts.conceptos}
                         objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
@@ -713,6 +716,7 @@ export function ExploradorView() {
                 hijosStats={clasesStatsPorCurso.get(c.id)}
                 hijosLabel="clases"
                 link={c.link}
+                linkChat={c.link_chat}
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
@@ -794,6 +798,7 @@ export function ExploradorView() {
                 descripcion={cl.descripcion}
                 fechaFin={null}
                 link={cl.link}
+                linkChat={cl.link_chat}
                 dificultad={cl.dificultad}
                 orden={cl.orden}
                 seguimientosCount={counts.seguimientos}

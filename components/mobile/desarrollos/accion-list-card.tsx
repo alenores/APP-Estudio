@@ -1,6 +1,7 @@
 "use client";
 
 import type { Accion } from "@/app/types/desarrollos";
+import { CardChatLinkIcon } from "@/components/shared/links/card-chat-link-icon";
 import { ChevronRight, Play } from "lucide-react";
 import Link from "next/link";
 
@@ -44,6 +45,8 @@ export function AccionListCard({ accion }: AccionListCardProps) {
             </p>
           ) : null}
         </div>
+
+        <CardChatLinkIcon linkChat={accion.link_chat} className="mr-1" />
 
         <ChevronRight
           className="h-3.5 w-3.5 shrink-0 text-stone-300 transition-colors duration-150 group-hover:text-[#EA580C] dark:text-stone-600"

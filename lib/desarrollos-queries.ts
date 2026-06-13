@@ -40,6 +40,7 @@ export async function insertDefinicionGeneral(
       user_id: userId,
       nombre: values.nombre,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .select()
     .single();
@@ -57,6 +58,7 @@ export async function updateDefinicionGeneral(
     .update({
       nombre: values.nombre,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .eq("id", id)
     .select()
@@ -86,6 +88,7 @@ export async function insertDefinicionEspecifica(
       definicion_general_id: generalId,
       nombre: values.nombre,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .select()
     .single();
@@ -106,6 +109,7 @@ export async function updateDefinicionEspecifica(
     .update({
       nombre: values.nombre,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .eq("id", id)
     .select()
@@ -141,6 +145,7 @@ export async function insertAccion(
       definicion_especifica_id: especificaId,
       nombre: values.nombre,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .select()
     .single();
@@ -158,6 +163,7 @@ export async function updateAccion(
     .update({
       nombre: values.nombre,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .eq("id", id)
     .select()

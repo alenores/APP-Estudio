@@ -62,6 +62,7 @@ En el frontend: `id` y FKs de negocio (`tema_id`, `curso_id`, `clase_id`) son `n
 | `jerarquia` | integer | not null, default 0 — desempate / agrupación visual |
 | `fecha_estimada_inicio` | date | |
 | `fecha_estimada_fin` | date | |
+| `link_chat` | text | URL conversación IA (ChatGPT, Claude, Gemini…); ícono por dominio en UI — script `018` |
 | `pos_x`, `pos_y` | double precision | not null default 0 — lienzo React Flow (`/mapa` vista Temas); script `007` |
 | `etapa`, `carril` | integer | not null default 0 — guías timeline en lienzo temas |
 
@@ -92,6 +93,7 @@ Constraints: `origen_id <> destino_id`; `unique (origen_id, destino_id)`. RLS ow
 | `fecha_estimada_fin` | date | |
 | `plataforma` | text | libre (ej. Platzi) |
 | `link` | text | URL del curso |
+| `link_chat` | text | URL conversación IA — script `018` |
 | `nodo_id` | bigint | not null, FK → `nodos_objetivos.id` (roadmap; ver ADR 009 fase 8) |
 
 No hay columna `estado` en `cursos`: ver campos derivados.
@@ -104,6 +106,7 @@ Tabla `nodos_objetivos` (antes `mapa_nodos`). Script: `docs/sql/005-schema-nodos
 |---------|------|-------|
 | `titulo` | text | not null |
 | `descripcion` | text | |
+| `link_chat` | text | URL conversación IA — script `018` |
 | `pos_x`, `pos_y` | float | lienzo React Flow |
 | `carril`, `etapa` | integer | layout timeline |
 | `orden` | integer | orden en explorador PC |
@@ -183,6 +186,7 @@ Sin `user_id` (referencia global). Script: `docs/sql/003-schema-objetivos.sql`. 
 | `jerarquia` | integer | not null, default 0 |
 | `dificultad` | text | dato fijo al crear/importar |
 | `link` | text | URL de la clase (video, lección); miniatura en detalle vía `ExternalLinkPreview` |
+| `link_chat` | text | URL conversación IA — script `018` |
 
 Progreso (`porcentaje_avance`, `estado`, tiempos, `nivel_entendimiento`, `fecha_comienzo` efectiva, etc.) **no** se guarda en `clases`; sale de `seguimientos`.
 
@@ -234,6 +238,7 @@ Al insertar: `user_id = auth.uid()` y **solo** la FK activa. No alimenta campos 
 |---------|------|-------|
 | `nombre` | text | not null |
 | `descripcion` | text | |
+| `link_chat` | text | URL conversación IA — script `018` |
 | `pos_x`, `pos_y` | double precision | not null default 0 — lienzo `/mapa` modo desarrollos |
 | `etapa`, `carril` | integer | not null default 0 — guías timeline |
 
@@ -244,6 +249,7 @@ Al insertar: `user_id = auth.uid()` y **solo** la FK activa. No alimenta campos 
 | `definicion_general_id` | bigint | not null, FK CASCADE |
 | `nombre` | text | not null |
 | `descripcion` | text | |
+| `link_chat` | text | URL conversación IA — script `018` |
 
 #### `acciones`
 
@@ -252,6 +258,7 @@ Al insertar: `user_id = auth.uid()` y **solo** la FK activa. No alimenta campos 
 | `definicion_especifica_id` | bigint | not null, FK CASCADE |
 | `nombre` | text | not null |
 | `descripcion` | text | |
+| `link_chat` | text | URL conversación IA — script `018` |
 
 #### `caracteristicas` (fase 1 — contrato mínimo)
 

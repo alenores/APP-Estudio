@@ -14,6 +14,7 @@ export type Tema = {
   carril: number;
   fecha_estimada_inicio: string | null;
   fecha_estimada_fin: string | null;
+  link_chat: string | null;
   created_at: string;
 };
 
@@ -45,6 +46,7 @@ export type Curso = {
   fecha_estimada_fin: string | null;
   plataforma: string | null;
   link: string | null;
+  link_chat: string | null;
   nodo_id: number;
   created_at: string;
 };
@@ -69,6 +71,7 @@ export type Clase = {
   jerarquia: number;
   dificultad: string | null;
   link: string | null;
+  link_chat: string | null;
   created_at: string;
 };
 

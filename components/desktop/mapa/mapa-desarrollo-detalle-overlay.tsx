@@ -3,6 +3,7 @@
 import type { MapaDesarrolloDetalleScope } from "@/lib/desarrollos-lienzo-types";
 import { useMapaDesarrollosDetalle } from "@/app/hooks/useMapaDesarrollosDetalle";
 import { AlertText } from "@/components/ui";
+import { CardChatLinkIcon } from "@/components/shared/links/card-chat-link-icon";
 import { DesarrollosEmptyState } from "@/components/mobile/desarrollos/desarrollos-chrome";
 import { Layers, Play, X } from "lucide-react";
 
@@ -67,7 +68,7 @@ export function MapaDesarrolloDetalleOverlay({
                     className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#EA580C]"
                     aria-hidden
                   />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="font-semibold text-stone-900 dark:text-stone-100">{a.nombre}</p>
                     {a.descripcion ? (
                       <p className="mt-0.5 line-clamp-2 text-xs text-stone-500 dark:text-stone-400">
@@ -75,6 +76,7 @@ export function MapaDesarrolloDetalleOverlay({
                       </p>
                     ) : null}
                   </div>
+                  <CardChatLinkIcon linkChat={a.link_chat} />
                 </div>
               </li>
             ))}

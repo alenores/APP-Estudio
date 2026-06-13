@@ -36,6 +36,7 @@ export function AccionForm({
   const isEdit = accion != null;
   const [nombre, setNombre] = useState(accion?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(accion?.descripcion ?? "");
+  const [linkChat, setLinkChat] = useState(accion?.link_chat ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -45,7 +46,11 @@ export function AccionForm({
     setError(null);
     setFieldErrors({});
 
-    const parsed = accionFormSchema.safeParse({ nombre, descripcion });
+    const parsed = accionFormSchema.safeParse({
+      nombre,
+      descripcion,
+      link_chat: linkChat,
+    });
     if (!parsed.success) {
       setFieldErrors(zodFieldErrors(parsed.error));
       return;
@@ -98,6 +103,14 @@ export function AccionForm({
           value={descripcion ?? ""}
           onChange={(e) => setDescripcion(e.target.value)}
           rows={3}
+        />
+      </FormField>
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
         />
       </FormField>
       {error ? <FormError message={error} /> : null}

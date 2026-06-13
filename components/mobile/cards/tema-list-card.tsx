@@ -33,6 +33,7 @@ export function TemaListCard({ tema, cursosStats }: TemaListCardProps) {
       fechaParen={fechaParentesisTema(tema)}
       hijosStats={cursosStats}
       hijosLabel="cursos"
+      linkChat={tema.link_chat}
       bodyWrapper={(content) => (
         <Link
           href={href}

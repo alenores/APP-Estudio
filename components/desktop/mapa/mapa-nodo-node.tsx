@@ -2,6 +2,7 @@
 
 import type { MapaNodoNodeData } from "@/components/desktop/mapa/mapa-nodo-node-types";
 import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
+import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
 import {
   MapaFlowEnlaceHandleSource,
   MapaFlowEnlaceHandleTarget,
@@ -126,6 +127,17 @@ export function MapaNodoNode({ data, selected }: NodeProps) {
           <p className="mapa-flow-node-desc mt-1 line-clamp-2 text-[11px] leading-snug">
             {nodo.descripcion}
           </p>
+        ) : null}
+
+        {nodo.link_chat?.trim() ? (
+          <div className="mt-2 flex justify-end">
+            <PlatformLinkIcon
+              link={nodo.link_chat}
+              purpose="chat"
+              size="sm"
+              className="!h-7 !w-7 rounded-[9px]"
+            />
+          </div>
         ) : null}
 
         {enlacesEntrada > 0 || enlacesSalida > 0 ? (

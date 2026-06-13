@@ -228,6 +228,7 @@ export async function insertTema(
       jerarquia: values.jerarquia ?? 0,
       fecha_estimada_inicio: emptyToNull(values.fecha_estimada_inicio),
       fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
+      link_chat: emptyToNull(values.link_chat),
     })
     .select()
     .single();
@@ -256,6 +257,7 @@ export async function insertCurso(
       fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
       plataforma: emptyToNull(values.plataforma),
       link: emptyToNull(values.link),
+      link_chat: emptyToNull(values.link_chat),
       nodo_id: values.nodo_id,
     })
     .select()
@@ -283,6 +285,7 @@ export async function insertClase(
       jerarquia: values.jerarquia ?? 0,
       dificultad: emptyToNull(values.dificultad),
       link: emptyToNull(values.link),
+      link_chat: emptyToNull(values.link_chat),
     })
     .select()
     .single();
@@ -304,6 +307,7 @@ export async function updateTema(
       jerarquia: values.jerarquia ?? 0,
       fecha_estimada_inicio: emptyToNull(values.fecha_estimada_inicio),
       fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
+      link_chat: emptyToNull(values.link_chat),
     })
     .eq("id", temaId)
     .select()
@@ -328,6 +332,7 @@ export async function updateCurso(
       fecha_estimada_fin: emptyToNull(values.fecha_estimada_fin),
       plataforma: emptyToNull(values.plataforma),
       link: emptyToNull(values.link),
+      link_chat: emptyToNull(values.link_chat),
       nodo_id: values.nodo_id,
     })
     .eq("id", cursoId)
@@ -351,6 +356,7 @@ export async function updateClase(
       jerarquia: values.jerarquia ?? 0,
       dificultad: emptyToNull(values.dificultad),
       link: emptyToNull(values.link),
+      link_chat: emptyToNull(values.link_chat),
     })
     .eq("id", claseId)
     .select()

@@ -139,6 +139,7 @@ export function ExploradorSearchModal({
                         searchContextLine={`Tema · ${temaNombreById.get(c.tema_id) ?? "—"}`}
                         searchShowDescripcion
                         linkIconOnly
+                        linkChat={c.link_chat}
                         objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
                         onSelect={() => onSelectCurso(c)}
                       />
@@ -163,6 +164,7 @@ export function ExploradorSearchModal({
                           selected={false}
                           descripcion={cl.descripcion}
                           link={cl.link}
+                          linkChat={cl.link_chat}
                           dificultad={cl.dificultad}
                           orden={cl.orden}
                           highlightQuery={query}

@@ -40,6 +40,7 @@ export const temaFormSchema = z.object({
   jerarquia: optionalInt,
   fecha_estimada_inicio: optionalDate,
   fecha_estimada_fin: optionalDate,
+  link_chat: optionalText,
 });
 
 export const cursoFormSchema = z.object({
@@ -55,6 +56,7 @@ export const cursoFormSchema = z.object({
   fecha_estimada_fin: optionalDate,
   plataforma: optionalText,
   link: optionalText,
+  link_chat: optionalText,
 });
 
 export const claseFormSchema = z.object({
@@ -64,6 +66,7 @@ export const claseFormSchema = z.object({
   jerarquia: optionalInt,
   dificultad: optionalText,
   link: optionalText,
+  link_chat: optionalText,
 });
 
 const optionalNivelEntendimiento = z
@@ -216,6 +219,7 @@ export const nodoObjetivoClasificacionSchema = z.enum(["formacion", "produccion"
 export const mapaNodoSimpleFormSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
   descripcion: optionalText,
+  link_chat: optionalText,
 });
 
 export type MapaNodoSimpleFormValues = z.infer<typeof mapaNodoSimpleFormSchema>;
@@ -229,6 +233,7 @@ export type MapaLogroFormValues = z.infer<typeof mapaLogroFormSchema>;
 export const mapaNodoFormSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio").max(200),
   descripcion: optionalText,
+  link_chat: optionalText,
   etapa: optionalInt,
   carril: optionalInt,
   orden: optionalInt,
@@ -247,6 +252,7 @@ export type MapaNodoFormValues = z.infer<typeof mapaNodoFormSchema>;
 export const definicionGeneralFormSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio").max(200),
   descripcion: optionalText,
+  link_chat: optionalText,
 });
 
 export type DefinicionGeneralFormValues = z.infer<typeof definicionGeneralFormSchema>;

@@ -39,6 +39,7 @@ export function ClaseForm({
   const [jerarquia, setJerarquia] = useState(numberFieldInitial(clase?.jerarquia));
   const [dificultad, setDificultad] = useState(clase?.dificultad ?? "");
   const [link, setLink] = useState(clase?.link ?? "");
+  const [linkChat, setLinkChat] = useState(clase?.link_chat ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -55,6 +56,7 @@ export function ClaseForm({
       jerarquia,
       dificultad,
       link,
+      link_chat: linkChat,
     });
 
     if (!parsed.success) {
@@ -130,6 +132,14 @@ export function ClaseForm({
           value={link}
           onChange={(e) => setLink(e.target.value)}
           placeholder="https://platzi.com/clases/..."
+        />
+      </FormField>
+      <FormField label="Link de chat" error={fieldErrors.link_chat}>
+        <FormInput
+          type="url"
+          value={linkChat}
+          onChange={(e) => setLinkChat(e.target.value)}
+          placeholder="https://chatgpt.com/c/..."
         />
       </FormField>
       <FormField label="Orden" error={fieldErrors.orden}>

@@ -11,6 +11,7 @@ import {
   dsExplorerColumn,
   dsExplorerItemClass,
 } from "@/components/mobile/desarrollos/desarrollos-chrome";
+import { CardChatLinkIcon } from "@/components/shared/links/card-chat-link-icon";
 import { DesarrollosSyncBanner } from "@/components/shared/sync/desarrollos-sync-banner";
 import { DefinicionGeneralForm } from "@/components/shared/forms/definicion-general-form";
 import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-especifica-form";
@@ -166,7 +167,10 @@ export function DesarrollosExploradorView() {
                     onClick={() => go({ generalId: g.id, especificaId: null, accionId: null })}
                     className={dsExplorerItemClass("general", selection.generalId === g.id)}
                   >
-                    <p className={DS_CARD_TITLE}>{g.nombre}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`min-w-0 flex-1 ${DS_CARD_TITLE}`}>{g.nombre}</p>
+                      <CardChatLinkIcon linkChat={g.link_chat} />
+                    </div>
                     {g.descripcion ? (
                       <p className={DS_CARD_DESC}>{g.descripcion}</p>
                     ) : null}
@@ -219,7 +223,10 @@ export function DesarrollosExploradorView() {
                       selection.especificaId === e.id,
                     )}
                   >
-                    <p className={DS_CARD_TITLE}>{e.nombre}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`min-w-0 flex-1 ${DS_CARD_TITLE}`}>{e.nombre}</p>
+                      <CardChatLinkIcon linkChat={e.link_chat} />
+                    </div>
                     {e.descripcion ? (
                       <p className={DS_CARD_DESC}>{e.descripcion}</p>
                     ) : null}
@@ -273,7 +280,10 @@ export function DesarrollosExploradorView() {
                     }
                     className={dsExplorerItemClass("accion", selection.accionId === a.id)}
                   >
-                    <p className={DS_CARD_TITLE}>{a.nombre}</p>
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`min-w-0 flex-1 ${DS_CARD_TITLE}`}>{a.nombre}</p>
+                      <CardChatLinkIcon linkChat={a.link_chat} />
+                    </div>
                     {a.descripcion ? (
                       <p className={DS_CARD_DESC}>{a.descripcion}</p>
                     ) : null}

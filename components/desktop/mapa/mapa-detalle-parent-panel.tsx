@@ -164,6 +164,7 @@ export function MapaDetalleParentPanel({
             hijosLabel="cursos"
             seguimientosCount={counts.seguimientos}
             conceptosCount={counts.conceptos}
+            linkChat={tema.link_chat}
             selected
             expanded
             expandedLayout="comfortable"
@@ -195,6 +196,7 @@ export function MapaDetalleParentPanel({
                   : "cursos"
             }
             nodoClasificacion={nodo.tipo}
+            linkChat={nodo.link_chat}
             objetivoId={parseObjetivoId(nodo.objetivo_id)}
             selected
             expanded

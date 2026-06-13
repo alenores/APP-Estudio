@@ -119,6 +119,7 @@ export async function insertMapaNodoClasificado(
     user_id: userId,
     titulo: values.titulo,
     descripcion: emptyToNull(values.descripcion),
+    link_chat: emptyToNull(values.link_chat),
     pos_x: pos.x,
     pos_y: pos.y,
     carril,
@@ -163,6 +164,7 @@ export async function insertMapaNodo(
     user_id: userId,
     titulo: values.titulo,
     descripcion: emptyToNull(values.descripcion),
+    link_chat: emptyToNull(values.link_chat),
     pos_x: pos.x,
     pos_y: pos.y,
     carril,
@@ -201,6 +203,7 @@ export async function updateMapaNodoSimple(
     .update({
       titulo: values.titulo,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
     })
     .eq("id", id)
     .select()
@@ -239,6 +242,7 @@ export async function updateMapaNodo(
     .update({
       titulo: values.titulo,
       descripcion: emptyToNull(values.descripcion),
+      link_chat: emptyToNull(values.link_chat),
       pos_x: values.pos_x ?? 0,
       pos_y: values.pos_y ?? 0,
       carril: values.carril ?? 0,

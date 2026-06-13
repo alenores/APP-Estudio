@@ -19,6 +19,7 @@ export type MapaNodo = {
   user_id: string;
   titulo: string;
   descripcion: string | null;
+  link_chat: string | null;
   pos_x: number;
   pos_y: number;
   carril: number;

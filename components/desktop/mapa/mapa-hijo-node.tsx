@@ -6,6 +6,7 @@ import {
   MapaFlowEnlaceHandleTarget,
 } from "@/components/desktop/mapa/mapa-flow-enlace-handles";
 import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
+import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
 import { mapaLienzoFlowHandleConfig } from "@/lib/mapa-lienzo-orientacion";
 import type { NodeProps } from "@xyflow/react";
 
@@ -25,6 +26,8 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
     nombre,
     descripcion,
     kind,
+    link,
+    linkChat,
     onAddLinked,
     enlacesEntrada = 0,
     enlacesSalida = 0,
@@ -75,6 +78,25 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
           <p className="mapa-flow-node-desc mt-1 line-clamp-2 text-[11px] leading-snug">
             {descripcion}
           </p>
+        ) : null}
+        {kind === "curso" && (link?.trim() || linkChat?.trim()) ? (
+          <div className="mt-2 flex justify-end gap-1.5">
+            {link?.trim() ? (
+              <PlatformLinkIcon
+                link={link}
+                size="sm"
+                className="!h-7 !w-7 rounded-[9px]"
+              />
+            ) : null}
+            {linkChat?.trim() ? (
+              <PlatformLinkIcon
+                link={linkChat}
+                purpose="chat"
+                size="sm"
+                className="!h-7 !w-7 rounded-[9px]"
+              />
+            ) : null}
+          </div>
         ) : null}
         {enlacesEntrada > 0 || enlacesSalida > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
