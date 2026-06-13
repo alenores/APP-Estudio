@@ -6,20 +6,20 @@ import {
   DesarrollosDetalleNav,
   desarrollosDesktopFormOverlay,
 } from "@/components/desktop/desarrollos-detalle-nav";
+import { DesarrollosGeneralDetalleBlock } from "@/components/desktop/desarrollos-general-detalle-block";
 import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { AccionListCard } from "@/components/mobile/desarrollos/accion-list-card";
 import { CaracteristicaListCard } from "@/components/mobile/desarrollos/caracteristica-list-card";
 import {
   DesarrollosDetailHero,
   DesarrollosEmptyState,
-  DesarrollosMetaLine,
   DesarrollosSectionHeader,
 } from "@/components/mobile/desarrollos/desarrollos-chrome";
 import { PendientesSection } from "@/components/mobile/desarrollos/pendientes-section";
 import { AccionForm } from "@/components/shared/forms/accion-form";
 import { CaracteristicaForm } from "@/components/shared/forms/caracteristica-form";
 import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-especifica-form";
-import { AlertText, LoadingText, TextLink } from "@/components/ui";
+import { AlertText, LoadingText } from "@/components/ui";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { CornerDownRight, Play, StickyNote } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -66,6 +66,18 @@ export function DesarrollosEspecificaDetalleView() {
       <div className="flex min-h-0 flex-1 flex-col gap-6 pb-8">
         <DesarrollosDetalleNav explorerHref={explorerHref} />
 
+        <DesarrollosGeneralDetalleBlock
+          generalId={general.id}
+          activeEspecificaId={especifica.id}
+          onChanged={() => void reload()}
+        />
+
+        <div
+          className="border-t-2 border-[#EA580C]/20 pt-6"
+          role="separator"
+          aria-label="Definición específica en foco"
+        />
+
         <DesarrollosDetailHero
           level="especifica"
           levelLabel="Definición específica"
@@ -74,14 +86,6 @@ export function DesarrollosEspecificaDetalleView() {
           description={especifica.descripcion}
           editLabel="Editar específica"
           onEdit={() => setModal({ mode: "edit-especifica" })}
-          meta={
-            <DesarrollosMetaLine>
-              General:{" "}
-              <TextLink href={`/definicion-general/${general.id}`}>
-                {general.nombre}
-              </TextLink>
-            </DesarrollosMetaLine>
-          }
         />
 
         <DesarrollosSectionHeader

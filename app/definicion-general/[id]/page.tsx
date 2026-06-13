@@ -3,6 +3,8 @@
 import {
   useDefinicionGeneralDetalle,
 } from "@/app/hooks/useDefinicionesGeneralesList";
+import { DesktopShell } from "@/components/desktop/desktop-shell";
+import { DesarrollosGeneralDetalleView } from "@/components/desktop/desarrollos-general-detalle-view";
 import { AppShell } from "@/components/mobile/shell/app-shell";
 import {
   DesarrollosDetailHero,
@@ -16,14 +18,17 @@ import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-e
 import { DefinicionGeneralForm } from "@/components/shared/forms/definicion-general-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { AlertText, LoadingText } from "@/components/ui";
+import { isMobileShellClient } from "@/lib/shell-detect";
 import { useParams, useRouter } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { GitBranch, Layers } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type SheetState = null | { mode: "especifica" } | { mode: "edit-general" };
 
-export default function DefinicionGeneralDetallePage() {
+type AppShellKind = "mobile" | "desktop";
+
+function DefinicionGeneralDetalleMobile() {
   const router = useRouter();
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
@@ -127,4 +132,26 @@ export default function DefinicionGeneralDetallePage() {
       </StudySheet>
     </>
   );
+}
+
+export default function DefinicionGeneralDetallePage() {
+  const [shell, setShell] = useState<AppShellKind | null>(null);
+
+  useEffect(() => {
+    setShell(isMobileShellClient() ? "mobile" : "desktop");
+  }, []);
+
+  if (shell === null) {
+    return <LoadingText />;
+  }
+
+  if (shell === "desktop") {
+    return (
+      <DesktopShell title="Explorador desarrollos">
+        <DesarrollosGeneralDetalleView />
+      </DesktopShell>
+    );
+  }
+
+  return <DefinicionGeneralDetalleMobile />;
 }

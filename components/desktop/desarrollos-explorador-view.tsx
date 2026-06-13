@@ -314,14 +314,16 @@ export function DesarrollosExploradorView() {
               </TextLink>
             </p>
           ) : null}
-          {(selectedAccion || selectedEspecifica) ? (
+          {(selectedAccion || selectedEspecifica || selectedGeneral) ? (
             <div className="mt-4">
               <button
                 type="button"
                 onClick={() => {
                   const href = selectedAccion
                     ? `/acciones/${selectedAccion.id}`
-                    : `/definicion-especifica/${selectedEspecifica!.id}`;
+                    : selectedEspecifica
+                      ? `/definicion-especifica/${selectedEspecifica.id}`
+                      : `/definicion-general/${selectedGeneral!.id}`;
                   router.push(href);
                 }}
                 className="inline-flex items-center gap-2 rounded-lg bg-[#EA580C] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#c2410c] active:scale-95"
