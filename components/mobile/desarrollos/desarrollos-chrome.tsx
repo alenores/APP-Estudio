@@ -14,7 +14,7 @@ export const dsExplorerColumn = {
     itemSelected:
       "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900 dark:border-[#EA580C]/70",
     itemIdle:
-      "border-stone-200 bg-white/90 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:hover:bg-stone-900",
+      "border-stone-200 bg-white/90 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:hover:bg-stone-900",
   },
   especifica: {
     section:
@@ -22,7 +22,7 @@ export const dsExplorerColumn = {
     itemSelected:
       "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900 dark:border-[#EA580C]/70",
     itemIdle:
-      "border-stone-200 bg-white/90 hover:border-stone-300 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:hover:bg-stone-900",
+      "border-stone-200 bg-white/90 hover:bg-white dark:border-stone-700 dark:bg-stone-900/60 dark:hover:bg-stone-900",
   },
   accion: {
     section:
@@ -30,7 +30,7 @@ export const dsExplorerColumn = {
     itemSelected:
       "border-[#EA580C] bg-white shadow-sm ring-1 ring-[#EA580C]/20 dark:bg-stone-900 dark:border-[#EA580C]/70",
     itemIdle:
-      "border-stone-200 bg-white/90 hover:border-stone-300 hover:bg-white dark:border-stone-800 dark:bg-stone-900/50 dark:hover:bg-stone-900",
+      "border-stone-200 bg-white/90 hover:bg-white dark:border-stone-800 dark:bg-stone-900/50 dark:hover:bg-stone-900",
   },
 } as const;
 
@@ -39,7 +39,7 @@ export function dsExplorerItemClass(
   selected: boolean,
 ): string {
   const col = dsExplorerColumn[level];
-  return `w-full rounded-lg border px-3 py-2 text-left text-sm transition-[border-color,box-shadow,background-color] duration-150 ${
+  return `relative w-full rounded-lg border px-3 py-2 text-left text-sm transition-[border-color,box-shadow,background-color,transform] duration-200 ease-out hover:z-[1] hover:scale-[1.02] hover:border-[#EA580C] hover:ring-2 hover:ring-[#EA580C]/45 hover:shadow-md hover:shadow-[#EA580C]/15 ${
     selected ? col.itemSelected : col.itemIdle
   }`;
 }
