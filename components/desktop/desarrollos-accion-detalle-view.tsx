@@ -1,9 +1,12 @@
 "use client";
 
 import { useAccionDetalle } from "@/app/hooks/useDefinicionesGeneralesList";
-import { DesktopShell } from "@/components/desktop/desktop-shell";
-import { DesarrollosAccionDetalleView } from "@/components/desktop/desarrollos-accion-detalle-view";
-import { AppShell } from "@/components/mobile/shell/app-shell";
+import { desarrollosExplorerHref } from "@/app/hooks/useDesarrollosExplorer";
+import {
+  DesarrollosDetalleNav,
+  desarrollosDesktopFormOverlay,
+} from "@/components/desktop/desarrollos-detalle-nav";
+import { DesktopModal } from "@/components/desktop/desktop-modal";
 import { CaracteristicaListCard } from "@/components/mobile/desarrollos/caracteristica-list-card";
 import {
   DesarrollosDetailHero,
@@ -14,49 +17,41 @@ import {
 import { PendientesSection } from "@/components/mobile/desarrollos/pendientes-section";
 import { AccionForm } from "@/components/shared/forms/accion-form";
 import { CaracteristicaForm } from "@/components/shared/forms/caracteristica-form";
-import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { AlertText, LoadingText, TextLink } from "@/components/ui";
-import { isMobileShellClient } from "@/lib/shell-detect";
-import { useParams, useRouter } from "next/navigation";
 import { parseEntityId } from "@/lib/parse-entity-id";
 import { Play, StickyNote } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 
-type SheetState = null | { mode: "edit" } | { mode: "caracteristica" };
+type ModalState = null | { mode: "edit" } | { mode: "caracteristica" };
 
-type AppShellKind = "mobile" | "desktop";
-
-function AccionDetalleMobile() {
+export function DesarrollosAccionDetalleView() {
   const router = useRouter();
   const params = useParams();
   const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
   const { accion, especifica, general, caracteristicas, pendientes, loading, error, reload } =
     useAccionDetalle(id);
-  const [sheet, setSheet] = useState<SheetState>(null);
+  const [modal, setModal] = useState<ModalState>(null);
 
   if (loading) {
-    return (
-      <AppShell title="Desarrollos" backHref="/desarrollos" shellTone="clase">
-        <LoadingText />
-      </AppShell>
-    );
+    return <LoadingText>Cargando acción…</LoadingText>;
   }
 
   if (error || !accion || !especifica || !general) {
-    return (
-      <AppShell title="Desarrollos" backHref="/desarrollos" shellTone="clase">
-        <AlertText>{error ?? "No encontrado"}</AlertText>
-      </AppShell>
-    );
+    return <AlertText>{error ?? "No encontrado"}</AlertText>;
   }
+
+  const explorerHref = desarrollosExplorerHref({
+    generalId: general.id,
+    especificaId: especifica.id,
+    accionId: accion.id,
+  });
 
   return (
     <>
-      <AppShell
-        breadcrumb={`Acción · ${accion.nombre}`}
-        backHref={`/definicion-especifica/${especifica.id}`}
-        shellTone="clase"
-      >
+      <div className="flex min-h-0 flex-1 flex-col gap-6 pb-8">
+        <DesarrollosDetalleNav explorerHref={explorerHref} />
+
         <DesarrollosDetailHero
           level="accion"
           levelLabel="Acción"
@@ -64,7 +59,7 @@ function AccionDetalleMobile() {
           title={accion.nombre}
           description={accion.descripcion}
           editLabel="Editar acción"
-          onEdit={() => setSheet({ mode: "edit" })}
+          onEdit={() => setModal({ mode: "edit" })}
           meta={
             <>
               <DesarrollosMetaLine>
@@ -86,7 +81,7 @@ function AccionDetalleMobile() {
         <DesarrollosSectionHeader
           title="Características"
           actionLabel="+ Nueva"
-          onAction={() => setSheet({ mode: "caracteristica" })}
+          onAction={() => setModal({ mode: "caracteristica" })}
         />
         {caracteristicas.length === 0 ? (
           <DesarrollosEmptyState
@@ -95,7 +90,7 @@ function AccionDetalleMobile() {
             hint="Agregá notas, implicancias técnicas o prompts con + Nueva."
           />
         ) : (
-          <ul className="flex flex-col gap-3 pb-8">
+          <ul className="flex flex-col gap-3">
             {caracteristicas.map((c) => (
               <li key={c.id}>
                 <CaracteristicaListCard
@@ -111,59 +106,42 @@ function AccionDetalleMobile() {
           pendientes={pendientes}
           parent={{ accion_id: accion.id }}
           onChanged={() => void reload()}
+          renderFormOverlay={desarrollosDesktopFormOverlay}
         />
-      </AppShell>
+      </div>
 
-      <StudySheet open={sheet?.mode === "edit"} onClose={() => setSheet(null)} title="Editar acción">
+      <DesktopModal
+        open={modal?.mode === "edit"}
+        onClose={() => setModal(null)}
+        title="Editar acción"
+      >
         <AccionForm
           especificaId={especifica.id}
           accion={accion}
           onSuccess={async () => {
-            setSheet(null);
+            setModal(null);
             await reload();
           }}
           onDelete={() => {
-            setSheet(null);
+            setModal(null);
             router.replace(`/definicion-especifica/${especifica.id}`);
           }}
         />
-      </StudySheet>
+      </DesktopModal>
 
-      <StudySheet
-        open={sheet?.mode === "caracteristica"}
-        onClose={() => setSheet(null)}
+      <DesktopModal
+        open={modal?.mode === "caracteristica"}
+        onClose={() => setModal(null)}
         title="Nueva característica"
       >
         <CaracteristicaForm
           parent={{ accion_id: accion.id }}
           onSuccess={() => {
-            setSheet(null);
+            setModal(null);
             void reload();
           }}
         />
-      </StudySheet>
+      </DesktopModal>
     </>
   );
-}
-
-export default function AccionDetallePage() {
-  const [shell, setShell] = useState<AppShellKind | null>(null);
-
-  useEffect(() => {
-    setShell(isMobileShellClient() ? "mobile" : "desktop");
-  }, []);
-
-  if (shell === null) {
-    return <LoadingText />;
-  }
-
-  if (shell === "desktop") {
-    return (
-      <DesktopShell title="Explorador desarrollos">
-        <DesarrollosAccionDetalleView />
-      </DesktopShell>
-    );
-  }
-
-  return <AccionDetalleMobile />;
 }

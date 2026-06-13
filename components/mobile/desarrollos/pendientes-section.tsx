@@ -104,16 +104,39 @@ function PendienteCard({
   );
 }
 
+type PendienteFormOverlayProps = {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+};
+
+function DefaultPendienteFormOverlay({
+  open,
+  onClose,
+  title,
+  children,
+}: PendienteFormOverlayProps) {
+  return (
+    <StudySheet open={open} onClose={onClose} title={title}>
+      {children}
+    </StudySheet>
+  );
+}
+
 export function PendientesSection({
   title = "Pendientes",
   pendientes,
   parent,
   onChanged,
+  renderFormOverlay = DefaultPendienteFormOverlay,
 }: {
   title?: string;
   pendientes: Pendiente[];
   parent: PendienteParent;
   onChanged: () => void;
+  /** Escritorio: pasar wrapper con DesktopModal (ADR 008). */
+  renderFormOverlay?: (props: PendienteFormOverlayProps) => ReactNode;
 }) {
   const { refreshSnapshot } = useDesarrollosData();
   const [createOpen, setCreateOpen] = useState(false);
@@ -160,22 +183,26 @@ export function PendientesSection({
         </ul>
       )}
 
-      <StudySheet open={createOpen} onClose={() => setCreateOpen(false)} title="Nuevo pendiente">
-        <PendienteForm
-          parent={parent}
-          onSuccess={() => {
-            setCreateOpen(false);
-            onChanged();
-          }}
-        />
-      </StudySheet>
+      {renderFormOverlay({
+        open: createOpen,
+        onClose: () => setCreateOpen(false),
+        title: "Nuevo pendiente",
+        children: (
+          <PendienteForm
+            parent={parent}
+            onSuccess={() => {
+              setCreateOpen(false);
+              onChanged();
+            }}
+          />
+        ),
+      })}
 
-      <StudySheet
-        open={editPendiente != null}
-        onClose={() => setEditPendiente(null)}
-        title="Editar pendiente"
-      >
-        {editPendiente ? (
+      {renderFormOverlay({
+        open: editPendiente != null,
+        onClose: () => setEditPendiente(null),
+        title: "Editar pendiente",
+        children: editPendiente ? (
           <PendienteForm
             parent={parent}
             pendiente={editPendiente}
@@ -188,8 +215,8 @@ export function PendientesSection({
               onChanged();
             }}
           />
-        ) : null}
-      </StudySheet>
+        ) : null,
+      })}
     </>
   );
 }
