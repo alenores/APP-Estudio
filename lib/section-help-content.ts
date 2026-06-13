@@ -31,15 +31,15 @@ export const SECTION_HELP: Record<SectionHelpId, SectionHelpEntry> = {
   },
   "definicion-general": {
     title: "Definiciones generales",
-    body: "Nivel superior en desarrollos: un ámbito o proyecto amplio que agrupa definiciones específicas y acciones.",
+    body: "Son las grandes secciones del esqueleto de decisiones para armar una app nueva (Autenticación, Conectividad, Persistencia de datos, PWA, Apariencia, etc.). Cada una representa un tema que hay que resolver antes o al arrancar un proyecto. No son excluyentes entre sí: un proyecto pasa por todas, eligiendo una o varias opciones dentro de cada una.",
   },
   "definicion-especifica": {
     title: "Definiciones específicas",
-    body: "Descomponen una definición general en partes concretas. Cada específica contiene las acciones ejecutables del desarrollo.",
+    body: "Son las opciones o ramas concretas dentro de una sección general (por ejemplo, dentro de \"Autenticación\": Pública sin login, Con login Google, Con login Email, etc.). Cada específica describe una decisión puntual: qué implica elegirla, y para qué tipo de proyecto aplica. Al elegir una para un proyecto nuevo, queda determinado qué hay que construir en esa sección.",
   },
   acciones: {
     title: "Acciones",
-    body: "Pasos concretos o tareas dentro de una definición específica. Es el nivel más operativo de la tipología desarrollos.",
+    body: "Son las implicancias técnicas concretas de haber elegido una definición específica: qué tablas crear, qué configurar, qué páginas armar, qué NO hacer. Es el nivel más operativo — la lista de tareas que resultan de esa decisión. Dentro de cada acción (o de la específica) también podés cargar Características (notas, prompts para Cursor) y Pendientes.",
   },
 };
 
