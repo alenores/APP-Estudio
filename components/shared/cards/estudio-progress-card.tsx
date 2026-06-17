@@ -21,6 +21,22 @@ const DONUT_C = 2 * Math.PI * DONUT_R;
 
 export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "nodo" | "logro";
 
+export type TipoEstudio =
+  | "cultura_general"
+  | "pantallazo"
+  | "herramienta_operativa"
+  | "dominio_real";
+
+const TIPO_ESTUDIO_CONFIG: Record<
+  TipoEstudio,
+  { bg: string; color: string; label: string }
+> = {
+  cultura_general: { bg: "#b4b2a9", color: "#dbd9d4", label: "Cultura General" },
+  pantallazo: { bg: "#7eb8e6", color: "#c5e0f5", label: "Pantallazo" },
+  herramienta_operativa: { bg: "#5da88f", color: "#a8d6c8", label: "Herramienta Operativa" },
+  dominio_real: { bg: "#e24b4a", color: "#f4a8a8", label: "Dominio Real" },
+};
+
 export type EstudioProgressCardProps = {
   kind: EstudioProgressCardKind;
   nombre: string;
@@ -59,6 +75,8 @@ export type EstudioProgressCardProps = {
   objetivoNombre?: string | null;
   /** Clasificación nodos_objetivos (solo kind=nodo). */
   nodoClasificacion?: NodoObjetivoClasificacion;
+  /** Tipo de estudio — franja vertical derecha (null = sin franja). */
+  tipoEstudio?: TipoEstudio | null;
 };
 
 export function EstudioProgressCard({
@@ -88,6 +106,7 @@ export function EstudioProgressCard({
   objetivoId = null,
   objetivoNombre = null,
   nodoClasificacion,
+  tipoEstudio = null,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
@@ -262,13 +281,7 @@ export function EstudioProgressCard({
         </div>
       ) : null}
       <div className="relative min-w-0 flex-1 flex flex-col">
-        {kind === "curso" && objetivoId != null ? (
-          <ObjetivoDot
-            objetivoId={objetivoId}
-            nombre={objetivoNombre}
-            className="right-3 top-3"
-          />
-        ) : kind === "nodo" && objetivoId != null ? (
+        {kind === "nodo" && objetivoId != null ? (
           <ObjetivoDot
             objetivoId={objetivoId}
             nombre={objetivoNombre ?? nombre}
@@ -297,6 +310,34 @@ export function EstudioProgressCard({
           <div className="relative z-[1] mt-auto">{footerSlot}</div>
         ) : null}
       </div>
+      {tipoEstudio ? (
+        <div
+          style={{
+            flex: "none",
+            width: 26,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            alignSelf: "stretch",
+            background: TIPO_ESTUDIO_CONFIG[tipoEstudio].bg,
+          }}
+        >
+          <span
+            style={{
+              writingMode: "vertical-rl",
+              transform: "rotate(180deg)",
+              fontSize: 10,
+              fontWeight: 800,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
+              color: TIPO_ESTUDIO_CONFIG[tipoEstudio].color,
+            }}
+          >
+            {TIPO_ESTUDIO_CONFIG[tipoEstudio].label}
+          </span>
+        </div>
+      ) : null}
     </article>
   );
 }
