@@ -259,6 +259,7 @@ export async function insertCurso(
       link: emptyToNull(values.link),
       link_chat: emptyToNull(values.link_chat),
       nodo_id: values.nodo_id,
+      tipo_estudio: values.tipo_estudio ?? null,
     })
     .select()
     .single();
@@ -286,6 +287,7 @@ export async function insertClase(
       dificultad: emptyToNull(values.dificultad),
       link: emptyToNull(values.link),
       link_chat: emptyToNull(values.link_chat),
+      tipo_estudio: values.tipo_estudio ?? null,
     })
     .select()
     .single();
@@ -334,6 +336,7 @@ export async function updateCurso(
       link: emptyToNull(values.link),
       link_chat: emptyToNull(values.link_chat),
       nodo_id: values.nodo_id,
+      tipo_estudio: values.tipo_estudio ?? null,
     })
     .eq("id", cursoId)
     .select()
@@ -357,6 +360,7 @@ export async function updateClase(
       dificultad: emptyToNull(values.dificultad),
       link: emptyToNull(values.link),
       link_chat: emptyToNull(values.link_chat),
+      tipo_estudio: values.tipo_estudio ?? null,
     })
     .eq("id", claseId)
     .select()

@@ -17,6 +17,7 @@ import {
 import { zodFieldErrors } from "@/lib/form-errors";
 import { numberFieldInitial } from "@/lib/iso-date-input";
 import { claseFormSchema } from "@/lib/validations";
+import { TIPO_ESTUDIO_OPTIONS } from "@/lib/tipo-estudio";
 import { useState } from "react";
 
 type ClaseFormProps = {
@@ -40,6 +41,7 @@ export function ClaseForm({
   const [dificultad, setDificultad] = useState(clase?.dificultad ?? "");
   const [link, setLink] = useState(clase?.link ?? "");
   const [linkChat, setLinkChat] = useState(clase?.link_chat ?? "");
+  const [tipoEstudio, setTipoEstudio] = useState(clase?.tipo_estudio ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -57,6 +59,7 @@ export function ClaseForm({
       dificultad,
       link,
       link_chat: linkChat,
+      tipo_estudio: tipoEstudio,
     });
 
     if (!parsed.success) {
@@ -118,6 +121,19 @@ export function ClaseForm({
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
         />
+      </FormField>
+      <FormField label="Tipo de estudio" error={fieldErrors.tipo_estudio}>
+        <select
+          value={tipoEstudio}
+          onChange={(e) => setTipoEstudio(e.target.value)}
+          className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
+        >
+          {TIPO_ESTUDIO_OPTIONS.map((opt) => (
+            <option key={opt.label} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </FormField>
       <FormField label="Dificultad" error={fieldErrors.dificultad}>
         <FormInput

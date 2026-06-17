@@ -151,6 +151,7 @@ function MapaDetalleCanvasInner({
             kind: h.kind,
             link: h.kind === "curso" ? h.link : undefined,
             linkChat: h.kind === "curso" ? h.link_chat : undefined,
+            tipoEstudio: h.kind === "curso" ? h.tipo_estudio ?? null : undefined,
             onAddLinked: onAddFromHijo ? onAddLinkedStable : undefined,
             enlacesEntrada: entrada,
             enlacesSalida: salida,

@@ -29,6 +29,7 @@ import {
   type FormLienzoColocacionState,
 } from "@/lib/form-lienzo-colocacion-types";
 import { FormLienzoColocacionSection } from "@/components/shared/forms/form-lienzo-colocacion-section";
+import { TIPO_ESTUDIO_OPTIONS } from "@/lib/tipo-estudio";
 import { useEffect, useState } from "react";
 
 export type CursoFormSuccessMeta = {
@@ -88,6 +89,7 @@ export function CursoForm({
   );
   const [link, setLink] = useState(curso?.link ?? "");
   const [linkChat, setLinkChat] = useState(curso?.link_chat ?? "");
+  const [tipoEstudio, setTipoEstudio] = useState(curso?.tipo_estudio ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -138,6 +140,7 @@ export function CursoForm({
       plataforma: curso?.plataforma ?? "",
       link,
       link_chat: linkChat,
+      tipo_estudio: tipoEstudio,
     });
 
     if (!parsed.success) {
@@ -252,6 +255,19 @@ export function CursoForm({
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
         />
+      </FormField>
+      <FormField label="Tipo de estudio" error={fieldErrors.tipo_estudio}>
+        <select
+          value={tipoEstudio}
+          onChange={(e) => setTipoEstudio(e.target.value)}
+          className="w-full rounded-xl border border-[var(--td-line)] bg-white px-3 py-2.5 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/50"
+        >
+          {TIPO_ESTUDIO_OPTIONS.map((opt) => (
+            <option key={opt.label} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </FormField>
       <FormField label="Link del curso" error={fieldErrors.link}>
         <FormInput

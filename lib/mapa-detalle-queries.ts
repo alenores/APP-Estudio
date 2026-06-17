@@ -10,6 +10,7 @@ type CursoDetalleRow = {
   descripcion: string | null;
   link: string | null;
   link_chat: string | null;
+  tipo_estudio: import("@/lib/tipo-estudio").TipoEstudio | null;
 };
 
 async function listCursosDetalle(
@@ -18,7 +19,7 @@ async function listCursosDetalle(
   const supabase = createClient();
   let query = supabase
     .from("cursos")
-    .select("id, nombre, descripcion, link, link_chat")
+    .select("id, nombre, descripcion, link, link_chat, tipo_estudio")
     .order("orden", ORDEN_ASC)
     .order("nombre", ORDEN_ASC);
 

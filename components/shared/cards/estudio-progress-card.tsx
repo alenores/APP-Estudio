@@ -21,21 +21,12 @@ const DONUT_C = 2 * Math.PI * DONUT_R;
 
 export type EstudioProgressCardKind = "tema" | "curso" | "clase" | "nodo" | "logro";
 
-export type TipoEstudio =
-  | "cultura_general"
-  | "pantallazo"
-  | "herramienta_operativa"
-  | "dominio_real";
+import {
+  tipoEstudioCardStrip,
+  type TipoEstudio,
+} from "@/lib/tipo-estudio";
 
-const TIPO_ESTUDIO_CONFIG: Record<
-  TipoEstudio,
-  { bg: string; color: string; label: string }
-> = {
-  cultura_general: { bg: "#b4b2a9", color: "#dbd9d4", label: "Cultura General" },
-  pantallazo: { bg: "#7eb8e6", color: "#c5e0f5", label: "Pantallazo" },
-  herramienta_operativa: { bg: "#5da88f", color: "#a8d6c8", label: "Herramienta Operativa" },
-  dominio_real: { bg: "#e24b4a", color: "#f4a8a8", label: "Dominio Real" },
-};
+export type { TipoEstudio };
 
 export type EstudioProgressCardProps = {
   kind: EstudioProgressCardKind;
@@ -319,7 +310,7 @@ export function EstudioProgressCard({
             alignItems: "center",
             justifyContent: "center",
             alignSelf: "stretch",
-            background: TIPO_ESTUDIO_CONFIG[tipoEstudio].bg,
+            background: tipoEstudioCardStrip(tipoEstudio).bg,
           }}
         >
           <span
@@ -331,10 +322,10 @@ export function EstudioProgressCard({
               letterSpacing: "0.14em",
               textTransform: "uppercase",
               whiteSpace: "nowrap",
-              color: TIPO_ESTUDIO_CONFIG[tipoEstudio].color,
+              color: tipoEstudioCardStrip(tipoEstudio).color,
             }}
           >
-            {TIPO_ESTUDIO_CONFIG[tipoEstudio].label}
+            {tipoEstudioCardStrip(tipoEstudio).label}
           </span>
         </div>
       ) : null}

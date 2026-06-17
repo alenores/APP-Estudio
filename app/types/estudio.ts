@@ -1,3 +1,5 @@
+import type { TipoEstudio } from "@/lib/tipo-estudio";
+
 /** Filas alineadas con ADR 002 — nombres exactos de columnas Supabase. */
 
 export type Tema = {
@@ -48,6 +50,7 @@ export type Curso = {
   link: string | null;
   link_chat: string | null;
   nodo_id: number;
+  tipo_estudio: TipoEstudio | null;
   created_at: string;
 };
 
@@ -72,6 +75,7 @@ export type Clase = {
   dificultad: string | null;
   link: string | null;
   link_chat: string | null;
+  tipo_estudio: TipoEstudio | null;
   created_at: string;
 };
 

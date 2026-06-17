@@ -140,6 +140,7 @@ export function ExploradorSearchModal({
                         searchShowDescripcion
                         linkIconOnly
                         linkChat={c.link_chat}
+                        tipoEstudio={c.tipo_estudio}
                         objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
                         onSelect={() => onSelectCurso(c)}
                       />
@@ -165,6 +166,7 @@ export function ExploradorSearchModal({
                           descripcion={cl.descripcion}
                           link={cl.link}
                           linkChat={cl.link_chat}
+                          tipoEstudio={cl.tipo_estudio}
                           dificultad={cl.dificultad}
                           orden={cl.orden}
                           highlightQuery={query}

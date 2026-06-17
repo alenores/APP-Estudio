@@ -26,6 +26,7 @@ export type MapaDetalleHijo = {
   kind: MapaDetalleHijoKind;
   link?: string | null;
   link_chat?: string | null;
+  tipo_estudio?: import("@/lib/tipo-estudio").TipoEstudio | null;
 };
 
 /** Fila en `enlaces_hijos_nodos` — flechas en lienzo detalle (ADR 010 v2). */

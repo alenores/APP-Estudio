@@ -132,6 +132,7 @@ export function TemaCursoCard({
           hijosLabel="clases"
           link={curso.link}
           linkChat={curso.link_chat}
+          tipoEstudio={curso.tipo_estudio}
           className={menuRect ? "z-20 ring-2 ring-[var(--td-navy)]/40" : ""}
           bodyWrapper={(content) => (
             <Link

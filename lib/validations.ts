@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ESTADOS_SEGUIMIENTO } from "@/lib/estado-ui";
+import { TIPO_ESTUDIO_VALUES } from "@/lib/tipo-estudio";
 import {
   seguimientoMuestraAvanceCurso,
   type SeguimientoFormScope,
@@ -21,6 +22,19 @@ const optionalInt = z
   .or(z.literal(""))
   .transform((v) => (v === "" ? undefined : Number(v)))
   .refine((v) => v === undefined || (Number.isInteger(v) && v >= 0), "Entero ≥ 0");
+
+const optionalTipoEstudio = z
+  .string()
+  .trim()
+  .optional()
+  .or(z.literal(""))
+  .transform((v) => (v === "" || v == null ? null : v))
+  .refine(
+    (v): v is import("@/lib/tipo-estudio").TipoEstudio | null =>
+      v === null ||
+      (TIPO_ESTUDIO_VALUES as readonly string[]).includes(v),
+    "Tipo de estudio inválido",
+  );
 
 const optionalPercent = z
   .string()
@@ -57,6 +71,7 @@ export const cursoFormSchema = z.object({
   plataforma: optionalText,
   link: optionalText,
   link_chat: optionalText,
+  tipo_estudio: optionalTipoEstudio,
 });
 
 export const claseFormSchema = z.object({
@@ -67,6 +82,7 @@ export const claseFormSchema = z.object({
   dificultad: optionalText,
   link: optionalText,
   link_chat: optionalText,
+  tipo_estudio: optionalTipoEstudio,
 });
 
 const optionalNivelEntendimiento = z

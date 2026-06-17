@@ -122,6 +122,7 @@ export function CursoClaseCard({ clase, onQuickAction }: CursoClaseCardProps) {
           derivados={clase.derivados}
           link={clase.link}
           linkChat={clase.link_chat}
+          tipoEstudio={clase.tipo_estudio}
           dificultad={clase.dificultad}
           descripcion={clase.descripcion}
           orden={clase.orden}

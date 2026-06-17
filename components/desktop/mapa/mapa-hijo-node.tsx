@@ -8,6 +8,10 @@ import {
 import { MapaFlowNodeCardActions } from "@/components/desktop/mapa/mapa-flow-node-card-actions";
 import { PlatformLinkIcon } from "@/components/ui/platform-link-icon";
 import { mapaLienzoFlowHandleConfig } from "@/lib/mapa-lienzo-orientacion";
+import {
+  tipoEstudioLabel,
+  tipoEstudioMapaStripBackground,
+} from "@/lib/tipo-estudio";
 import type { NodeProps } from "@xyflow/react";
 
 function EnlaceBadge({ label, count }: { label: string; count: number }) {
@@ -28,6 +32,7 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
     kind,
     link,
     linkChat,
+    tipoEstudio = null,
     onAddLinked,
     enlacesEntrada = 0,
     enlacesSalida = 0,
@@ -46,23 +51,41 @@ export function MapaHijoNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`mapa-flow-node mapa-detalle-hijo-node group ${toneClass} max-w-[240px] rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] ${
+      className={`mapa-flow-node mapa-detalle-hijo-node group ${toneClass} max-w-[240px] overflow-hidden rounded-xl border bg-white shadow-[0_4px_18px_-6px_rgba(27,34,43,0.18)] ${
+        kind === "curso" && tipoEstudio == null ? "border-dashed" : ""
+      } ${
         selected ? "mapa-flow-node--selected" : ""
       }`}
     >
       <MapaFlowEnlaceHandleTarget orientacionLienzo={orientacionLienzo} />
 
+      {kind === "curso" ? (
+        <div
+          className="mapa-flow-node-strip"
+          style={{
+            background: tipoEstudioMapaStripBackground(tipoEstudio),
+          }}
+        />
+      ) : null}
+
       <div className="px-3 pb-2.5 pt-2">
         <div className="mb-1.5 flex items-start justify-between gap-2">
-          <span
-            className={`mapa-flow-node-clasificacion-badge inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
-              kind === "logro"
-                ? "mapa-flow-node-clasificacion-badge--logro"
-                : "mapa-flow-node-tema-badge"
-            }`}
-          >
-            {kind === "logro" ? "Logro" : "Curso"}
-          </span>
+          <div className="min-w-0">
+            <span
+              className={`mapa-flow-node-clasificacion-badge inline-block rounded-md px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide ${
+                kind === "logro"
+                  ? "mapa-flow-node-clasificacion-badge--logro"
+                  : "mapa-flow-node-tema-badge"
+              }`}
+            >
+              {kind === "logro" ? "Logro" : "Curso"}
+            </span>
+            {kind === "curso" ? (
+              <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                {tipoEstudioLabel(tipoEstudio)}
+              </p>
+            ) : null}
+          </div>
           <MapaFlowNodeCardActions
             selected={selected}
             onAdd={

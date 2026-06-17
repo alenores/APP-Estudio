@@ -8,6 +8,7 @@ export type MapaHijoNodeData = {
   kind: MapaDetalleHijoKind;
   link?: string | null;
   linkChat?: string | null;
+  tipoEstudio?: import("@/lib/tipo-estudio").TipoEstudio | null;
   onAddLinked?: (kind: MapaDetalleHijoKind, id: number) => void;
   enlacesEntrada?: number;
   enlacesSalida?: number;

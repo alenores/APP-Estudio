@@ -8,6 +8,7 @@ import type { HijosProgressStats } from "@/lib/hijos-progress-stats";
 import { SectionHelpButton } from "@/components/shared/section-help";
 import { explorerColumnHeaderClass } from "@/lib/estudio-shell-tone";
 import type { SectionHelpId } from "@/lib/section-help-content";
+import type { TipoEstudio } from "@/lib/tipo-estudio";
 import type { ReactNode, WheelEvent } from "react";
 
 export type ExploradorColumnAction = {
@@ -47,6 +48,7 @@ type ExploradorColumnCardProps = {
   searchShowDescripcion?: boolean;
   objetivoId?: number | null;
   nodoClasificacion?: import("@/lib/mapa-nodo-tipo").NodoObjetivoClasificacion;
+  tipoEstudio?: TipoEstudio | null;
   expandedLayout?: "compact" | "comfortable";
 };
 
@@ -78,6 +80,7 @@ export function ExploradorColumnCard({
   searchShowDescripcion,
   objetivoId: objetivoIdRaw,
   nodoClasificacion,
+  tipoEstudio = null,
   expandedLayout = "compact",
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
@@ -133,6 +136,7 @@ export function ExploradorColumnCard({
       searchShowDescripcion={searchShowDescripcion}
       objetivoId={objetivoId}
       nodoClasificacion={nodoClasificacion}
+      tipoEstudio={tipoEstudio}
     />
   );
 }

@@ -655,6 +655,7 @@ export function ExploradorView() {
                         hijosLabel="clases"
                         link={c.link}
                         linkChat={c.link_chat}
+                        tipoEstudio={c.tipo_estudio}
                         seguimientosCount={counts.seguimientos}
                         conceptosCount={counts.conceptos}
                         objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
@@ -723,6 +724,7 @@ export function ExploradorView() {
                 hijosLabel="clases"
                 link={c.link}
                 linkChat={c.link_chat}
+                tipoEstudio={c.tipo_estudio}
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 objetivoId={objetivoIdForCurso(c.nodo_id, nodosById)}
@@ -806,6 +808,7 @@ export function ExploradorView() {
                 fechaFin={null}
                 link={cl.link}
                 linkChat={cl.link_chat}
+                tipoEstudio={cl.tipo_estudio}
                 dificultad={cl.dificultad}
                 orden={cl.orden}
                 seguimientosCount={counts.seguimientos}
