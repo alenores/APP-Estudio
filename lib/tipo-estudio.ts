@@ -5,6 +5,7 @@ export const TIPO_ESTUDIO_VALUES = [
   "pantallazo",
   "herramienta_operativa",
   "dominio_real",
+  "descartar",
 ] as const;
 
 export type TipoEstudio = (typeof TIPO_ESTUDIO_VALUES)[number];
@@ -19,6 +20,7 @@ export const TIPO_ESTUDIO_OPTIONS: TipoEstudioOption[] = [
   { value: "pantallazo", label: "Pantallazo" },
   { value: "herramienta_operativa", label: "Herramienta operativa" },
   { value: "dominio_real", label: "Dominio real" },
+  { value: "descartar", label: "Descartar" },
   { value: "", label: "Sin definir" },
 ];
 
@@ -34,6 +36,7 @@ const CARD_STRIP: Record<
     label: "Herramienta Operativa",
   },
   dominio_real: { bg: "#e24b4a", color: "#f4a8a8", label: "Dominio Real" },
+  descartar: { bg: "#8a8d93", color: "#d6d7da", label: "Descartar" },
 };
 
 const MAPA_STRIP: Record<TipoEstudio, string> = {
@@ -41,6 +44,7 @@ const MAPA_STRIP: Record<TipoEstudio, string> = {
   pantallazo: "linear-gradient(90deg,#dceefb,#9ec5ef)",
   herramienta_operativa: "linear-gradient(90deg,#d4f0eb,#9fd9cc)",
   dominio_real: "linear-gradient(90deg,#fecdd3,#fb7185)",
+  descartar: "linear-gradient(90deg,#e5e5e5,#a3a3a3)",
 };
 
 export function tipoEstudioCardStrip(tipo: TipoEstudio) {
