@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { fetchAllRows } from "@/lib/supabase/fetch-all-rows";
 import {
   buildTableContentSignature,
   emptyTableContentSignature,
@@ -47,8 +48,6 @@ export type EstudioOfflineCacheData = {
 };
 
 export const ESTUDIO_OFFLINE_CACHE_KEY = "app-estudio-offline-cache-v1";
-
-const ORDEN_ASC = { ascending: true } as const;
 
 export function readEstudioOfflineCache(): EstudioOfflineCacheData | null {
   if (typeof window === "undefined") return null;
@@ -133,26 +132,39 @@ function finiteId(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
+type TableOrderSpec = { column: string; ascending: boolean };
+
+async function fetchEstudioTableAllRows<T>(
+  table: EstudioTableName,
+  orders: TableOrderSpec[],
+): Promise<{ data: T[]; error: string | null }> {
+  const supabase = createClient();
+  return fetchAllRows<T>(async ({ from, to }) => {
+    let query = supabase.from(table).select("*");
+    for (const { column, ascending } of orders) {
+      query = query.order(column, { ascending });
+    }
+    return query.range(from, to);
+  });
+}
+
 async function fetchTableContentSignature(table: EstudioTableName): Promise<{
   signature: EstudioTableSignature;
   error: string | null;
 }> {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from(table)
-    .select("*")
-    .order("id", { ascending: true });
+  const { data, error } = await fetchEstudioTableAllRows<{ id: number }>(table, [
+    { column: "id", ascending: true },
+  ]);
 
   if (error) {
     return {
       signature: emptyTableContentSignature(),
-      error: `No se pudo consultar ${table}: ${error.message}`,
+      error: `No se pudo consultar ${table}: ${error}`,
     };
   }
 
-  const rows = (data ?? []) as { id: number }[];
   return {
-    signature: buildTableContentSignature(rows),
+    signature: buildTableContentSignature(data),
     error: null,
   };
 }
@@ -280,50 +292,45 @@ export async function downloadEstudioSnapshot(): Promise<{
   }
 
   const [temasRes, cursosRes, clasesRes, segsRes, conceptosRes] = await Promise.all([
-    supabase
-      .from(ESTUDIO_TABLE.temas)
-      .select("*")
-      .order("orden", ORDEN_ASC)
-      .order("jerarquia", ORDEN_ASC)
-      .order("nombre", ORDEN_ASC),
-    supabase
-      .from(ESTUDIO_TABLE.cursos)
-      .select("*")
-      .order("orden", ORDEN_ASC)
-      .order("jerarquia", ORDEN_ASC)
-      .order("nombre", ORDEN_ASC),
-    supabase
-      .from(ESTUDIO_TABLE.clases)
-      .select("*")
-      .order("orden", ORDEN_ASC)
-      .order("jerarquia", ORDEN_ASC)
-      .order("nombre", ORDEN_ASC),
-    supabase
-      .from(ESTUDIO_TABLE.seguimientos)
-      .select("*")
-      .order("fecha_registro", { ascending: false }),
-    supabase
-      .from(ESTUDIO_TABLE.conceptos)
-      .select("*")
-      .order("fecha_registro", { ascending: false }),
+    fetchEstudioTableAllRows<Tema>(ESTUDIO_TABLE.temas, [
+      { column: "orden", ascending: true },
+      { column: "jerarquia", ascending: true },
+      { column: "nombre", ascending: true },
+    ]),
+    fetchEstudioTableAllRows<Curso>(ESTUDIO_TABLE.cursos, [
+      { column: "orden", ascending: true },
+      { column: "jerarquia", ascending: true },
+      { column: "nombre", ascending: true },
+    ]),
+    fetchEstudioTableAllRows<Clase>(ESTUDIO_TABLE.clases, [
+      { column: "orden", ascending: true },
+      { column: "jerarquia", ascending: true },
+      { column: "nombre", ascending: true },
+    ]),
+    fetchEstudioTableAllRows<Seguimiento>(ESTUDIO_TABLE.seguimientos, [
+      { column: "fecha_registro", ascending: false },
+    ]),
+    fetchEstudioTableAllRows<Concepto>(ESTUDIO_TABLE.conceptos, [
+      { column: "fecha_registro", ascending: false },
+    ]),
   ]);
 
   const firstError =
-    temasRes.error?.message ??
-    cursosRes.error?.message ??
-    clasesRes.error?.message ??
-    segsRes.error?.message ??
-    conceptosRes.error?.message;
+    temasRes.error ??
+    cursosRes.error ??
+    clasesRes.error ??
+    segsRes.error ??
+    conceptosRes.error;
 
   if (firstError) {
     return { data: null, error: firstError };
   }
 
-  const temas = (temasRes.data ?? []) as Tema[];
-  const cursos = (cursosRes.data ?? []) as Curso[];
-  const clases = (clasesRes.data ?? []) as Clase[];
-  const seguimientos = (segsRes.data ?? []) as Seguimiento[];
-  const conceptos = (conceptosRes.data ?? []) as Concepto[];
+  const temas = temasRes.data;
+  const cursos = cursosRes.data;
+  const clases = clasesRes.data;
+  const seguimientos = segsRes.data;
+  const conceptos = conceptosRes.data;
 
   const snapshot: EstudioOfflineCacheData = {
     updatedAt: new Date().toISOString(),
