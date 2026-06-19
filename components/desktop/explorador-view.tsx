@@ -53,6 +53,8 @@ import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import {
   listConceptosInTemaScope,
   listSeguimientosInTemaScope,
+  recordsFiltersFromExplorerSelection,
+  type RecordsScopeFilters,
 } from "@/lib/explorador-tema-records";
 import {
   EMPTY_EXPLORER_SELECTION,
@@ -70,6 +72,11 @@ type PanelModalState = {
 };
 
 type TemaRecordsModalKind = "conceptos" | "seguimientos";
+
+type TemaRecordsModalState = {
+  kind: TemaRecordsModalKind;
+  initialFilters: Partial<RecordsScopeFilters>;
+};
 
 function editColumnAction(
   entity: ExplorerEntityRef | null,
@@ -123,7 +130,14 @@ export function ExploradorView() {
     null,
   );
   const [temaRecordsModal, setTemaRecordsModal] =
-    useState<TemaRecordsModalKind | null>(null);
+    useState<TemaRecordsModalState | null>(null);
+
+  function openRecordsModal(kind: TemaRecordsModalKind) {
+    setTemaRecordsModal({
+      kind,
+      initialFilters: recordsFiltersFromExplorerSelection(selection),
+    });
+  }
 
   const modalsOpen =
     panelModal != null ||
@@ -579,15 +593,15 @@ export function ExploradorView() {
                   <ExploradorColumnStatChip
                     label="Conceptos"
                     count={temaScopeCounts.conceptos}
-                    title="Ver todos los conceptos del tema"
-                    onOpen={() => setTemaRecordsModal("conceptos")}
+                    title="Ver conceptos (listado general)"
+                    onOpen={() => openRecordsModal("conceptos")}
                   />
                   <ExploradorColumnStatChip
                     label="Seguimientos"
                     count={temaScopeCounts.seguimientos}
-                    title="Ver todos los seguimientos del tema"
+                    title="Ver seguimientos (listado general)"
                     tone="seguimiento"
-                    onOpen={() => setTemaRecordsModal("seguimientos")}
+                    onOpen={() => openRecordsModal("seguimientos")}
                   />
                 </ExploradorColumnStatChips>
               ) : undefined
@@ -944,19 +958,17 @@ export function ExploradorView() {
         />
       ) : null}
 
-      {temaRecordsModal && cacheData && selection.temaId != null && selectedTema ? (
-        temaRecordsModal === "conceptos" ? (
+      {temaRecordsModal && cacheData ? (
+        temaRecordsModal.kind === "conceptos" ? (
           <ExploradorTemaConceptosModal
-            temaId={selection.temaId}
-            temaNombre={selectedTema.nombre}
             cacheData={cacheData}
+            initialFilters={temaRecordsModal.initialFilters}
             onClose={() => setTemaRecordsModal(null)}
           />
         ) : (
           <ExploradorTemaSeguimientosModal
-            temaId={selection.temaId}
-            temaNombre={selectedTema.nombre}
             cacheData={cacheData}
+            initialFilters={temaRecordsModal.initialFilters}
             onClose={() => setTemaRecordsModal(null)}
           />
         )

@@ -361,6 +361,10 @@ html.pwa-standalone-zoom-lock body {
   background: var(--modal-tone-bg);
 }
 
+.desktop-modal-tone-tema .desktop-modal-body {
+  background: color-mix(in srgb, var(--modal-tone-bg) 18%, white);
+}
+
 .desktop-modal-tone-seguimiento .desktop-modal-header {
   color: var(--modal-tone-ink);
 }

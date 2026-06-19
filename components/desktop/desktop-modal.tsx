@@ -17,6 +17,8 @@ type DesktopModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   wide?: boolean;
+  /** Modal grande para tablas de registros en explorador PC. */
+  size?: "default" | "wide" | "xlarge";
   /** Tono visual del registro (cabecera / pie teñidos en PC). */
   tone?: EstudioSurfaceTone;
 };
@@ -31,9 +33,21 @@ export function DesktopModal({
   children,
   footer,
   wide = false,
+  size,
   tone,
 }: DesktopModalProps) {
   const toneClass = desktopModalToneClass(tone);
+  const resolvedSize = size ?? (wide ? "wide" : "default");
+  const sizeClass =
+    resolvedSize === "xlarge"
+      ? "max-h-[min(94vh,980px)] max-w-[min(96vw,1280px)]"
+      : resolvedSize === "wide"
+        ? "max-h-[min(88vh,900px)] max-w-4xl"
+        : "max-h-[min(88vh,900px)] max-w-2xl";
+  const rootPadClass =
+    resolvedSize === "xlarge"
+      ? "p-3 pt-[min(3vh,1.25rem)]"
+      : "p-6 pt-[min(8vh,4rem)]";
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -57,7 +71,7 @@ export function DesktopModal({
   if (!open || !mounted) return null;
 
   return createPortal(
-    <div className="desktop-modal-root fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto p-6 pt-[min(8vh,4rem)]">
+    <div className={`desktop-modal-root fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto ${rootPadClass}`}>
       <button
         type="button"
         aria-label="Cerrar"
@@ -68,9 +82,7 @@ export function DesktopModal({
         role="dialog"
         aria-modal
         aria-labelledby="desktop-modal-title"
-        className={`desktop-modal-theme relative z-[81] flex max-h-[min(88vh,900px)] w-full flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] shadow-[var(--td-shadow)] ${toneClass} ${
-          wide ? "max-w-4xl" : "max-w-2xl"
-        }`}
+        className={`desktop-modal-theme relative z-[81] flex w-full flex-col overflow-hidden rounded-2xl border border-[var(--td-line)] shadow-[var(--td-shadow)] ${toneClass} ${sizeClass}`}
       >
         <header className="desktop-modal-header shrink-0 border-b border-[var(--td-line)] px-5 py-4">
           <div className="flex items-start justify-between gap-4">

@@ -6,7 +6,9 @@ import type { ConceptoParent, SeguimientoParent } from "@/lib/form-parent-types"
 export type RecordParentLevel = "tema" | "curso" | "clase";
 
 type ExploradorRecordParentPickerProps = {
-  tema: Tema;
+  temas: Tema[];
+  temaId: number | null;
+  onTemaIdChange: (id: number | null) => void;
   cursos: Curso[];
   clases: Clase[];
   level: RecordParentLevel;
@@ -18,7 +20,9 @@ type ExploradorRecordParentPickerProps = {
 };
 
 export function ExploradorRecordParentPicker({
-  tema,
+  temas,
+  temaId,
+  onTemaIdChange,
   cursos,
   clases,
   level,
@@ -30,6 +34,8 @@ export function ExploradorRecordParentPicker({
 }: ExploradorRecordParentPickerProps) {
   const clasesFiltradas =
     cursoId != null ? clases.filter((cl) => cl.curso_id === cursoId) : clases;
+  const temaSeleccionado =
+    temaId != null ? (temas.find((t) => t.id === temaId) ?? null) : null;
 
   return (
     <div className="space-y-3 rounded-xl border border-[var(--td-line)] bg-[var(--td-line-soft)]/30 p-4">
@@ -69,9 +75,31 @@ export function ExploradorRecordParentPicker({
       </div>
 
       {level === "tema" ? (
-        <p className="text-sm font-semibold text-[var(--td-ink)]">
-          Tema · {tema.nombre}
-        </p>
+        temas.length === 1 && temaSeleccionado ? (
+          <p className="text-sm font-semibold text-[var(--td-ink)]">
+            Tema · {temaSeleccionado.nombre}
+          </p>
+        ) : (
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-[var(--td-ink-soft)]">
+              Tema
+            </span>
+            <select
+              value={temaId ?? ""}
+              onChange={(e) =>
+                onTemaIdChange(e.target.value ? Number(e.target.value) : null)
+              }
+              className="w-full rounded-lg border border-[var(--td-line)] bg-white px-3 py-2 text-sm text-[var(--td-ink)] outline-none focus:border-[var(--td-navy)]/40"
+            >
+              <option value="">Elegí un tema</option>
+              {temas.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+        )
       ) : null}
 
       {level === "curso" ? (
@@ -147,11 +175,11 @@ export function ExploradorRecordParentPicker({
 
 export function parentFromPicker(
   level: RecordParentLevel,
-  temaId: number,
+  temaId: number | null,
   cursoId: number | null,
   claseId: number | null,
 ): ConceptoParent | SeguimientoParent | null {
-  if (level === "tema") return { temaId };
+  if (level === "tema" && temaId != null) return { temaId };
   if (level === "curso" && cursoId != null) return { cursoId };
   if (level === "clase" && claseId != null) return { claseId };
   return null;
@@ -159,11 +187,47 @@ export function parentFromPicker(
 
 export function parentPickerValid(
   level: RecordParentLevel,
+  temaId: number | null,
   cursoId: number | null,
   claseId: number | null,
 ): boolean {
-  if (level === "tema") return true;
+  if (level === "tema") return temaId != null;
   if (level === "curso") return cursoId != null;
   if (level === "clase") return cursoId != null && claseId != null;
   return false;
+}
+
+export function defaultParentPickerState(
+  filters: { temaId: number | null; cursoId: number | null; claseId: number | null },
+): {
+  level: RecordParentLevel;
+  temaId: number | null;
+  cursoId: number | null;
+  claseId: number | null;
+} {
+  if (filters.claseId != null) {
+    return {
+      level: "clase",
+      temaId: filters.temaId,
+      cursoId: filters.cursoId,
+      claseId: filters.claseId,
+    };
+  }
+  if (filters.cursoId != null) {
+    return {
+      level: "curso",
+      temaId: filters.temaId,
+      cursoId: filters.cursoId,
+      claseId: null,
+    };
+  }
+  if (filters.temaId != null) {
+    return {
+      level: "tema",
+      temaId: filters.temaId,
+      cursoId: null,
+      claseId: null,
+    };
+  }
+  return { level: "tema", temaId: null, cursoId: null, claseId: null };
 }

@@ -18,59 +18,49 @@ export type RecordEntityContext = {
   nivel: "tema" | "curso" | "clase";
 };
 
-export type TemaRecordsFilters = {
-  nivel: "todos" | "tema" | "curso" | "clase";
+/** Filtros de la pantalla general de conceptos / seguimientos (explorador PC). */
+export type RecordsScopeFilters = {
+  temaId: number | null;
   cursoId: number | null;
   claseId: number | null;
+  nivel: "todos" | "tema" | "curso" | "clase";
 };
 
+/** @deprecated Usar `RecordsScopeFilters`. */
+export type TemaRecordsFilters = Omit<RecordsScopeFilters, "temaId">;
+
+export const EMPTY_RECORDS_SCOPE_FILTERS: RecordsScopeFilters = {
+  temaId: null,
+  cursoId: null,
+  claseId: null,
+  nivel: "todos",
+};
+
+/** @deprecated Usar `EMPTY_RECORDS_SCOPE_FILTERS`. */
 export const EMPTY_TEMA_RECORDS_FILTERS: TemaRecordsFilters = {
   nivel: "todos",
   cursoId: null,
   claseId: null,
 };
 
-export function temaScopeIds(
-  cache: EstudioOfflineCacheData,
-  temaId: number,
-): TemaScopeIds {
-  const cursoIds = new Set(
-    cache.cursos.filter((c) => c.tema_id === temaId).map((c) => c.id),
-  );
-  const claseIds = new Set(
-    cache.clases.filter((cl) => cursoIds.has(cl.curso_id)).map((cl) => cl.id),
-  );
-  return { temaId, cursoIds, claseIds };
+export function mergeInitialRecordsFilters(
+  initial?: Partial<RecordsScopeFilters>,
+): RecordsScopeFilters {
+  return { ...EMPTY_RECORDS_SCOPE_FILTERS, ...initial };
 }
 
-function inTemaScope(
-  scope: TemaScopeIds,
-  row: { tema_id: number | null; curso_id: number | null; clase_id: number | null },
-): boolean {
-  if (row.tema_id === scope.temaId) return true;
-  if (row.curso_id != null && scope.cursoIds.has(row.curso_id)) return true;
-  if (row.clase_id != null && scope.claseIds.has(row.clase_id)) return true;
-  return false;
-}
-
-export function listConceptosInTemaScope(
-  cache: EstudioOfflineCacheData,
-  temaId: number,
-): Concepto[] {
-  const scope = temaScopeIds(cache, temaId);
-  return cache.conceptos
-    .filter((c) => inTemaScope(scope, c))
-    .sort((a, b) => (b.fecha_registro ?? "").localeCompare(a.fecha_registro ?? ""));
-}
-
-export function listSeguimientosInTemaScope(
-  cache: EstudioOfflineCacheData,
-  temaId: number,
-): Seguimiento[] {
-  const scope = temaScopeIds(cache, temaId);
-  return cache.seguimientos
-    .filter((s) => inTemaScope(scope, s))
-    .sort((a, b) => (b.fecha_registro ?? "").localeCompare(a.fecha_registro ?? ""));
+export function recordsFiltersFromExplorerSelection(input: {
+  rootMode: "temas" | "nodos";
+  temaId: number | null;
+  cursoId: number | null;
+  claseId: number | null;
+}): Partial<RecordsScopeFilters> {
+  if (input.rootMode !== "temas") return {};
+  return {
+    temaId: input.temaId,
+    cursoId: input.cursoId,
+    claseId: input.claseId,
+  };
 }
 
 function resolveNivel(row: {
@@ -122,32 +112,69 @@ export function resolveRecordContext(
   };
 }
 
-function matchesFilters(
+function recordMatchesScope(
   ctx: RecordEntityContext,
-  filters: TemaRecordsFilters,
+  filters: RecordsScopeFilters,
 ): boolean {
-  if (filters.nivel !== "todos" && ctx.nivel !== filters.nivel) return false;
+  if (filters.temaId != null && ctx.temaId !== filters.temaId) return false;
   if (filters.cursoId != null && ctx.cursoId !== filters.cursoId) return false;
   if (filters.claseId != null && ctx.claseId !== filters.claseId) return false;
+  if (filters.nivel !== "todos" && ctx.nivel !== filters.nivel) return false;
   return true;
 }
 
+export function filterConceptosInScope(
+  cache: EstudioOfflineCacheData,
+  filters: RecordsScopeFilters,
+): Concepto[] {
+  return cache.conceptos
+    .filter((c) => recordMatchesScope(resolveRecordContext(cache, c), filters))
+    .sort((a, b) => (b.fecha_registro ?? "").localeCompare(a.fecha_registro ?? ""));
+}
+
+export function filterSeguimientosInScope(
+  cache: EstudioOfflineCacheData,
+  filters: RecordsScopeFilters,
+): Seguimiento[] {
+  return cache.seguimientos
+    .filter((s) => recordMatchesScope(resolveRecordContext(cache, s), filters))
+    .sort((a, b) => (b.fecha_registro ?? "").localeCompare(a.fecha_registro ?? ""));
+}
+
+export function listConceptosInTemaScope(
+  cache: EstudioOfflineCacheData,
+  temaId: number,
+): Concepto[] {
+  return filterConceptosInScope(cache, {
+    ...EMPTY_RECORDS_SCOPE_FILTERS,
+    temaId,
+  });
+}
+
+export function listSeguimientosInTemaScope(
+  cache: EstudioOfflineCacheData,
+  temaId: number,
+): Seguimiento[] {
+  return filterSeguimientosInScope(cache, {
+    ...EMPTY_RECORDS_SCOPE_FILTERS,
+    temaId,
+  });
+}
+
+/** @deprecated Usar `filterConceptosInScope`. */
 export function filterConceptosInTemaScope(
   cache: EstudioOfflineCacheData,
   temaId: number,
   filters: TemaRecordsFilters,
 ): Concepto[] {
-  return listConceptosInTemaScope(cache, temaId).filter((c) =>
-    matchesFilters(resolveRecordContext(cache, c), filters),
-  );
+  return filterConceptosInScope(cache, { ...filters, temaId });
 }
 
+/** @deprecated Usar `filterSeguimientosInScope`. */
 export function filterSeguimientosInTemaScope(
   cache: EstudioOfflineCacheData,
   temaId: number,
   filters: TemaRecordsFilters,
 ): Seguimiento[] {
-  return listSeguimientosInTemaScope(cache, temaId).filter((s) =>
-    matchesFilters(resolveRecordContext(cache, s), filters),
-  );
+  return filterSeguimientosInScope(cache, { ...filters, temaId });
 }
