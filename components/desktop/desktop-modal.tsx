@@ -40,7 +40,7 @@ export function DesktopModal({
   const resolvedSize = size ?? (wide ? "wide" : "default");
   const sizeClass =
     resolvedSize === "xlarge"
-      ? "max-h-[min(94vh,980px)] max-w-[min(96vw,1280px)]"
+      ? "max-h-[min(94vh,980px)] max-w-[min(98vw,1664px)]"
       : resolvedSize === "wide"
         ? "max-h-[min(88vh,900px)] max-w-4xl"
         : "max-h-[min(88vh,900px)] max-w-2xl";
