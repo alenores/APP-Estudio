@@ -51,6 +51,9 @@ import {
 } from "@/lib/mapa-nodo-tipo";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import {
+  EMPTY_RECORDS_SCOPE_FILTERS,
+  filterConceptosInScope,
+  filterSeguimientosInScope,
   listConceptosInTemaScope,
   listSeguimientosInTemaScope,
   recordsFiltersFromExplorerSelection,
@@ -349,6 +352,11 @@ export function ExploradorView() {
     selection.temaId != null &&
     middleColumnMode === "cursos";
 
+  const showCursoRecordChips =
+    selection.rootMode === "temas" &&
+    selection.cursoId != null &&
+    !noClasesColumn;
+
   const temaScopeCounts = useMemo(() => {
     if (!cacheData || selection.temaId == null) {
       return { conceptos: 0, seguimientos: 0 };
@@ -359,6 +367,20 @@ export function ExploradorView() {
         .length,
     };
   }, [cacheData, selection.temaId]);
+
+  const cursoScopeCounts = useMemo(() => {
+    if (!cacheData || selection.cursoId == null) {
+      return { conceptos: 0, seguimientos: 0 };
+    }
+    const filters = {
+      ...EMPTY_RECORDS_SCOPE_FILTERS,
+      cursoId: selection.cursoId,
+    };
+    return {
+      conceptos: filterConceptosInScope(cacheData, filters).length,
+      seguimientos: filterSeguimientosInScope(cacheData, filters).length,
+    };
+  }, [cacheData, selection.cursoId]);
 
   const nodoDerivados = derivarDesdeSeguimientos([]);
 
@@ -817,6 +839,25 @@ export function ExploradorView() {
             label="Clases"
             count={noClasesColumn ? 0 : clases.length}
             helpSectionId="clases"
+            headerExtra={
+              showCursoRecordChips ? (
+                <ExploradorColumnStatChips>
+                  <ExploradorColumnStatChip
+                    label="Conceptos"
+                    count={cursoScopeCounts.conceptos}
+                    title="Ver conceptos (listado general)"
+                    onOpen={() => openRecordsModal("conceptos")}
+                  />
+                  <ExploradorColumnStatChip
+                    label="Seguimientos"
+                    count={cursoScopeCounts.seguimientos}
+                    title="Ver seguimientos (listado general)"
+                    tone="seguimiento"
+                    onOpen={() => openRecordsModal("seguimientos")}
+                  />
+                </ExploradorColumnStatChips>
+              ) : undefined
+            }
             emptyMessage={
               noClasesColumn
                 ? "Los registros logro no tienen clases."
