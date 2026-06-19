@@ -49,6 +49,7 @@ export type EstudioProgressCardProps = {
   descripcion?: string | null;
   dificultad?: string | null;
   orden?: number;
+  hideClaseOrdenLine?: boolean;
   /** Panel extra al seleccionar (explorador PC). */
   expandedSlot?: ReactNode;
   /** Pie de card (p. ej. meta lienzo en /mapa) — la franja de estado cubre también esto. */
@@ -98,6 +99,7 @@ export function EstudioProgressCard({
   objetivoNombre = null,
   nodoClasificacion,
   tipoEstudio = null,
+  hideClaseOrdenLine = false,
 }: EstudioProgressCardProps) {
   const pct = derivados.porcentaje_avance ?? 0;
   const estadoTexto = estadoLabel(derivados.etiqueta_estado) ?? "Sin empezar";
@@ -198,7 +200,7 @@ export function EstudioProgressCard({
             </span>
           </span>
         ) : null}
-        {kind === "clase" && !showSearchDescripcion ? (
+        {kind === "clase" && !showSearchDescripcion && !hideClaseOrdenLine ? (
           dificultad || descripcion ? (
             <span className="truncate text-xs font-semibold text-[var(--td-donut-text)]">
               {dificultad ?? descripcion}
@@ -208,6 +210,12 @@ export function EstudioProgressCard({
               Clase #{orden ?? "—"}
             </span>
           )
+        ) : kind === "clase" && !showSearchDescripcion && hideClaseOrdenLine ? (
+          dificultad || descripcion ? (
+            <span className="truncate text-xs font-semibold text-[var(--td-donut-text)]">
+              {dificultad ?? descripcion}
+            </span>
+          ) : null
         ) : null}
         <span className="ml-auto flex items-center gap-3">
           {kind !== "nodo" ? (

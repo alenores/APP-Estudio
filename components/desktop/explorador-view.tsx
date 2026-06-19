@@ -14,6 +14,12 @@ import {
 import { ExploradorNodoCreateModal } from "@/components/desktop/explorador-nodo-create-modal";
 import type { ExploradorColumnAction } from "@/components/desktop/explorador-columns";
 import { ExploradorEditModal } from "@/components/desktop/explorador-edit-modal";
+import {
+  ExploradorColumnStatChip,
+  ExploradorColumnStatChips,
+} from "@/components/desktop/explorador-column-stat-chips";
+import { ExploradorTemaConceptosModal } from "@/components/desktop/explorador-tema-conceptos-modal";
+import { ExploradorTemaSeguimientosModal } from "@/components/desktop/explorador-tema-seguimientos-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
 import {
   ExploradorSearchModal,
@@ -45,6 +51,10 @@ import {
 } from "@/lib/mapa-nodo-tipo";
 import { getExplorerEntityRecords } from "@/lib/explorer-entity-panel";
 import {
+  listConceptosInTemaScope,
+  listSeguimientosInTemaScope,
+} from "@/lib/explorador-tema-records";
+import {
   EMPTY_EXPLORER_SELECTION,
   initExplorerSelectionFromLocation,
   parseExplorerHref,
@@ -52,12 +62,14 @@ import {
   writeExplorerHref,
 } from "@/lib/explorador-selection-state";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type PanelModalState = {
   entity: ExplorerEntityRef;
   panel: ExplorerPanelKind;
 };
+
+type TemaRecordsModalKind = "conceptos" | "seguimientos";
 
 function editColumnAction(
   entity: ExplorerEntityRef | null,
@@ -110,13 +122,16 @@ export function ExploradorView() {
   const [searchKind, setSearchKind] = useState<ExploradorSearchKind | null>(
     null,
   );
+  const [temaRecordsModal, setTemaRecordsModal] =
+    useState<TemaRecordsModalKind | null>(null);
 
   const modalsOpen =
     panelModal != null ||
     createKind != null ||
     creatingNodo ||
     editEntity != null ||
-    searchKind != null;
+    searchKind != null ||
+    temaRecordsModal != null;
 
   /** Montaje cliente: F5 limpia URL; entrada con ?tema= restaura selección. */
   useEffect(() => {
@@ -314,6 +329,22 @@ export function ExploradorView() {
       : middleColumnMode === "logros"
         ? logros.length
         : cursos.length;
+
+  const showTemaRecordChips =
+    selection.rootMode === "temas" &&
+    selection.temaId != null &&
+    middleColumnMode === "cursos";
+
+  const temaScopeCounts = useMemo(() => {
+    if (!cacheData || selection.temaId == null) {
+      return { conceptos: 0, seguimientos: 0 };
+    }
+    return {
+      conceptos: listConceptosInTemaScope(cacheData, selection.temaId).length,
+      seguimientos: listSeguimientosInTemaScope(cacheData, selection.temaId)
+        .length,
+    };
+  }, [cacheData, selection.temaId]);
 
   const nodoDerivados = derivarDesdeSeguimientos([]);
 
@@ -541,6 +572,25 @@ export function ExploradorView() {
             count={middleColumnCount}
             helpSectionId={
               middleColumnMode !== "logros" ? "cursos" : undefined
+            }
+            headerExtra={
+              showTemaRecordChips ? (
+                <ExploradorColumnStatChips>
+                  <ExploradorColumnStatChip
+                    label="Conceptos"
+                    count={temaScopeCounts.conceptos}
+                    title="Ver todos los conceptos del tema"
+                    onOpen={() => setTemaRecordsModal("conceptos")}
+                  />
+                  <ExploradorColumnStatChip
+                    label="Seguimientos"
+                    count={temaScopeCounts.seguimientos}
+                    title="Ver todos los seguimientos del tema"
+                    tone="seguimiento"
+                    onOpen={() => setTemaRecordsModal("seguimientos")}
+                  />
+                </ExploradorColumnStatChips>
+              ) : undefined
             }
             emptyMessage={
               !rootParentSelected
@@ -810,7 +860,7 @@ export function ExploradorView() {
                 linkChat={cl.link_chat}
                 tipoEstudio={cl.tipo_estudio}
                 dificultad={cl.dificultad}
-                orden={cl.orden}
+                hideClaseOrdenLine
                 seguimientosCount={counts.seguimientos}
                 conceptosCount={counts.conceptos}
                 selected={selection.claseId === cl.id}
@@ -892,6 +942,24 @@ export function ExploradorView() {
           onSelectCurso={onSearchCurso}
           onSelectClase={onSearchClase}
         />
+      ) : null}
+
+      {temaRecordsModal && cacheData && selection.temaId != null && selectedTema ? (
+        temaRecordsModal === "conceptos" ? (
+          <ExploradorTemaConceptosModal
+            temaId={selection.temaId}
+            temaNombre={selectedTema.nombre}
+            cacheData={cacheData}
+            onClose={() => setTemaRecordsModal(null)}
+          />
+        ) : (
+          <ExploradorTemaSeguimientosModal
+            temaId={selection.temaId}
+            temaNombre={selectedTema.nombre}
+            cacheData={cacheData}
+            onClose={() => setTemaRecordsModal(null)}
+          />
+        )
       ) : null}
     </div>
   );

@@ -49,6 +49,7 @@ type ExploradorColumnCardProps = {
   objetivoId?: number | null;
   nodoClasificacion?: import("@/lib/mapa-nodo-tipo").NodoObjetivoClasificacion;
   tipoEstudio?: TipoEstudio | null;
+  hideClaseOrdenLine?: boolean;
   expandedLayout?: "compact" | "comfortable";
 };
 
@@ -81,6 +82,7 @@ export function ExploradorColumnCard({
   objetivoId: objetivoIdRaw,
   nodoClasificacion,
   tipoEstudio = null,
+  hideClaseOrdenLine = false,
   expandedLayout = "compact",
 }: ExploradorColumnCardProps) {
   const objetivoId = parseObjetivoId(objetivoIdRaw);
@@ -137,6 +139,7 @@ export function ExploradorColumnCard({
       objetivoId={objetivoId}
       nodoClasificacion={nodoClasificacion}
       tipoEstudio={tipoEstudio}
+      hideClaseOrdenLine={hideClaseOrdenLine}
     />
   );
 }
@@ -154,6 +157,7 @@ type ExploradorColumnProps = {
   actions: ExploradorColumnAction[];
   rootSwitch?: ExploradorRootSwitch;
   helpSectionId?: SectionHelpId;
+  headerExtra?: ReactNode;
   children: ReactNode;
 };
 
@@ -165,6 +169,7 @@ export function ExploradorColumn({
   actions,
   rootSwitch,
   helpSectionId,
+  headerExtra,
   children,
 }: ExploradorColumnProps) {
   return (
@@ -195,6 +200,7 @@ export function ExploradorColumn({
               ))}
             </div>
           </div>
+          {headerExtra ? <div className="mt-0.5">{headerExtra}</div> : null}
         </div>
       </header>
       <div
