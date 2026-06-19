@@ -183,6 +183,7 @@ export function ExploradorTemaConceptosModal({
       ) : (
         <div className="flex min-h-[min(74vh,820px)] flex-col gap-3">
           <ExploradorRecordsFiltersBar
+            layout="stacked"
             filters={filters}
             onChange={setFilters}
             temas={temas}
@@ -193,6 +194,7 @@ export function ExploradorTemaConceptosModal({
                 inputRef={inputRef}
                 value={query}
                 onChange={setQuery}
+                fullWidth
                 placeholder="Descripción, título, tema, curso, clase…"
               />
             }

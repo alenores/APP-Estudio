@@ -11,6 +11,8 @@ type ExploradorRecordsFiltersBarProps = {
   cursos: Curso[];
   clases: Clase[];
   searchSlot: ReactNode;
+  /** Conceptos: filtros arriba, buscador en segunda línea. */
+  layout?: "inline" | "stacked";
 };
 
 export function ExploradorRecordsFiltersBar({
@@ -20,14 +22,27 @@ export function ExploradorRecordsFiltersBar({
   cursos,
   clases,
   searchSlot,
+  layout = "inline",
 }: ExploradorRecordsFiltersBarProps) {
   function patch(partial: Partial<RecordsScopeFilters>) {
     onChange({ ...filters, ...partial });
   }
 
-  return (
-    <div className="flex flex-wrap items-end gap-2">
-      {searchSlot}
+  const filterFields = (
+    <>
+      <FilterSelect
+        label="Nivel"
+        value={filters.nivel}
+        onChange={(v) =>
+          patch({ nivel: v as RecordsScopeFilters["nivel"] })
+        }
+        options={[
+          { value: "todos", label: "Todos" },
+          { value: "tema", label: "Tema" },
+          { value: "curso", label: "Curso" },
+          { value: "clase", label: "Clase" },
+        ]}
+      />
       <FilterSelect
         label="Tema"
         value={filters.temaId != null ? String(filters.temaId) : ""}
@@ -70,19 +85,22 @@ export function ExploradorRecordsFiltersBar({
           ...clases.map((cl) => ({ value: String(cl.id), label: cl.nombre })),
         ]}
       />
-      <FilterSelect
-        label="Nivel"
-        value={filters.nivel}
-        onChange={(v) =>
-          patch({ nivel: v as RecordsScopeFilters["nivel"] })
-        }
-        options={[
-          { value: "todos", label: "Todos" },
-          { value: "tema", label: "Tema" },
-          { value: "curso", label: "Curso" },
-          { value: "clase", label: "Clase" },
-        ]}
-      />
+    </>
+  );
+
+  if (layout === "stacked") {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-wrap items-end gap-2">{filterFields}</div>
+        <div className="w-full">{searchSlot}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      {searchSlot}
+      {filterFields}
     </div>
   );
 }
@@ -123,14 +141,16 @@ export function RecordsSearchField({
   onChange,
   placeholder,
   inputRef,
+  fullWidth = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
   inputRef?: React.RefObject<HTMLInputElement | null>;
+  fullWidth?: boolean;
 }) {
   return (
-    <label className="min-w-[12rem] flex-1">
+    <label className={fullWidth ? "block w-full" : "min-w-[12rem] flex-1"}>
       <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-[var(--td-faint)]">
         Buscar
       </span>
