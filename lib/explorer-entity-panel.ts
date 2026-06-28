@@ -15,7 +15,7 @@ export type ExplorerEntityRef = {
   nombre: string;
 };
 
-export type ExplorerPanelKind = "seguimientos" | "conceptos";
+export type ExplorerPanelKind = "seguimientos" | "conceptos" | "contenido";
 
 export function explorerEntityLabel(kind: ExplorerEntityKind): string {
   switch (kind) {

@@ -21,6 +21,7 @@ import {
 import { ExploradorTemaConceptosModal } from "@/components/desktop/explorador-tema-conceptos-modal";
 import { ExploradorTemaSeguimientosModal } from "@/components/desktop/explorador-tema-seguimientos-modal";
 import { ExploradorPanelModal } from "@/components/desktop/explorador-panel-modal";
+import { ExploradorContenidoModal } from "@/components/desktop/explorador-contenido-modal";
 import {
   ExploradorSearchModal,
   type ExploradorSearchKind,
@@ -134,6 +135,9 @@ export function ExploradorView() {
   );
   const [temaRecordsModal, setTemaRecordsModal] =
     useState<TemaRecordsModalState | null>(null);
+  const [contenidoModal, setContenidoModal] = useState<ClaseConDerivados | null>(
+    null,
+  );
 
   function openRecordsModal(kind: TemaRecordsModalKind) {
     setTemaRecordsModal({
@@ -148,7 +152,8 @@ export function ExploradorView() {
     creatingNodo ||
     editEntity != null ||
     searchKind != null ||
-    temaRecordsModal != null;
+    temaRecordsModal != null ||
+    contenidoModal != null;
 
   /** Montaje cliente: F5 limpia URL; entrada con ?tema= restaura selección. */
   useEffect(() => {
@@ -928,6 +933,12 @@ export function ExploradorView() {
                   )
                 }
                 onDoubleClick={() => openPanel(ref, "seguimientos")}
+                contenidoMarkdown={cl.contenido_markdown}
+                onOpenContenido={
+                  cl.contenido_markdown != null
+                    ? () => setContenidoModal(cl)
+                    : undefined
+                }
                 {...cardHandlers(ref)}
               />
             );
@@ -1013,6 +1024,17 @@ export function ExploradorView() {
             onClose={() => setTemaRecordsModal(null)}
           />
         )
+      ) : null}
+
+      {contenidoModal?.contenido_markdown != null ? (
+        <ExploradorContenidoModal
+          clase={{
+            id: contenidoModal.id,
+            nombre: contenidoModal.nombre,
+            contenido_markdown: contenidoModal.contenido_markdown,
+          }}
+          onClose={() => setContenidoModal(null)}
+        />
       ) : null}
     </div>
   );

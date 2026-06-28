@@ -17,6 +17,8 @@ type ExploradorCardExpandedProps = {
   derivados: SeguimientoDerivados;
   onOpenSeguimientos: () => void;
   onOpenConceptos: () => void;
+  contenidoMarkdown?: string | null;
+  onOpenContenido?: () => void;
   /** `comfortable` = panel detalle mapa (widgets más grandes, en filas). */
   layout?: "compact" | "comfortable";
 };
@@ -31,6 +33,8 @@ export function ExploradorCardExpanded({
   derivados,
   onOpenSeguimientos,
   onOpenConceptos,
+  contenidoMarkdown,
+  onOpenContenido,
   layout = "compact",
 }: ExploradorCardExpandedProps) {
   const comfortable = layout === "comfortable";
@@ -156,6 +160,16 @@ export function ExploradorCardExpanded({
           onOpen={onOpenConceptos}
           comfortable={comfortable}
         />
+        {kind === "clase" &&
+        contenidoMarkdown != null &&
+        onOpenContenido != null ? (
+          <RecordActionTile
+            label="Contenido"
+            count={0}
+            onOpen={onOpenContenido}
+            comfortable={comfortable}
+          />
+        ) : null}
       </div>
     </div>
   );

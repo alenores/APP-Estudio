@@ -43,6 +43,8 @@ type ExploradorColumnCardProps = {
   conceptosCount?: number;
   onOpenSeguimientos?: () => void;
   onOpenConceptos?: () => void;
+  contenidoMarkdown?: string | null;
+  onOpenContenido?: () => void;
   highlightQuery?: string;
   searchContextLine?: string | null;
   searchShowDescripcion?: boolean;
@@ -76,6 +78,8 @@ export function ExploradorColumnCard({
   conceptosCount = 0,
   onOpenSeguimientos,
   onOpenConceptos,
+  contenidoMarkdown,
+  onOpenContenido,
   highlightQuery,
   searchContextLine,
   searchShowDescripcion,
@@ -98,6 +102,8 @@ export function ExploradorColumnCard({
         derivados={derivados}
         onOpenSeguimientos={() => {}}
         onOpenConceptos={() => {}}
+        contenidoMarkdown={contenidoMarkdown}
+        onOpenContenido={onOpenContenido}
         layout={expandedLayout}
       />
     ) : expanded && onOpenSeguimientos && onOpenConceptos ? (
@@ -111,6 +117,8 @@ export function ExploradorColumnCard({
         derivados={derivados}
         onOpenSeguimientos={onOpenSeguimientos}
         onOpenConceptos={onOpenConceptos}
+        contenidoMarkdown={contenidoMarkdown}
+        onOpenContenido={onOpenContenido}
         layout={expandedLayout}
       />
     ) : null;
