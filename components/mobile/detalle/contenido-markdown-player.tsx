@@ -1,7 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 type ContenidoMarkdownPlayerProps = {
   contenido: string;
@@ -102,6 +102,8 @@ const markdownComponents = {
 export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const speakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasActiveSynthesis = isPlaying || isPaused;
 
@@ -116,23 +118,36 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
     }
 
     window.speechSynthesis.cancel();
+    if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
 
     const utterance = new SpeechSynthesisUtterance(stripMarkdown(contenido));
     utterance.lang = "es";
+
+    // Seleccionar voz explícita — requerido en Android Chrome donde las voces
+    // se cargan de forma asíncrona y speak() falla silenciosamente sin voice set
+    const voices = voicesRef.current.length > 0
+      ? voicesRef.current
+      : window.speechSynthesis.getVoices();
+    const esVoice = voices.find(v => v.lang.startsWith("es")) ?? voices[0];
+    if (esVoice) utterance.voice = esVoice;
 
     utterance.onend = () => {
       setIsPlaying(false);
       setIsPaused(false);
     };
-
     utterance.onerror = () => {
       setIsPlaying(false);
       setIsPaused(false);
     };
 
-    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
     setIsPaused(false);
+    // Delay entre cancel() y speak() — workaround para bug de Android Chrome
+    // donde speak() inmediato tras cancel() se descarta silenciosamente
+    speakTimerRef.current = setTimeout(() => {
+      speakTimerRef.current = null;
+      window.speechSynthesis.speak(utterance);
+    }, 50);
   }, [contenido, isPaused]);
 
   const handlePause = useCallback(() => {
@@ -144,16 +159,29 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
 
   const handleStop = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (speakTimerRef.current) {
+      clearTimeout(speakTimerRef.current);
+      speakTimerRef.current = null;
+    }
     window.speechSynthesis.cancel();
     setIsPlaying(false);
     setIsPaused(false);
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+    // Pre-cargar voces para Android Chrome (se cargan de forma asíncrona)
+    const loadVoices = () => {
+      voicesRef.current = window.speechSynthesis.getVoices();
+    };
+    loadVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+
     return () => {
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+      if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
+      window.speechSynthesis.cancel();
     };
   }, []);
 
