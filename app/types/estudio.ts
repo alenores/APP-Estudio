@@ -75,6 +75,7 @@ export type Clase = {
   dificultad: string | null;
   link: string | null;
   link_chat: string | null;
+  contenido_markdown: string | null;
   tipo_estudio: TipoEstudio | null;
   created_at: string;
 };

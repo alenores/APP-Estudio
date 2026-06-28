@@ -3,6 +3,7 @@
 import { ExternalLinkPreview } from "@/components/shared/links/external-link-preview";
 import type { ClaseConDerivados, Concepto, Seguimiento } from "@/app/types/estudio";
 import type { ClaseDetalleMetrics } from "@/app/hooks/useClaseDetalleMetrics";
+import { ContenidoMarkdownPlayer } from "@/components/mobile/detalle/contenido-markdown-player";
 import {
   ConceptosPanelItems,
   DetalleCalendarioSection,
@@ -13,10 +14,9 @@ import {
   DetalleZonaContenido,
   SeguimientoPanelItems,
 } from "@/components/mobile/detalle/detalle-shared";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
-const TAB_KEYS = ["seguimiento", "conceptos"] as const;
-type TabKey = (typeof TAB_KEYS)[number];
+type TabKey = "seguimiento" | "conceptos" | "contenido";
 
 type ClaseDetalleViewProps = {
   clase: ClaseConDerivados;
@@ -31,8 +31,28 @@ export function ClaseDetalleView({
   conceptos,
   metrics,
 }: ClaseDetalleViewProps) {
+  const hasContenido = clase.contenido_markdown != null;
+  const tabKeys = useMemo<readonly TabKey[]>(
+    () =>
+      hasContenido
+        ? (["seguimiento", "conceptos", "contenido"] as const)
+        : (["seguimiento", "conceptos"] as const),
+    [hasContenido],
+  );
   const [tab, setTab] = useState<TabKey>("seguimiento");
-  const tabIndex = TAB_KEYS.indexOf(tab);
+  const tabIndex = tabKeys.indexOf(tab);
+
+  const tabLabels: Record<TabKey, string> = {
+    seguimiento: "Seguimiento",
+    conceptos: "Conceptos",
+    contenido: "Contenido",
+  };
+
+  const tabCounts: Record<TabKey, number> = {
+    seguimiento: seguimientos.length,
+    conceptos: conceptos.length,
+    contenido: 0,
+  };
 
   return (
     <DetallePageShell metrics={metrics}>
@@ -67,13 +87,12 @@ export function ClaseDetalleView({
 
       <DetalleZonaContenido>
         <DetalleTabBar
-          tabCount={2}
+          tabCount={hasContenido ? 3 : 2}
           tabIndex={tabIndex}
-          tabs={TAB_KEYS.map((key) => ({
+          tabs={tabKeys.map((key) => ({
             key,
-            label: key === "seguimiento" ? "Seguimiento" : "Conceptos",
-            count:
-              key === "seguimiento" ? seguimientos.length : conceptos.length,
+            label: tabLabels[key],
+            count: tabCounts[key],
             active: tab === key,
             onClick: () => setTab(key),
           }))}
@@ -95,6 +114,12 @@ export function ClaseDetalleView({
                 Conceptos clave
               </p>
               <ConceptosPanelItems items={conceptos} />
+            </div>
+          ) : null}
+
+          {tab === "contenido" && hasContenido ? (
+            <div key="contenido" className="td-cpanel-active">
+              <ContenidoMarkdownPlayer contenido={clase.contenido_markdown as string} />
             </div>
           ) : null}
         </div>
