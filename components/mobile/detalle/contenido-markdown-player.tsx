@@ -103,7 +103,6 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
-  const speakTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const hasActiveSynthesis = isPlaying || isPaused;
 
@@ -117,19 +116,24 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       return;
     }
 
-    window.speechSynthesis.cancel();
-    if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
-
     const utterance = new SpeechSynthesisUtterance(stripMarkdown(contenido));
-    utterance.lang = "es";
 
-    // Seleccionar voz explícita — requerido en Android Chrome donde las voces
-    // se cargan de forma asíncrona y speak() falla silenciosamente sin voice set
+    // Selección explícita de voz — requerido en Android Chrome.
+    // NO llamar cancel() antes de speak() en el path de inicio: en Android
+    // Chrome, cancel() + speak() inmediato hace que el engine descarte el
+    // speak() silenciosamente. speak() debe ser la llamada sincrónica directa
+    // al gesto del usuario para no perder el contexto de interacción.
     const voices = voicesRef.current.length > 0
       ? voicesRef.current
       : window.speechSynthesis.getVoices();
-    const esVoice = voices.find(v => v.lang.startsWith("es")) ?? voices[0];
-    if (esVoice) utterance.voice = esVoice;
+    const esVoice = voices.find(v => v.lang.startsWith("es"));
+    const selectedVoice = esVoice ?? voices[0];
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+      utterance.lang = selectedVoice.lang;
+    } else {
+      utterance.lang = "es";
+    }
 
     utterance.onend = () => {
       setIsPlaying(false);
@@ -140,14 +144,9 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       setIsPaused(false);
     };
 
+    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
     setIsPaused(false);
-    // Delay entre cancel() y speak() — workaround para bug de Android Chrome
-    // donde speak() inmediato tras cancel() se descarta silenciosamente
-    speakTimerRef.current = setTimeout(() => {
-      speakTimerRef.current = null;
-      window.speechSynthesis.speak(utterance);
-    }, 50);
   }, [contenido, isPaused]);
 
   const handlePause = useCallback(() => {
@@ -159,10 +158,6 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
 
   const handleStop = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    if (speakTimerRef.current) {
-      clearTimeout(speakTimerRef.current);
-      speakTimerRef.current = null;
-    }
     window.speechSynthesis.cancel();
     setIsPlaying(false);
     setIsPaused(false);
@@ -180,7 +175,6 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
 
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
-      if (speakTimerRef.current) clearTimeout(speakTimerRef.current);
       window.speechSynthesis.cancel();
     };
   }, []);
