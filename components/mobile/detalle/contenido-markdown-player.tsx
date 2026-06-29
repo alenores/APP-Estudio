@@ -7,6 +7,33 @@ type ContenidoMarkdownPlayerProps = {
   contenido: string;
 };
 
+function splitIntoChunks(text: string, maxLen = 160): string[] {
+  if (text.length <= maxLen) return [text];
+  const chunks: string[] = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = Math.min(start + maxLen, text.length);
+    if (end < text.length) {
+      const sentenceEnd = Math.max(
+        text.lastIndexOf(". ", end),
+        text.lastIndexOf("! ", end),
+        text.lastIndexOf("? ", end),
+        text.lastIndexOf("\n", end)
+      );
+      if (sentenceEnd > start) {
+        end = sentenceEnd + 1;
+      } else {
+        const wordEnd = text.lastIndexOf(" ", end);
+        if (wordEnd > start) end = wordEnd;
+      }
+    }
+    const chunk = text.slice(start, end).trim();
+    if (chunk) chunks.push(chunk);
+    start = end;
+  }
+  return chunks;
+}
+
 function stripMarkdown(md: string): string {
   return md
     .replace(/```[\s\S]*?```/g, " ")
@@ -102,22 +129,17 @@ const markdownComponents = {
 export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [diagInfo, setDiagInfo] = useState<string | null>(null);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   const hasActiveSynthesis = isPlaying || isPaused;
 
   const handlePlay = useCallback(() => {
-    if (typeof window === "undefined" || !window.speechSynthesis) {
-      setDiagInfo("❌ speechSynthesis no disponible");
-      return;
-    }
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
 
     if (isPaused) {
       window.speechSynthesis.resume();
       setIsPlaying(true);
       setIsPaused(false);
-      setDiagInfo(null);
       return;
     }
 
@@ -125,36 +147,33 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       ? voicesRef.current
       : window.speechSynthesis.getVoices();
     const esVoice = voices.find(v => v.lang.startsWith("es"));
-    const selectedVoice = esVoice ?? voices[0];
 
-    const utterance = new SpeechSynthesisUtterance(stripMarkdown(contenido));
+    // Chrome Android falla con synthesis-failed para textos largos.
+    // Solución: dividir en chunks y encolarlos como utterances separadas.
+    const chunks = splitIntoChunks(stripMarkdown(contenido));
 
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-      utterance.lang = selectedVoice.lang;
-    }
-    // Sin lang="es" cuando no hay voz española — fuerza "language-unavailable"
-    // en Android si el TTS no tiene datos en español instalados
+    chunks.forEach((chunk, i) => {
+      const utt = new SpeechSynthesisUtterance(chunk);
+      if (esVoice) {
+        utt.voice = esVoice;
+        utt.lang = esVoice.lang;
+      }
+      utt.onerror = () => {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
+      if (i === chunks.length - 1) {
+        utt.onend = () => {
+          setIsPlaying(false);
+          setIsPaused(false);
+        };
+      }
+      window.speechSynthesis.speak(utt);
+    });
 
-    const diagBase = `voces:${voices.length} voz:${selectedVoice?.name ?? "ninguna"} lang:${selectedVoice?.lang ?? "—"}`;
-
-    utterance.onend = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-      setDiagInfo(null);
-    };
-    utterance.onerror = (ev) => {
-      setIsPlaying(false);
-      setIsPaused(false);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const code = (ev as any).error ?? "?";
-      setDiagInfo(`❌ error:${code} | ${diagBase}`);
-    };
-
-    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
     setIsPaused(false);
-    setDiagInfo(`▶ ${diagBase}`);
   }, [contenido, isPaused]);
 
   const handlePause = useCallback(() => {
@@ -194,11 +213,6 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       </article>
 
       <div className="sticky bottom-0 -mx-1 mt-2 border-t border-[var(--td-line)] bg-[var(--td-zone)] px-1 py-3">
-        {diagInfo && (
-          <p className="mb-2 break-all px-1 text-center font-mono text-[11px] text-[var(--td-ink-soft)]">
-            {diagInfo}
-          </p>
-        )}
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
