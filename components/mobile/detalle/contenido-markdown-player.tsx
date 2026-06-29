@@ -1,11 +1,38 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 type ContenidoMarkdownPlayerProps = {
   contenido: string;
 };
+
+function splitIntoChunks(text: string, maxLen = 160): string[] {
+  if (text.length <= maxLen) return [text];
+  const chunks: string[] = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = Math.min(start + maxLen, text.length);
+    if (end < text.length) {
+      const sentenceEnd = Math.max(
+        text.lastIndexOf(". ", end),
+        text.lastIndexOf("! ", end),
+        text.lastIndexOf("? ", end),
+        text.lastIndexOf("\n", end)
+      );
+      if (sentenceEnd > start) {
+        end = sentenceEnd + 1;
+      } else {
+        const wordEnd = text.lastIndexOf(" ", end);
+        if (wordEnd > start) end = wordEnd;
+      }
+    }
+    const chunk = text.slice(start, end).trim();
+    if (chunk) chunks.push(chunk);
+    start = end;
+  }
+  return chunks;
+}
 
 function stripMarkdown(md: string): string {
   return md
@@ -102,6 +129,7 @@ const markdownComponents = {
 export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   const hasActiveSynthesis = isPlaying || isPaused;
 
@@ -115,22 +143,35 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       return;
     }
 
-    window.speechSynthesis.cancel();
+    const voices = voicesRef.current.length > 0
+      ? voicesRef.current
+      : window.speechSynthesis.getVoices();
+    const esVoice = voices.find(v => v.lang.startsWith("es"));
 
-    const utterance = new SpeechSynthesisUtterance(stripMarkdown(contenido));
-    utterance.lang = "es";
+    // Chrome Android falla con synthesis-failed para textos largos.
+    // Solución: dividir en chunks y encolarlos como utterances separadas.
+    const chunks = splitIntoChunks(stripMarkdown(contenido));
 
-    utterance.onend = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-    };
+    chunks.forEach((chunk, i) => {
+      const utt = new SpeechSynthesisUtterance(chunk);
+      if (esVoice) {
+        utt.voice = esVoice;
+        utt.lang = esVoice.lang;
+      }
+      utt.onerror = () => {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+        setIsPaused(false);
+      };
+      if (i === chunks.length - 1) {
+        utt.onend = () => {
+          setIsPlaying(false);
+          setIsPaused(false);
+        };
+      }
+      window.speechSynthesis.speak(utt);
+    });
 
-    utterance.onerror = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-    };
-
-    window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
     setIsPaused(false);
   }, [contenido, isPaused]);
@@ -150,47 +191,73 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+    // Pre-cargar voces para Android Chrome (se cargan de forma asíncrona)
+    const loadVoices = () => {
+      voicesRef.current = window.speechSynthesis.getVoices();
+    };
+    loadVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+
     return () => {
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+      window.speechSynthesis.cancel();
     };
   }, []);
 
   return (
     <div className="relative flex flex-col">
-      <article className="pb-20">
-        <ReactMarkdown components={markdownComponents}>{contenido}</ReactMarkdown>
-      </article>
-
-      <div className="sticky bottom-0 -mx-1 mt-2 border-t border-[var(--td-line)] bg-[var(--td-zone)] px-1 py-3">
-        <div className="flex items-center justify-center gap-2">
+      {/* Mini-player sticky — visible al abrir Contenido y durante el scroll */}
+      <div className="sticky top-[72px] z-[9] -mx-1 mb-4 bg-[var(--td-zone)] px-1 pb-3 pt-1">
+        <div className="flex items-center gap-3 rounded-2xl border border-[var(--td-line)] bg-[var(--td-card)] px-3 py-2.5 shadow-[var(--td-shadow)]">
+          {/* Botón play circular — acento principal */}
           <button
             type="button"
             onClick={handlePlay}
             disabled={isPlaying}
-            className="inline-flex min-w-[7.5rem] items-center justify-center gap-1.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] px-4 py-2.5 text-sm font-bold text-[var(--td-ink)] transition-[colors,transform] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--td-navy)] text-white shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
           >
-            ▶ Reproducir
+            <span className="text-base leading-none">▶</span>
           </button>
+
+          {/* Etiqueta de estado */}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-semibold leading-snug text-[var(--td-ink)]">
+              {isPlaying ? "Reproduciendo…" : isPaused ? "En pausa" : "Escuchar contenido"}
+            </p>
+            {isPaused && (
+              <p className="text-[11px] leading-tight text-[var(--td-ink-soft)]">
+                Toca ▶ para continuar
+              </p>
+            )}
+          </div>
+
+          {/* Pausar */}
           <button
             type="button"
             onClick={handlePause}
             disabled={!isPlaying}
-            className="inline-flex min-w-[7.5rem] items-center justify-center gap-1.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] px-4 py-2.5 text-sm font-bold text-[var(--td-ink)] transition-[colors,transform] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] text-[var(--td-ink-soft)] transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-25"
           >
-            ⏸ Pausar
+            <span className="text-sm leading-none">⏸</span>
           </button>
+
+          {/* Detener */}
           <button
             type="button"
             onClick={handleStop}
             disabled={!hasActiveSynthesis}
-            className="inline-flex min-w-[7.5rem] items-center justify-center gap-1.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] px-4 py-2.5 text-sm font-bold text-[var(--td-ink)] transition-[colors,transform] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] text-[var(--td-ink-soft)] transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-25"
           >
-            ⏹ Detener
+            <span className="text-sm leading-none">⏹</span>
           </button>
         </div>
       </div>
+
+      <article>
+        <ReactMarkdown components={markdownComponents}>{contenido}</ReactMarkdown>
+      </article>
     </div>
   );
 }
