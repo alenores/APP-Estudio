@@ -208,33 +208,49 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
 
   return (
     <div className="relative flex flex-col">
-      {/* Controles sticky arriba — visibles al abrir la pestaña y mientras se scrollea.
-          top-[72px] compensa el shell header sticky (~60px) + gap visual del panel. */}
-      <div className="sticky top-[72px] z-[9] -mx-1 mb-4 border-b border-[var(--td-line)] bg-[var(--td-zone)] px-1 pb-3 pt-2">
-        <div className="flex items-center justify-center gap-2">
+      {/* Mini-player sticky — visible al abrir Contenido y durante el scroll */}
+      <div className="sticky top-[72px] z-[9] -mx-1 mb-4 bg-[var(--td-zone)] px-1 pb-3 pt-1">
+        <div className="flex items-center gap-3 rounded-2xl border border-[var(--td-line)] bg-[var(--td-card)] px-3 py-2.5 shadow-[var(--td-shadow)]">
+          {/* Botón play circular — acento principal */}
           <button
             type="button"
             onClick={handlePlay}
             disabled={isPlaying}
-            className="inline-flex min-w-[7.5rem] items-center justify-center gap-1.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] px-4 py-2.5 text-sm font-bold text-[var(--td-ink)] transition-[colors,transform] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--td-navy)] text-white shadow-sm transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
           >
-            ▶ Reproducir
+            <span className="text-base leading-none">▶</span>
           </button>
+
+          {/* Etiqueta de estado */}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-semibold leading-snug text-[var(--td-ink)]">
+              {isPlaying ? "Reproduciendo…" : isPaused ? "En pausa" : "Escuchar contenido"}
+            </p>
+            {isPaused && (
+              <p className="text-[11px] leading-tight text-[var(--td-ink-soft)]">
+                Toca ▶ para continuar
+              </p>
+            )}
+          </div>
+
+          {/* Pausar */}
           <button
             type="button"
             onClick={handlePause}
             disabled={!isPlaying}
-            className="inline-flex min-w-[7.5rem] items-center justify-center gap-1.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] px-4 py-2.5 text-sm font-bold text-[var(--td-ink)] transition-[colors,transform] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] text-[var(--td-ink-soft)] transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-25"
           >
-            ⏸ Pausar
+            <span className="text-sm leading-none">⏸</span>
           </button>
+
+          {/* Detener */}
           <button
             type="button"
             onClick={handleStop}
             disabled={!hasActiveSynthesis}
-            className="inline-flex min-w-[7.5rem] items-center justify-center gap-1.5 rounded-xl border border-[var(--td-line)] bg-[var(--td-card)] px-4 py-2.5 text-sm font-bold text-[var(--td-ink)] transition-[colors,transform] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--td-line)] text-[var(--td-ink-soft)] transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-25"
           >
-            ⏹ Detener
+            <span className="text-sm leading-none">⏹</span>
           </button>
         </div>
       </div>
