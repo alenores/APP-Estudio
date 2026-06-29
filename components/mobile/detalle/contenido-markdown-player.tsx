@@ -208,11 +208,9 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
 
   return (
     <div className="relative flex flex-col">
-      <article className="pb-20">
-        <ReactMarkdown components={markdownComponents}>{contenido}</ReactMarkdown>
-      </article>
-
-      <div className="sticky bottom-0 -mx-1 mt-2 border-t border-[var(--td-line)] bg-[var(--td-zone)] px-1 py-3">
+      {/* Controles sticky arriba — visibles al abrir la pestaña y mientras se scrollea.
+          top-[72px] compensa el shell header sticky (~60px) + gap visual del panel. */}
+      <div className="sticky top-[72px] z-[9] -mx-1 mb-4 border-b border-[var(--td-line)] bg-[var(--td-zone)] px-1 pb-3 pt-2">
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
@@ -240,6 +238,10 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
           </button>
         </div>
       </div>
+
+      <article>
+        <ReactMarkdown components={markdownComponents}>{contenido}</ReactMarkdown>
+      </article>
     </div>
   );
 }
