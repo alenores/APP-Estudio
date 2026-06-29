@@ -102,51 +102,59 @@ const markdownComponents = {
 export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [diagInfo, setDiagInfo] = useState<string | null>(null);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
 
   const hasActiveSynthesis = isPlaying || isPaused;
 
   const handlePlay = useCallback(() => {
-    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      setDiagInfo("❌ speechSynthesis no disponible");
+      return;
+    }
 
     if (isPaused) {
       window.speechSynthesis.resume();
       setIsPlaying(true);
       setIsPaused(false);
+      setDiagInfo(null);
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(stripMarkdown(contenido));
-
-    // Selección explícita de voz — requerido en Android Chrome.
-    // NO llamar cancel() antes de speak() en el path de inicio: en Android
-    // Chrome, cancel() + speak() inmediato hace que el engine descarte el
-    // speak() silenciosamente. speak() debe ser la llamada sincrónica directa
-    // al gesto del usuario para no perder el contexto de interacción.
     const voices = voicesRef.current.length > 0
       ? voicesRef.current
       : window.speechSynthesis.getVoices();
     const esVoice = voices.find(v => v.lang.startsWith("es"));
     const selectedVoice = esVoice ?? voices[0];
+
+    const utterance = new SpeechSynthesisUtterance(stripMarkdown(contenido));
+
     if (selectedVoice) {
       utterance.voice = selectedVoice;
       utterance.lang = selectedVoice.lang;
-    } else {
-      utterance.lang = "es";
     }
+    // Sin lang="es" cuando no hay voz española — fuerza "language-unavailable"
+    // en Android si el TTS no tiene datos en español instalados
+
+    const diagBase = `voces:${voices.length} voz:${selectedVoice?.name ?? "ninguna"} lang:${selectedVoice?.lang ?? "—"}`;
 
     utterance.onend = () => {
       setIsPlaying(false);
       setIsPaused(false);
+      setDiagInfo(null);
     };
-    utterance.onerror = () => {
+    utterance.onerror = (ev) => {
       setIsPlaying(false);
       setIsPaused(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const code = (ev as any).error ?? "?";
+      setDiagInfo(`❌ error:${code} | ${diagBase}`);
     };
 
     window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
     setIsPaused(false);
+    setDiagInfo(`▶ ${diagBase}`);
   }, [contenido, isPaused]);
 
   const handlePause = useCallback(() => {
@@ -186,6 +194,11 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       </article>
 
       <div className="sticky bottom-0 -mx-1 mt-2 border-t border-[var(--td-line)] bg-[var(--td-zone)] px-1 py-3">
+        {diagInfo && (
+          <p className="mb-2 break-all px-1 text-center font-mono text-[11px] text-[var(--td-ink-soft)]">
+            {diagInfo}
+          </p>
+        )}
         <div className="flex items-center justify-center gap-2">
           <button
             type="button"
