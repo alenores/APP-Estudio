@@ -20,6 +20,8 @@ const PROTECTED_ACADEMICO_PREFIXES = [
   "/cursos",
   "/clases",
   "/seguimientos",
+  /** Académico lite — sin redirección por shell (ADR 012). */
+  "/lite",
   DESKTOP_SHELL_PREFIX,
   DESKTOP_MAPA_PREFIX,
 ];

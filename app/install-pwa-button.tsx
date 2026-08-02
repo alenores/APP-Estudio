@@ -22,9 +22,14 @@ type BeforeInstallPromptEvent = Event & {
 
 type InstallPwaButtonProps = {
   fullWidth?: boolean;
+  /** Solo cambia clases; la lógica de install no varía (ADR 004 / ADR 012). */
+  tone?: "default" | "lite";
 };
 
-export function InstallPwaButton({ fullWidth = false }: InstallPwaButtonProps = {}) {
+export function InstallPwaButton({
+  fullWidth = false,
+  tone = "default",
+}: InstallPwaButtonProps = {}) {
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const isInstalled = useSyncExternalStore(
@@ -84,9 +89,12 @@ export function InstallPwaButton({ fullWidth = false }: InstallPwaButtonProps = 
     }
   };
 
-  const buttonClassName = fullWidth
-    ? "w-full rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-55"
-    : "rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-800 transition-colors hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60";
+  const buttonClassName =
+    tone === "lite"
+      ? `lite-cta disabled:cursor-not-allowed disabled:opacity-45 ${fullWidth ? "w-full" : ""}`
+      : fullWidth
+        ? "w-full rounded-xl bg-indigo-600 px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-55"
+        : "rounded-lg border border-indigo-300 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-800 transition-colors hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60";
 
   const buttonOnly = (
     <button
