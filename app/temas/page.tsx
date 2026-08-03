@@ -50,9 +50,9 @@ export default function TemasPage() {
       {!loading && !error && temas.length === 0 ? (
         <EmptyState>No hay temas. Usá el botón + para crear el primero.</EmptyState>
       ) : null}
-      <ul className="grid grid-cols-3 gap-2">
+      <ul className="space-y-3">
         {temas.map((t) => (
-          <li key={t.id} className="h-full">
+          <li key={t.id}>
             <TemaListCard
               tema={t}
               cursosStats={

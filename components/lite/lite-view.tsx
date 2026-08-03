@@ -5,6 +5,7 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAcademicoLite } from "@/app/hooks/useAcademicoLite";
 import { LiteCard } from "@/components/lite/lite-card";
+import { LiteGridCard } from "@/components/lite/lite-grid-card";
 import { LiteDetallePanel } from "@/components/lite/lite-detalle-panel";
 import { LiteEstadoSheet } from "@/components/lite/lite-estado-sheet";
 import { LiteFiltrosBar } from "@/components/lite/lite-filtros-bar";
@@ -164,14 +165,18 @@ export function LiteView() {
               etiqueta={tab === "temas" ? "temas" : "cursos"}
             />
           ) : (
-            <ul className="space-y-2.5">
+            <ul className={tab === "temas" ? "grid grid-cols-3 gap-3" : "space-y-2.5"}>
               {visibles.map((item) => (
                 <li key={`${item.kind}-${item.id}`}>
-                  <LiteCard
-                    item={item}
-                    mostrarPadre={tab === "cursos"}
-                    onSelect={abrir}
-                  />
+                  {tab === "temas" ? (
+                    <LiteGridCard item={item} onSelect={abrir} />
+                  ) : (
+                    <LiteCard
+                      item={item}
+                      mostrarPadre={tab === "cursos"}
+                      onSelect={abrir}
+                    />
+                  )}
                 </li>
               ))}
             </ul>
