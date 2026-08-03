@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowLeft, Lightbulb, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useEffect, useMemo, useState } from "react";
 import { LiteCard } from "@/components/lite/lite-card";
+import { LiteConceptosPlayer } from "@/components/lite/lite-conceptos-player";
 import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { LiteMediaIcon } from "@/components/lite/lite-media-icon";
@@ -37,7 +38,8 @@ const KIND_LABEL: Record<LiteItem["kind"], string> = {
  * Detalle en la misma pantalla (ADR 012): sin cambio de ruta y sin métricas de
  * seguimiento — solo hijos, conceptos y contenido.
  *
- * Aparece instantáneo, sin `translateY` de entrada (ADR 006).
+ * Scroll único: el hero sube con el contenido; barra volver/cerrar fija;
+ * pestañas sticky bajo esa barra (ADR 006: sin slide al montar).
  */
 export function LiteDetallePanel({
   item,
@@ -78,7 +80,6 @@ export function LiteDetallePanel({
 
   const [tabElegida, setTabElegida] = useState<TabId | null>(null);
 
-  // Pestaña efectiva: la elegida si sigue existiendo, si no la primera disponible.
   const tab =
     tabElegida && tabs.some((t) => t.id === tabElegida)
       ? tabElegida
@@ -97,89 +98,97 @@ export function LiteDetallePanel({
 
   return (
     <div className="lite-root lite-no-halo lite-detalle">
-      <div className="lite-detalle-hero">
-        <div className="mx-auto w-full max-w-[640px] px-4 pb-5 pt-[max(0.75rem,env(safe-area-inset-top))]">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onVolver}
-              className="lite-icon-btn flex-none"
-              aria-label="Volver"
-            >
-              <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden />
-            </button>
-            <p className="lite-eyebrow min-w-0 flex-1 truncate">{migas}</p>
-            <button
-              type="button"
-              onClick={onCerrar}
-              className="lite-icon-btn flex-none"
-              aria-label="Cerrar detalle"
-            >
-              <X className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden />
-            </button>
-          </div>
-
-          <div className="mt-4 flex items-start gap-3.5">
-            {medios.length > 0 ? <LiteMediaIcon media={medios[0]} size="md" /> : null}
-            <h2 className="lite-display min-w-0 flex-1 text-[24px]">{item.nombre}</h2>
-          </div>
-
-          {item.descripcion?.trim() ? (
-            <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--lt-text-2)]">
-              {item.descripcion}
-            </p>
-          ) : null}
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={onEditarEstado}
-              className="transition active:scale-95"
-              aria-label="Cambiar estado"
-            >
-              <LiteEstadoBadge estado={item.estado} className="cursor-pointer" />
-            </button>
-            <LiteTipoBadge tipo={item.tipoEstudio} />
-            {item.hijosTotal > 0 ? (
-              <span className="text-[12.5px] font-medium text-[var(--lt-text-3)]">
-                {item.hijosTerminados}/{item.hijosTotal}{" "}
-                {liteHijosLabel(item.kind).toLowerCase()}
-              </span>
-            ) : null}
-          </div>
-
-          {externo?.href ? (
-            <div className="mt-4">
-              <LiteLinkPreview media={externo} variant="hero" />
-            </div>
-          ) : null}
+      {/* Chrome fijo: volver / cerrar siempre a mano */}
+      <div className="lite-detalle-toolbar">
+        <div className="mx-auto flex w-full max-w-[640px] items-center gap-2 px-4 py-2.5 pt-[max(0.65rem,env(safe-area-inset-top))]">
+          <button
+            type="button"
+            onClick={onVolver}
+            className="lite-icon-btn flex-none"
+            aria-label="Volver"
+          >
+            <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden />
+          </button>
+          <p className="lite-eyebrow min-w-0 flex-1 truncate">{migas}</p>
+          <button
+            type="button"
+            onClick={onCerrar}
+            className="lite-icon-btn flex-none"
+            aria-label="Cerrar detalle"
+          >
+            <X className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden />
+          </button>
         </div>
       </div>
 
-      {tabs.length > 0 ? (
-        <div className="border-b border-[var(--lt-line)] bg-[var(--lt-bg)]">
-          <div className="mx-auto w-full max-w-[640px] overflow-x-auto px-4">
-            <div className="lite-tabs w-max">
-              {tabs.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className="lite-tab"
-                  data-active={tab === t.id}
-                  onClick={() => setTabElegida(t.id)}
-                >
-                  {t.label}
-                  {t.count !== null ? (
-                    <span className="ml-1.5 text-[var(--lt-text-3)]">{t.count}</span>
-                  ) : null}
-                </button>
-              ))}
+      {/* Un solo scroll: hero + pestañas + cuerpo */}
+      <div className="lite-detalle-scroll">
+        <div className="lite-detalle-hero">
+          <div className="mx-auto w-full max-w-[640px] px-4 pb-5 pt-3">
+            <div className="flex items-start gap-3.5">
+              {medios.length > 0 ? (
+                <LiteMediaIcon media={medios[0]} size="md" />
+              ) : null}
+              <h2 className="lite-display min-w-0 flex-1 text-[24px]">
+                {item.nombre}
+              </h2>
             </div>
+
+            {item.descripcion?.trim() ? (
+              <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--lt-text-2)]">
+                {item.descripcion}
+              </p>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={onEditarEstado}
+                className="transition active:scale-95"
+                aria-label="Cambiar estado"
+              >
+                <LiteEstadoBadge estado={item.estado} className="cursor-pointer" />
+              </button>
+              <LiteTipoBadge tipo={item.tipoEstudio} />
+              {item.hijosTotal > 0 ? (
+                <span className="text-[12.5px] font-medium text-[var(--lt-text-3)]">
+                  {item.hijosTerminados}/{item.hijosTotal}{" "}
+                  {liteHijosLabel(item.kind).toLowerCase()}
+                </span>
+              ) : null}
+            </div>
+
+            {externo?.href ? (
+              <div className="mt-4">
+                <LiteLinkPreview media={externo} variant="hero" />
+              </div>
+            ) : null}
           </div>
         </div>
-      ) : null}
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        {tabs.length > 0 ? (
+          <div className="lite-detalle-tabs">
+            <div className="mx-auto w-full max-w-[640px] overflow-x-auto px-4">
+              <div className="lite-tabs w-max">
+                {tabs.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    className="lite-tab"
+                    data-active={tab === t.id}
+                    onClick={() => setTabElegida(t.id)}
+                  >
+                    {t.label}
+                    {t.count !== null ? (
+                      <span className="ml-1.5 text-[var(--lt-text-3)]">{t.count}</span>
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
         <div className="mx-auto w-full max-w-[640px] px-4 pb-[max(2rem,env(safe-area-inset-bottom))] pt-4">
           {tab === "hijos" ? (
             <ul className="space-y-2.5">
@@ -198,25 +207,7 @@ export function LiteDetallePanel({
           ) : null}
 
           {tab === "conceptos" ? (
-            <ul className="space-y-2.5">
-              {conceptos.map((concepto) => (
-                <li key={concepto.id} className="lite-panel p-4">
-                  <div className="flex items-start gap-3">
-                    <Lightbulb
-                      className="mt-0.5 h-[17px] w-[17px] flex-none text-[var(--lt-accent)]"
-                      strokeWidth={2}
-                      aria-hidden
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="lite-title">{concepto.titulo}</p>
-                      <p className="mt-1.5 whitespace-pre-line text-[14px] leading-relaxed text-[var(--lt-text-2)]">
-                        {concepto.descripcion}
-                      </p>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <LiteConceptosPlayer conceptos={conceptos} />
           ) : null}
 
           {tabs.length === 0 ? (
