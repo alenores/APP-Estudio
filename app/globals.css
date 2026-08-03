@@ -2081,6 +2081,101 @@ body:has(.lite-root) {
   }
 }
 
+/* —— Portada del material externo (ADR 012) —— */
+.lite-preview {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  flex: none;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-bg-elevated);
+  transition: border-color 180ms ease, transform 140ms ease;
+}
+
+.lite-preview:active {
+  transform: scale(0.985);
+}
+
+@media (hover: hover) {
+  .lite-preview:hover {
+    border-color: var(--lt-line-strong);
+  }
+}
+
+.lite-preview--hero {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+}
+
+/* Miniatura de card: angosta a propósito. Cada píxel de ancho se lo saca a la
+   columna de texto y hace que el título y los badges se partan en más líneas. */
+.lite-preview--thumb {
+  width: 64px;
+  aspect-ratio: 16 / 9;
+  border-radius: 9px;
+}
+
+/* La portada de YouTube (`hqdefault`, 4:3) trae barras negras: el recorte se las come. */
+.lite-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lite-preview-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+  pointer-events: none;
+}
+
+.lite-preview-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(10, 12, 14, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.lite-preview--hero .lite-preview-play {
+  height: 54px;
+  width: 54px;
+  padding-left: 3px;
+}
+
+.lite-preview--thumb .lite-preview-play {
+  height: 24px;
+  width: 24px;
+  padding-left: 2px;
+}
+
+.lite-preview-label {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
 /* —— Tabs internas del detalle —— */
 .lite-tabs {
   display: flex;

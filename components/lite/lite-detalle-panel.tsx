@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeft, ExternalLink, Lightbulb, X } from "lucide-react";
+import { ArrowLeft, Lightbulb, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useEffect, useMemo, useState } from "react";
 import { LiteCard } from "@/components/lite/lite-card";
 import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
+import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { LiteMediaIcon } from "@/components/lite/lite-media-icon";
 import { liteMedios } from "@/lib/academico-lite-media";
 import { liteHijosLabel, type LiteItem } from "@/lib/academico-lite-read";
@@ -148,15 +149,9 @@ export function LiteDetallePanel({
           </div>
 
           {externo?.href ? (
-            <a
-              href={externo.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="lite-cta mt-4 w-full"
-            >
-              <ExternalLink className="h-[17px] w-[17px]" strokeWidth={2.2} aria-hidden />
-              Abrir en {externo.label}
-            </a>
+            <div className="mt-4">
+              <LiteLinkPreview media={externo} variant="hero" />
+            </div>
           ) : null}
         </div>
       </div>
