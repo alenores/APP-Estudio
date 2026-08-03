@@ -22,7 +22,8 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/009-mapa-conocimiento-desktop-only.md` | **Mapa de conocimiento** — solo PC; nodos ≠ conceptos |
 | `docs/adr/010-mapa-detalle-lienzo-cap1.md` | **Mapa capa 1** — overlay hijos + `enlaces_hijos_nodos` |
 | `docs/adr/011-tipologia-desarrollos.md` | **Tipología desarrollos** — stack propio + snapshot separado |
-| `docs/adr/012-shell-offline-navegacion.md` | **Shell offline** — documentos por familia, id desde la URL |
+| `docs/adr/012-academico-lite.md` | **Académico lite** — vista de consumo sobre tablas académico + diseño `--lt-*` |
+| `docs/adr/013-shell-offline-navegacion.md` | **Shell offline** — documentos por familia, id desde la URL |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **Patrón de datos:** inspirado en *Vías de Escalada Córdoba* (`offline-cache`, `useOfflineData`), adaptado a tablas Estudio — **no** copiar imágenes ni warm de sectores.
@@ -39,14 +40,14 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (estudio); `docs/sql/002-schema-ma
 - Schema: nombres **exactos** ADR 002; sin heurísticas de columnas.
 - SW: **NetworkOnly** para `*.supabase.co` (el paquete no es caché del SW).
 
-### Offline real (ADR 012)
+### Offline real (ADR 013)
 
 - Documentos HTML: los atiende `worker/index.js`, **no** Workbox. Una shell por
   familia (`/temas/*`) sirve cualquier id.
 - En páginas de detalle el id sale de `useRouteEntityId()` (URL), **nunca** de
   `useParams()`: sin red el documento puede ser el de otro id.
 - Al tocar SW, cachés o rutas de detalle: verificar con `npm start` y el
-  **servidor apagado** (ADR 012 §Verificación).
+  **servidor apagado** (ADR 013 §Verificación).
 
 ### PWA (ADR 004)
 
@@ -85,6 +86,7 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Shell escritorio + explorador | `app/(desktop)/`, `components/desktop/`, `lib/shell-*.ts`, `useEstudioExplorer` |
 | Mapa conocimiento (solo PC) | `app/(desktop)/mapa/`, `components/desktop/mapa/`, `lib/mapa-queries.ts`, `lib/temas-lienzo-queries.ts`, `useMapaGrafo` |
 | Tipología desarrollos | `lib/content-typology.ts`, `lib/desarrollos-*`, `useDesarrollosData`, `/desarrollos`, `/explorador-desarrollos` |
+| Académico lite (ADR 012) | `lib/academico-lite-*`, `useAcademicoLite`, `/lite`, `components/lite/`, CSS `.lite-root` |
 | Proyección visual lienzo | `lib/mapa-lienzo-orientacion.ts` — canónico BD vs pantalla; ver ADR 000 §11 y ADR 009 §9 |
 | Primitivos UI | `components/ui/` |
 | Forms compartidos | `components/shared/forms/` |
@@ -92,7 +94,8 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 ## Mapa de archivos clave
 
 ```
-app/page.tsx                         → home + enlace a temas
+app/page.tsx                         → home: 3 entradas (lite / académico / desarrollos)
+app/lite/page.tsx                    → académico lite (ADR 012, móvil + PC)
 app/layout.tsx                       → EstudioDataRoot (provider global)
 app/login/page.tsx                   → auth
 app/temas/page.tsx                   → listado + EstudioSyncBanner
@@ -102,6 +105,11 @@ app/cursos/[id]/page.tsx             → detalle curso (móvil)
 app/clases/[id]/page.tsx             → detalle clase (móvil)
 app/(desktop)/explorador/page.tsx    → explorador 3 columnas (PC)
 app/(desktop)/mapa/page.tsx          → mapa conocimiento (solo PC, ADR 009)
+lib/academico-lite-read.ts           → proyección snapshot → LiteItem (ADR 012)
+lib/academico-lite-filtros.ts        → filtros puros del listado lite
+lib/academico-lite-media.ts          → medio del ítem (YouTube / Platzi / md)
+app/hooks/useAcademicoLite.ts        → datos lite + alta de estado (único registro)
+components/lite/                     → pantalla lite (tabs, cards, detalle, sheet)
 lib/shell-detect.ts                  → detección shell en middleware
 lib/shell-routes.ts                  → rutas por shell (+ DESKTOP_MAPA_PREFIX)
 lib/mapa-queries.ts                  → CRUD nodos_objetivos / enlaces_nodos
@@ -131,9 +139,9 @@ lib/estudio-offline-read.ts          → lectura local derivados
 app/hooks/useEstudioData.tsx         → contexto paquete local
 lib/estudio-queries.ts               → sync remoto + CRUD
 middleware.ts                        → protege /temas, /seguimientos
-worker/index.js                      → custom worker: documentos + shells offline (ADR 012)
+worker/index.js                      → custom worker: documentos + shells offline (ADR 013)
 lib/pwa-offline-shell.ts             → familias de shell, caché y id desde la URL
-app/hooks/useRouteEntityId.ts        → id de detalle leído de location (ADR 012)
+app/hooks/useRouteEntityId.ts        → id de detalle leído de location (ADR 013)
 next.config.ts                       → PWA; NetworkOnly Supabase
 ```
 

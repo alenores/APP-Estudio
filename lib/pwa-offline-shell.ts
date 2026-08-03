@@ -1,5 +1,5 @@
 /**
- * Contrato de shells offline (ADR 012).
+ * Contrato de shells offline (ADR 013).
  *
  * El paquete local (ADR 001) vive en `localStorage`, pero para leerlo hace falta
  * que el documento HTML de la ruta se pueda servir sin red. Los detalles

@@ -2,7 +2,7 @@
 
 Usar **antes del primer deploy a producción** y al clonar la plantilla PWA (*Vías de Escalada Córdoba*, APP Estudio, etc.). Evita perder horas con botón «Instalar app» gris o menú ⋮ sin «Instalar aplicación».
 
-Ver también [ADR 004](adr/004-pwa-install-standalone.md), [ADR 005](adr/005-auth-rls.md) y [ADR 012](adr/012-shell-offline-navegacion.md).
+Ver también [ADR 004](adr/004-pwa-install-standalone.md), [ADR 005](adr/005-auth-rls.md) y [ADR 013](adr/013-shell-offline-navegacion.md).
 
 ---
 
@@ -16,7 +16,7 @@ Ver también [ADR 004](adr/004-pwa-install-standalone.md), [ADR 005](adr/005-aut
 | Link manifest | `app/layout.tsx` metadata | `manifest: "/manifest.webmanifest"` |
 | Service worker | `next.config.ts` + `app/sw-register.tsx` | PWA activa solo en producción; `register: false` en next-pwa + registro manual |
 | Middleware **no** toca SW | `middleware.ts` matcher | Excluir: `sw.js`, `workbox-`, `fallback-`, `worker-`, `manifest.webmanifest`, PNG/ico |
-| Consulta sin conexión | `worker/index.js`, `next.config.ts` | Debe existir una regla que matchee **navegaciones**; sin eso no hay caché ni fallback `/offline` (ADR 012) |
+| Consulta sin conexión | `worker/index.js`, `next.config.ts` | Debe existir una regla que matchee **navegaciones**; sin eso no hay caché ni fallback `/offline` (ADR 013) |
 | SHA en pantalla | `next.config.ts` + `components/deploy-sha-footer.tsx` | Confirmar versión en producción sin dudas |
 | Botón install | `app/install-pwa-button.tsx` | **No reescribir** al diagnosticar; arquitectura compartida con otras apps |
 

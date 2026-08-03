@@ -20,7 +20,7 @@ const STATIC_ASSET_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 const BRAND_STATIC_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
 
 /**
- * Los documentos HTML los atiende `worker/index.js` (ADR 012), por eso se quita
+ * Los documentos HTML los atiende `worker/index.js` (ADR 013), por eso se quita
  * el preset `others` de next-pwa: dejaría navegaciones y payloads RSC en una
  * caché de 32 entradas / 24 h, insuficiente para consultar sin conexión.
  */
@@ -35,7 +35,7 @@ const withPWA = withPWAInit({
   clientsClaim: true,
   disable: process.env.NODE_ENV === "development",
   cacheOnFrontEndNav: true,
-  /** El documento de `/` lo cachea el custom worker junto al resto (ADR 012). */
+  /** El documento de `/` lo cachea el custom worker junto al resto (ADR 013). */
   cacheStartUrl: false,
   fallbacks: {
     document: "/offline",

@@ -5,7 +5,7 @@ import { entityIdFromPathname } from "@/lib/pwa-offline-shell";
 import { parseEntityId } from "@/lib/parse-entity-id";
 
 /**
- * Id de la entidad de la ruta de detalle (ADR 012).
+ * Id de la entidad de la ruta de detalle (ADR 013).
  *
  * Sin conexión el service worker puede servir la shell cacheada de otro id de
  * la misma familia (`/temas/7` responde a `/temas/12`), así que los params del

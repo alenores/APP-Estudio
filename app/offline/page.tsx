@@ -1,6 +1,6 @@
 import { PrimaryButtonLink, SecondaryButtonLink } from "@/components/ui";
 
-/** Fallback del service worker cuando la ruta pedida no está en caché (ADR 012). */
+/** Fallback del service worker cuando la ruta pedida no está en caché (ADR 013). */
 export default function OfflinePage() {
   return (
     <main className="min-h-screen bg-paper px-4 py-10 text-ink">

@@ -10,7 +10,7 @@ import {
 } from "@/lib/pwa-offline-shell";
 
 /**
- * Deja lista una shell por familia de detalle mientras hay red (ADR 012).
+ * Deja lista una shell por familia de detalle mientras hay red (ADR 013).
  *
  * Sin esto, `/temas/12` solo abre sin conexión si esa pantalla exacta se visitó
  * antes. Con esto alcanza con haber abierto la app conectado una vez.

@@ -1,28 +1,19 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowRight, GraduationCap, Wrench, Zap } from "lucide-react";
 import { InstallPwaButton } from "@/app/install-pwa-button";
 import { usePwaOnDeviceInBrowser } from "@/app/hooks/usePwaOnDeviceInBrowser";
 import { AndroidOpenFromHomeHelp } from "@/components/mobile/pwa/android-open-from-home-help";
 import { IosPwaInstallHelp } from "@/components/mobile/pwa/ios-pwa-install-help";
-import {
-  PageLead,
-  PageTitle,
-  PrimaryButtonLink,
-  SecondaryButtonLink,
-  SurfaceCard,
-} from "@/components/ui";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
-import { NAV_STAGE_MAIN_CLASS } from "@/lib/nav-stage";
 import { createClient } from "@/lib/supabase/client";
-import {
-  academicoEntryPath,
-  desarrollosEntryPath,
-} from "@/lib/shell-routes";
 import { isMobileShellClient } from "@/lib/shell-detect";
 import {
   readContentTypology,
+  typologyEntryPath,
   writeContentTypology,
   type ContentTypology,
 } from "@/lib/content-typology";
@@ -34,9 +25,41 @@ import {
   subscribePwaInstalled,
 } from "@/lib/pwa-platform";
 
+type Entrada = {
+  typology: ContentTypology;
+  titulo: string;
+  descripcion: string;
+  icono: typeof GraduationCap;
+  /** Color de acento propio de la entrada. */
+  tono: string;
+};
+
+const ENTRADAS: Entrada[] = [
+  {
+    typology: "academico_lite",
+    titulo: "Académico lite",
+    descripcion: "Temas y cursos para estudiar, sin gestión.",
+    icono: Zap,
+    tono: "#3ee08f",
+  },
+  {
+    typology: "academico",
+    titulo: "Académico",
+    descripcion: "Temas, cursos, clases y seguimiento completo.",
+    icono: GraduationCap,
+    tono: "#4cb2f8",
+  },
+  {
+    typology: "desarrollos",
+    titulo: "Desarrollos",
+    descripcion: "Definición general, específica y acciones.",
+    icono: Wrench,
+    tono: "#f2914a",
+  },
+];
+
 export default function HomePage() {
   const router = useRouter();
-  const [standalone, setStandalone] = useState(false);
   const [isIphone, setIsIphone] = useState(false);
   const [sessionEmail, setSessionEmail] = useState<string | null>(null);
   const [typology, setTypology] = useState<ContentTypology>("academico");
@@ -50,7 +73,6 @@ export default function HomePage() {
   const pwaOnDeviceInBrowser = usePwaOnDeviceInBrowser(isInstalledMode);
 
   useEffect(() => {
-    setStandalone(isStandaloneMode());
     setIsIphone(isIphoneForPwaInstall());
     setTypology(readContentTypology());
     const supabase = createClient();
@@ -63,116 +85,143 @@ export default function HomePage() {
     writeContentTypology(next);
     setTypology(next);
     const shell = isMobileShellClient() ? "mobile" : "desktop";
-    const href =
-      next === "desarrollos"
-        ? desarrollosEntryPath(shell)
-        : academicoEntryPath(shell);
-    router.push(href);
+    router.push(typologyEntryPath(next, shell));
   }
 
-  const showInstallBlock =
-    !isInstalledMode && pwaOnDeviceInBrowser !== true;
+  const showInstallBlock = !isInstalledMode && pwaOnDeviceInBrowser !== true;
 
   return (
-    <main className={`${NAV_STAGE_MAIN_CLASS} px-4 py-8`}>
-      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6">
-        <header className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <PageTitle>APP Estudio</PageTitle>
-            {standalone || isInstalledMode ? (
-              <span className="rounded-full bg-accent-subtle px-2.5 py-0.5 text-[11px] font-semibold text-accent">
+    <div className="lite-root flex min-h-dvh flex-col">
+      <main className="mx-auto w-full max-w-[640px] flex-1 px-5 pb-10 pt-[max(2.5rem,calc(env(safe-area-inset-top)+1.5rem))]">
+        <header>
+          <div className="flex items-center gap-2">
+            <p className="lite-eyebrow">APP Estudio</p>
+            {isInstalledMode ? (
+              <span className="rounded-full border border-[var(--lt-accent-line)] bg-[var(--lt-accent-soft)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--lt-accent)]">
                 Modo app
               </span>
             ) : null}
           </div>
-          <PageLead>
-            Elegí la tipología de contenido: académico (Platzi) o desarrollos.
-          </PageLead>
-          <div className="flex flex-wrap gap-2 pt-1">
-            {sessionEmail ? (
-              <span className="self-center text-xs text-ink-muted">{sessionEmail}</span>
-            ) : (
-              <PrimaryButtonLink href="/login">Iniciar sesión</PrimaryButtonLink>
-            )}
-          </div>
+          <h1 className="lite-display mt-2.5">
+            ¿Qué estudiás
+            <br />
+            hoy?
+          </h1>
+          <p className="mt-3 text-[15px] leading-relaxed text-[var(--lt-text-2)]">
+            Elegí por dónde entrar.
+          </p>
         </header>
 
-        <SurfaceCard>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-            Tipología
-          </h2>
-          <div className="mt-4 grid gap-3">
-            <button
-              type="button"
-              onClick={() => enterTypology("academico")}
-              className={`rounded-xl border px-4 py-3 text-left transition active:scale-[0.98] ${
-                typology === "academico"
-                  ? "border-accent bg-accent-subtle"
-                  : "border-border hover:border-accent/40"
-              }`}
-            >
-              <p className="font-semibold text-ink">Académico</p>
-              <p className="mt-1 text-sm text-ink-muted">
-                Temas, cursos, clases y seguimiento Platzi.
-              </p>
-            </button>
-            <button
-              type="button"
-              onClick={() => enterTypology("desarrollos")}
-              className={`rounded-xl border px-4 py-3 text-left transition active:scale-[0.98] ${
-                typology === "desarrollos"
-                  ? "border-[#EA580C] bg-[#EA580C]/10"
-                  : "border-border hover:border-[#EA580C]/40"
-              }`}
-            >
-              <p className="font-semibold text-ink">Desarrollos</p>
-              <p className="mt-1 text-sm text-ink-muted">
-                Definición general, específica y acciones.
-              </p>
-            </button>
-          </div>
-        </SurfaceCard>
+        <nav className="mt-8 space-y-3" aria-label="Tipologías">
+          {ENTRADAS.map((entrada) => (
+            <EntradaCard
+              key={entrada.typology}
+              entrada={entrada}
+              activa={typology === entrada.typology}
+              onClick={() => enterTypology(entrada.typology)}
+            />
+          ))}
+        </nav>
 
-        {sessionEmail ? (
-          <div className="flex flex-wrap gap-2">
-            <SecondaryButtonLink href={academicoEntryPath(isMobileShellClient() ? "mobile" : "desktop")}>
-              Entrar académico
-            </SecondaryButtonLink>
-            <SecondaryButtonLink href={desarrollosEntryPath(isMobileShellClient() ? "mobile" : "desktop")}>
-              Entrar desarrollos
-            </SecondaryButtonLink>
-          </div>
-        ) : null}
+        <div className="mt-8 flex items-center justify-between gap-3 border-t border-[var(--lt-line)] pt-5">
+          {sessionEmail ? (
+            <p className="min-w-0 truncate text-[13px] text-[var(--lt-text-3)]">
+              {sessionEmail}
+            </p>
+          ) : (
+            <Link href="/login" className="lite-cta">
+              Iniciar sesión
+            </Link>
+          )}
+        </div>
 
         {pwaOnDeviceInBrowser === true ? (
-          <section>
+          <section className="mt-6">
             <AndroidOpenFromHomeHelp />
           </section>
         ) : null}
 
         {showInstallBlock ? (
-          <SurfaceCard>
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-ink-muted">
-              Instalar en el celular
-            </h2>
-            <p className="mt-2 text-sm text-ink-muted">
+          <section className="lite-panel mt-6 p-5">
+            <p className="lite-eyebrow">Instalar</p>
+            <p className="mt-2 text-[14px] leading-relaxed text-[var(--lt-text-2)]">
               Agregá la app al inicio para abrirla como{" "}
-              <strong className="text-ink">APP Estudio</strong>.
+              <strong className="font-semibold text-[var(--lt-text)]">
+                APP Estudio
+              </strong>
+              .
             </p>
             <div className="mt-4 space-y-3">
-              <InstallPwaButton fullWidth />
+              <InstallPwaButton fullWidth tone="lite" />
               {isIphone ? <IosPwaInstallHelp /> : null}
-              {!isIphone && !standalone ? (
-                <p className="text-xs text-ink-muted">
-                  En Chrome Android aparece el botón cuando el navegador ofrece instalar. Si no
-                  aparece, probá desde el menú ⋮ → Instalar aplicación.
+              {!isIphone ? (
+                <p className="text-[12px] leading-relaxed text-[var(--lt-text-3)]">
+                  En Chrome Android aparece el botón cuando el navegador ofrece
+                  instalar. Si no aparece, probá desde el menú ⋮ → Instalar
+                  aplicación.
                 </p>
               ) : null}
             </div>
-          </SurfaceCard>
+          </section>
         ) : null}
-      </div>
+      </main>
       <DeployShaFooter />
-    </main>
+    </div>
+  );
+}
+
+function EntradaCard({
+  entrada,
+  activa,
+  onClick,
+}: {
+  entrada: Entrada;
+  activa: boolean;
+  onClick: () => void;
+}) {
+  const Icono = entrada.icono;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="lite-card p-4"
+      style={
+        activa
+          ? {
+              borderColor: `color-mix(in srgb, ${entrada.tono} 34%, transparent)`,
+              background: `color-mix(in srgb, ${entrada.tono} 7%, var(--lt-surface))`,
+            }
+          : undefined
+      }
+    >
+      <span className="flex items-center gap-4">
+        <span
+          className="inline-flex h-11 w-11 flex-none items-center justify-center rounded-2xl border"
+          style={{
+            borderColor: `color-mix(in srgb, ${entrada.tono} 28%, transparent)`,
+            background: `color-mix(in srgb, ${entrada.tono} 12%, transparent)`,
+            color: entrada.tono,
+          }}
+          aria-hidden
+        >
+          <Icono className="h-[21px] w-[21px]" strokeWidth={1.9} />
+        </span>
+
+        <span className="min-w-0 flex-1">
+          <span className="lite-title block">{entrada.titulo}</span>
+          <span className="mt-1 block text-[13.5px] leading-snug text-[var(--lt-text-3)]">
+            {entrada.descripcion}
+          </span>
+        </span>
+
+        <ArrowRight
+          className="h-[18px] w-[18px] flex-none"
+          strokeWidth={2}
+          style={{ color: activa ? entrada.tono : "var(--lt-text-3)" }}
+          aria-hidden
+        />
+      </span>
+    </button>
   );
 }

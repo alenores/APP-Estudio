@@ -1,5 +1,5 @@
 /**
- * Custom worker de next-pwa (ADR 012).
+ * Custom worker de next-pwa (ADR 013).
  *
  * Se importa con `importScripts` antes de las rutas de Workbox, así este
  * listener de `fetch` atiende primero las navegaciones (documentos HTML).

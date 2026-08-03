@@ -1700,3 +1700,689 @@ html.pwa-standalone-zoom-lock body {
     transform: translateY(0) scale(1);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Académico lite (ADR 012) — sistema visual propio, oscuro y minimal.
+
+   Todo vive bajo `.lite-root`: no toca las variables del resto de la app
+   (`--paper`, `--td-*`, `--ds-*`). Sin animaciones de entrada al montar
+   paneles — ADR 006: en Android el panel aparece instantáneo y solo el velo
+   hace fade.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* El escenario global es claro/azulado; con lite montado el rebote de scroll y
+   la barra del navegador deben acompañar el fondo oscuro. */
+body:has(.lite-root) {
+  background: #08090b;
+}
+
+.lite-root {
+  --lt-bg: #08090b;
+  --lt-bg-elevated: #101317;
+  --lt-surface: #14181d;
+  --lt-surface-hover: #1a1f26;
+  --lt-surface-strong: #1e242c;
+
+  --lt-line: rgba(255, 255, 255, 0.07);
+  --lt-line-strong: rgba(255, 255, 255, 0.14);
+
+  --lt-text: #f4f6f8;
+  --lt-text-2: #a3adba;
+  --lt-text-3: #6d7784;
+
+  --lt-accent: #3ee08f;
+  --lt-accent-deep: #16a86a;
+  --lt-accent-ink: #04170f;
+  --lt-accent-soft: rgba(62, 224, 143, 0.12);
+  --lt-accent-line: rgba(62, 224, 143, 0.32);
+
+  --lt-estado-sin-registro: #6d7784;
+  --lt-estado-sin-empezar: #8b95a3;
+  --lt-estado-en-curso: #4cb2f8;
+  --lt-estado-pausado: #f2b544;
+  --lt-estado-terminado: #3ee08f;
+
+  --lt-danger: #ff6b6b;
+
+  --lt-radius-card: 18px;
+  --lt-radius-lg: 24px;
+
+  --lt-shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset;
+  --lt-shadow-float: 0 24px 60px -20px rgba(0, 0, 0, 0.85),
+    0 8px 24px -12px rgba(0, 0, 0, 0.6);
+
+  color: var(--lt-text);
+  background-color: var(--lt-bg);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  /* Contiene el halo `z-index: -1` sin obligar a los hijos a declarar posición
+     (el header es `sticky` y el detalle es `fixed`). */
+  isolation: isolate;
+}
+
+/* Halo tenue detrás del encabezado — profundidad sin gradientes ruidosos. */
+.lite-root::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 340px;
+  background: radial-gradient(
+    120% 100% at 50% 0%,
+    rgba(62, 224, 143, 0.09) 0%,
+    rgba(62, 224, 143, 0) 62%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Anfitriones que solo aportan tokens (portal del sheet, panel de detalle):
+   sin halo propio para no apilar dos degradados sobre la misma pantalla. */
+.lite-root.lite-no-halo::before {
+  content: none;
+}
+
+/* —— Cabecera —— */
+.lite-header {
+  background: color-mix(in srgb, var(--lt-bg) 82%, transparent);
+  border-bottom: 1px solid var(--lt-line);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+.lite-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lt-text-3);
+}
+
+.lite-display {
+  font-size: 30px;
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  color: var(--lt-text);
+}
+
+.lite-title {
+  font-size: 17px;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--lt-text);
+}
+
+/* —— Control segmentado (tabs) —— */
+.lite-segmented {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+}
+
+.lite-segmented-thumb {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  border-radius: 999px;
+  background: var(--lt-surface-strong);
+  border: 1px solid var(--lt-line-strong);
+  box-shadow: 0 2px 10px -4px rgba(0, 0, 0, 0.8);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.lite-segmented-option {
+  position: relative;
+  z-index: 1;
+  border-radius: 999px;
+  padding: 9px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  color: var(--lt-text-3);
+  transition: color 180ms ease;
+}
+
+.lite-segmented-option[data-active="true"] {
+  color: var(--lt-text);
+}
+
+/* —— Buscador —— */
+.lite-search {
+  border-radius: 999px;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.lite-search:focus-within {
+  border-color: var(--lt-accent-line);
+  background: var(--lt-surface-hover);
+}
+
+.lite-search input {
+  color: var(--lt-text);
+  background: transparent;
+}
+
+.lite-search input::placeholder {
+  color: var(--lt-text-3);
+}
+
+/* —— Chips de filtro —— */
+.lite-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  border-radius: 999px;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.004em;
+  color: var(--lt-text-2);
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.lite-chip[data-active="true"] {
+  border-color: var(--lt-accent-line);
+  background: var(--lt-accent-soft);
+  color: var(--lt-accent);
+}
+
+.lite-chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+/* —— Card de listado —— */
+.lite-card {
+  width: 100%;
+  display: block;
+  text-align: left;
+  border-radius: var(--lt-radius-card);
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+  box-shadow: var(--lt-shadow-card);
+  transition: border-color 180ms ease, background 180ms ease,
+    transform 140ms ease;
+}
+
+@media (hover: hover) {
+  .lite-card:hover {
+    border-color: var(--lt-line-strong);
+    background: var(--lt-surface-hover);
+  }
+}
+
+.lite-card:active {
+  transform: scale(0.985);
+}
+
+/* Riel de progreso de hijos — 2 px, sin números cuando no aportan. */
+.lite-rail {
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.lite-rail > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--lt-accent);
+}
+
+/* —— Insignia de estado —— */
+.lite-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.004em;
+  border: 1px solid color-mix(in srgb, var(--lt-estado) 34%, transparent);
+  background: color-mix(in srgb, var(--lt-estado) 13%, transparent);
+  color: var(--lt-estado);
+}
+
+.lite-estado--sin-registro {
+  --lt-estado: var(--lt-estado-sin-registro);
+}
+.lite-estado--sin-empezar {
+  --lt-estado: var(--lt-estado-sin-empezar);
+}
+.lite-estado--en-curso {
+  --lt-estado: var(--lt-estado-en-curso);
+}
+.lite-estado--pausado {
+  --lt-estado: var(--lt-estado-pausado);
+}
+.lite-estado--terminado {
+  --lt-estado: var(--lt-estado-terminado);
+}
+
+.lite-estado-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lt-estado);
+  flex: none;
+}
+
+/* —— Etiqueta de tipo de estudio —— */
+.lite-tipo {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--lt-line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--lt-text-2);
+}
+
+/* —— Panel de detalle —— */
+.lite-detalle {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--lt-bg);
+  overscroll-behavior: contain;
+}
+
+.lite-detalle-hero {
+  border-bottom: 1px solid var(--lt-line);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--lt-accent) 6%, var(--lt-bg)) 0%,
+    var(--lt-bg) 100%
+  );
+}
+
+.lite-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  width: 38px;
+  border-radius: 999px;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+  color: var(--lt-text-2);
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease,
+    transform 140ms ease;
+}
+
+@media (hover: hover) {
+  .lite-icon-btn:hover {
+    color: var(--lt-text);
+    border-color: var(--lt-line-strong);
+    background: var(--lt-surface-hover);
+  }
+}
+
+.lite-icon-btn:active {
+  transform: scale(0.92);
+}
+
+/* Acción principal — abrir el material del ítem. */
+.lite-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 11px 18px;
+  font-size: 14.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  background: var(--lt-accent);
+  color: var(--lt-accent-ink);
+  transition: background 160ms ease, transform 140ms ease;
+}
+
+.lite-cta:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) {
+  .lite-cta:hover {
+    background: color-mix(in srgb, var(--lt-accent) 88%, white);
+  }
+}
+
+.lite-cta--ghost {
+  background: var(--lt-surface);
+  color: var(--lt-text);
+  border: 1px solid var(--lt-line-strong);
+}
+
+@media (hover: hover) {
+  .lite-cta--ghost:hover {
+    background: var(--lt-surface-hover);
+  }
+}
+
+/* —— Portada del material externo (ADR 012) —— */
+.lite-preview {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  flex: none;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-bg-elevated);
+  transition: border-color 180ms ease, transform 140ms ease;
+}
+
+.lite-preview:active {
+  transform: scale(0.985);
+}
+
+@media (hover: hover) {
+  .lite-preview:hover {
+    border-color: var(--lt-line-strong);
+  }
+}
+
+.lite-preview--hero {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+}
+
+/* Miniatura de card: angosta a propósito. Cada píxel de ancho se lo saca a la
+   columna de texto y hace que el título y los badges se partan en más líneas. */
+.lite-preview--thumb {
+  width: 64px;
+  aspect-ratio: 16 / 9;
+  border-radius: 9px;
+}
+
+/* La portada de YouTube (`hqdefault`, 4:3) trae barras negras: el recorte se las come. */
+.lite-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lite-preview-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+  pointer-events: none;
+}
+
+.lite-preview-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(10, 12, 14, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  pointer-events: none;
+}
+
+.lite-preview--hero .lite-preview-play {
+  height: 54px;
+  width: 54px;
+  padding-left: 3px;
+}
+
+.lite-preview--thumb .lite-preview-play {
+  height: 24px;
+  width: 24px;
+  padding-left: 2px;
+}
+
+.lite-preview-label {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* —— Tabs internas del detalle —— */
+.lite-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.lite-tab {
+  position: relative;
+  padding: 12px 4px 13px;
+  margin-right: 18px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.008em;
+  color: var(--lt-text-3);
+  transition: color 180ms ease;
+}
+
+.lite-tab[data-active="true"] {
+  color: var(--lt-text);
+}
+
+.lite-tab[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--lt-accent);
+}
+
+/* —— Bloque de contenido (conceptos, markdown) —— */
+.lite-panel {
+  border-radius: var(--lt-radius-card);
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+}
+
+.lite-prose {
+  color: var(--lt-text-2);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.lite-prose h1,
+.lite-prose h2,
+.lite-prose h3 {
+  color: var(--lt-text);
+  letter-spacing: -0.018em;
+  font-weight: 650;
+  margin: 1.4em 0 0.5em;
+  line-height: 1.25;
+}
+
+.lite-prose h1 { font-size: 22px; }
+.lite-prose h2 { font-size: 19px; }
+.lite-prose h3 { font-size: 16.5px; }
+
+.lite-prose h1:first-child,
+.lite-prose h2:first-child,
+.lite-prose h3:first-child {
+  margin-top: 0;
+}
+
+.lite-prose p {
+  margin-bottom: 0.9em;
+}
+
+.lite-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.lite-prose ul,
+.lite-prose ol {
+  margin: 0 0 0.9em 1.15em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+.lite-prose ul { list-style: disc; }
+.lite-prose ol { list-style: decimal; }
+
+.lite-prose strong {
+  color: var(--lt-text);
+  font-weight: 650;
+}
+
+.lite-prose a {
+  color: var(--lt-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.lite-prose code {
+  border-radius: 5px;
+  padding: 2px 5px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--lt-text);
+  font-size: 13.5px;
+}
+
+.lite-prose pre {
+  margin-bottom: 0.9em;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-bg-elevated);
+  padding: 14px;
+}
+
+.lite-prose pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.lite-prose blockquote {
+  margin: 0 0 0.9em;
+  border-left: 2px solid var(--lt-accent-line);
+  padding-left: 14px;
+  color: var(--lt-text-2);
+  font-style: italic;
+}
+
+/* —— Sheet de estado —— */
+.lite-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.lite-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 51;
+  border-radius: 26px 26px 0 0;
+  border-top: 1px solid var(--lt-line-strong);
+  background: var(--lt-bg-elevated);
+  box-shadow: var(--lt-shadow-float);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.lite-sheet-grab {
+  width: 38px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--lt-line-strong);
+  margin: 10px auto 2px;
+}
+
+.lite-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+  padding: 13px 14px;
+  text-align: left;
+  transition: border-color 160ms ease, background 160ms ease,
+    transform 140ms ease;
+}
+
+.lite-option:active {
+  transform: scale(0.985);
+}
+
+.lite-option[data-active="true"] {
+  border-color: var(--lt-accent-line);
+  background: var(--lt-accent-soft);
+}
+
+/* —— Estados vacíos / skeleton —— */
+.lite-skeleton {
+  border-radius: var(--lt-radius-card);
+  border: 1px solid var(--lt-line);
+  background: linear-gradient(
+    100deg,
+    var(--lt-surface) 30%,
+    var(--lt-surface-hover) 50%,
+    var(--lt-surface) 70%
+  );
+  background-size: 240% 100%;
+  animation: lite-shimmer 1.5s linear infinite;
+}
+
+@keyframes lite-shimmer {
+  from { background-position: 140% 0; }
+  to { background-position: -40% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lite-skeleton {
+    animation: none;
+  }
+  .lite-segmented-thumb,
+  .lite-card,
+  .lite-icon-btn,
+  .lite-option,
+  .lite-cta {
+    transition: none;
+  }
+}

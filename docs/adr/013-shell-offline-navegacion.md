@@ -1,4 +1,4 @@
-# ADR 012: Shell offline y navegación sin conexión
+# ADR 013: Shell offline y navegación sin conexión
 
 ## Estado
 
