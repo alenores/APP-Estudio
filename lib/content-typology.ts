@@ -1,13 +1,15 @@
-/** Tipología de contenido activa — ADR 011. */
+/** Tipología de contenido activa — ADR 011 (+ ADR 012 para `academico_lite`). */
 
-export type ContentTypology = "academico" | "desarrollos";
+export type ContentTypology = "academico" | "academico_lite" | "desarrollos";
 
 export const CONTENT_TYPOLOGY_STORAGE_KEY = "app-estudio-tipologia-v1";
 
 const DEFAULT_TYPOLOGY: ContentTypology = "academico";
 
 export function isContentTypology(value: string | null | undefined): value is ContentTypology {
-  return value === "academico" || value === "desarrollos";
+  return (
+    value === "academico" || value === "academico_lite" || value === "desarrollos"
+  );
 }
 
 export function readContentTypology(): ContentTypology {
@@ -43,5 +45,7 @@ export function typologyEntryPath(
   if (typology === "desarrollos") {
     return shell === "mobile" ? "/desarrollos" : "/explorador-desarrollos";
   }
+  /** Lite comparte tablas académico y usa la misma ruta en ambos shells (ADR 012). */
+  if (typology === "academico_lite") return "/lite";
   return shell === "mobile" ? "/temas" : "/explorador";
 }
