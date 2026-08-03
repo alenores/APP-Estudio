@@ -7,7 +7,6 @@ import { LiteCard } from "@/components/lite/lite-card";
 import { LiteConceptosPlayer } from "@/components/lite/lite-conceptos-player";
 import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
-import { LiteMediaIcon } from "@/components/lite/lite-media-icon";
 import { liteMedios } from "@/lib/academico-lite-media";
 import { liteHijosLabel, type LiteItem } from "@/lib/academico-lite-read";
 import type { Concepto } from "@/app/types/estudio";
@@ -125,14 +124,8 @@ export function LiteDetallePanel({
       <div className="lite-detalle-scroll">
         <div className="lite-detalle-hero">
           <div className="mx-auto w-full max-w-[640px] px-4 pb-5 pt-3">
-            <div className="flex items-start gap-3.5">
-              {medios.length > 0 ? (
-                <LiteMediaIcon media={medios[0]} size="md" />
-              ) : null}
-              <h2 className="lite-display min-w-0 flex-1 text-[24px]">
-                {item.nombre}
-              </h2>
-            </div>
+            <p className="lite-eyebrow mb-2">{KIND_LABEL[item.kind]}</p>
+            <h2 className="lite-display text-[24px]">{item.nombre}</h2>
 
             {item.descripcion?.trim() ? (
               <p className="mt-3 text-[14.5px] leading-relaxed text-[var(--lt-text-2)]">
