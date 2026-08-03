@@ -1,7 +1,7 @@
 "use client";
 
 import type { LiteItem } from "@/lib/academico-lite-read";
-import { liteEstadoClass, liteEstadoLabel } from "@/components/lite/lite-badges";
+import type { EstadoSeguimiento } from "@/lib/estado-ui";
 
 export function LiteGridCard({
   item,
@@ -18,18 +18,35 @@ export function LiteGridCard({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (pct / 100) * circumference;
 
+  let bgStrip = "bg-[#2A2A2A]";
+  let textStrip = "text-white/50";
+  let labelStrip = "SIN EMPEZAR";
+  if (item.estado === "en curso") {
+    bgStrip = "bg-[var(--lt-accent)]";
+    textStrip = "text-white";
+    labelStrip = "EN CURSO";
+  } else if (item.estado === "terminado") {
+    bgStrip = "bg-[#00C853]";
+    textStrip = "text-white";
+    labelStrip = "TERMINADO";
+  } else if (item.estado === "pausado") {
+    bgStrip = "bg-[#FF9800]";
+    textStrip = "text-white";
+    labelStrip = "PAUSADO";
+  }
+
   return (
     <button
       type="button"
-      className="flex aspect-[4/5] w-full flex-col items-center justify-between rounded-[18px] bg-[#1A1A1A] text-center active:scale-95 transition-transform overflow-hidden"
+      className="flex h-[150px] w-full flex-col items-center justify-between rounded-[16px] bg-[#1A1A1A] text-center active:scale-95 transition-transform overflow-hidden"
       onClick={() => onSelect(item)}
     >
-      <div className="flex-1 w-full px-2 pt-3 flex flex-col items-center justify-start gap-2">
-        <span className="lite-title line-clamp-2 text-[12px] font-semibold leading-tight text-white/90">
+      <div className="flex-1 w-full px-2 pt-3 flex flex-col items-center justify-start gap-1">
+        <span className="lite-title line-clamp-2 text-[10.5px] font-medium leading-[1.2] text-white/80">
           {item.nombre}
         </span>
 
-        <div className="relative flex h-[50px] w-[50px] flex-none items-center justify-center mt-1">
+        <div className="relative flex h-[50px] w-[50px] flex-none items-center justify-center mt-auto mb-2">
           <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64">
             <circle
               cx="32"
@@ -53,16 +70,16 @@ export function LiteGridCard({
               style={{ transition: "stroke-dashoffset 0.5s ease" }}
             />
           </svg>
-          <span className="text-[11px] font-bold tracking-tight text-white">
+          <span className="text-[10px] font-bold tracking-tight text-white">
             {terminados}/{total}
           </span>
         </div>
       </div>
 
       <div 
-        className={`w-full py-1.5 flex items-center justify-center text-[10px] font-bold uppercase tracking-wider ${liteEstadoClass(item.estado)} !rounded-none !border-none !border-0`}
+        className={`w-full py-1.5 flex items-center justify-center text-[9px] font-bold tracking-widest ${bgStrip} ${textStrip}`}
       >
-        {liteEstadoLabel(item.estado)}
+        {labelStrip}
       </div>
     </button>
   );

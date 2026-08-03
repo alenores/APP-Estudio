@@ -8,7 +8,10 @@ import { LiteCard } from "@/components/lite/lite-card";
 import { LiteGridCard } from "@/components/lite/lite-grid-card";
 import { LiteDetallePanel } from "@/components/lite/lite-detalle-panel";
 import { LiteEstadoSheet } from "@/components/lite/lite-estado-sheet";
+import { LiteVistasSheet, type CursosViewMode } from "@/components/lite/lite-vistas-sheet";
 import { LiteFiltrosBar } from "@/components/lite/lite-filtros-bar";
+import { LiteCursoGridCard } from "@/components/lite/lite-curso-grid-card";
+import { LiteCursoHeroCard } from "@/components/lite/lite-curso-hero-card";
 import {
   LITE_FILTROS_VACIOS,
   aplicarLiteFiltros,
@@ -34,6 +37,8 @@ export function LiteView() {
   const [filtros, setFiltros] = useState<LiteFiltros>(LITE_FILTROS_VACIOS);
   const [pila, setPila] = useState<LiteEntityRef[]>([]);
   const [estadoSheetAbierto, setEstadoSheetAbierto] = useState(false);
+  const [vistasSheetAbierto, setVistasSheetAbierto] = useState(false);
+  const [cursosView, setCursosView] = useState<CursosViewMode>("list");
 
   const base = tab === "temas" ? lite.snapshot.temas : lite.snapshot.cursos;
   const visibles = useMemo(
@@ -141,6 +146,7 @@ export function LiteView() {
           onChange={setFiltros}
           mostrarTipo={tab === "cursos"}
           resultados={visibles.length}
+          onViewSettingsClick={tab === "cursos" ? () => setVistasSheetAbierto(true) : undefined}
         />
 
         {lite.error ? (
@@ -165,11 +171,21 @@ export function LiteView() {
               etiqueta={tab === "temas" ? "temas" : "cursos"}
             />
           ) : (
-            <ul className={tab === "temas" ? "grid grid-cols-3 gap-3" : "space-y-2.5"}>
+            <ul className={
+              tab === "temas" 
+                ? "grid grid-cols-3 gap-3" 
+                : cursosView === "grid" 
+                  ? "grid grid-cols-2 gap-3" 
+                  : "space-y-2.5"
+            }>
               {visibles.map((item) => (
                 <li key={`${item.kind}-${item.id}`}>
                   {tab === "temas" ? (
                     <LiteGridCard item={item} onSelect={abrir} />
+                  ) : cursosView === "hero" ? (
+                    <LiteCursoHeroCard item={item} onSelect={abrir} />
+                  ) : cursosView === "grid" ? (
+                    <LiteCursoGridCard item={item} onSelect={abrir} />
                   ) : (
                     <LiteCard
                       item={item}
@@ -206,6 +222,13 @@ export function LiteView() {
         guardando={lite.guardandoEstado}
         onSelect={(estado) => void guardarEstado(estado)}
         onClose={() => setEstadoSheetAbierto(false)}
+      />
+
+      <LiteVistasSheet
+        open={vistasSheetAbierto}
+        viewActual={cursosView}
+        onSelect={setCursosView}
+        onClose={() => setVistasSheetAbierto(false)}
       />
     </div>
   );

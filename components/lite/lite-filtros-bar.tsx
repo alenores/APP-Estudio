@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { LayoutGrid, Search, SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { liteEstadoClass } from "@/components/lite/lite-badges";
 import {
@@ -21,6 +21,7 @@ type LiteFiltrosBarProps = {
   /** Oculta los chips de tipo de estudio cuando la lista es de temas. */
   mostrarTipo: boolean;
   resultados: number;
+  onViewSettingsClick?: () => void;
 };
 
 function Chip({
@@ -53,6 +54,7 @@ export function LiteFiltrosBar({
   onChange,
   mostrarTipo,
   resultados,
+  onViewSettingsClick,
 }: LiteFiltrosBarProps) {
   const [abierto, setAbierto] = useState(false);
   const activos = contarLiteFiltrosActivos(filtros);
@@ -109,6 +111,17 @@ export function LiteFiltrosBar({
             </span>
           ) : null}
         </button>
+
+        {mostrarTipo && onViewSettingsClick ? (
+          <button
+            type="button"
+            onClick={onViewSettingsClick}
+            aria-label="Vistas"
+            className="lite-icon-btn flex-none"
+          >
+            <LayoutGrid className="h-[17px] w-[17px]" strokeWidth={2} aria-hidden />
+          </button>
+        ) : null}
       </div>
 
       {abierto ? (
