@@ -87,7 +87,42 @@ Se usa `insertSeguimiento` de `lib/estudio-queries.ts` (regla de dimensión
 única: exactamente uno de `tema_id` / `curso_id` / `clase_id`) y después
 `refreshSnapshot()`, según ADR 003 regla 5.
 
-### 7. Lenguaje visual propio, aislado
+### 7. Portada del material externo
+
+El link del ítem se presenta como **portada del video**, no como botón: tarjeta
+16:9 en el detalle y miniatura de 64 px en la card del listado. Tocarla abre el
+link en otra pestaña, igual que antes.
+
+**YouTube se resuelve en el cliente.** `youtubeVideoIdFromUrl` y
+`youtubeThumbnailUrl` (`lib/link-preview.ts`) son puras: la miniatura sale del
+id del video sin pedirle nada a `/api/link-preview`. Solo Platzi y otros
+dominios pagan el round-trip, que sigue siendo el mismo endpoint que usa
+académico.
+
+**Caché a nivel módulo** en `lib/academico-lite-preview.ts`, compartida entre
+montajes, con dedup de pedidos en curso. Sin ella habría un pedido por card,
+repetido al filtrar, cambiar de pestaña o cerrar el detalle; el preset `apis`
+del service worker guarda solo 16 entradas y no alcanza. Los negativos de
+origen HTTP se cachean; los fallos de red **no**, para poder reintentar.
+
+**El fallback es el botón, no el favicon.** Sin conexión, sin `og:image` o con
+la imagen rota (`onError`), vuelve el botón verde de siempre. La pantalla nunca
+pierde el acceso al material — es la diferencia principal con
+`ExternalLinkPreview`, que cae a un favicon.
+
+El componente marca los links ya intentados: un fallo de red no escribe en la
+caché, así que sin esa marca el skeleton quedaría girando para siempre.
+
+**El ancho de la miniatura es una decisión medida.** Cada píxel se lo saca a la
+columna de texto y parte títulos y badges en más líneas. Con 84 px el alto total
+del listado subía fuerte y tres cards partían los badges en dos líneas; con
+64 px el costo es **+3,4 %** de alto total y el mismo alto máximo de card que
+antes. No agrandar sin volver a medir.
+
+`ExternalLinkPreview` y el modo académico **no se tocan**: sus estilos son del
+tema claro y su fallback es otro.
+
+### 8. Lenguaje visual propio, aislado
 
 Todo el CSS vive bajo `.lite-root` en `app/globals.css`, con prefijo de
 variables `--lt-*`. No redefine `--paper`, `--td-*` ni `--ds-*`: las pantallas
@@ -101,7 +136,7 @@ tipografía Inter con `letter-spacing` negativo en títulos.
 `app/page.tsx` adopta el mismo lenguaje — es la pantalla donde vive la entrada
 nueva y quedaba incoherente mantener el estilo viejo al lado.
 
-### 8. Animaciones — ADR 006 sigue mandando
+### 9. Animaciones — ADR 006 sigue mandando
 
 El panel de detalle y el sheet de estado **aparecen instantáneos**: nada de
 `translateY` animado al montar. El feedback vive en el control tocado
@@ -130,4 +165,5 @@ control segmentado, hover de cards), con `prefers-reduced-motion` cubierto.
 | Pantalla | `app/lite/page.tsx`, `components/lite/lite-view.tsx` |
 | Detalle en pila | `components/lite/lite-detalle-panel.tsx` |
 | Sheet de estado | `components/lite/lite-estado-sheet.tsx` |
+| Portada del material | `lib/academico-lite-preview.ts`, `components/lite/lite-link-preview.tsx` |
 | Sistema visual | `app/globals.css` → bloque `.lite-root` |

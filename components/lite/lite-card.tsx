@@ -2,8 +2,9 @@
 
 import { ChevronRight } from "lucide-react";
 import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
+import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { LiteMediaRow } from "@/components/lite/lite-media-icon";
-import { liteMedios } from "@/lib/academico-lite-media";
+import { liteMedios, type LiteMedia } from "@/lib/academico-lite-media";
 import type { LiteItem } from "@/lib/academico-lite-read";
 
 type LiteCardProps = {
@@ -27,7 +28,7 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
   return (
     <button type="button" className="lite-card p-4" onClick={() => onSelect(item)}>
       <span className="flex items-start gap-3.5">
-        <LiteMediaRow medios={medios} />
+        <LiteCardMedia medios={medios} />
 
         <span className="min-w-0 flex-1">
           {mostrarPadre && item.parentNombre ? (
@@ -62,5 +63,22 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
         />
       </span>
     </button>
+  );
+}
+
+/**
+ * Miniatura del video cuando hay portada; si no, la fila de íconos de siempre.
+ * El fallback conserva los dos medios (link + documento), que la portada no muestra.
+ */
+function LiteCardMedia({ medios }: { medios: LiteMedia[] }) {
+  const principal = medios.find((m) => m.href);
+  if (!principal) return <LiteMediaRow medios={medios} />;
+
+  return (
+    <LiteLinkPreview
+      media={principal}
+      variant="thumb"
+      fallback={<LiteMediaRow medios={medios} />}
+    />
   );
 }
