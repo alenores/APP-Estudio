@@ -19,6 +19,11 @@ const STATIC_ASSET_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
 
 const BRAND_STATIC_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
 
+/**
+ * Los documentos HTML los atiende `worker/index.js` (ADR 012), por eso se quita
+ * el preset `others` de next-pwa: dejaría navegaciones y payloads RSC en una
+ * caché de 32 entradas / 24 h, insuficiente para consultar sin conexión.
+ */
 const defaultCachePresets = (cachePresets as Array<{ options?: { cacheName?: string } }>).filter(
   (entry) => entry.options?.cacheName !== "others",
 );
@@ -30,17 +35,24 @@ const withPWA = withPWAInit({
   clientsClaim: true,
   disable: process.env.NODE_ENV === "development",
   cacheOnFrontEndNav: true,
+  /** El documento de `/` lo cachea el custom worker junto al resto (ADR 012). */
+  cacheStartUrl: false,
   fallbacks: {
     document: "/offline",
   },
   runtimeCaching: [
+    /**
+     * Chunks y CSS con caché propia y tope alto: la app tiene una ruta por
+     * pantalla y el preset genérico `.js` (32 entradas / 24 h) los desalojaba,
+     * dejando documentos cacheados sin su JavaScript.
+     */
     {
       urlPattern: /\/_next\/static\/chunks\/.+\.js$/i,
       handler: "StaleWhileRevalidate",
       options: {
-        cacheName: "static-js-assets",
+        cacheName: "app-static-chunks",
         expiration: {
-          maxEntries: 64,
+          maxEntries: 384,
           maxAgeSeconds: STATIC_ASSET_MAX_AGE_SECONDS,
         },
         cacheableResponse: { statuses: [0, 200] },
@@ -50,9 +62,41 @@ const withPWA = withPWAInit({
       urlPattern: /\/_next\/static\/css\/.+\.css$/i,
       handler: "StaleWhileRevalidate",
       options: {
-        cacheName: "static-style-assets",
+        cacheName: "app-static-css",
         expiration: {
-          maxEntries: 32,
+          maxEntries: 64,
+          maxAgeSeconds: STATIC_ASSET_MAX_AGE_SECONDS,
+        },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    /** Fuentes del build (`next/font`): el preset de fuentes guarda solo 4 / 7 días. */
+    {
+      urlPattern: /\/_next\/static\/media\/.+$/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "app-static-media",
+        expiration: {
+          maxEntries: 64,
+          maxAgeSeconds: BRAND_STATIC_MAX_AGE_SECONDS,
+        },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    /**
+     * Payloads RSC de navegación cliente (`?_rsc=`). Con `ignoreVary` porque la
+     * respuesta varía por `Next-Router-State-Tree` y nunca reencontraría su entrada.
+     */
+    {
+      urlPattern: ({ url }: { url: URL }) =>
+        self.origin === url.origin && url.searchParams.has("_rsc"),
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "app-rsc-payloads",
+        networkTimeoutSeconds: 4,
+        matchOptions: { ignoreVary: true },
+        expiration: {
+          maxEntries: 128,
           maxAgeSeconds: STATIC_ASSET_MAX_AGE_SECONDS,
         },
         cacheableResponse: { statuses: [0, 200] },

@@ -10,15 +10,13 @@ import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
 import { formatFormParentSubtitle } from "@/lib/form-parent-context";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { ClaseDetalleView } from "@/components/mobile/detalle/clase-detalle-view";
-import { useParams } from "next/navigation";
-import { parseEntityId } from "@/lib/parse-entity-id";
+import { useRouteEntityId } from "@/app/hooks/useRouteEntityId";
 import { useState } from "react";
 
 type ClaseSheet = null | "seguimiento" | "concepto";
 
 export default function ClaseDetallePage() {
-  const params = useParams();
-  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
+  const id = useRouteEntityId();
   const { clase, seguimientos, conceptos, loading, error, reload, metrics } =
     useClaseDetalleMetrics(id);
   const [sheet, setSheet] = useState<ClaseSheet>(null);
