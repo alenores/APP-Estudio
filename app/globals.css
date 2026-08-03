@@ -2237,12 +2237,12 @@ body:has(.lite-root) {
   border-radius: 18px;
 }
 
-/* Miniatura de card: angosta a propósito. Cada píxel de ancho se lo saca a la
-   columna de texto y hace que el título y los badges se partan en más líneas. */
+/* Miniatura bajo el título: compacta, alineada a la izquierda. */
 .lite-preview--thumb {
-  width: 64px;
+  width: 112px;
+  max-width: 42%;
   aspect-ratio: 16 / 9;
-  border-radius: 9px;
+  border-radius: 10px;
 }
 
 /* La portada de YouTube (`hqdefault`, 4:3) trae barras negras: el recorte se las come. */

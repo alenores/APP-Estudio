@@ -15,8 +15,8 @@ type LiteCardProps = {
 };
 
 /**
- * Card del listado. Solo tres datos además del nombre (ADR 012):
- * medio (video / documento), estado y tipo de estudio.
+ * Card del listado. Título a ancho completo; el video (o íconos) va debajo,
+ * alineado a la izquierda — cursos y clases (ADR 012).
  */
 export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps) {
   const medios = liteMedios(item);
@@ -24,12 +24,11 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
     item.hijosTotal > 0
       ? Math.round((item.hijosTerminados / item.hijosTotal) * 100)
       : null;
+  const tieneMedia = medios.length > 0;
 
   return (
     <button type="button" className="lite-card p-4" onClick={() => onSelect(item)}>
-      <span className="flex items-start gap-3.5">
-        <LiteCardMedia medios={medios} />
-
+      <span className="flex items-start gap-3">
         <span className="min-w-0 flex-1">
           {mostrarPadre && item.parentNombre ? (
             <span className="mb-1 block truncate text-[11.5px] font-semibold uppercase tracking-[0.1em] text-[var(--lt-text-3)]">
@@ -37,7 +36,15 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
             </span>
           ) : null}
 
-          <span className="lite-title block">{item.nombre}</span>
+          <span className="lite-title block text-[17px] leading-snug">
+            {item.nombre}
+          </span>
+
+          {tieneMedia ? (
+            <span className="mt-3 block">
+              <LiteCardMedia medios={medios} />
+            </span>
+          ) : null}
 
           <span className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1.5">
             <LiteEstadoBadge estado={item.estado} />
@@ -67,8 +74,7 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
 }
 
 /**
- * Miniatura del video cuando hay portada; si no, la fila de íconos de siempre.
- * El fallback conserva los dos medios (link + documento), que la portada no muestra.
+ * Miniatura del video debajo del título; si no hay portada, la fila de íconos.
  */
 function LiteCardMedia({ medios }: { medios: LiteMedia[] }) {
   const principal = medios.find((m) => m.href);
