@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { useEffect, useMemo, useState } from "react";
 import { LiteCard } from "@/components/lite/lite-card";
 import { LiteConceptosPlayer } from "@/components/lite/lite-conceptos-player";
+import { LiteContenidoPlayer } from "@/components/lite/lite-contenido-player";
 import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { liteMedios } from "@/lib/academico-lite-media";
@@ -194,9 +195,7 @@ export function LiteDetallePanel({
           ) : null}
 
           {tab === "contenido" ? (
-            <article className="lite-panel lite-prose p-5">
-              <ReactMarkdown>{contenido}</ReactMarkdown>
-            </article>
+            <LiteContenidoPlayer contenido={contenido} />
           ) : null}
 
           {tab === "conceptos" ? (
