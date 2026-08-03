@@ -17,8 +17,8 @@ import { CaracteristicaForm } from "@/components/shared/forms/caracteristica-for
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { isMobileShellClient } from "@/lib/shell-detect";
-import { useParams, useRouter } from "next/navigation";
-import { parseEntityId } from "@/lib/parse-entity-id";
+import { useRouter } from "next/navigation";
+import { useRouteEntityId } from "@/app/hooks/useRouteEntityId";
 import { Play, StickyNote } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -28,8 +28,7 @@ type AppShellKind = "mobile" | "desktop";
 
 function AccionDetalleMobile() {
   const router = useRouter();
-  const params = useParams();
-  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
+  const id = useRouteEntityId();
   const { accion, especifica, general, caracteristicas, pendientes, loading, error, reload } =
     useAccionDetalle(id);
   const [sheet, setSheet] = useState<SheetState>(null);

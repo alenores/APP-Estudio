@@ -22,8 +22,8 @@ import { DefinicionEspecificaForm } from "@/components/shared/forms/definicion-e
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { AlertText, LoadingText, TextLink } from "@/components/ui";
 import { isMobileShellClient } from "@/lib/shell-detect";
-import { useParams, useRouter } from "next/navigation";
-import { parseEntityId } from "@/lib/parse-entity-id";
+import { useRouter } from "next/navigation";
+import { useRouteEntityId } from "@/app/hooks/useRouteEntityId";
 import { CornerDownRight, Play, StickyNote } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -37,8 +37,7 @@ type AppShellKind = "mobile" | "desktop";
 
 function DefinicionEspecificaDetalleMobile() {
   const router = useRouter();
-  const params = useParams();
-  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
+  const id = useRouteEntityId();
   const {
     especifica,
     general,

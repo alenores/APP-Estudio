@@ -19,8 +19,8 @@ import { DefinicionGeneralForm } from "@/components/shared/forms/definicion-gene
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { AlertText, LoadingText } from "@/components/ui";
 import { isMobileShellClient } from "@/lib/shell-detect";
-import { useParams, useRouter } from "next/navigation";
-import { parseEntityId } from "@/lib/parse-entity-id";
+import { useRouter } from "next/navigation";
+import { useRouteEntityId } from "@/app/hooks/useRouteEntityId";
 import { GitBranch, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -30,8 +30,7 @@ type AppShellKind = "mobile" | "desktop";
 
 function DefinicionGeneralDetalleMobile() {
   const router = useRouter();
-  const params = useParams();
-  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
+  const id = useRouteEntityId();
   const { general, especificas, accionesCountByEspecifica, pendientes, loading, error, reload } =
     useDefinicionGeneralDetalle(id);
   const [sheet, setSheet] = useState<SheetState>(null);

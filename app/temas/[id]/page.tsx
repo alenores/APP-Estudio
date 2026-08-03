@@ -17,8 +17,7 @@ import { ConceptoForm } from "@/components/shared/forms/concepto-form";
 import { SeguimientoForm } from "@/components/shared/forms/seguimiento-form";
 import { StudySheet } from "@/components/mobile/sheets/study-sheet";
 import { TemaDetalleView } from "@/components/mobile/detalle/tema-detalle-view";
-import { useParams } from "next/navigation";
-import { parseEntityId } from "@/lib/parse-entity-id";
+import { useRouteEntityId } from "@/app/hooks/useRouteEntityId";
 import { useState } from "react";
 
 type SheetState =
@@ -28,8 +27,7 @@ type SheetState =
   | { mode: "concepto"; parent: ConceptoParent; contextLabel?: string };
 
 export default function TemaDetallePage() {
-  const params = useParams();
-  const id = parseEntityId(typeof params.id === "string" ? params.id : undefined);
+  const id = useRouteEntityId();
   const { tema, cursos, seguimientos, conceptos, loading, error, reload, metrics } =
     useTemaDetalleMetrics(id);
   const [sheet, setSheet] = useState<SheetState>(null);

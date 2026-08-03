@@ -23,6 +23,7 @@ Antes de cambiar Supabase, PWA, home o capas del frontend, leer **en este orden*
 | `docs/adr/010-mapa-detalle-lienzo-cap1.md` | **Mapa capa 1** — overlay hijos + `enlaces_hijos_nodos` |
 | `docs/adr/011-tipologia-desarrollos.md` | **Tipología desarrollos** — stack propio + snapshot separado |
 | `docs/adr/012-academico-lite.md` | **Académico lite** — vista de consumo sobre tablas académico + diseño `--lt-*` |
+| `docs/adr/013-shell-offline-navegacion.md` | **Shell offline** — documentos por familia, id desde la URL |
 | `docs/pwa-arranque-checklist.md` | **Checklist obligatorio** PWA + Vercel antes del primer deploy |
 
 **Patrón de datos:** inspirado en *Vías de Escalada Córdoba* (`offline-cache`, `useOfflineData`), adaptado a tablas Estudio — **no** copiar imágenes ni warm de sectores.
@@ -38,6 +39,15 @@ Schema SQL: `docs/sql/001-schema-estudio.sql` (estudio); `docs/sql/002-schema-ma
 - **Excepción en red:** previews de links (`ExternalLinkPreview`, `/api/link-preview`).
 - Schema: nombres **exactos** ADR 002; sin heurísticas de columnas.
 - SW: **NetworkOnly** para `*.supabase.co` (el paquete no es caché del SW).
+
+### Offline real (ADR 013)
+
+- Documentos HTML: los atiende `worker/index.js`, **no** Workbox. Una shell por
+  familia (`/temas/*`) sirve cualquier id.
+- En páginas de detalle el id sale de `useRouteEntityId()` (URL), **nunca** de
+  `useParams()`: sin red el documento puede ser el de otro id.
+- Al tocar SW, cachés o rutas de detalle: verificar con `npm start` y el
+  **servidor apagado** (ADR 013 §Verificación).
 
 ### PWA (ADR 004)
 
@@ -71,6 +81,7 @@ Antes de animar modales, FAB o menús: leer `docs/adr/006-feedback-ui-movil.md`.
 | Tipos padre form | `lib/form-parent-types.ts` |
 | Auth | login + `lib/supabase/client.ts` |
 | Install PWA | `lib/pwa-*.ts`, `app/install-pwa-button.tsx`, `components/mobile/pwa/` |
+| Shell offline / navegación sin red | `lib/pwa-offline-shell.ts`, `worker/index.js`, `app/hooks/useRouteEntityId.ts`, `components/shared/offline/` |
 | Detalle móvil tema/curso/clase | `components/mobile/detalle/` |
 | Shell escritorio + explorador | `app/(desktop)/`, `components/desktop/`, `lib/shell-*.ts`, `useEstudioExplorer` |
 | Mapa conocimiento (solo PC) | `app/(desktop)/mapa/`, `components/desktop/mapa/`, `lib/mapa-queries.ts`, `lib/temas-lienzo-queries.ts`, `useMapaGrafo` |
@@ -128,6 +139,9 @@ lib/estudio-offline-read.ts          → lectura local derivados
 app/hooks/useEstudioData.tsx         → contexto paquete local
 lib/estudio-queries.ts               → sync remoto + CRUD
 middleware.ts                        → protege /temas, /seguimientos
+worker/index.js                      → custom worker: documentos + shells offline (ADR 013)
+lib/pwa-offline-shell.ts             → familias de shell, caché y id desde la URL
+app/hooks/useRouteEntityId.ts        → id de detalle leído de location (ADR 013)
 next.config.ts                       → PWA; NetworkOnly Supabase
 ```
 
@@ -144,7 +158,8 @@ npm start        # probar PWA + install
 ## Build y PWA
 
 - Dev: `npm run dev` (PWA desactivada).
-- `public/sw.js`, `workbox-*.js`, `fallback-*.js` se generan en build — **no commitear**.
+- `public/sw.js`, `workbox-*.js`, `fallback-*.js`, `worker-*.js` se generan en build — **no commitear**.
+- `next start` lee `public/` al arrancar: tras un build nuevo hay que **reiniciar** el server o el SW pide `worker-*.js` y da 404.
 
 ## Convención de commits
 
