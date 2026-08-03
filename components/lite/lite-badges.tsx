@@ -43,6 +43,13 @@ export function LiteEstadoBadge({
   );
 }
 
+export function liteEstadoSolidColors(estado: EstadoSeguimiento | null) {
+  if (estado === "en curso") return "bg-[var(--lt-accent)] text-white";
+  if (estado === "terminado") return "bg-[#00C853] text-white";
+  if (estado === "pausado") return "bg-[#FF9800] text-white";
+  return "bg-[#2A2A2A] text-white/50"; // sin empezar o nulo
+}
+
 export function LiteTipoBadge({ tipo }: { tipo: TipoEstudio | null }) {
   if (!tipo) return null;
   return <span className="lite-tipo">{tipoEstudioLabel(tipo)}</span>;

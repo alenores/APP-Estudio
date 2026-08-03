@@ -1,6 +1,6 @@
 "use client";
 
-import { liteEstadoClass, liteEstadoLabel } from "@/components/lite/lite-badges";
+import { liteEstadoSolidColors, LiteTipoBadge } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { LiteMediaRow } from "@/components/lite/lite-media-icon";
 import { liteMedios } from "@/lib/academico-lite-media";
@@ -15,6 +15,11 @@ export function LiteCursoHeroCard({
 }) {
   const medios = liteMedios(item);
   const principal = medios.find((m) => m.href);
+
+  let labelStrip = "SIN EMPEZAR";
+  if (item.estado === "en curso") labelStrip = "EN CURSO";
+  if (item.estado === "terminado") labelStrip = "TERMINADO";
+  if (item.estado === "pausado") labelStrip = "PAUSADO";
 
   return (
     <div className="relative w-full overflow-hidden rounded-[18px] bg-[#1a1a1a] shadow-lg mb-4 lite-card">
@@ -46,10 +51,13 @@ export function LiteCursoHeroCard({
         </h3>
       </button>
 
-      {/* Etiquetas superpuestas (estado) */}
-      <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2">
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md ${liteEstadoClass(item.estado)}`}>
-          {liteEstadoLabel(item.estado)}
+      {/* Etiquetas superpuestas */}
+      <div className="pointer-events-none absolute bottom-3 left-3 right-3 flex items-center justify-between">
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider shadow-md ${liteEstadoSolidColors(item.estado)}`}>
+          {labelStrip}
+        </span>
+        <span className="pointer-events-auto">
+          <LiteTipoBadge tipo={item.tipoEstudio} />
         </span>
       </div>
     </div>

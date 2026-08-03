@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
-import { liteEstadoClass, liteEstadoLabel } from "@/components/lite/lite-badges";
+import { liteEstadoSolidColors } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { LiteMediaRow } from "@/components/lite/lite-media-icon";
 import { liteMedios } from "@/lib/academico-lite-media";
@@ -16,6 +16,11 @@ export function LiteCursoGridCard({
 }) {
   const medios = liteMedios(item);
   const principal = medios.find((m) => m.href);
+
+  let labelStrip = "SIN EMPEZAR";
+  if (item.estado === "en curso") labelStrip = "EN CURSO";
+  if (item.estado === "terminado") labelStrip = "TERMINADO";
+  if (item.estado === "pausado") labelStrip = "PAUSADO";
 
   return (
     <button
@@ -38,8 +43,8 @@ export function LiteCursoGridCard({
           {item.nombre}
         </span>
         <div className="mt-2 flex items-center justify-between">
-          <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${liteEstadoClass(item.estado)}`} style={{ background: "transparent", color: "var(--lt-text-3)" }}>
-            {liteEstadoLabel(item.estado)}
+          <span className={`inline-block rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wider ${liteEstadoSolidColors(item.estado)}`}>
+            {labelStrip}
           </span>
         </div>
       </div>

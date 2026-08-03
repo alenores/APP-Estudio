@@ -2,6 +2,7 @@
 
 import type { LiteItem } from "@/lib/academico-lite-read";
 import type { EstadoSeguimiento } from "@/lib/estado-ui";
+import { liteEstadoSolidColors } from "@/components/lite/lite-badges";
 
 export function LiteGridCard({
   item,
@@ -18,22 +19,10 @@ export function LiteGridCard({
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (pct / 100) * circumference;
 
-  let bgStrip = "bg-[#2A2A2A]";
-  let textStrip = "text-white/50";
   let labelStrip = "SIN EMPEZAR";
-  if (item.estado === "en curso") {
-    bgStrip = "bg-[var(--lt-accent)]";
-    textStrip = "text-white";
-    labelStrip = "EN CURSO";
-  } else if (item.estado === "terminado") {
-    bgStrip = "bg-[#00C853]";
-    textStrip = "text-white";
-    labelStrip = "TERMINADO";
-  } else if (item.estado === "pausado") {
-    bgStrip = "bg-[#FF9800]";
-    textStrip = "text-white";
-    labelStrip = "PAUSADO";
-  }
+  if (item.estado === "en curso") labelStrip = "EN CURSO";
+  if (item.estado === "terminado") labelStrip = "TERMINADO";
+  if (item.estado === "pausado") labelStrip = "PAUSADO";
 
   return (
     <button
@@ -77,7 +66,7 @@ export function LiteGridCard({
       </div>
 
       <div 
-        className={`w-full py-1.5 flex items-center justify-center text-[9px] font-bold tracking-widest ${bgStrip} ${textStrip}`}
+        className={`w-full py-1.5 flex items-center justify-center text-[9px] font-bold tracking-widest ${liteEstadoSolidColors(item.estado)}`}
       >
         {labelStrip}
       </div>
