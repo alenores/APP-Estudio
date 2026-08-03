@@ -42,7 +42,7 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
 
           {tieneMedia ? (
             <span className="mt-3 block">
-              <LiteCardMedia medios={medios} />
+              <LiteCardMedia medios={medios} kind={item.kind} />
             </span>
           ) : null}
 
@@ -74,11 +74,15 @@ export function LiteCard({ item, mostrarPadre = false, onSelect }: LiteCardProps
 }
 
 /**
- * Miniatura del video debajo del título; si no hay portada, la fila de íconos.
+ * Miniatura del video debajo del título; si no hay portada (o si es una clase),
+ * se muestra solo la fila de íconos para evitar repetir portadas de cursos.
  */
-function LiteCardMedia({ medios }: { medios: LiteMedia[] }) {
+function LiteCardMedia({ medios, kind }: { medios: LiteMedia[]; kind: LiteItem["kind"] }) {
   const principal = medios.find((m) => m.href);
-  if (!principal) return <LiteMediaRow medios={medios} />;
+  
+  // En las clases no mostramos miniatura gigante en el listado para igualar 
+  // la versión académica y evitar repetir la portada genérica del curso.
+  if (!principal || kind === "clase") return <LiteMediaRow medios={medios} />;
 
   return (
     <LiteLinkPreview
