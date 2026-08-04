@@ -3,6 +3,8 @@
 import { Lightbulb, Pause, Play, Square } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Concepto } from "@/app/types/estudio";
+import { useLiteTtsFollowScroll } from "@/app/hooks/useLiteTtsFollowScroll";
+import { splitIntoChunks } from "@/lib/lite-tts-blocks";
 import {
   clearLiteTtsProgress,
   estimateSpeechSeconds,
@@ -19,34 +21,6 @@ type LiteConceptosPlayerProps = {
   progressKey: string;
 };
 
-/** Chrome Android falla con textos largos: trozos cortos en cola. */
-function splitIntoChunks(text: string, maxLen = 160): string[] {
-  if (text.length <= maxLen) return [text];
-  const chunks: string[] = [];
-  let start = 0;
-  while (start < text.length) {
-    let end = Math.min(start + maxLen, text.length);
-    if (end < text.length) {
-      const sentenceEnd = Math.max(
-        text.lastIndexOf(". ", end),
-        text.lastIndexOf("! ", end),
-        text.lastIndexOf("? ", end),
-        text.lastIndexOf("\n", end),
-      );
-      if (sentenceEnd > start) {
-        end = sentenceEnd + 1;
-      } else {
-        const wordEnd = text.lastIndexOf(" ", end);
-        if (wordEnd > start) end = wordEnd;
-      }
-    }
-    const chunk = text.slice(start, end).trim();
-    if (chunk) chunks.push(chunk);
-    start = end;
-  }
-  return chunks;
-}
-
 function textoConcepto(c: Concepto): string {
   const titulo = c.titulo.trim();
   const desc = c.descripcion.trim();
@@ -55,8 +29,8 @@ function textoConcepto(c: Concepto): string {
 }
 
 /**
- * Mini-player de conceptos en lite: lee título + descripción uno detrás de otro.
- * Barra orientativa + estimado; avance guardado por ítem en localStorage.
+ * Mini-player de conceptos: marca el activo, lo centra y permite scrollear
+ * para saltar al concepto del medio de la pantalla.
  */
 export function LiteConceptosPlayer({
   conceptos,
@@ -73,6 +47,11 @@ export function LiteConceptosPlayer({
   const chunkInConceptoRef = useRef(0);
   const fractionRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const itemElsRef = useRef<Array<HTMLElement | null>>([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const speakFromRef = useRef<(startIndex: number, startChunk?: number) => void>(
+    () => {},
+  );
 
   const hasActive = isPlaying || isPaused;
   const conceptosKey = useMemo(
@@ -110,7 +89,6 @@ export function LiteConceptosPlayer({
         clearLiteTtsProgress(progressKey);
         return;
       }
-      // Concepto 0 y trozo 0 = empezar de cero; no persistir.
       if (index <= 0 && chunkIndex <= 0) return;
       writeLiteTtsProgress(progressKey, {
         fingerprint,
@@ -123,14 +101,22 @@ export function LiteConceptosPlayer({
   );
 
   const startTick = useCallback(
-    (chunkText: string, conceptoIdx: number, chunkIdx: number, chunksLen: number) => {
+    (
+      chunkText: string,
+      conceptoIdx: number,
+      chunkIdx: number,
+      chunksLen: number,
+    ) => {
       stopTick();
       const chunkSec = Math.max(0.4, estimateSpeechSeconds(chunkText));
       const startedAt = Date.now();
       const baseFrac = chunksLen > 0 ? chunkIdx / chunksLen : 0;
       const span = chunksLen > 0 ? 1 / chunksLen : 1;
       tickRef.current = setInterval(() => {
-        const local = Math.min(0.95, (Date.now() - startedAt) / (chunkSec * 1000));
+        const local = Math.min(
+          0.95,
+          (Date.now() - startedAt) / (chunkSec * 1000),
+        );
         const frac = Math.min(0.95, baseFrac + local * span);
         fractionRef.current = frac;
         setFractionInConcepto(frac);
@@ -219,7 +205,11 @@ export function LiteConceptosPlayer({
           utt.onerror = () => {
             if (runId !== runIdRef.current) return;
             stopTick();
-            persist(indexRef.current, chunkInConceptoRef.current, fractionRef.current);
+            persist(
+              indexRef.current,
+              chunkInConceptoRef.current,
+              fractionRef.current,
+            );
             setIsPlaying(false);
             setIsPaused(false);
           };
@@ -243,6 +233,28 @@ export function LiteConceptosPlayer({
     },
     [conceptos, persist, progressKey, startTick, stopTick],
   );
+
+  speakFromRef.current = speakFrom;
+
+  const handleSeekConcepto = useCallback(
+    (index: number) => {
+      chunkInConceptoRef.current = 0;
+      fractionRef.current = 0;
+      setFractionInConcepto(0);
+      speakFromRef.current(index, 0);
+    },
+    [],
+  );
+
+  const { focusIndex } = useLiteTtsFollowScroll({
+    followEnabled: isPlaying,
+    scrubEnabled: hasActive,
+    activeIndex: conceptoIndex,
+    itemCount: conceptos.length,
+    getElements: () => itemElsRef.current,
+    anchorRef: rootRef,
+    onSeek: handleSeekConcepto,
+  });
 
   const handlePlay = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -299,13 +311,9 @@ export function LiteConceptosPlayer({
     chunkInConceptoRef.current = chunkIdx;
     fractionRef.current = 0;
     setConceptoIndex(idx);
-    setFractionInConcepto(
-      idx > 0 && textos[idx]
-        ? 0
-        : 0,
-    );
+    setFractionInConcepto(0);
     setActivoId(null);
-  }, [progressKey, fingerprint, conceptos.length, textos]);
+  }, [progressKey, fingerprint, conceptos.length]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -345,9 +353,11 @@ export function LiteConceptosPlayer({
   }, [conceptosKey, progressKey, stopTick]);
 
   const etiqueta = isPlaying
-    ? activoId != null
-      ? `Leyendo ${conceptos.findIndex((c) => c.id === activoId) + 1} de ${conceptos.length}`
-      : "Reproduciendo…"
+    ? focusIndex != null && focusIndex !== conceptoIndex
+      ? "Elegí el concepto…"
+      : activoId != null
+        ? `Leyendo ${conceptos.findIndex((c) => c.id === activoId) + 1} de ${conceptos.length}`
+        : "Reproduciendo…"
     : isPaused
       ? "En pausa"
       : conceptoIndex > 0
@@ -357,7 +367,7 @@ export function LiteConceptosPlayer({
   const progressPct = `${Math.round(progress * 1000) / 10}%`;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" ref={rootRef}>
       <div className="lite-tts-bar">
         <div className="lite-tts-card">
           <div className="lite-tts-card-main">
@@ -370,7 +380,12 @@ export function LiteConceptosPlayer({
                 isPaused || conceptoIndex > 0 ? "Continuar" : "Escuchar conceptos"
               }
             >
-              <Play className="h-[15px] w-[15px]" fill="currentColor" strokeWidth={0} aria-hidden />
+              <Play
+                className="h-[15px] w-[15px]"
+                fill="currentColor"
+                strokeWidth={0}
+                aria-hidden
+              />
             </button>
 
             <div className="min-w-0 flex-1">
@@ -383,7 +398,11 @@ export function LiteConceptosPlayer({
                 </p>
               ) : !hasActive ? (
                 <p className="text-[11px] leading-tight text-[var(--lt-text-3)]">
-                  {conceptos.length} en secuencia
+                  {conceptos.length} en secuencia · scroll para saltar
+                </p>
+              ) : focusIndex != null ? (
+                <p className="text-[11px] leading-tight text-[var(--lt-text-3)]">
+                  Soltá para leer este concepto
                 </p>
               ) : null}
             </div>
@@ -405,7 +424,12 @@ export function LiteConceptosPlayer({
               className="lite-tts-ctrl"
               aria-label="Detener"
             >
-              <Square className="h-[12px] w-[12px]" fill="currentColor" strokeWidth={0} aria-hidden />
+              <Square
+                className="h-[12px] w-[12px]"
+                fill="currentColor"
+                strokeWidth={0}
+                aria-hidden
+              />
             </button>
           </div>
 
@@ -430,22 +454,17 @@ export function LiteConceptosPlayer({
 
       <ul className="space-y-2.5">
         {conceptos.map((concepto, i) => {
-          const activo = concepto.id === activoId;
+          const activo = concepto.id === activoId && hasActive;
+          const focused = focusIndex === i && !activo;
           return (
             <li
               key={concepto.id}
-              className="lite-panel p-4 transition-[border-color,background] duration-150"
+              ref={(el) => {
+                itemElsRef.current[i] = el;
+              }}
+              className="lite-panel lite-tts-block p-4 transition-[border-color,background] duration-150"
               data-tts-active={activo ? "true" : undefined}
-              style={
-                activo
-                  ? {
-                      borderColor:
-                        "color-mix(in srgb, var(--lt-accent) 45%, var(--lt-line))",
-                      background:
-                        "color-mix(in srgb, var(--lt-accent) 8%, var(--lt-surface))",
-                    }
-                  : undefined
-              }
+              data-tts-focus={focused ? "true" : undefined}
             >
               <div className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-[22px] w-[22px] flex-none items-center justify-center">

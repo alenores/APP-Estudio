@@ -3,6 +3,8 @@
 import { Pause, Play, Square } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLiteTtsFollowScroll } from "@/app/hooks/useLiteTtsFollowScroll";
+import { splitMarkdownIntoTtsBlocks } from "@/lib/lite-tts-blocks";
 import {
   clearLiteTtsProgress,
   estimateSpeechSeconds,
@@ -19,53 +21,9 @@ type LiteContenidoPlayerProps = {
   progressKey: string;
 };
 
-/** Chrome Android falla con textos largos: trozos cortos en cola. */
-function splitIntoChunks(text: string, maxLen = 160): string[] {
-  if (text.length <= maxLen) return [text];
-  const chunks: string[] = [];
-  let start = 0;
-  while (start < text.length) {
-    let end = Math.min(start + maxLen, text.length);
-    if (end < text.length) {
-      const sentenceEnd = Math.max(
-        text.lastIndexOf(". ", end),
-        text.lastIndexOf("! ", end),
-        text.lastIndexOf("? ", end),
-        text.lastIndexOf("\n", end),
-      );
-      if (sentenceEnd > start) {
-        end = sentenceEnd + 1;
-      } else {
-        const wordEnd = text.lastIndexOf(" ", end);
-        if (wordEnd > start) end = wordEnd;
-      }
-    }
-    const chunk = text.slice(start, end).trim();
-    if (chunk) chunks.push(chunk);
-    start = end;
-  }
-  return chunks;
-}
-
-function stripMarkdown(md: string): string {
-  return md
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`[^`]*`/g, " ")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/\*\*([^*]+)\*\*/g, "$1")
-    .replace(/\*([^*]+)\*/g, "$1")
-    .replace(/_([^_]+)_/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^[-*+]\s+/gm, "")
-    .replace(/^\d+\.\s+/gm, "")
-    .replace(/[#*`>~_\-|]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 /**
- * Reproductor TTS + renderizado de Markdown para la vista Lite.
- * Barra orientativa + estimado; avance guardado por ítem en localStorage.
+ * Reproductor TTS + markdown por bloques: marca el bloque activo, lo centra
+ * y permite scrollear para saltar al bloque del medio de la pantalla.
  */
 export function LiteContenidoPlayer({
   contenido,
@@ -73,24 +31,36 @@ export function LiteContenidoPlayer({
 }: LiteContenidoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [chunkIndex, setChunkIndex] = useState(0);
-  const [fractionInChunk, setFractionInChunk] = useState(0);
+  const [blockIndex, setBlockIndex] = useState(0);
+  const [fractionInBlock, setFractionInBlock] = useState(0);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
   const runIdRef = useRef(0);
-  const chunkIndexRef = useRef(0);
+  const blockIndexRef = useRef(0);
+  const chunkInBlockRef = useRef(0);
   const fractionRef = useRef(0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const blockElsRef = useRef<Array<HTMLElement | null>>([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const speakFromRef = useRef<(startBlock: number, startChunk?: number) => void>(
+    () => {},
+  );
 
-  const plain = useMemo(() => stripMarkdown(contenido), [contenido]);
-  const chunks = useMemo(() => splitIntoChunks(plain), [plain]);
-  const fingerprint = useMemo(() => liteTtsFingerprint(plain), [plain]);
+  const blocks = useMemo(
+    () => splitMarkdownIntoTtsBlocks(contenido),
+    [contenido],
+  );
+  const plains = useMemo(() => blocks.map((b) => b.plain), [blocks]);
+  const fingerprint = useMemo(
+    () => liteTtsFingerprint(plains.join("\n")),
+    [plains],
+  );
   const estimatedLabel = useMemo(
-    () => formatSpeechDuration(estimateSpeechSeconds(plain)),
-    [plain],
+    () => formatSpeechDuration(estimateSpeechSeconds(plains.join(" "))),
+    [plains],
   );
 
   const hasActive = isPlaying || isPaused;
-  const progress = progressFromChars(chunks, chunkIndex, fractionInChunk);
+  const progress = progressFromChars(plains, blockIndex, fractionInBlock);
 
   const stopTick = useCallback(() => {
     if (tickRef.current != null) {
@@ -100,34 +70,44 @@ export function LiteContenidoPlayer({
   }, []);
 
   const persist = useCallback(
-    (index: number, fraction = 0) => {
-      if (chunks.length === 0) return;
-      if (index >= chunks.length) {
+    (index: number, chunkIndex: number, fraction = 0) => {
+      if (blocks.length === 0) return;
+      if (index >= blocks.length) {
         clearLiteTtsProgress(progressKey);
         return;
       }
-      // Sin índice avanzado no hay nada que retomar.
-      if (index <= 0) return;
+      if (index <= 0 && chunkIndex <= 0) return;
       writeLiteTtsProgress(progressKey, {
         fingerprint,
         index,
-        chunkIndex: 0,
+        chunkIndex,
       });
       void fraction;
     },
-    [chunks.length, fingerprint, progressKey],
+    [blocks.length, fingerprint, progressKey],
   );
 
   const startTick = useCallback(
-    (chunkText: string, baseIndex: number) => {
+    (
+      chunkText: string,
+      blockIdx: number,
+      chunkIdx: number,
+      chunksLen: number,
+    ) => {
       stopTick();
       const chunkSec = Math.max(0.4, estimateSpeechSeconds(chunkText));
       const startedAt = Date.now();
+      const baseFrac = chunksLen > 0 ? chunkIdx / chunksLen : 0;
+      const span = chunksLen > 0 ? 1 / chunksLen : 1;
       tickRef.current = setInterval(() => {
-        const frac = Math.min(0.95, (Date.now() - startedAt) / (chunkSec * 1000));
+        const local = Math.min(
+          0.95,
+          (Date.now() - startedAt) / (chunkSec * 1000),
+        );
+        const frac = Math.min(0.95, baseFrac + local * span);
         fractionRef.current = frac;
-        setFractionInChunk(frac);
-        persist(baseIndex, frac);
+        setFractionInBlock(frac);
+        persist(blockIdx, chunkIdx, frac);
       }, 250);
     },
     [persist, stopTick],
@@ -141,14 +121,13 @@ export function LiteContenidoPlayer({
     }
     setIsPlaying(false);
     setIsPaused(false);
-    // Stop no borra avance: queda para retomar.
-    persist(chunkIndexRef.current, fractionRef.current);
+    persist(blockIndexRef.current, chunkInBlockRef.current, fractionRef.current);
   }, [persist, stopTick]);
 
   const speakFrom = useCallback(
-    (startIndex: number) => {
+    (startBlock: number, startChunk = 0) => {
       if (typeof window === "undefined" || !window.speechSynthesis) return;
-      if (chunks.length === 0) return;
+      if (blocks.length === 0) return;
 
       const runId = ++runIdRef.current;
       window.speechSynthesis.cancel();
@@ -160,54 +139,99 @@ export function LiteContenidoPlayer({
           : window.speechSynthesis.getVoices();
       const esVoice = voices.find((v) => v.lang.startsWith("es"));
 
-      const speakChunk = (i: number) => {
+      const speakBlock = (i: number, fromChunk: number) => {
         if (runId !== runIdRef.current) return;
-        if (i >= chunks.length) {
+        if (i >= blocks.length) {
           stopTick();
           clearLiteTtsProgress(progressKey);
-          chunkIndexRef.current = 0;
+          blockIndexRef.current = 0;
+          chunkInBlockRef.current = 0;
           fractionRef.current = 0;
-          setChunkIndex(0);
-          setFractionInChunk(0);
+          setBlockIndex(0);
+          setFractionInBlock(0);
           setIsPlaying(false);
           setIsPaused(false);
           return;
         }
 
-        chunkIndexRef.current = i;
-        fractionRef.current = 0;
-        setChunkIndex(i);
-        setFractionInChunk(0);
-        persist(i, 0);
+        blockIndexRef.current = i;
+        setBlockIndex(i);
         setIsPlaying(true);
         setIsPaused(false);
 
-        const utt = new SpeechSynthesisUtterance(chunks[i]);
-        if (esVoice) {
-          utt.voice = esVoice;
-          utt.lang = esVoice.lang;
+        const chunks = blocks[i].chunks;
+        if (chunks.length === 0) {
+          speakBlock(i + 1, 0);
+          return;
         }
-        utt.onerror = () => {
+
+        const first = Math.max(0, Math.min(fromChunk, chunks.length - 1));
+
+        const speakChunk = (chunkIdx: number) => {
           if (runId !== runIdRef.current) return;
-          stopTick();
-          persist(chunkIndexRef.current, fractionRef.current);
-          setIsPlaying(false);
-          setIsPaused(false);
-        };
-        utt.onend = () => {
-          if (runId !== runIdRef.current) return;
-          stopTick();
-          speakChunk(i + 1);
+          if (chunkIdx >= chunks.length) {
+            speakBlock(i + 1, 0);
+            return;
+          }
+
+          chunkInBlockRef.current = chunkIdx;
+          const baseFrac = chunkIdx / chunks.length;
+          fractionRef.current = baseFrac;
+          setFractionInBlock(baseFrac);
+          persist(i, chunkIdx, baseFrac);
+
+          const utt = new SpeechSynthesisUtterance(chunks[chunkIdx]);
+          if (esVoice) {
+            utt.voice = esVoice;
+            utt.lang = esVoice.lang;
+          }
+          utt.onerror = () => {
+            if (runId !== runIdRef.current) return;
+            stopTick();
+            persist(
+              blockIndexRef.current,
+              chunkInBlockRef.current,
+              fractionRef.current,
+            );
+            setIsPlaying(false);
+            setIsPaused(false);
+          };
+          utt.onend = () => {
+            if (runId !== runIdRef.current) return;
+            stopTick();
+            speakChunk(chunkIdx + 1);
+          };
+
+          startTick(chunks[chunkIdx], i, chunkIdx, chunks.length);
+          window.speechSynthesis.speak(utt);
         };
 
-        startTick(chunks[i], i);
-        window.speechSynthesis.speak(utt);
+        speakChunk(first);
       };
 
-      speakChunk(Math.max(0, Math.min(startIndex, chunks.length - 1)));
+      speakBlock(Math.max(0, Math.min(startBlock, blocks.length - 1)), startChunk);
     },
-    [chunks, persist, progressKey, startTick, stopTick],
+    [blocks, persist, progressKey, startTick, stopTick],
   );
+
+  speakFromRef.current = speakFrom;
+
+  const handleSeekBlock = useCallback((index: number) => {
+    chunkInBlockRef.current = 0;
+    fractionRef.current = 0;
+    setFractionInBlock(0);
+    speakFromRef.current(index, 0);
+  }, []);
+
+  const { focusIndex } = useLiteTtsFollowScroll({
+    followEnabled: isPlaying,
+    scrubEnabled: hasActive,
+    activeIndex: blockIndex,
+    itemCount: blocks.length,
+    getElements: () => blockElsRef.current,
+    anchorRef: rootRef,
+    onSeek: handleSeekBlock,
+  });
 
   const handlePlay = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -216,37 +240,51 @@ export function LiteContenidoPlayer({
       window.speechSynthesis.resume();
       setIsPlaying(true);
       setIsPaused(false);
-      const text = chunks[chunkIndexRef.current] ?? "";
-      if (text) startTick(text, chunkIndexRef.current);
+      const chunks = blocks[blockIndexRef.current]?.chunks ?? [];
+      const text = chunks[chunkInBlockRef.current] ?? "";
+      if (text) {
+        startTick(
+          text,
+          blockIndexRef.current,
+          chunkInBlockRef.current,
+          chunks.length || 1,
+        );
+      }
       return;
     }
 
     const start =
-      chunkIndexRef.current > 0 && chunkIndexRef.current < chunks.length
-        ? chunkIndexRef.current
+      blockIndexRef.current > 0 && blockIndexRef.current < blocks.length
+        ? blockIndexRef.current
         : 0;
-    speakFrom(start);
-  }, [chunks, isPaused, speakFrom, startTick]);
+    const startChunk =
+      start === blockIndexRef.current ? chunkInBlockRef.current : 0;
+    speakFrom(start, startChunk);
+  }, [blocks, isPaused, speakFrom, startTick]);
 
   const handlePause = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     window.speechSynthesis.pause();
     stopTick();
-    persist(chunkIndexRef.current, fractionRef.current);
+    persist(blockIndexRef.current, chunkInBlockRef.current, fractionRef.current);
     setIsPlaying(false);
     setIsPaused(true);
   }, [persist, stopTick]);
 
-  // Cargar avance guardado al montar / al cambiar clave o texto.
   useEffect(() => {
     const saved = readLiteTtsProgress(progressKey, fingerprint);
     const idx =
-      saved && saved.index >= 0 && saved.index < chunks.length ? saved.index : 0;
-    chunkIndexRef.current = idx;
+      saved && saved.index >= 0 && saved.index < blocks.length ? saved.index : 0;
+    const chunkIdx =
+      saved && typeof saved.chunkIndex === "number" && saved.chunkIndex > 0
+        ? saved.chunkIndex
+        : 0;
+    blockIndexRef.current = idx;
+    chunkInBlockRef.current = chunkIdx;
     fractionRef.current = 0;
-    setChunkIndex(idx);
-    setFractionInChunk(0);
-  }, [progressKey, fingerprint, chunks.length]);
+    setBlockIndex(idx);
+    setFractionInBlock(0);
+  }, [progressKey, fingerprint, blocks.length]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -258,7 +296,11 @@ export function LiteContenidoPlayer({
     window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
 
     const flush = () => {
-      persist(chunkIndexRef.current, fractionRef.current);
+      persist(
+        blockIndexRef.current,
+        chunkInBlockRef.current,
+        fractionRef.current,
+      );
     };
     window.addEventListener("pagehide", flush);
     document.addEventListener("visibilitychange", flush);
@@ -274,7 +316,6 @@ export function LiteContenidoPlayer({
     };
   }, [persist, stopTick]);
 
-  // Si cambia el contenido (otro ítem / texto distinto), cortar voz.
   useEffect(() => {
     runIdRef.current += 1;
     stopTick();
@@ -286,17 +327,19 @@ export function LiteContenidoPlayer({
   }, [contenido, progressKey, stopTick]);
 
   const etiqueta = isPlaying
-    ? "Reproduciendo…"
+    ? focusIndex != null && focusIndex !== blockIndex
+      ? "Elegí el bloque…"
+      : "Reproduciendo…"
     : isPaused
       ? "En pausa"
-      : chunkIndex > 0
+      : blockIndex > 0
         ? "Continuar lectura"
         : "Escuchar contenido";
 
   const progressPct = `${Math.round(progress * 1000) / 10}%`;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" ref={rootRef}>
       <div className="lite-tts-bar">
         <div className="lite-tts-card">
           <div className="lite-tts-card-main">
@@ -305,9 +348,16 @@ export function LiteContenidoPlayer({
               onClick={handlePlay}
               disabled={isPlaying || !contenido.trim()}
               className="lite-tts-play"
-              aria-label={isPaused || chunkIndex > 0 ? "Continuar" : "Escuchar contenido"}
+              aria-label={
+                isPaused || blockIndex > 0 ? "Continuar" : "Escuchar contenido"
+              }
             >
-              <Play className="h-[15px] w-[15px]" fill="currentColor" strokeWidth={0} aria-hidden />
+              <Play
+                className="h-[15px] w-[15px]"
+                fill="currentColor"
+                strokeWidth={0}
+                aria-hidden
+              />
             </button>
 
             <div className="min-w-0 flex-1">
@@ -320,7 +370,11 @@ export function LiteContenidoPlayer({
                 </p>
               ) : !hasActive ? (
                 <p className="text-[11px] leading-tight text-[var(--lt-text-3)]">
-                  Lectura en voz alta
+                  Lectura en voz alta · scroll para saltar
+                </p>
+              ) : focusIndex != null ? (
+                <p className="text-[11px] leading-tight text-[var(--lt-text-3)]">
+                  Soltá para leer este bloque
                 </p>
               ) : null}
             </div>
@@ -342,7 +396,12 @@ export function LiteContenidoPlayer({
               className="lite-tts-ctrl"
               aria-label="Detener"
             >
-              <Square className="h-[12px] w-[12px]" fill="currentColor" strokeWidth={0} aria-hidden />
+              <Square
+                className="h-[12px] w-[12px]"
+                fill="currentColor"
+                strokeWidth={0}
+                aria-hidden
+              />
             </button>
           </div>
 
@@ -366,7 +425,23 @@ export function LiteContenidoPlayer({
       </div>
 
       <article className="lite-panel lite-prose p-5">
-        <ReactMarkdown>{contenido}</ReactMarkdown>
+        {blocks.map((block, i) => {
+          const playing = i === blockIndex && hasActive;
+          const focused = focusIndex === i;
+          return (
+            <div
+              key={i}
+              ref={(el) => {
+                blockElsRef.current[i] = el;
+              }}
+              className="lite-tts-block"
+              data-tts-active={playing ? "true" : undefined}
+              data-tts-focus={focused && !playing ? "true" : undefined}
+            >
+              <ReactMarkdown>{block.md}</ReactMarkdown>
+            </div>
+          );
+        })}
       </article>
     </div>
   );

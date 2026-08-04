@@ -3,7 +3,8 @@
  * por ítem (nunca global). Claves: contenido / conceptos + kind + id.
  */
 
-const STORAGE_PREFIX = "app-estudio-lite-tts-v1";
+/** v2: índice = bloque/concepto (no trozo plano de 160 chars). */
+const STORAGE_PREFIX = "app-estudio-lite-tts-v2";
 
 /** ~150 palabras/min en español (orientativo; no es preciso). */
 const WORDS_PER_MINUTE = 150;
