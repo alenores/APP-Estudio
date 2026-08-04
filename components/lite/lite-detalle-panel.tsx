@@ -10,6 +10,7 @@ import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { liteMedios } from "@/lib/academico-lite-media";
 import { liteHijosLabel, type LiteItem } from "@/lib/academico-lite-read";
+import { liteTtsProgressKey } from "@/lib/lite-tts-progress";
 import type { Concepto } from "@/app/types/estudio";
 
 type LiteDetallePanelProps = {
@@ -195,11 +196,17 @@ export function LiteDetallePanel({
           ) : null}
 
           {tab === "contenido" ? (
-            <LiteContenidoPlayer contenido={contenido} />
+            <LiteContenidoPlayer
+              contenido={contenido}
+              progressKey={liteTtsProgressKey("contenido", item.kind, item.id)}
+            />
           ) : null}
 
           {tab === "conceptos" ? (
-            <LiteConceptosPlayer conceptos={conceptos} />
+            <LiteConceptosPlayer
+              conceptos={conceptos}
+              progressKey={liteTtsProgressKey("conceptos", item.kind, item.id)}
+            />
           ) : null}
 
           {tabs.length === 0 ? (
