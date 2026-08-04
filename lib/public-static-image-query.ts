@@ -1,4 +1,4 @@
 /**
  * Bump al regenerar assets en `/public` para invalidar caché del navegador/PWA.
  */
-export const PUBLIC_STATIC_IMAGE_QUERY = "?v=app-estudio-3";
+export const PUBLIC_STATIC_IMAGE_QUERY = "?v=app-estudio-book-4";

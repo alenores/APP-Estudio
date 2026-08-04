@@ -9,11 +9,11 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "APP Estudio",
     short_name: PWA_HOME_ICON_LABEL,
     description: "Gestión personal del estudio en Platzi.",
-    start_url: "/",
+    start_url: "/lite",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#faf8f3",
-    theme_color: "#2c5282",
+    background_color: "#08090b",
+    theme_color: "#08090b",
     lang: "es-AR",
     icons: [
       {

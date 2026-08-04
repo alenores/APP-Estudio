@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { PreventViewportZoom } from "@/components/prevent-viewport-zoom";
+import { AppLaunchSplash } from "@/components/pwa/app-launch-splash";
+import { StandaloneStartRedirect } from "@/components/pwa/standalone-start-redirect";
 import { EstudioDataRoot } from "@/components/shared/data/estudio-data-root";
 import { DesarrollosDataRoot } from "@/components/shared/data/desarrollos-data-root";
 import { OfflineShellWarmup } from "@/components/shared/offline/offline-shell-warmup";
@@ -21,7 +23,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "APP Estudio",
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
   },
   formatDetection: {
     telephone: false,
@@ -34,7 +36,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover",
-  themeColor: "#2c5282",
+  themeColor: "#08090b",
 };
 
 export default function RootLayout({
@@ -52,7 +54,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="APP Estudio" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#2c5282" />
+        <meta name="theme-color" content="#08090b" />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true){localStorage.setItem("pwa-installed-v1","1");localStorage.setItem("pwa-ever-standalone-v1","1");}}catch(e){}})();`,
@@ -63,6 +65,8 @@ export default function RootLayout({
         <PreventViewportZoom />
         <ServiceWorkerRegister />
         <OfflineShellWarmup />
+        <StandaloneStartRedirect />
+        <AppLaunchSplash />
         <EstudioDataRoot>
           <DesarrollosDataRoot>{children}</DesarrollosDataRoot>
         </EstudioDataRoot>
