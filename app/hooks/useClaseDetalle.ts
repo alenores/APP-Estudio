@@ -1,7 +1,10 @@
 "use client";
 
 import { useEstudioData } from "@/app/hooks/useEstudioData";
-import { getClaseDetalleFromCache } from "@/lib/estudio-offline-read";
+import {
+  getClaseDetalleFromCache,
+  getSiguienteClaseIdFromCache,
+} from "@/lib/estudio-offline-read";
 import type { ClaseConDerivados, Concepto, Seguimiento } from "@/app/types/estudio";
 import { useCallback, useMemo } from "react";
 
@@ -21,11 +24,13 @@ export function useClaseDetalle(claseId: number | null) {
         clase: null as ClaseConDerivados | null,
         seguimientos: [] as Seguimiento[],
         conceptos: [] as Concepto[],
+        siguienteClaseId: null as number | null,
         notFound: false,
       };
     }
     const row = getClaseDetalleFromCache(cacheData, claseId);
-    return { ...row, notFound: !row.clase };
+    const siguienteClaseId = getSiguienteClaseIdFromCache(cacheData, claseId);
+    return { ...row, siguienteClaseId, notFound: !row.clase };
   }, [cacheData, claseId]);
 
   const loading = loadingPack && !cacheData;
@@ -43,6 +48,7 @@ export function useClaseDetalle(claseId: number | null) {
     clase: detalle.clase,
     seguimientos: detalle.seguimientos,
     conceptos: detalle.conceptos,
+    siguienteClaseId: detalle.siguienteClaseId,
     loading,
     error: error ?? localError,
     reload,

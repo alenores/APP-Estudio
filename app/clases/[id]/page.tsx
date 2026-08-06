@@ -17,7 +17,7 @@ type ClaseSheet = null | "seguimiento" | "concepto";
 
 export default function ClaseDetallePage() {
   const id = useRouteEntityId();
-  const { clase, seguimientos, conceptos, loading, error, reload, metrics } =
+  const { clase, seguimientos, conceptos, loading, error, reload, metrics, siguienteClaseId } =
     useClaseDetalleMetrics(id);
   const [sheet, setSheet] = useState<ClaseSheet>(null);
 
@@ -59,6 +59,7 @@ export default function ClaseDetallePage() {
           seguimientos={seguimientos}
           conceptos={conceptos}
           metrics={metrics}
+          siguienteClaseId={siguienteClaseId}
         />
       </AppShell>
 

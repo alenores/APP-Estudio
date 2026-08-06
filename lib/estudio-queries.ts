@@ -588,6 +588,18 @@ export async function insertSeguimiento(
   return { error: error?.message ?? null };
 }
 
+/** Auto-marcado al arrancar la reproducción de una clase (mismo efecto que cargarla a mano). */
+export async function marcarClaseComenzada(
+  userId: string,
+  claseId: number,
+): Promise<{ error: string | null }> {
+  return insertSeguimiento(userId, {
+    clase_id: claseId,
+    etiqueta_estado: "en curso",
+    fecha_comienzo: new Date().toISOString().slice(0, 10),
+  });
+}
+
 export type InsertConceptoInput = ConceptoFormValues & {
   tema_id?: number;
   curso_id?: number;
