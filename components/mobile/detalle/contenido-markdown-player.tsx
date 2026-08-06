@@ -1,11 +1,44 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useEstudioData } from "@/app/hooks/useEstudioData";
+import { normalizarEstado } from "@/lib/estado-ui";
+import { getSessionUserId, marcarClaseComenzada } from "@/lib/estudio-queries";
 
 type ContenidoMarkdownPlayerProps = {
   contenido: string;
+  /** Ausentes en usos sin ficha de clase (p. ej. modal del explorador PC): sin
+   * auto-marcado de estado ni autoplay encadenado, mismo comportamiento previo. */
+  claseId?: number;
+  claseNombre?: string;
+  estadoActual?: string | null;
+  siguienteClaseId?: number | null;
+  autoPlay?: boolean;
 };
+
+/** WAV de silencio (100ms, 8-bit/8kHz) en loop: mantiene el audio focus para que
+ * Chrome/Android no congele la pestaña cuando se bloquea la pantalla. */
+const SILENCIO_WAV_SRC =
+  "data:audio/wav;base64,UklGRkQDAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YSADAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+
+/** Clave del flag que la clase anterior deja para encadenar el autoplay. */
+const AUTOPLAY_SIGUIENTE_KEY = "estudio-autoplay-siguiente-clase-id";
+
+function marcarAutoplaySiguienteClase(claseId: number) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(AUTOPLAY_SIGUIENTE_KEY, String(claseId));
+}
+
+/** Lee y consume (borra) el flag de autoplay. Devuelve true si aplica a esta clase. */
+export function consumirAutoplaySiguienteClase(claseId: number): boolean {
+  if (typeof window === "undefined") return false;
+  const raw = window.sessionStorage.getItem(AUTOPLAY_SIGUIENTE_KEY);
+  if (raw == null) return false;
+  window.sessionStorage.removeItem(AUTOPLAY_SIGUIENTE_KEY);
+  return Number(raw) === claseId;
+}
 
 function splitIntoChunks(text: string, maxLen = 160): string[] {
   if (text.length <= maxLen) return [text];
@@ -126,12 +159,35 @@ const markdownComponents = {
   ),
 };
 
-export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerProps) {
+export function ContenidoMarkdownPlayer({
+  contenido,
+  claseId,
+  claseNombre,
+  estadoActual,
+  siguienteClaseId,
+  autoPlay = false,
+}: ContenidoMarkdownPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const silentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const router = useRouter();
+  const { refreshSnapshot } = useEstudioData();
 
   const hasActiveSynthesis = isPlaying || isPaused;
+
+  const marcarComenzadaSiCorresponde = useCallback(async () => {
+    if (claseId == null) return;
+    if (normalizarEstado(estadoActual ?? null) !== "sin empezar" && estadoActual != null) {
+      return;
+    }
+    const userId = await getSessionUserId();
+    if (!userId) return;
+    const { error } = await marcarClaseComenzada(userId, claseId);
+    if (!error) {
+      await refreshSnapshot();
+    }
+  }, [estadoActual, claseId, refreshSnapshot]);
 
   const handlePlay = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -167,6 +223,10 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
         utt.onend = () => {
           setIsPlaying(false);
           setIsPaused(false);
+          if (siguienteClaseId != null) {
+            marcarAutoplaySiguienteClase(siguienteClaseId);
+            router.push(`/clases/${siguienteClaseId}`);
+          }
         };
       }
       window.speechSynthesis.speak(utt);
@@ -174,7 +234,8 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
 
     setIsPlaying(true);
     setIsPaused(false);
-  }, [contenido, isPaused]);
+    void marcarComenzadaSiCorresponde();
+  }, [contenido, isPaused, siguienteClaseId, router, marcarComenzadaSiCorresponde]);
 
   const handlePause = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -205,6 +266,64 @@ export function ContenidoMarkdownPlayer({ contenido }: ContenidoMarkdownPlayerPr
       window.speechSynthesis.cancel();
     };
   }, []);
+
+  // Arranque automático al llegar encadenado desde la clase anterior.
+  const autoPlayTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!autoPlay || autoPlayTriggeredRef.current) return;
+    autoPlayTriggeredRef.current = true;
+    handlePlay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoPlay]);
+
+  // Audio silencioso en loop: sostiene el audio focus para que la lectura
+  // no se corte cuando se bloquea la pantalla (mejor esfuerzo, Android/Chrome).
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof Audio === "undefined") return;
+    const audio = new Audio(SILENCIO_WAV_SRC);
+    audio.loop = true;
+    silentAudioRef.current = audio;
+    return () => {
+      audio.pause();
+      silentAudioRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    const audio = silentAudioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      void audio.play().catch(() => {});
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying]);
+
+  // Media Session: metadata + controles desde la notificación / pantalla de bloqueo.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: claseNombre ?? "Clase",
+      artist: "APP Estudio",
+    });
+    navigator.mediaSession.setActionHandler("play", handlePlay);
+    navigator.mediaSession.setActionHandler("pause", handlePause);
+    navigator.mediaSession.setActionHandler("stop", handleStop);
+    return () => {
+      navigator.mediaSession.setActionHandler("play", null);
+      navigator.mediaSession.setActionHandler("pause", null);
+      navigator.mediaSession.setActionHandler("stop", null);
+    };
+  }, [claseNombre, handlePlay, handlePause, handleStop]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying
+      ? "playing"
+      : isPaused
+        ? "paused"
+        : "none";
+  }, [isPlaying, isPaused]);
 
   return (
     <div className="relative flex flex-col">

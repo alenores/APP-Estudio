@@ -202,3 +202,20 @@ export function getClaseDetalleFromCache(
     conceptos: conceptosPorClase(cache, claseId),
   };
 }
+
+/** Id de la clase siguiente dentro del mismo curso, según el orden del curso (autoplay). */
+export function getSiguienteClaseIdFromCache(
+  cache: EstudioOfflineCacheData,
+  claseId: number,
+): number | null {
+  const clase = cache.clases.find((c) => c.id === claseId) ?? null;
+  if (!clase) return null;
+
+  const clasesCurso = sortClases(
+    cache.clases.filter((c) => c.curso_id === clase.curso_id),
+  );
+  const idx = clasesCurso.findIndex((c) => c.id === claseId);
+  if (idx === -1 || idx === clasesCurso.length - 1) return null;
+
+  return clasesCurso[idx + 1].id;
+}
