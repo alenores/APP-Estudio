@@ -1736,11 +1736,17 @@ body:has(.lite-root) {
   --lt-accent-soft: rgba(62, 224, 143, 0.12);
   --lt-accent-line: rgba(62, 224, 143, 0.32);
 
+  /* Paleta de etapas propia de Lite (el acento #3ee08f no pinta estados). */
   --lt-estado-sin-registro: #6d7784;
-  --lt-estado-sin-empezar: #8b95a3;
-  --lt-estado-en-curso: #4cb2f8;
-  --lt-estado-pausado: #f2b544;
-  --lt-estado-terminado: #3ee08f;
+  --lt-estado-sin-empezar: #8a919a;
+  --lt-estado-sin-empezar-fill: #2a2a2a;
+  --lt-estado-sin-empezar-ink: rgba(255, 255, 255, 0.5);
+  --lt-estado-en-curso: #3a8bc4;
+  --lt-estado-en-curso-ink: #ffffff;
+  --lt-estado-pausado: #e8e0a8;
+  --lt-estado-pausado-ink: #5a5538;
+  --lt-estado-terminado: #4eaea4;
+  --lt-estado-terminado-ink: #ffffff;
 
   --lt-danger: #ff6b6b;
 
@@ -1961,18 +1967,46 @@ body:has(.lite-root) {
 
 .lite-estado--sin-registro {
   --lt-estado: var(--lt-estado-sin-registro);
+  --lt-estado-fill: var(--lt-estado-sin-empezar-fill);
+  --lt-estado-ink: var(--lt-estado-sin-empezar-ink);
 }
 .lite-estado--sin-empezar {
   --lt-estado: var(--lt-estado-sin-empezar);
+  --lt-estado-fill: var(--lt-estado-sin-empezar-fill);
+  --lt-estado-ink: var(--lt-estado-sin-empezar-ink);
 }
 .lite-estado--en-curso {
   --lt-estado: var(--lt-estado-en-curso);
+  --lt-estado-fill: var(--lt-estado-en-curso);
+  --lt-estado-ink: var(--lt-estado-en-curso-ink);
 }
 .lite-estado--pausado {
   --lt-estado: var(--lt-estado-pausado);
+  --lt-estado-fill: var(--lt-estado-pausado);
+  --lt-estado-ink: var(--lt-estado-pausado-ink);
 }
 .lite-estado--terminado {
   --lt-estado: var(--lt-estado-terminado);
+  --lt-estado-fill: var(--lt-estado-terminado);
+  --lt-estado-ink: var(--lt-estado-terminado-ink);
+}
+
+/* Franja / pastilla llena: mismo tono que el punto, con tinta de contraste. */
+.lite-estado-solid {
+  background: var(--lt-estado-fill);
+  color: var(--lt-estado-ink);
+}
+
+/* “Sin empezar” apagado también en la pastilla del listado. */
+.lite-estado.lite-estado--sin-empezar,
+.lite-estado.lite-estado--sin-registro {
+  background: var(--lt-estado-fill);
+  border-color: var(--lt-estado-fill);
+  color: var(--lt-estado-ink);
+}
+.lite-estado.lite-estado--sin-empezar .lite-estado-dot,
+.lite-estado.lite-estado--sin-registro .lite-estado-dot {
+  background: var(--lt-estado-ink);
 }
 
 .lite-estado-dot {

@@ -130,8 +130,10 @@ existentes no cambian de aspecto.
 
 Tokens: fondo `#08090b`, superficie `#14181d`, hairlines en `rgba(255,255,255,
 .07)`, texto `#f4f6f8` / `#a3adba` / `#6d7784`, acento único verde `#3ee08f`.
-Colores de estado propios (gris / celeste / ámbar / verde). Radios 18–24 px,
-tipografía Inter con `letter-spacing` negativo en títulos.
+Colores de estado propios, distintos del acento: sin empezar gris oscuro
+apagado `#2a2a2a`, en curso azul `#3a8bc4`, pausado amarillo pastel `#e8e0a8`,
+terminado verde agua `#4eaea4`. Radios 18–24 px, tipografía Inter con
+`letter-spacing` negativo en títulos.
 
 `app/page.tsx` adopta el mismo lenguaje — es la pantalla donde vive la entrada
 nueva y quedaba incoherente mantener el estilo viejo al lado.
