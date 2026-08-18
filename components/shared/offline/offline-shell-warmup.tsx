@@ -17,7 +17,7 @@ import {
  */
 
 /** Documentos de entrada que se aseguran en caché aunque no se hayan visitado. */
-const RUTAS_BASE = ["/", "/temas", "/desarrollos", "/pendientes"];
+const RUTAS_BASE = ["/", "/lite", "/temas", "/desarrollos", "/pendientes"];
 
 const SHA_KEY = "app-estudio-shell-warmup-sha-v1";
 

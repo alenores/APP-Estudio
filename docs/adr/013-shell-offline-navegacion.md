@@ -47,11 +47,11 @@ Causas encontradas:
    `window.location.pathname`; los params del documento pueden ser de otro id
    cuando se sirvió una shell. Regla: en las páginas de detalle **no** usar
    `useParams()` para el id de negocio.
-4. **Warm-up al abrir con red** (`OfflineShellWarmup`): guarda `/`, `/temas`,
-   `/desarrollos`, `/pendientes` y una shell por familia, tomando un id real del
-   paquete local. Así alcanza con haber abierto la app conectado una vez; no hace
-   falta haber visitado antes esa pantalla. Se rehace cuando cambia
-   `NEXT_PUBLIC_DEPLOY_SHA`.
+4. **Warm-up al abrir con red** (`OfflineShellWarmup`): guarda `/`, `/lite`
+   (start_url del ícono), `/temas`, `/desarrollos`, `/pendientes` y una shell
+   por familia, tomando un id real del paquete local. Así alcanza con haber
+   abierto la app conectado una vez; no hace falta haber visitado antes esa
+   pantalla. Se rehace cuando cambia `NEXT_PUBLIC_DEPLOY_SHA`.
 5. **Familias cubiertas** (`lib/pwa-offline-shell.ts`): `/temas`, `/cursos`,
    `/clases`, `/definicion-general`, `/definicion-especifica`, `/acciones`.
    Solo detalle plano (`/temas/12`); `/temas/12/cursos/nuevo` **no** es familia:
@@ -69,8 +69,8 @@ Causas encontradas:
 
 Con `npm run build && npm start`, abrir la app, y **apagar el servidor**
 (no basta con el modo offline del navegador: no siempre corta el fetch del SW).
-Debe funcionar: `/` → temas → tema → curso → clase, incluyendo el tab Contenido,
-sin haber visitado esas pantallas online.
+Debe funcionar: ícono → `/lite`, y `/` → temas → tema → curso → clase,
+incluyendo el tab Contenido, sin haber visitado esas pantallas online.
 
 ## Limitaciones conocidas
 
