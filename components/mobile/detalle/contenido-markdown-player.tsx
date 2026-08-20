@@ -176,6 +176,11 @@ export function ContenidoMarkdownPlayer({
 
   const hasActiveSynthesis = isPlaying || isPaused;
 
+  // Identifica la "corrida" de lectura activa: si cambia (stop, o un play
+  // nuevo pisando al anterior), las utterances viejas dejan de encadenarse
+  // solas al llegar tarde su onend.
+  const runIdRef = useRef(0);
+
   const marcarComenzadaSiCorresponde = useCallback(async () => {
     if (claseId == null) return;
     if (normalizarEstado(estadoActual ?? null) !== "sin empezar" && estadoActual != null) {
@@ -199,38 +204,47 @@ export function ContenidoMarkdownPlayer({
       return;
     }
 
+    const runId = ++runIdRef.current;
+    window.speechSynthesis.cancel();
+
     const voices = voicesRef.current.length > 0
       ? voicesRef.current
       : window.speechSynthesis.getVoices();
     const esVoice = voices.find(v => v.lang.startsWith("es"));
 
-    // Chrome Android falla con synthesis-failed para textos largos.
-    // Solución: dividir en chunks y encolarlos como utterances separadas.
+    // Chrome Android pierde utterances (o su onend) cuando se encolan todas
+    // de una para textos largos. Se encadenan de a una: la siguiente recién
+    // se manda al hablar terminar la anterior (mismo patrón que Lite).
     const chunks = splitIntoChunks(stripMarkdown(contenido));
 
-    chunks.forEach((chunk, i) => {
-      const utt = new SpeechSynthesisUtterance(chunk);
+    const speakChunk = (i: number) => {
+      if (runId !== runIdRef.current) return;
+
+      if (i >= chunks.length) {
+        setIsPlaying(false);
+        setIsPaused(false);
+        if (siguienteClaseId != null) {
+          marcarAutoplaySiguienteClase(siguienteClaseId);
+          router.push(`/clases/${siguienteClaseId}`);
+        }
+        return;
+      }
+
+      const utt = new SpeechSynthesisUtterance(chunks[i]);
       if (esVoice) {
         utt.voice = esVoice;
         utt.lang = esVoice.lang;
       }
       utt.onerror = () => {
-        window.speechSynthesis.cancel();
+        if (runId !== runIdRef.current) return;
         setIsPlaying(false);
         setIsPaused(false);
       };
-      if (i === chunks.length - 1) {
-        utt.onend = () => {
-          setIsPlaying(false);
-          setIsPaused(false);
-          if (siguienteClaseId != null) {
-            marcarAutoplaySiguienteClase(siguienteClaseId);
-            router.push(`/clases/${siguienteClaseId}`);
-          }
-        };
-      }
+      utt.onend = () => speakChunk(i + 1);
       window.speechSynthesis.speak(utt);
-    });
+    };
+
+    speakChunk(0);
 
     setIsPlaying(true);
     setIsPaused(false);
@@ -246,6 +260,7 @@ export function ContenidoMarkdownPlayer({
 
   const handleStop = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
+    runIdRef.current += 1;
     window.speechSynthesis.cancel();
     setIsPlaying(false);
     setIsPaused(false);
@@ -263,6 +278,7 @@ export function ContenidoMarkdownPlayer({
 
     return () => {
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+      runIdRef.current += 1;
       window.speechSynthesis.cancel();
     };
   }, []);
