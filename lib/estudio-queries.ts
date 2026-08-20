@@ -600,6 +600,17 @@ export async function marcarClaseComenzada(
   });
 }
 
+/** Auto-marcado al terminar de leer el contenido completo de una clase. */
+export async function marcarClaseTerminada(
+  userId: string,
+  claseId: number,
+): Promise<{ error: string | null }> {
+  return insertSeguimiento(userId, {
+    clase_id: claseId,
+    etiqueta_estado: "terminado",
+  });
+}
+
 export type InsertConceptoInput = ConceptoFormValues & {
   tema_id?: number;
   curso_id?: number;

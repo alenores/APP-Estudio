@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useEstudioData } from "@/app/hooks/useEstudioData";
 import { normalizarEstado } from "@/lib/estado-ui";
-import { getSessionUserId, marcarClaseComenzada } from "@/lib/estudio-queries";
+import {
+  getSessionUserId,
+  marcarClaseComenzada,
+  marcarClaseTerminada,
+} from "@/lib/estudio-queries";
 
 type ContenidoMarkdownPlayerProps = {
   contenido: string;
@@ -171,6 +175,7 @@ export function ContenidoMarkdownPlayer({
   const [isPaused, setIsPaused] = useState(false);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
   const silentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const router = useRouter();
   const { refreshSnapshot } = useEstudioData();
 
@@ -189,6 +194,17 @@ export function ContenidoMarkdownPlayer({
     const userId = await getSessionUserId();
     if (!userId) return;
     const { error } = await marcarClaseComenzada(userId, claseId);
+    if (!error) {
+      await refreshSnapshot();
+    }
+  }, [estadoActual, claseId, refreshSnapshot]);
+
+  const marcarTerminadaSiCorresponde = useCallback(async () => {
+    if (claseId == null) return;
+    if (normalizarEstado(estadoActual ?? null) === "terminado") return;
+    const userId = await getSessionUserId();
+    if (!userId) return;
+    const { error } = await marcarClaseTerminada(userId, claseId);
     if (!error) {
       await refreshSnapshot();
     }
@@ -223,6 +239,7 @@ export function ContenidoMarkdownPlayer({
       if (i >= chunks.length) {
         setIsPlaying(false);
         setIsPaused(false);
+        void marcarTerminadaSiCorresponde();
         if (siguienteClaseId != null) {
           marcarAutoplaySiguienteClase(siguienteClaseId);
           router.push(`/clases/${siguienteClaseId}`);
@@ -249,7 +266,14 @@ export function ContenidoMarkdownPlayer({
     setIsPlaying(true);
     setIsPaused(false);
     void marcarComenzadaSiCorresponde();
-  }, [contenido, isPaused, siguienteClaseId, router, marcarComenzadaSiCorresponde]);
+  }, [
+    contenido,
+    isPaused,
+    siguienteClaseId,
+    router,
+    marcarComenzadaSiCorresponde,
+    marcarTerminadaSiCorresponde,
+  ]);
 
   const handlePause = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -313,6 +337,49 @@ export function ContenidoMarkdownPlayer({
     } else {
       audio.pause();
     }
+  }, [isPlaying]);
+
+  // Wake Lock: mientras se lee, evita que el celular bloquee la pantalla solo.
+  // Se libera apenas se pausa/termina, así el bloqueo automático vuelve a la
+  // normalidad. Se re-pide si el documento vuelve a estar visible (el sistema
+  // libera el lock solo al ocultarse).
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("wakeLock" in navigator)) return;
+
+    let cancelled = false;
+
+    const requestWakeLock = async () => {
+      try {
+        const sentinel = await navigator.wakeLock.request("screen");
+        if (cancelled) {
+          void sentinel.release();
+          return;
+        }
+        wakeLockRef.current = sentinel;
+      } catch {
+        // Batería baja, permiso denegado, documento no visible: seguimos sin lock.
+      }
+    };
+
+    if (isPlaying) {
+      void requestWakeLock();
+    }
+
+    const onVisibilityChange = () => {
+      if (isPlaying && document.visibilityState === "visible" && !wakeLockRef.current) {
+        void requestWakeLock();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      if (wakeLockRef.current) {
+        void wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
+    };
   }, [isPlaying]);
 
   // Media Session: metadata + controles desde la notificación / pantalla de bloqueo.
