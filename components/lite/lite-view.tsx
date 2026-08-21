@@ -12,12 +12,17 @@ import { LiteVistasSheet, type CursosViewMode } from "@/components/lite/lite-vis
 import { LiteFiltrosBar } from "@/components/lite/lite-filtros-bar";
 import { LiteCursoGridCard } from "@/components/lite/lite-curso-grid-card";
 import { LiteCursoHeroCard } from "@/components/lite/lite-curso-hero-card";
+import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import {
   LITE_FILTROS_VACIOS,
   aplicarLiteFiltros,
   type LiteFiltros,
 } from "@/lib/academico-lite-filtros";
-import type { LiteEntityRef, LiteItem } from "@/lib/academico-lite-read";
+import {
+  liteKey,
+  type LiteEntityRef,
+  type LiteItem,
+} from "@/lib/academico-lite-read";
 import type { EstadoSeguimiento } from "@/lib/estado-ui";
 
 type TabLista = "temas" | "cursos";
@@ -79,6 +84,52 @@ export function LiteView() {
   }, []);
 
   const cerrar = useCallback(() => setPila([]), []);
+
+  /** Próxima clase del mismo curso (o próximo curso del mismo tema): mismo
+   * orden que la lista de hijos del padre. */
+  const siguienteHijo = useMemo<LiteEntityRef | null>(() => {
+    if (!actual?.parent) return null;
+    const hermanos = lite.getHijos(actual.parent.kind, actual.parent.id);
+    const idx = hermanos.findIndex(
+      (h) => h.kind === actual.kind && h.id === actual.id,
+    );
+    if (idx === -1 || idx === hermanos.length - 1) return null;
+    const siguiente = hermanos[idx + 1];
+    return { kind: siguiente.kind, id: siguiente.id };
+  }, [actual, lite]);
+
+  // Qué ítem debe arrancar solo al llegar encadenado, y si ya se consumió
+  // (arranca una sola vez por navegación, no de nuevo si se vuelve a abrir a mano).
+  const [autoPlay, setAutoPlay] = useState<{
+    objetivo: string | null;
+    visto: string | null;
+  }>({ objetivo: null, visto: null });
+
+  const avanzarASiguiente = useCallback((siguiente: LiteEntityRef) => {
+    setAutoPlay({ objetivo: liteKey(siguiente.kind, siguiente.id), visto: null });
+    setPila((actualPila) =>
+      actualPila.length > 0
+        ? [...actualPila.slice(0, -1), siguiente]
+        : [siguiente],
+    );
+  }, []);
+
+  const onEstadoAutoContenido = useCallback(
+    (estado: EstadoSeguimiento) => {
+      if (!actual) return;
+      void lite.guardarEstado(actual.kind, actual.id, estado);
+    },
+    [actual, lite],
+  );
+
+  const claveActual = actual ? liteKey(actual.kind, actual.id) : null;
+  const autoPlayContenido =
+    autoPlay.objetivo != null &&
+    autoPlay.objetivo === claveActual &&
+    autoPlay.visto !== claveActual;
+  if (autoPlayContenido) {
+    setAutoPlay((prev) => ({ ...prev, visto: claveActual }));
+  }
 
   const guardarEstado = useCallback(
     async (estado: EstadoSeguimiento) => {
@@ -212,6 +263,10 @@ export function LiteView() {
           onCerrar={cerrar}
           onEditarEstado={() => setEstadoSheetAbierto(true)}
           escapeActivo={!estadoSheetAbierto}
+          onEstadoAuto={onEstadoAutoContenido}
+          siguienteItem={siguienteHijo}
+          onAvanzarSiguiente={avanzarASiguiente}
+          autoPlayContenido={autoPlayContenido}
         />
       ) : null}
 
@@ -230,6 +285,8 @@ export function LiteView() {
         onSelect={setCursosView}
         onClose={() => setVistasSheetAbierto(false)}
       />
+
+      <DeployShaFooter />
     </div>
   );
 }

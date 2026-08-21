@@ -10,7 +10,7 @@ export function DeployShaFooter() {
 
   return (
     <p
-      className="deploy-sha-footer pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+0.25rem)] left-1.5 z-40 select-none font-mono text-[10px] font-semibold leading-none text-ink-muted/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+      className="deploy-sha-footer pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+0.25rem)] left-1.5 z-50 select-none font-mono text-[10px] font-semibold leading-none text-ink-muted/80 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
       aria-label={`Versión desplegada ${sha}`}
     >
       {sha}

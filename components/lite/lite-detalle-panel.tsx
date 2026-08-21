@@ -9,9 +9,14 @@ import { LiteContenidoPlayer } from "@/components/lite/lite-contenido-player";
 import { LiteEstadoBadge, LiteTipoBadge } from "@/components/lite/lite-badges";
 import { LiteLinkPreview } from "@/components/lite/lite-link-preview";
 import { liteMedios } from "@/lib/academico-lite-media";
-import { liteHijosLabel, type LiteItem } from "@/lib/academico-lite-read";
+import {
+  liteHijosLabel,
+  type LiteEntityRef,
+  type LiteItem,
+} from "@/lib/academico-lite-read";
 import { liteTtsProgressKey } from "@/lib/lite-tts-progress";
 import type { Concepto } from "@/app/types/estudio";
+import type { EstadoSeguimiento } from "@/lib/estado-ui";
 
 type LiteDetallePanelProps = {
   item: LiteItem;
@@ -25,6 +30,13 @@ type LiteDetallePanelProps = {
   onEditarEstado: () => void;
   /** `false` mientras hay un sheet encima: Escape le corresponde a esa capa. */
   escapeActivo: boolean;
+  /** Alta automática de estado desde el reproductor de contenido (ADR 012 §6). */
+  onEstadoAuto: (estado: EstadoSeguimiento) => void;
+  /** Próxima clase del mismo curso, para encadenar la lectura sola al terminar. */
+  siguienteItem: LiteEntityRef | null;
+  onAvanzarSiguiente: (siguiente: LiteEntityRef) => void;
+  /** Arranque automático al llegar encadenado desde la clase anterior. */
+  autoPlayContenido: boolean;
 };
 
 type TabId = "hijos" | "contenido" | "conceptos";
@@ -52,6 +64,10 @@ export function LiteDetallePanel({
   onCerrar,
   onEditarEstado,
   escapeActivo,
+  onEstadoAuto,
+  siguienteItem,
+  onAvanzarSiguiente,
+  autoPlayContenido,
 }: LiteDetallePanelProps) {
   const medios = liteMedios(item);
   const externo = medios.find((m) => m.href) ?? null;
@@ -199,6 +215,12 @@ export function LiteDetallePanel({
             <LiteContenidoPlayer
               contenido={contenido}
               progressKey={liteTtsProgressKey("contenido", item.kind, item.id)}
+              titulo={item.nombre}
+              estadoActual={item.estado}
+              onEstadoAuto={onEstadoAuto}
+              siguienteItem={siguienteItem}
+              onAvanzarSiguiente={onAvanzarSiguiente}
+              autoPlay={autoPlayContenido}
             />
           ) : null}
 
