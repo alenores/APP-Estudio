@@ -14,11 +14,23 @@ import {
   readLiteTtsProgress,
   writeLiteTtsProgress,
 } from "@/lib/lite-tts-progress";
+import { normalizarEstado, type EstadoSeguimiento } from "@/lib/estado-ui";
+import type { LiteEntityRef } from "@/lib/academico-lite-read";
 
 type LiteContenidoPlayerProps = {
   contenido: string;
   /** Clave local por ítem (kind+id). Obligatorio: nunca avance global. */
   progressKey: string;
+  /** Nombre del ítem, para el título en Media Session (notificación/lock screen). */
+  titulo?: string;
+  estadoActual?: EstadoSeguimiento | null;
+  /** Alta automática de estado (único registro que permite lite, ADR 012 §6). */
+  onEstadoAuto?: (estado: EstadoSeguimiento) => void;
+  /** Ítem siguiente dentro del mismo padre, para encadenar solo al terminar. */
+  siguienteItem?: LiteEntityRef | null;
+  onAvanzarSiguiente?: (siguiente: LiteEntityRef) => void;
+  /** Arranque automático al llegar encadenado desde el ítem anterior. */
+  autoPlay?: boolean;
 };
 
 /**
@@ -28,12 +40,19 @@ type LiteContenidoPlayerProps = {
 export function LiteContenidoPlayer({
   contenido,
   progressKey,
+  titulo,
+  estadoActual,
+  onEstadoAuto,
+  siguienteItem,
+  onAvanzarSiguiente,
+  autoPlay = false,
 }: LiteContenidoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [blockIndex, setBlockIndex] = useState(0);
   const [fractionInBlock, setFractionInBlock] = useState(0);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const runIdRef = useRef(0);
   const blockIndexRef = useRef(0);
   const chunkInBlockRef = useRef(0);
@@ -151,6 +170,12 @@ export function LiteContenidoPlayer({
           setFractionInBlock(0);
           setIsPlaying(false);
           setIsPaused(false);
+          if (normalizarEstado(estadoActual ?? null) !== "terminado") {
+            onEstadoAuto?.("terminado");
+          }
+          if (siguienteItem) {
+            onAvanzarSiguiente?.(siguienteItem);
+          }
           return;
         }
 
@@ -211,7 +236,17 @@ export function LiteContenidoPlayer({
 
       speakBlock(Math.max(0, Math.min(startBlock, blocks.length - 1)), startChunk);
     },
-    [blocks, persist, progressKey, startTick, stopTick],
+    [
+      blocks,
+      persist,
+      progressKey,
+      startTick,
+      stopTick,
+      estadoActual,
+      onEstadoAuto,
+      siguienteItem,
+      onAvanzarSiguiente,
+    ],
   );
 
   speakFromRef.current = speakFrom;
@@ -253,6 +288,10 @@ export function LiteContenidoPlayer({
       return;
     }
 
+    if (normalizarEstado(estadoActual ?? null) === "sin empezar" || estadoActual == null) {
+      onEstadoAuto?.("en curso");
+    }
+
     const start =
       blockIndexRef.current > 0 && blockIndexRef.current < blocks.length
         ? blockIndexRef.current
@@ -260,7 +299,7 @@ export function LiteContenidoPlayer({
     const startChunk =
       start === blockIndexRef.current ? chunkInBlockRef.current : 0;
     speakFrom(start, startChunk);
-  }, [blocks, isPaused, speakFrom, startTick]);
+  }, [blocks, isPaused, speakFrom, startTick, estadoActual, onEstadoAuto]);
 
   const handlePause = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -270,6 +309,83 @@ export function LiteContenidoPlayer({
     setIsPlaying(false);
     setIsPaused(true);
   }, [persist, stopTick]);
+
+  // Arranque automático al llegar encadenado desde el ítem anterior.
+  const autoPlayTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!autoPlay || autoPlayTriggeredRef.current) return;
+    autoPlayTriggeredRef.current = true;
+    handlePlay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoPlay]);
+
+  // Wake Lock: mientras se lee, evita que el celular bloquee la pantalla solo
+  // (Android corta la síntesis de voz al bloquear). Se libera al pausar/parar/
+  // terminar, y se re-pide si el documento vuelve a estar visible.
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("wakeLock" in navigator)) return;
+
+    let cancelled = false;
+
+    const requestWakeLock = async () => {
+      try {
+        const sentinel = await navigator.wakeLock.request("screen");
+        if (cancelled) {
+          void sentinel.release();
+          return;
+        }
+        wakeLockRef.current = sentinel;
+      } catch {
+        // Batería baja, permiso denegado, documento no visible: seguimos sin lock.
+      }
+    };
+
+    if (isPlaying) {
+      void requestWakeLock();
+    }
+
+    const onVisibilityChange = () => {
+      if (isPlaying && document.visibilityState === "visible" && !wakeLockRef.current) {
+        void requestWakeLock();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      if (wakeLockRef.current) {
+        void wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
+    };
+  }, [isPlaying]);
+
+  // Media Session: controles desde la notificación / pantalla de bloqueo.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: titulo ?? "Clase",
+      artist: "APP Estudio",
+    });
+    navigator.mediaSession.setActionHandler("play", handlePlay);
+    navigator.mediaSession.setActionHandler("pause", handlePause);
+    navigator.mediaSession.setActionHandler("stop", stopAll);
+    return () => {
+      navigator.mediaSession.setActionHandler("play", null);
+      navigator.mediaSession.setActionHandler("pause", null);
+      navigator.mediaSession.setActionHandler("stop", null);
+    };
+  }, [titulo, handlePlay, handlePause, stopAll]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying
+      ? "playing"
+      : isPaused
+        ? "paused"
+        : "none";
+  }, [isPlaying, isPaused]);
 
   useEffect(() => {
     const saved = readLiteTtsProgress(progressKey, fingerprint);
