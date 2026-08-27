@@ -310,15 +310,6 @@ export function LiteContenidoPlayer({
     setIsPaused(true);
   }, [persist, stopTick]);
 
-  // Arranque automático al llegar encadenado desde el ítem anterior.
-  const autoPlayTriggeredRef = useRef(false);
-  useEffect(() => {
-    if (!autoPlay || autoPlayTriggeredRef.current) return;
-    autoPlayTriggeredRef.current = true;
-    handlePlay();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoPlay]);
-
   // Wake Lock: mientras se lee, evita que el celular bloquee la pantalla solo
   // (Android corta la síntesis de voz al bloquear). Se libera al pausar/parar/
   // terminar, y se re-pide si el documento vuelve a estar visible.
@@ -441,6 +432,18 @@ export function LiteContenidoPlayer({
     setIsPlaying(false);
     setIsPaused(false);
   }, [contenido, progressKey, stopTick]);
+
+  // Arranque automático al llegar encadenado desde el ítem anterior. Va al
+  // final a propósito: tiene que correr después del efecto de arriba (que
+  // cancela cualquier síntesis en curso también al montar), si no lo cancela
+  // apenas arranca.
+  const autoPlayTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!autoPlay || autoPlayTriggeredRef.current) return;
+    autoPlayTriggeredRef.current = true;
+    handlePlay();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoPlay]);
 
   const etiqueta = isPlaying
     ? focusIndex != null && focusIndex !== blockIndex
