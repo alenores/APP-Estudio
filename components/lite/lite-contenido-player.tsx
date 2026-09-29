@@ -2,7 +2,14 @@
 
 import { Pause, Play, Square } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLiteTtsFollowScroll } from "@/app/hooks/useLiteTtsFollowScroll";
 import { splitMarkdownIntoTtsBlocks } from "@/lib/lite-tts-blocks";
 import {
@@ -31,6 +38,8 @@ type LiteContenidoPlayerProps = {
   onAvanzarSiguiente?: (siguiente: LiteEntityRef) => void;
   /** Arranque automático al llegar encadenado desde el ítem anterior. */
   autoPlay?: boolean;
+  /** Avisa que el arranque automático ya se disparó (para no repetirlo). */
+  onAutoPlayConsumido?: () => void;
 };
 
 /**
@@ -46,6 +55,7 @@ export function LiteContenidoPlayer({
   siguienteItem,
   onAvanzarSiguiente,
   autoPlay = false,
+  onAutoPlayConsumido,
 }: LiteContenidoPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -210,7 +220,8 @@ export function LiteContenidoPlayer({
             utt.voice = esVoice;
             utt.lang = esVoice.lang;
           }
-          utt.onerror = () => {
+          utt.onerror = (ev) => {
+            console.warn("[lite-autoplay] voz: error de síntesis", ev.error);
             if (runId !== runIdRef.current) return;
             stopTick();
             persist(
@@ -289,6 +300,7 @@ export function LiteContenidoPlayer({
     }
 
     if (normalizarEstado(estadoActual ?? null) === "sin empezar" || estadoActual == null) {
+      console.info("[lite-autoplay] estado: marco en curso", progressKey);
       onEstadoAuto?.("en curso");
     }
 
@@ -299,7 +311,7 @@ export function LiteContenidoPlayer({
     const startChunk =
       start === blockIndexRef.current ? chunkInBlockRef.current : 0;
     speakFrom(start, startChunk);
-  }, [blocks, isPaused, speakFrom, startTick, estadoActual, onEstadoAuto]);
+  }, [blocks, isPaused, speakFrom, startTick, estadoActual, onEstadoAuto, progressKey]);
 
   const handlePause = useCallback(() => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -437,12 +449,32 @@ export function LiteContenidoPlayer({
   // final a propósito: tiene que correr después del efecto de arriba (que
   // cancela cualquier síntesis en curso también al montar), si no lo cancela
   // apenas arranca.
+  // Pequeña demora: en Chrome Android un speak() pegado al cancel() del
+  // reproductor anterior a veces se descarta en silencio. El candado se toma
+  // dentro del timeout para que el doble montaje de StrictMode no lo anule.
   const autoPlayTriggeredRef = useRef(false);
-  useEffect(() => {
-    if (!autoPlay || autoPlayTriggeredRef.current) return;
-    autoPlayTriggeredRef.current = true;
+  const dispararAutoPlay = useEffectEvent(() => {
+    console.info("[lite-autoplay] reproductor: disparo play automático", {
+      progressKey,
+      estadoActual,
+      speaking: window.speechSynthesis?.speaking,
+      pending: window.speechSynthesis?.pending,
+    });
     handlePlay();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    onAutoPlayConsumido?.();
+  });
+  useEffect(() => {
+    console.info("[lite-autoplay] reproductor: montado", {
+      autoPlay,
+      yaDisparado: autoPlayTriggeredRef.current,
+    });
+    if (!autoPlay || autoPlayTriggeredRef.current) return;
+    const timer = setTimeout(() => {
+      if (autoPlayTriggeredRef.current) return;
+      autoPlayTriggeredRef.current = true;
+      dispararAutoPlay();
+    }, 300);
+    return () => clearTimeout(timer);
   }, [autoPlay]);
 
   const etiqueta = isPlaying
