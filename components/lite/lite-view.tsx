@@ -98,15 +98,15 @@ export function LiteView() {
     return { kind: siguiente.kind, id: siguiente.id };
   }, [actual, lite]);
 
-  // Qué ítem debe arrancar solo al llegar encadenado, y si ya se consumió
-  // (arranca una sola vez por navegación, no de nuevo si se vuelve a abrir a mano).
-  const [autoPlay, setAutoPlay] = useState<{
-    objetivo: string | null;
-    visto: string | null;
-  }>({ objetivo: null, visto: null });
+  // Qué ítem debe arrancar solo al llegar encadenado. Lo consume el propio
+  // reproductor una vez que disparó el play (antes se marcaba "visto" en pleno
+  // render: React re-renderizaba antes de montar al hijo y el reproductor nunca
+  // llegaba a ver `autoPlay = true`).
+  const [autoPlayObjetivo, setAutoPlayObjetivo] = useState<string | null>(null);
 
   const avanzarASiguiente = useCallback((siguiente: LiteEntityRef) => {
-    setAutoPlay({ objetivo: liteKey(siguiente.kind, siguiente.id), visto: null });
+    console.info("[lite-autoplay] vista: avanzo al siguiente", siguiente);
+    setAutoPlayObjetivo(liteKey(siguiente.kind, siguiente.id));
     setPila((actualPila) =>
       actualPila.length > 0
         ? [...actualPila.slice(0, -1), siguiente]
@@ -124,12 +124,11 @@ export function LiteView() {
 
   const claveActual = actual ? liteKey(actual.kind, actual.id) : null;
   const autoPlayContenido =
-    autoPlay.objetivo != null &&
-    autoPlay.objetivo === claveActual &&
-    autoPlay.visto !== claveActual;
-  if (autoPlayContenido) {
-    setAutoPlay((prev) => ({ ...prev, visto: claveActual }));
-  }
+    autoPlayObjetivo != null && autoPlayObjetivo === claveActual;
+  const consumirAutoPlay = useCallback(() => {
+    console.info("[lite-autoplay] vista: aviso de autoplay consumido");
+    setAutoPlayObjetivo(null);
+  }, []);
 
   const guardarEstado = useCallback(
     async (estado: EstadoSeguimiento) => {
@@ -267,6 +266,7 @@ export function LiteView() {
           siguienteItem={siguienteHijo}
           onAvanzarSiguiente={avanzarASiguiente}
           autoPlayContenido={autoPlayContenido}
+          onAutoPlayConsumido={consumirAutoPlay}
         />
       ) : null}
 

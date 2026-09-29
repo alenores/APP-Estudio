@@ -37,6 +37,7 @@ type LiteDetallePanelProps = {
   onAvanzarSiguiente: (siguiente: LiteEntityRef) => void;
   /** Arranque automático al llegar encadenado desde la clase anterior. */
   autoPlayContenido: boolean;
+  onAutoPlayConsumido: () => void;
 };
 
 type TabId = "hijos" | "contenido" | "conceptos";
@@ -68,6 +69,7 @@ export function LiteDetallePanel({
   siguienteItem,
   onAvanzarSiguiente,
   autoPlayContenido,
+  onAutoPlayConsumido,
 }: LiteDetallePanelProps) {
   const medios = liteMedios(item);
   const externo = medios.find((m) => m.href) ?? null;
@@ -95,7 +97,11 @@ export function LiteDetallePanel({
     return disponibles;
   }, [hijos.length, contenido, conceptos.length, item.kind]);
 
-  const [tabElegida, setTabElegida] = useState<TabId | null>(null);
+  // Llegando encadenado, abrir directo en Contenido: si el ítem tiene hijos la
+  // pestaña por defecto sería esa y el reproductor ni se montaría.
+  const [tabElegida, setTabElegida] = useState<TabId | null>(() =>
+    autoPlayContenido && contenido ? "contenido" : null,
+  );
 
   const tab =
     tabElegida && tabs.some((t) => t.id === tabElegida)
@@ -221,6 +227,7 @@ export function LiteDetallePanel({
               siguienteItem={siguienteItem}
               onAvanzarSiguiente={onAvanzarSiguiente}
               autoPlay={autoPlayContenido}
+              onAutoPlayConsumido={onAutoPlayConsumido}
             />
           ) : null}
 
