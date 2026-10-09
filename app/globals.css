@@ -2552,6 +2552,51 @@ body:has(.lite-root) {
   font-style: italic;
 }
 
+/* —— Lo último: clases empezadas, arriba de Temas (ADR 012 §10) —— */
+.lite-recientes {
+  border-radius: var(--lt-radius-card);
+  border: 1px solid var(--lt-line);
+  background: var(--lt-surface);
+  box-shadow: var(--lt-shadow-card);
+  overflow: hidden;
+}
+
+.lite-recientes-row,
+.lite-recientes-mas {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: none;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  transition: background 160ms ease, transform 140ms ease;
+}
+
+.lite-recientes-row + .lite-recientes-row,
+.lite-recientes-mas {
+  border-top: 1px solid var(--lt-line);
+}
+
+.lite-recientes-mas {
+  justify-content: center;
+  padding-top: 11px;
+  padding-bottom: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.004em;
+  color: var(--lt-accent);
+}
+
+.lite-recientes-row:active,
+.lite-recientes-mas:active {
+  transform: scale(0.985);
+  background: var(--lt-surface-hover);
+}
+
 /* —— Sheet de estado —— */
 .lite-sheet-backdrop {
   position: fixed;
@@ -2575,12 +2620,19 @@ body:has(.lite-root) {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+.lite-sheet-scroll {
+  max-height: min(62dvh, 560px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .lite-sheet-grab {
   width: 38px;
   height: 4px;
   border-radius: 999px;
   background: var(--lt-line-strong);
   margin: 10px auto 2px;
+  flex: none;
 }
 
 .lite-option {
@@ -2633,7 +2685,9 @@ body:has(.lite-root) {
   .lite-card,
   .lite-icon-btn,
   .lite-option,
-  .lite-cta {
+  .lite-cta,
+  .lite-recientes-row,
+  .lite-recientes-mas {
     transition: none;
   }
 }

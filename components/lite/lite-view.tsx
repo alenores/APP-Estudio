@@ -12,6 +12,7 @@ import { LiteVistasSheet, type CursosViewMode } from "@/components/lite/lite-vis
 import { LiteFiltrosBar } from "@/components/lite/lite-filtros-bar";
 import { LiteCursoGridCard } from "@/components/lite/lite-curso-grid-card";
 import { LiteCursoHeroCard } from "@/components/lite/lite-curso-hero-card";
+import { LiteRecientes } from "@/components/lite/lite-recientes";
 import { DeployShaFooter } from "@/components/deploy-sha-footer";
 import {
   LITE_FILTROS_VACIOS,
@@ -78,6 +79,23 @@ export function LiteView() {
   const abrir = useCallback((item: LiteItem) => {
     setPila((actualPila) => [...actualPila, { kind: item.kind, id: item.id }]);
   }, []);
+
+  /** Desde «Lo último» la clase no está anidada en la pantalla: armamos la pila
+   * tema → curso → clase para que volver recorra los mismos niveles. */
+  const getItem = lite.getItem;
+  const abrirClaseComenzada = useCallback(
+    (clase: LiteItem) => {
+      const siguiente: LiteEntityRef[] = [];
+      if (clase.parent?.kind === "curso") {
+        const curso = getItem("curso", clase.parent.id);
+        if (curso?.parent) siguiente.push(curso.parent);
+        siguiente.push(clase.parent);
+      }
+      siguiente.push({ kind: "clase", id: clase.id });
+      setPila(siguiente);
+    },
+    [getItem],
+  );
 
   const volver = useCallback(() => {
     setPila((actualPila) => actualPila.slice(0, -1));
@@ -203,6 +221,15 @@ export function LiteView() {
           <p className="mt-4 rounded-2xl border border-[var(--lt-danger)]/30 bg-[var(--lt-danger)]/10 px-4 py-3 text-[13.5px] text-[var(--lt-danger)]">
             {lite.error}
           </p>
+        ) : null}
+
+        {tab === "temas" && !lite.loading && lite.comenzadas.length > 0 ? (
+          <div className="mt-4">
+            <LiteRecientes
+              clases={lite.comenzadas}
+              onSelect={abrirClaseComenzada}
+            />
+          </div>
         ) : null}
 
         <div className="mt-4">

@@ -74,7 +74,8 @@ cerrar vuelve al listado.
 
 El detalle muestra descripción, y en pestañas: **hijos** (cursos o clases),
 **contenido** (`clases.contenido_markdown`) y **conceptos**. **No** muestra el
-historial ni el detalle de seguimientos.
+historial ni el detalle de seguimientos. El listado de lo último (§10) no
+cambia esto: es otra pieza, arriba de las cards de Temas.
 
 ### 6. Única escritura: el estado
 
@@ -146,12 +147,32 @@ El panel de detalle y el sheet de estado **aparecen instantáneos**: nada de
 únicas transiciones son de estado sobre elementos ya montados (pulgar del
 control segmentado, hover de cards), con `prefers-reduced-motion` cubierto.
 
+### 10. Lo último estudiado, solo en Temas
+
+Arriba de las cards de la pestaña **Temas** hay un bloque con las últimas
+**4** clases que tuvieron un seguimiento `etiqueta_estado = en curso` — al
+reproducir (`marcarClaseComenzada`) o al elegir ese estado a mano. Si después
+quedaron pausadas o terminadas, siguen en la lista. Cada clase entra **una
+sola vez**: manda la marca `en curso` más reciente (`fecha_registro`). Orden:
+esa fecha, de la más nueva a la más vieja.
+
+Tocar una fila abre el detalle de esa clase, con la pila tema → curso → clase.
+
+**Más** abre un sheet (mismo patrón que el de estado: panel instantáneo, fade
+del velo) con **todas** esas clases y la fecha de esa marca. No está en la
+pestaña Cursos. Los filtros del listado no lo recortan.
+
+La fecha no es un dato nuevo: sale del seguimiento que ya existe. Sigue
+prohibido mostrar en lite porcentajes, tiempos, niveles y el historial
+completo de seguimientos dentro del detalle (§4 y §5).
+
 ## Consecuencias
 
 - Un cambio de schema en la serie académico impacta lite: revisar
   `lib/academico-lite-read.ts` junto con ADR 002.
 - Lite es **de consumo**. Todo pedido de "agregar un dato de seguimiento" a esta
-  pantalla contradice §6: se resuelve en académico, no acá.
+  pantalla contradice §6, salvo el bloque de lo último (§10), que solo muestra
+  la fecha en que la clase pasó a en curso. El resto se resuelve en académico.
 - El lenguaje `--lt-*` es el candidato natural si en el futuro se rediseñan
   otras pantallas; hoy su alcance es `/` y `/lite`.
 
@@ -163,6 +184,7 @@ control segmentado, hover de cards), con `prefers-reduced-motion` cubierto.
 | Proyección del snapshot | `lib/academico-lite-read.ts` |
 | Medio (video / documento) | `lib/academico-lite-media.ts` |
 | Filtros puros | `lib/academico-lite-filtros.ts` |
+| Lo último (clases empezadas) | `lib/academico-lite-recientes.ts`, `components/lite/lite-recientes.tsx` |
 | Hook + alta de estado | `app/hooks/useAcademicoLite.ts` |
 | Pantalla | `app/lite/page.tsx`, `components/lite/lite-view.tsx` |
 | Detalle en pila | `components/lite/lite-detalle-panel.tsx` |
