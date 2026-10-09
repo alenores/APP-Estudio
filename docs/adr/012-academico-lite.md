@@ -150,16 +150,18 @@ control segmentado, hover de cards), con `prefers-reduced-motion` cubierto.
 ### 10. Lo último estudiado, solo en Temas
 
 Arriba de las cards de la pestaña **Temas** hay un bloque con las últimas
-**4** clases que tuvieron un seguimiento `etiqueta_estado = en curso` — al
-reproducir (`marcarClaseComenzada`) o al elegir ese estado a mano. Si después
-quedaron pausadas o terminadas, siguen en la lista. Cada clase entra **una
-sola vez**: manda la marca `en curso` más reciente (`fecha_registro`). Orden:
-esa fecha, de la más nueva a la más vieja.
+**4** clases y cursos que tuvieron un seguimiento `etiqueta_estado = en curso`
+— la clase al reproducir (`marcarClaseComenzada`) o al elegir ese estado a
+mano; el curso al elegirlo a mano. Si después quedaron pausados o terminados,
+siguen en la lista. Cada uno entra **una sola vez**: manda la marca `en curso`
+más reciente (`fecha_registro`). Clases y cursos van mezclados, de la más
+nueva a la más vieja. Los temas no entran.
 
-Tocar una fila abre el detalle de esa clase, con la pila tema → curso → clase.
+Tocar una fila abre el detalle, con la pila tema → curso → clase, o tema →
+curso.
 
 **Más** abre un sheet (mismo patrón que el de estado: panel instantáneo, fade
-del velo) con **todas** esas clases y la fecha de esa marca. No está en la
+del velo) con **todos** esos ítems y la fecha de esa marca. No está en la
 pestaña Cursos. Los filtros del listado no lo recortan.
 
 La fecha no es un dato nuevo: sale del seguimiento que ya existe. Sigue
@@ -172,7 +174,7 @@ completo de seguimientos dentro del detalle (§4 y §5).
   `lib/academico-lite-read.ts` junto con ADR 002.
 - Lite es **de consumo**. Todo pedido de "agregar un dato de seguimiento" a esta
   pantalla contradice §6, salvo el bloque de lo último (§10), que solo muestra
-  la fecha en que la clase pasó a en curso. El resto se resuelve en académico.
+  la fecha en que la clase o el curso pasó a en curso. El resto se resuelve en académico.
 - El lenguaje `--lt-*` es el candidato natural si en el futuro se rediseñan
   otras pantallas; hoy su alcance es `/` y `/lite`.
 

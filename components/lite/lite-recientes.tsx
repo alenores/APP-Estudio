@@ -6,29 +6,29 @@ import { createPortal } from "react-dom";
 import { formatFechaCalendario } from "@/lib/format-fecha-calendario";
 import {
   LITE_RECIENTES_VISIBLES,
-  type LiteClaseComenzada,
+  type LiteEmpezado,
 } from "@/lib/academico-lite-recientes";
 import type { LiteItem } from "@/lib/academico-lite-read";
 import { hapticOpen } from "@/lib/haptic";
 
 type LiteRecientesProps = {
-  clases: LiteClaseComenzada[];
-  onSelect: (clase: LiteItem) => void;
+  filas: LiteEmpezado[];
+  onSelect: (item: LiteItem) => void;
 };
 
 /**
- * Arriba del listado de Temas: las últimas clases empezadas, y el historial
- * completo en un sheet (ADR 012 §10). Panel instantáneo, fade solo del velo.
+ * Arriba del listado de Temas: las últimas clases y cursos empezados, y el
+ * historial completo en un sheet (ADR 012 §10). Panel instantáneo, fade solo del velo.
  */
-export function LiteRecientes({ clases, onSelect }: LiteRecientesProps) {
+export function LiteRecientes({ filas, onSelect }: LiteRecientesProps) {
   const [abierto, setAbierto] = useState(false);
-  const visibles = clases.slice(0, LITE_RECIENTES_VISIBLES);
+  const visibles = filas.slice(0, LITE_RECIENTES_VISIBLES);
 
-  if (clases.length === 0) return null;
+  if (filas.length === 0) return null;
 
-  const elegir = (clase: LiteItem) => {
+  const elegir = (item: LiteItem) => {
     setAbierto(false);
-    onSelect(clase);
+    onSelect(item);
   };
 
   return (
@@ -36,10 +36,10 @@ export function LiteRecientes({ clases, onSelect }: LiteRecientesProps) {
       <p className="lite-eyebrow mb-2">Lo último</p>
       <div className="lite-recientes">
         {visibles.map((fila) => (
-          <FilaClase
-            key={fila.clase.id}
+          <FilaEmpezado
+            key={`${fila.item.kind}-${fila.item.id}`}
             fila={fila}
-            onSelect={() => elegir(fila.clase)}
+            onSelect={() => elegir(fila.item)}
           />
         ))}
         <button
@@ -53,7 +53,7 @@ export function LiteRecientes({ clases, onSelect }: LiteRecientesProps) {
 
       <HistorialSheet
         open={abierto}
-        clases={clases}
+        filas={filas}
         onSelect={elegir}
         onClose={() => setAbierto(false)}
       />
@@ -61,26 +61,26 @@ export function LiteRecientes({ clases, onSelect }: LiteRecientesProps) {
   );
 }
 
-function FilaClase({
+function FilaEmpezado({
   fila,
   onSelect,
   conFecha = false,
 }: {
-  fila: LiteClaseComenzada;
+  fila: LiteEmpezado;
   onSelect: () => void;
   conFecha?: boolean;
 }) {
-  const curso = fila.clase.parentNombre;
+  const padre = fila.item.parentNombre;
 
   return (
     <button type="button" className="lite-recientes-row" onClick={onSelect}>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[14.5px] font-semibold leading-snug text-[var(--lt-text)]">
-          {fila.clase.nombre}
+          {fila.item.nombre}
         </span>
-        {curso ? (
+        {padre ? (
           <span className="mt-0.5 block truncate text-[12px] text-[var(--lt-text-3)]">
-            {curso}
+            {padre}
           </span>
         ) : null}
       </span>
@@ -100,13 +100,13 @@ function FilaClase({
 
 function HistorialSheet({
   open,
-  clases,
+  filas,
   onSelect,
   onClose,
 }: {
   open: boolean;
-  clases: LiteClaseComenzada[];
-  onSelect: (clase: LiteItem) => void;
+  filas: LiteEmpezado[];
+  onSelect: (item: LiteItem) => void;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -136,7 +136,7 @@ function HistorialSheet({
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Historial de clases empezadas"
+        aria-label="Historial de lo último que estudiaste"
         className="lite-sheet"
       >
         <div className="lite-sheet-grab" aria-hidden />
@@ -145,12 +145,12 @@ function HistorialSheet({
           <p className="lite-title mt-1">Historial</p>
           <div className="lite-sheet-scroll mt-4">
             <div className="lite-recientes">
-              {clases.map((fila) => (
-                <FilaClase
-                  key={fila.clase.id}
+              {filas.map((fila) => (
+                <FilaEmpezado
+                  key={`${fila.item.kind}-${fila.item.id}`}
                   fila={fila}
                   conFecha
-                  onSelect={() => onSelect(fila.clase)}
+                  onSelect={() => onSelect(fila.item)}
                 />
               ))}
             </div>

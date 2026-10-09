@@ -80,18 +80,20 @@ export function LiteView() {
     setPila((actualPila) => [...actualPila, { kind: item.kind, id: item.id }]);
   }, []);
 
-  /** Desde «Lo último» la clase no está anidada en la pantalla: armamos la pila
-   * tema → curso → clase para que volver recorra los mismos niveles. */
+  /** Desde «Lo último» el ítem no está anidado en la pantalla: armamos la pila
+   * (tema → curso → clase, o tema → curso) para que volver recorra los mismos niveles. */
   const getItem = lite.getItem;
-  const abrirClaseComenzada = useCallback(
-    (clase: LiteItem) => {
+  const abrirEmpezado = useCallback(
+    (item: LiteItem) => {
       const siguiente: LiteEntityRef[] = [];
-      if (clase.parent?.kind === "curso") {
-        const curso = getItem("curso", clase.parent.id);
+      if (item.kind === "clase" && item.parent?.kind === "curso") {
+        const curso = getItem("curso", item.parent.id);
         if (curso?.parent) siguiente.push(curso.parent);
-        siguiente.push(clase.parent);
+        siguiente.push(item.parent);
+      } else if (item.kind === "curso" && item.parent) {
+        siguiente.push(item.parent);
       }
-      siguiente.push({ kind: "clase", id: clase.id });
+      siguiente.push({ kind: item.kind, id: item.id });
       setPila(siguiente);
     },
     [getItem],
@@ -226,8 +228,8 @@ export function LiteView() {
         {tab === "temas" && !lite.loading && lite.comenzadas.length > 0 ? (
           <div className="mt-4">
             <LiteRecientes
-              clases={lite.comenzadas}
-              onSelect={abrirClaseComenzada}
+              filas={lite.comenzadas}
+              onSelect={abrirEmpezado}
             />
           </div>
         ) : null}

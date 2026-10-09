@@ -10,8 +10,8 @@ import {
   type LiteSnapshot,
 } from "@/lib/academico-lite-read";
 import {
-  clasesComenzadas,
-  type LiteClaseComenzada,
+  empezados,
+  type LiteEmpezado,
 } from "@/lib/academico-lite-recientes";
 import { getSessionUserId, insertSeguimiento } from "@/lib/estudio-queries";
 import type { EstadoSeguimiento } from "@/lib/estado-ui";
@@ -28,8 +28,8 @@ export type UseAcademicoLite = {
   getItem: (kind: LiteEntityKind, id: number) => LiteItem | null;
   getHijos: (kind: LiteEntityKind, id: number) => LiteItem[];
   getConceptos: (kind: LiteEntityKind, id: number) => Concepto[];
-  /** Clases que pasaron a «en curso», de la más reciente a la más vieja. */
-  comenzadas: LiteClaseComenzada[];
+  /** Clases y cursos que pasaron a «en curso», de la más reciente a la más vieja. */
+  comenzadas: LiteEmpezado[];
   /** Único dato de seguimiento editable en lite (ADR 012). */
   guardarEstado: (
     kind: LiteEntityKind,
@@ -61,8 +61,13 @@ export function useAcademicoLite(): UseAcademicoLite {
   const snapshot = useMemo(() => buildLiteSnapshot(cacheData), [cacheData]);
 
   const comenzadas = useMemo(
-    () => clasesComenzadas(cacheData?.seguimientos ?? [], snapshot.clases),
-    [cacheData, snapshot.clases],
+    () =>
+      empezados(
+        cacheData?.seguimientos ?? [],
+        snapshot.cursos,
+        snapshot.clases,
+      ),
+    [cacheData, snapshot.cursos, snapshot.clases],
   );
 
   const getItem = useCallback(
